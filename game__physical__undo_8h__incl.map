@@ -1,17 +1,22 @@
 <map id="game_physical_undo.h" name="game_physical_undo.h">
-<area shape="rect" id="Node000001" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="395,5,566,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="311,79,426,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="464,33,400,73,397,69,461,28"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="439,152,522,177"/>
-<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="483,31,483,138,478,138,478,31"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="547,152,617,177"/>
-<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="491,30,568,139,564,142,487,33"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,87,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="317,107,101,154,99,149,316,101"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="111,152,261,177"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="340,107,230,149,228,144,338,102"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="285,152,415,177"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="368,105,359,140,354,138,363,104"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="388,102,452,142,449,147,385,106"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="404,101,535,145,534,150,402,107"/>
+<area shape="rect" id="Node000001" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="418,5,589,31"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="289,79,403,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="479,33,385,75,383,71,477,28"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="389,225,460,251"/>
+<area shape="poly" id="edge12_Node000001_Node000007" title=" " alt="" coords="516,29,537,57,558,95,566,116,569,137,567,159,559,179,542,198,520,213,474,231,472,226,518,208,538,194,554,176,562,157,564,138,561,117,553,97,532,60,512,33"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="462,152,545,177"/>
+<area shape="poly" id="edge11_Node000001_Node000008" title=" " alt="" coords="506,31,506,138,501,138,501,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="305,152,387,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="349,104,349,138,343,138,343,104"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="159,225,309,251"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="289,97,255,102,221,113,189,129,164,153,160,170,167,186,182,202,201,216,198,220,179,206,162,189,154,170,160,151,186,125,219,108,254,97,288,92"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,225,135,251"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="289,105,222,123,187,137,154,154,117,184,89,216,85,213,113,180,151,150,185,132,220,118,288,100"/>
+<area shape="rect" id="Node000006" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="174,152,281,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="328,106,260,147,257,142,326,102"/>
+<area shape="poly" id="edge10_Node000002_Node000007" title=" " alt="" coords="361,102,381,124,400,151,414,181,422,211,417,212,409,183,396,153,377,127,357,106"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="372,102,466,144,464,149,370,106"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="231,177,234,212,229,212,226,178"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="203,180,109,222,107,217,201,175"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="260,175,380,218,379,223,258,180"/>
 </map>

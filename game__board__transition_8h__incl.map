@@ -1,0 +1,33 @@
+<map id="game_board_transition.h" name="game_board_transition.h">
+<area shape="rect" id="Node000001" title="Apply board machine output via position_t and post&#45;move hooks." alt="" coords="371,5,555,31"/>
+<area shape="rect" id="Node000002" href="$game__board__machine_8h.html" title="Physical board state machine (lift/drop); does not write position_t." alt="" coords="438,79,617,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="476,29,510,67,506,70,472,33"/>
+<area shape="rect" id="Node000003" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="249,152,363,177"/>
+<area shape="poly" id="edge18_Node000001_Node000003" title=" " alt="" coords="447,33,384,81,326,143,322,139,380,77,443,29"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="479,299,549,324"/>
+<area shape="poly" id="edge20_Node000001_Node000008" title=" " alt="" coords="543,28,590,46,612,60,631,77,654,112,661,146,662,181,663,225,666,239,663,252,643,274,617,289,590,300,563,307,562,302,588,295,615,285,639,270,658,249,661,239,658,226,656,182,656,146,649,114,627,80,609,64,588,51,541,33"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="394,225,477,251"/>
+<area shape="poly" id="edge19_Node000001_Node000009" title=" " alt="" coords="455,33,440,54,429,79,423,115,422,151,432,212,426,213,417,151,417,114,423,78,436,51,451,30"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="493,107,355,150,354,145,491,101"/>
+<area shape="poly" id="edge17_Node000002_Node000008" title=" " alt="" coords="548,102,585,128,623,164,638,185,647,207,649,230,640,252,625,270,606,284,564,303,562,298,603,280,621,266,636,249,643,229,642,208,633,188,619,168,581,132,545,106"/>
+<area shape="poly" id="edge16_Node000002_Node000009" title=" " alt="" coords="518,106,480,153,448,214,443,212,476,151,514,103"/>
+<area shape="rect" id="Node000010" href="$position_8h.html" title="Standalone chess position." alt="" coords="489,152,576,177"/>
+<area shape="poly" id="edge12_Node000002_Node000010" title=" " alt="" coords="531,104,533,138,528,139,526,105"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,225,87,251"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="265,180,101,225,99,219,264,175"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="55,299,205,324"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="249,177,197,194,173,209,152,227,138,255,133,285,127,284,133,253,148,224,170,204,195,190,248,172"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="233,299,363,324"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="308,178,302,285,297,285,303,178"/>
+<area shape="rect" id="Node000007" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="162,225,269,251"/>
+<area shape="poly" id="edge6_Node000003_Node000007" title=" " alt="" coords="293,179,243,219,239,214,290,175"/>
+<area shape="poly" id="edge11_Node000003_Node000008" title=" " alt="" coords="316,176,344,211,384,249,425,273,467,291,464,296,422,278,380,253,340,215,312,179"/>
+<area shape="poly" id="edge10_Node000003_Node000009" title=" " alt="" coords="328,175,403,216,401,221,326,180"/>
+<area shape="poly" id="edge7_Node000007_Node000005" title=" " alt="" coords="203,253,156,292,153,288,200,249"/>
+<area shape="poly" id="edge8_Node000007_Node000006" title=" " alt="" coords="230,249,276,287,272,292,227,253"/>
+<area shape="poly" id="edge9_Node000007_Node000008" title=" " alt="" coords="264,248,466,296,465,301,263,253"/>
+<area shape="poly" id="edge15_Node000010_Node000008" title=" " alt="" coords="534,178,520,285,515,285,528,177"/>
+<area shape="poly" id="edge13_Node000010_Node000009" title=" " alt="" coords="519,180,464,219,461,215,515,175"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="551,225,626,251"/>
+<area shape="poly" id="edge14_Node000010_Node000011" title=" " alt="" coords="544,176,573,213,569,216,540,179"/>
+</map>

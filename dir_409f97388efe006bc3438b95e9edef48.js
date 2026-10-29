@@ -2,6 +2,7 @@ var dir_409f97388efe006bc3438b95e9edef48 =
 [
     [ "ble_task", "dir_3025f62cdd7409871711088d484faaf0.html", "dir_3025f62cdd7409871711088d484faaf0" ],
     [ "button_task", "dir_862d50d9bf3f5ceb46867d0cb4c38d54.html", "dir_862d50d9bf3f5ceb46867d0cb4c38d54" ],
+    [ "chess_core", "dir_6dfcda40586a169b8ba53860854af1f7.html", "dir_6dfcda40586a169b8ba53860854af1f7" ],
     [ "config_manager", "dir_8da852bb64bdd94ab698cdb4daee3f25.html", "dir_8da852bb64bdd94ab698cdb4daee3f25" ],
     [ "freertos_chess", "dir_5c6c08d104c204cc3ac851f4559ad479.html", "dir_5c6c08d104c204cc3ac851f4559ad479" ],
     [ "game_hooks", "dir_f067225367bf49de6601d2b9061b511b.html", "dir_f067225367bf49de6601d2b9061b511b" ],

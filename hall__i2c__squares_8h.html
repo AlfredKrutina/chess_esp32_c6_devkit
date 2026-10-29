@@ -314,7 +314,7 @@ Functions</h2></td></tr>
 <p>After boot, light a1, h1, h8, a8 one at a time. </p>
 <p>Place a piece on the lit square and leave it. Logs which segment/field moved. Does not change the map. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02027">2027</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02071">2071</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -334,7 +334,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02029">2029</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02073">2073</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -362,7 +362,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02013">2013</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02057">2057</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -391,7 +391,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Debounced color, or HALL_PIECE_COLOR_NONE. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02123">2123</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02167">2167</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -420,7 +420,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Debounced type, or HALL_PIECE_TYPE_NONE. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02092">2092</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02136">2136</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -453,7 +453,7 @@ Functions</h2></td></tr>
 <p>Last energy, both deviations, occupancy and named piece. </p>
 <dl class="section return"><dt>Returns</dt><dd>false on a reed build or a square outside 0..63. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02103">2103</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02147">2147</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -475,7 +475,7 @@ Functions</h2></td></tr>
 
 <p>True when type and color were named while the piece was still seated. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02081">2081</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02125">2125</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -498,7 +498,7 @@ Functions</h2></td></tr>
 <p>Install the Hall I2C master and clear per-square POC state. </p>
 <p>Reed builds do not touch the bus. </p><dl class="section return"><dt>Returns</dt><dd>ESP_OK, or the I2C driver error. Reed builds return ESP_OK. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02005">2005</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02049">2049</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -537,7 +537,7 @@ Functions</h2></td></tr>
 <p>One confirmed landing. </p>
 <p>Learns how strongly this square reads, for pawn, knight and bishop only. Classification uses that gain after four samples. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02134">2134</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02178">2178</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -566,7 +566,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>"WHITE", "BLACK", or "----". </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02073">2073</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02117">2117</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -595,7 +595,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>"Pawn" … "King", or "None". </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02061">2061</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02105">2105</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -618,7 +618,7 @@ Functions</h2></td></tr>
 <p>I2C only. </p>
 <p>Safe to call without squares_mutex. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02019">2019</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02063">2063</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -658,7 +658,7 @@ Functions</h2></td></tr>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK if the slave answered, ESP_ERR_INVALID_ARG if the segment is out of range, ESP_ERR_INVALID_STATE if init has not run, ESP_ERR_NOT_SUPPORTED on a reed build, otherwise the I2C error. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02007">2007</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02051">2051</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -681,7 +681,7 @@ Functions</h2></td></tr>
 <p>Copy the prepared scan into occupancy and Hall type/color. </p>
 <p>Call under the mutex. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02021">2021</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02065">2065</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -720,7 +720,7 @@ Functions</h2></td></tr>
 <p>One raw STM payload: 32 little-endian samples (16 fields × 2 sensors). </p>
 <p>addr_out is set even when the read fails, so the console can show 0x30–0x33. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02032">2032</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02076">2076</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -743,7 +743,7 @@ Functions</h2></td></tr>
 <p>Whether occupancy readings are safe to compare with the logical board. </p>
 <p>Hall: true once every square has a baseline that was not taken from a magnet and the trimmed-mean ring is full. A square that has not named its piece yet still counts, so one unsettled magnet cannot keep the guide off. Reed builds have no Hall baseline and always return true. </p><dl class="section return"><dt>Returns</dt><dd>true when a scan may be trusted for guard / restore. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02043">2043</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02087">2087</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -763,7 +763,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02030">2030</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02074">2074</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -785,7 +785,7 @@ Functions</h2></td></tr>
 
 <p>How many segments this build reads (1…4). </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02025">2025</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02069">2069</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -807,7 +807,7 @@ Functions</h2></td></tr>
 
 <p>True when every configured segment returned a payload on the last prepare. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02045">2045</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02089">2089</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -846,7 +846,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02047">2047</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02091">2091</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -866,7 +866,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02199">2199</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02243">2243</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -889,7 +889,7 @@ Functions</h2></td></tr>
 <p>Short click. </p>
 <p>Prints one energy integer when a sample exists. </p>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02215">2215</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02259">2259</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -910,7 +910,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>locked square, or 255 when the bench is off or not locked yet. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02207">2207</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02251">2251</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -933,7 +933,7 @@ Functions</h2></td></tr>
 <p>Magnet-strength bench. </p>
 <p>Lights one square. Each short click prints one energy integer and nothing else. square &gt;= 64 stays dark until a click locks the only occupied square. </p><dl class="section return"><dt>Returns</dt><dd>false on a reed build. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02158">2158</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02202">2202</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>
@@ -953,7 +953,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02182">2182</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="hall__i2c__squares_8c_source.html#l02226">2226</a> of file <a class="el" href="hall__i2c__squares_8c_source.html">hall_i2c_squares.c</a>.</p>
 
 </div>
 </div>

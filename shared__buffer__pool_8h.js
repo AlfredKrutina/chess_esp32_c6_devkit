@@ -16,5 +16,6 @@ var shared__buffer__pool_8h =
     [ "buffer_pool_print_status", "shared__buffer__pool_8h.html#a78258eeac6ef7d0f8d2cf999f0605b0c", null ],
     [ "get_shared_buffer_debug", "shared__buffer__pool_8h.html#a985626f60ba733d611f238158cd15aac", null ],
     [ "release_shared_buffer", "shared__buffer__pool_8h.html#a2dcea7230ff8c3509b7b7adaeba9874e", null ],
-    [ "shared_buffer_capacity", "shared__buffer__pool_8h.html#a07be563151e4cf513ed36188d3e4e388", null ]
+    [ "shared_buffer_capacity", "shared__buffer__pool_8h.html#a07be563151e4cf513ed36188d3e4e388", null ],
+    [ "shared_buffer_pair_free", "shared__buffer__pool_8h.html#a72340901070f90947c45729563cca142", null ]
 ];

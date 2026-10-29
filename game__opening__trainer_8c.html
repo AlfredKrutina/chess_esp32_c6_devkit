@@ -102,9 +102,15 @@ $(document).ready(function(){initNavTree('game__opening__trainer_8c.html',''); i
 
 <p>Interactive opening line trainer — multi-ply UCI validation + virtual opponent.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__led__direct_8h_source.html">game_led_direct.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__events_8h_source.html">game_events.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__machine_8h_source.html">game_board_machine.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__snapshot_8h_source.html">game_snapshot.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__squares__guard_8h_source.html">game_squares_guard.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__mode_8h_source.html">game_mode.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__transition_8h_source.html">game_board_transition.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__task_8h_source.html">../led_task/include/led_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="squares__task_8h_source.html">../squares_task/include/squares_task.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="hall__i2c__squares_8h_source.html">../squares_task/include/hall_i2c_squares.h</a>&quot;</code><br />
@@ -118,94 +124,136 @@ Include dependency graph for game_opening_trainer.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__opening__trainer_8c__incl.png" border="0" usemap="#agame__opening__trainer_8c" alt=""/></div>
 <map name="agame__opening__trainer_8c" id="agame__opening__trainer_8c">
-<area shape="rect" title="Interactive opening line trainer — multi&#45;ply UCI validation + virtual opponent." alt="" coords="1832,5,2011,31"/>
-<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="1722,86,1884,111"/>
-<area shape="poly" title=" " alt="" coords="1906,33,1834,80,1831,76,1903,29"/>
-<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1635,167,1742,192"/>
-<area shape="poly" title=" " alt="" coords="1832,26,1800,33,1767,44,1737,59,1712,80,1701,97,1694,115,1690,153,1684,153,1689,114,1696,94,1708,77,1734,55,1765,39,1798,28,1831,21"/>
-<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="1902,167,2053,192"/>
-<area shape="poly" title=" " alt="" coords="1928,30,1956,118,1970,153,1965,155,1951,120,1923,32"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="489,79,629,119"/>
-<area shape="poly" title=" " alt="" coords="1832,27,643,95,643,90,1832,22"/>
-<area shape="rect" href="squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="294,79,464,119"/>
-<area shape="poly" title=" " alt="" coords="1832,21,1598,22,1265,29,877,47,676,62,478,81,477,76,676,56,877,41,1265,23,1598,16,1832,16"/>
-<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="120,240,291,280"/>
-<area shape="poly" title=" " alt="" coords="1832,23,1458,27,956,36,504,54,353,66,307,73,283,81,267,95,253,112,232,150,219,191,212,227,206,226,213,190,227,148,248,109,263,91,280,76,305,68,353,61,504,49,956,31,1458,21,1832,17"/>
-<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="2377,167,2496,192"/>
-<area shape="poly" title=" " alt="" coords="1929,30,1955,73,1976,97,2000,116,2049,140,2092,154,2132,161,2171,162,2254,158,2302,159,2358,164,2363,165,2363,170,2357,169,2302,164,2254,164,2171,167,2131,166,2091,159,2047,145,1998,121,1972,101,1951,77,1925,32"/>
-<area shape="rect" title=" " alt="" coords="2010,86,2094,111"/>
-<area shape="poly" title=" " alt="" coords="1942,29,2023,76,2020,81,1940,33"/>
-<area shape="rect" title=" " alt="" coords="2119,86,2218,111"/>
-<area shape="poly" title=" " alt="" coords="1958,28,2120,79,2119,84,1957,33"/>
-<area shape="rect" title=" " alt="" coords="2242,86,2308,111"/>
-<area shape="poly" title=" " alt="" coords="2005,28,2113,47,2230,76,2238,79,2236,84,2229,81,2112,53,2004,33"/>
-<area shape="rect" title=" " alt="" coords="2333,86,2404,111"/>
-<area shape="poly" title=" " alt="" coords="2011,24,2158,43,2240,57,2321,76,2330,79,2329,84,2320,81,2239,63,2157,48,2011,30"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="1832,247,1947,273"/>
-<area shape="poly" title=" " alt="" coords="1812,110,1879,234,1874,237,1807,113"/>
-<area shape="rect" title=" " alt="" coords="2002,328,2153,353"/>
-<area shape="poly" title=" " alt="" coords="1885,109,2103,140,2193,155,2234,164,2253,193,2260,222,2254,251,2237,282,2223,298,2206,311,2167,328,2165,323,2203,306,2219,294,2233,278,2249,249,2254,222,2248,195,2231,169,2192,160,2102,146,1884,114"/>
-<area shape="rect" title=" " alt="" coords="1833,328,1962,353"/>
-<area shape="poly" title=" " alt="" coords="1885,108,2085,137,2168,152,2207,165,2226,194,2233,223,2226,252,2207,282,2177,296,2118,310,1976,332,1975,327,2117,304,2175,291,2204,278,2221,250,2227,223,2221,196,2204,169,2167,158,2084,143,1884,113"/>
-<area shape="rect" title=" " alt="" coords="1526,328,1608,353"/>
-<area shape="poly" title=" " alt="" coords="1802,112,1789,145,1767,190,1736,239,1697,282,1659,308,1619,326,1616,321,1656,303,1693,278,1732,236,1762,188,1784,143,1797,110"/>
-<area shape="rect" title=" " alt="" coords="1672,328,1742,353"/>
-<area shape="poly" title=" " alt="" coords="1885,107,1993,129,2039,145,2056,154,2068,165,2072,178,2068,193,2057,243,2047,263,2027,282,1987,296,1915,311,1757,335,1756,330,1914,306,1986,291,2024,278,2043,259,2052,241,2063,191,2066,179,2063,168,2053,159,2037,150,1992,134,1884,112"/>
-<area shape="rect" title=" " alt="" coords="969,247,1106,273"/>
-<area shape="poly" title=" " alt="" coords="1746,114,1120,243,1100,247,1099,242,1118,237,1745,109"/>
-<area shape="rect" title=" " alt="" coords="1272,247,1403,273"/>
-<area shape="poly" title=" " alt="" coords="1770,114,1385,245,1384,240,1769,109"/>
-<area shape="poly" title=" " alt="" coords="1788,114,1718,161,1715,157,1785,109"/>
-<area shape="rect" title=" " alt="" coords="165,328,246,353"/>
-<area shape="poly" title=" " alt="" coords="1832,270,1668,283,1244,305,830,323,260,341,260,335,830,317,1243,300,1668,277,1832,264"/>
-<area shape="poly" title=" " alt="" coords="1918,270,2039,320,2037,325,1916,275"/>
-<area shape="poly" title=" " alt="" coords="1893,273,1898,314,1892,314,1888,273"/>
-<area shape="poly" title=" " alt="" coords="1844,275,1814,283,1622,329,1621,324,1813,277,1843,270"/>
-<area shape="poly" title=" " alt="" coords="1864,275,1747,325,1745,320,1862,270"/>
-<area shape="poly" title=" " alt="" coords="1719,190,1849,240,1847,245,1717,194"/>
-<area shape="poly" title=" " alt="" coords="1635,191,1554,210,1509,224,1467,242,1452,252,1443,263,1432,273,1416,283,1344,297,1220,309,880,326,518,337,260,341,260,336,518,331,879,321,1219,303,1343,291,1414,277,1429,269,1439,259,1449,248,1464,238,1508,219,1552,205,1634,186"/>
-<area shape="poly" title=" " alt="" coords="1742,180,1795,184,1856,194,1921,212,1982,238,2007,254,2029,275,2064,315,2060,318,2026,279,2003,259,1979,242,1919,217,1855,200,1794,190,1742,185"/>
-<area shape="poly" title=" " alt="" coords="1742,182,1803,189,1868,200,1925,216,1946,226,1961,238,1967,249,1968,261,1961,283,1945,304,1926,321,1923,317,1941,300,1956,280,1963,260,1962,251,1957,242,1943,231,1923,221,1867,205,1802,194,1742,187"/>
-<area shape="poly" title=" " alt="" coords="1692,192,1689,234,1682,259,1670,282,1645,307,1615,325,1612,320,1642,303,1666,278,1677,257,1683,233,1686,192"/>
-<area shape="poly" title=" " alt="" coords="1697,191,1707,213,1715,240,1718,279,1714,314,1709,314,1712,279,1710,240,1702,215,1692,193"/>
-<area shape="poly" title=" " alt="" coords="1635,187,1410,206,1265,222,1119,243,1097,247,1096,242,1119,237,1264,216,1409,200,1634,181"/>
-<area shape="poly" title=" " alt="" coords="1638,195,1402,247,1401,242,1637,189"/>
-<area shape="rect" title=" " alt="" coords="1131,247,1248,273"/>
-<area shape="poly" title=" " alt="" coords="1635,189,1468,209,1261,243,1243,247,1242,241,1260,237,1467,204,1635,183"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="1478,240,1656,280"/>
-<area shape="poly" title=" " alt="" coords="1672,194,1609,235,1606,230,1669,190"/>
-<area shape="poly" title=" " alt="" coords="1478,280,1459,283,1282,300,1102,313,752,331,456,339,260,342,260,336,456,334,752,326,1101,308,1282,294,1459,277,1477,275"/>
-<area shape="poly" title=" " alt="" coords="1570,280,1570,314,1564,314,1564,280"/>
-<area shape="poly" title=" " alt="" coords="1602,278,1675,319,1673,323,1599,282"/>
-<area shape="poly" title=" " alt="" coords="1966,194,1914,240,1911,236,1963,190"/>
-<area shape="poly" title=" " alt="" coords="1982,192,1982,235,1975,260,1960,282,1829,305,1622,334,1622,329,1828,300,1957,278,1970,258,1976,235,1977,192"/>
-<area shape="poly" title=" " alt="" coords="1989,191,2000,210,2011,233,2014,259,2005,282,1992,290,1970,297,1904,312,1757,336,1756,330,1903,307,1968,292,1990,285,2001,278,2009,258,2005,235,1996,212,1984,194"/>
-<area shape="poly" title=" " alt="" coords="489,119,256,180,151,214,116,229,98,242,92,260,99,279,122,304,153,321,151,326,119,308,94,281,86,260,94,238,114,224,149,209,254,175,488,114"/>
-<area shape="poly" title=" " alt="" coords="515,121,486,141,464,168,449,199,442,226,446,252,463,278,478,284,509,291,611,302,918,320,1260,330,1512,336,1512,341,1260,336,918,325,610,307,508,296,476,289,460,282,441,254,437,226,444,197,459,165,483,137,512,117"/>
-<area shape="poly" title=" " alt="" coords="545,121,521,155,500,197,493,219,492,241,496,261,507,278,525,285,564,292,689,303,1056,316,1620,325,1658,330,1658,335,1620,331,1056,321,689,308,563,297,524,290,504,282,491,263,486,241,488,218,495,195,517,152,541,118"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="765,167,894,192"/>
-<area shape="poly" title=" " alt="" coords="625,116,778,160,776,165,623,121"/>
-<area shape="poly" title=" " alt="" coords="895,182,1668,237,1818,250,1818,255,1668,243,894,188"/>
-<area shape="poly" title=" " alt="" coords="765,184,597,187,390,196,291,204,206,214,143,226,122,234,110,242,104,251,103,259,111,279,132,303,159,320,157,325,128,307,106,281,98,259,99,249,106,238,120,229,141,221,205,208,291,198,389,191,597,182,765,178"/>
-<area shape="poly" title=" " alt="" coords="847,190,911,238,933,261,943,270,957,277,1026,291,1144,301,1463,314,1783,320,1975,325,1989,326,1988,332,1975,331,1783,325,1463,319,1144,307,1025,296,955,283,940,274,930,265,908,242,844,194"/>
-<area shape="poly" title=" " alt="" coords="838,191,866,236,887,259,913,278,969,291,1066,302,1329,315,1754,325,1819,330,1819,336,1753,331,1329,320,1066,307,968,297,911,282,884,263,861,239,833,194"/>
-<area shape="poly" title=" " alt="" coords="824,193,814,212,806,235,804,258,813,278,826,287,849,295,917,308,1010,318,1117,326,1338,334,1511,337,1511,342,1338,339,1116,331,1009,324,917,313,847,300,824,291,809,282,799,259,801,234,809,210,820,191"/>
-<area shape="poly" title=" " alt="" coords="832,192,838,235,847,259,863,278,881,286,910,294,997,306,1109,313,1234,318,1476,322,1620,325,1658,330,1658,335,1620,331,1476,327,1234,323,1109,318,996,311,909,299,879,292,860,282,843,262,833,237,827,193"/>
-<area shape="poly" title=" " alt="" coords="861,190,995,240,994,245,859,195"/>
-<area shape="poly" title=" " alt="" coords="895,185,1061,206,1261,237,1281,242,1280,247,1260,243,1060,211,894,190"/>
-<area shape="poly" title=" " alt="" coords="890,189,1118,237,1134,241,1133,246,1117,243,889,195"/>
-<area shape="rect" title=" " alt="" coords="646,247,742,273"/>
-<area shape="poly" title=" " alt="" coords="811,194,727,243,724,238,808,190"/>
-<area shape="rect" title=" " alt="" coords="518,247,622,273"/>
-<area shape="poly" title=" " alt="" coords="793,195,621,246,620,241,791,189"/>
-<area shape="poly" title=" " alt="" coords="294,109,222,121,145,146,108,163,73,184,42,210,16,241,9,259,12,275,24,288,44,300,96,318,152,330,151,335,95,324,41,305,21,292,7,277,3,259,11,239,38,207,70,180,105,158,143,141,221,116,293,103"/>
-<area shape="poly" title=" " alt="" coords="381,119,383,154,390,198,407,242,420,262,436,278,452,284,485,289,590,300,906,317,1511,336,1511,341,906,322,590,305,484,295,451,289,434,282,416,265,403,245,385,200,378,155,376,119"/>
-<area shape="poly" title=" " alt="" coords="390,118,433,207,461,251,486,278,514,289,559,298,690,311,858,318,1046,322,1405,322,1620,325,1658,330,1658,335,1620,331,1405,328,1046,327,858,324,690,316,559,303,513,294,483,282,456,254,429,209,385,120"/>
-<area shape="poly" title=" " alt="" coords="465,114,477,116,751,163,751,168,476,121,464,119"/>
-<area shape="poly" title=" " alt="" coords="208,280,208,314,203,314,203,280"/>
-<area shape="poly" title=" " alt="" coords="292,275,310,277,487,295,668,309,1019,326,1315,334,1512,337,1512,342,1315,340,1019,332,668,314,487,300,309,283,291,280"/>
-<area shape="poly" title=" " alt="" coords="291,267,411,277,751,293,1016,297,1281,304,1437,312,1621,325,1658,330,1658,335,1620,331,1436,317,1281,309,1016,303,751,299,411,283,291,273"/>
-<area shape="poly" title=" " alt="" coords="2417,195,2327,238,2268,263,2206,283,2134,294,2009,310,1756,337,1756,332,2008,304,2133,289,2205,277,2266,258,2325,233,2414,190"/>
+<area shape="rect" title="Interactive opening line trainer — multi&#45;ply UCI validation + virtual opponent." alt="" coords="1274,5,1453,31"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="732,167,883,192"/>
+<area shape="poly" title=" " alt="" coords="1274,32,1159,51,1035,81,928,122,842,163,840,158,926,117,1033,76,1158,46,1274,27"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="2679,167,2786,192"/>
+<area shape="poly" title=" " alt="" coords="1409,28,1476,48,1548,76,1568,87,1582,98,1595,108,1615,116,2055,141,2666,172,2665,177,2054,146,1613,121,1593,112,1578,102,1565,92,1546,81,1474,53,1408,33"/>
+<area shape="rect" href="game__led__direct_8h.html" title="PRIME LED FUNCTION FOR GAME TASK &#45; Back Queue Hell." alt="" coords="1204,167,1347,192"/>
+<area shape="poly" title=" " alt="" coords="1329,33,1295,52,1280,64,1268,80,1262,97,1261,116,1268,153,1263,154,1256,117,1257,96,1264,77,1276,61,1292,47,1327,28"/>
+<area shape="rect" href="game__events_8h.html" title="Session&#45;to&#45;LED events (no WS2812 in game_task)." alt="" coords="250,247,373,273"/>
+<area shape="poly" title=" " alt="" coords="1274,23,1084,28,848,39,621,56,528,67,457,81,399,94,353,105,333,114,314,126,296,144,279,168,274,184,276,202,294,235,290,238,271,203,269,184,274,165,292,140,311,122,330,109,351,100,398,89,456,76,527,62,621,50,848,33,1084,23,1274,18"/>
+<area shape="rect" href="game__board__machine_8h.html" title="Physical board state machine (lift/drop); does not write position_t." alt="" coords="478,167,657,192"/>
+<area shape="poly" title=" " alt="" coords="1274,23,1094,28,881,37,694,55,629,67,594,81,582,96,574,115,569,154,564,153,569,113,577,93,591,77,628,61,693,49,880,32,1093,22,1274,18"/>
+<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="1045,86,1183,111"/>
+<area shape="poly" title=" " alt="" coords="1328,33,1164,84,1162,79,1326,28"/>
+<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="1523,167,1697,192"/>
+<area shape="poly" title=" " alt="" coords="1402,28,1453,48,1506,76,1555,115,1593,154,1589,158,1551,119,1503,81,1450,53,1400,33"/>
+<area shape="rect" href="game__mode_8h.html" title="One active session mode: puzzle, opening, tutorial, or guard." alt="" coords="289,167,403,192"/>
+<area shape="poly" title=" " alt="" coords="1274,25,902,43,707,59,627,69,567,81,513,98,461,120,378,162,376,157,459,115,511,93,565,76,626,64,707,54,902,37,1274,19"/>
+<area shape="rect" href="game__board__transition_8h.html" title="Apply board machine output via position_t and post&#45;move hooks." alt="" coords="605,86,789,111"/>
+<area shape="poly" title=" " alt="" coords="1274,32,803,88,802,82,1273,27"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1625,79,1765,119"/>
+<area shape="poly" title=" " alt="" coords="1412,28,1612,75,1611,80,1411,33"/>
+<area shape="rect" href="squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1278,79,1449,119"/>
+<area shape="poly" title=" " alt="" coords="1366,31,1366,65,1361,65,1361,31"/>
+<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="1370,240,1541,280"/>
+<area shape="poly" title=" " alt="" coords="1400,28,1435,47,1450,61,1463,77,1476,115,1479,156,1475,194,1468,227,1463,226,1470,194,1474,156,1471,116,1458,80,1447,64,1432,52,1397,33"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="5,328,124,353"/>
+<area shape="poly" title=" " alt="" coords="1274,23,1036,29,739,39,470,56,374,68,319,81,277,104,238,133,202,165,169,199,116,265,81,318,76,315,112,262,165,195,198,161,235,128,274,100,317,76,373,62,470,51,739,34,1036,23,1274,18"/>
+<area shape="rect" title=" " alt="" coords="1789,86,1873,111"/>
+<area shape="poly" title=" " alt="" coords="1453,24,1606,43,1693,58,1779,76,1790,79,1788,84,1777,81,1692,63,1605,49,1453,30"/>
+<area shape="rect" title=" " alt="" coords="1898,86,1997,111"/>
+<area shape="poly" title=" " alt="" coords="1453,22,1653,40,1770,55,1887,76,1902,80,1900,85,1885,81,1769,61,1652,45,1453,27"/>
+<area shape="rect" title=" " alt="" coords="2021,86,2087,111"/>
+<area shape="poly" title=" " alt="" coords="1453,17,1566,20,1705,29,1858,47,2009,76,2018,79,2017,84,2008,81,1857,52,1705,34,1565,25,1453,22"/>
+<area shape="rect" title=" " alt="" coords="2112,86,2183,111"/>
+<area shape="poly" title=" " alt="" coords="1453,16,1581,18,1743,26,1922,44,2012,58,2100,76,2110,79,2108,84,2099,81,2011,64,1921,50,1743,31,1581,23,1453,21"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="1615,247,1730,273"/>
+<area shape="poly" title=" " alt="" coords="883,183,1231,209,1553,237,1602,244,1601,249,1552,243,1231,214,883,189"/>
+<area shape="rect" title=" " alt="" coords="841,401,912,427"/>
+<area shape="poly" title=" " alt="" coords="733,194,691,212,672,225,658,242,642,271,636,297,641,324,657,352,668,361,684,369,728,384,828,404,827,409,727,389,682,374,665,365,653,355,636,326,631,297,637,269,653,238,669,221,688,207,731,189"/>
+<area shape="rect" title=" " alt="" coords="1066,328,1149,353"/>
+<area shape="poly" title=" " alt="" coords="818,191,855,233,881,257,910,278,945,295,982,309,1053,328,1052,333,981,314,943,300,907,282,878,261,851,237,814,194"/>
+<area shape="rect" title=" " alt="" coords="2060,328,2141,353"/>
+<area shape="poly" title=" " alt="" coords="1731,269,2047,327,2046,332,1730,274"/>
+<area shape="rect" title=" " alt="" coords="2429,401,2580,427"/>
+<area shape="poly" title=" " alt="" coords="1731,269,1793,277,1884,285,1961,285,2095,279,2158,278,2226,284,2301,299,2387,326,2415,338,2442,355,2484,389,2481,393,2438,359,2413,343,2385,330,2299,304,2225,289,2158,284,2095,284,1961,290,1883,290,1792,283,1730,274"/>
+<area shape="rect" title=" " alt="" coords="2263,401,2392,427"/>
+<area shape="poly" title=" " alt="" coords="1718,270,2049,351,2259,396,2258,401,2048,356,1717,275"/>
+<area shape="rect" href="game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="2267,328,2374,353"/>
+<area shape="poly" title=" " alt="" coords="1731,268,1793,277,2048,308,2254,330,2253,335,2047,314,1792,283,1730,273"/>
+<area shape="poly" title=" " alt="" coords="1669,274,1643,316,1623,338,1598,356,1541,376,1463,391,1371,402,1271,410,1075,416,926,416,926,411,1075,411,1271,404,1371,397,1462,386,1539,371,1595,351,1619,334,1639,312,1665,271"/>
+<area shape="poly" title=" " alt="" coords="1616,273,1553,283,1163,335,1162,330,1552,277,1615,268"/>
+<area shape="poly" title=" " alt="" coords="2351,351,2463,394,2461,399,2349,356"/>
+<area shape="poly" title=" " alt="" coords="2324,353,2328,388,2322,388,2319,354"/>
+<area shape="poly" title=" " alt="" coords="2268,354,2249,356,2051,373,1850,387,1461,405,1135,413,926,415,926,410,1135,408,1461,399,1849,382,2051,368,2248,351,2267,348"/>
+<area shape="poly" title=" " alt="" coords="2679,186,2237,211,1980,227,1793,243,1744,249,1743,244,1792,237,1980,222,2236,205,2679,181"/>
+<area shape="poly" title=" " alt="" coords="2787,183,2855,194,2923,213,2949,226,2965,241,2970,260,2957,282,2938,293,2908,303,2818,316,2701,323,2568,327,2313,328,2161,331,2156,331,2155,326,2160,325,2313,322,2568,321,2700,318,2818,310,2907,298,2936,289,2953,278,2964,260,2961,244,2946,230,2921,218,2854,200,2786,189"/>
+<area shape="poly" title=" " alt="" coords="2786,178,2869,182,2963,191,3048,209,3081,222,3103,238,3122,268,3128,297,3122,326,3102,355,3077,369,3030,380,2894,396,2735,407,2594,413,2593,408,2735,402,2894,391,3029,374,3075,364,3099,351,3117,324,3123,297,3117,270,3099,242,3078,226,3047,214,2963,196,2868,187,2786,184"/>
+<area shape="poly" title=" " alt="" coords="2786,177,2884,181,2937,186,2987,195,3028,208,3057,226,3065,237,3067,251,3063,266,3052,282,3025,294,2967,308,2789,342,2406,404,2405,398,2788,337,2966,303,3023,289,3048,278,3058,263,3061,250,3060,239,3053,229,3026,213,2985,200,2936,192,2883,186,2786,183"/>
+<area shape="poly" title=" " alt="" coords="2786,182,2863,191,2939,209,2969,222,2989,238,2994,248,2994,259,2981,282,2963,293,2933,302,2847,314,2733,320,2605,322,2358,323,2266,325,2212,331,2184,343,2155,356,2041,375,1890,389,1714,400,1527,407,1170,414,926,415,926,410,1170,409,1527,402,1714,394,1889,384,2040,369,2153,351,2182,338,2211,325,2266,320,2358,318,2604,317,2732,315,2846,308,2932,297,2961,288,2977,278,2989,257,2989,249,2985,241,2967,226,2938,214,2862,196,2786,187"/>
+<area shape="poly" title=" " alt="" coords="2679,186,2499,195,1926,206,1569,219,1437,229,1359,243,1342,251,1331,261,1319,272,1302,282,1241,304,1163,327,1161,322,1239,299,1299,278,1316,267,1327,257,1339,246,1357,237,1436,224,1569,214,1926,200,2499,189,2679,181"/>
+<area shape="rect" title=" " alt="" coords="2664,247,2801,273"/>
+<area shape="poly" title=" " alt="" coords="2735,192,2735,233,2730,233,2730,192"/>
+<area shape="rect" title=" " alt="" coords="2826,247,2943,273"/>
+<area shape="poly" title=" " alt="" coords="2756,190,2851,239,2849,243,2754,195"/>
+<area shape="rect" title=" " alt="" coords="2509,247,2639,273"/>
+<area shape="poly" title=" " alt="" coords="2711,194,2611,244,2608,239,2708,190"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="2053,240,2231,280"/>
+<area shape="poly" title=" " alt="" coords="2680,190,2245,248,2245,242,2679,185"/>
+<area shape="poly" title=" " alt="" coords="2134,281,2116,317,2111,314,2130,279"/>
+<area shape="poly" title=" " alt="" coords="2084,283,1949,321,1868,340,1786,356,1662,373,1534,387,1285,405,1072,413,926,415,926,410,1072,408,1285,400,1533,382,1661,368,1786,351,1867,335,1948,316,2083,278"/>
+<area shape="poly" title=" " alt="" coords="2053,281,2041,283,1784,308,1532,326,1163,341,1162,335,1531,320,1784,303,2040,277,2052,276"/>
+<area shape="poly" title=" " alt="" coords="1334,189,1602,242,1601,247,1333,195"/>
+<area shape="poly" title=" " alt="" coords="1223,195,1159,213,1094,242,1054,269,1027,295,1000,323,964,355,907,396,904,391,960,351,997,319,1023,291,1051,265,1091,238,1157,208,1221,189"/>
+<area shape="poly" title=" " alt="" coords="1227,195,1159,216,1130,228,1113,242,1105,258,1102,277,1104,314,1098,314,1096,277,1100,257,1109,238,1128,224,1157,211,1225,189"/>
+<area shape="poly" title=" " alt="" coords="320,271,347,312,368,334,393,351,428,365,476,376,597,393,725,403,828,408,827,414,724,409,597,398,475,381,426,370,390,356,365,338,343,315,315,274"/>
+<area shape="poly" title=" " alt="" coords="352,270,385,277,576,303,766,320,1052,335,1052,341,765,326,576,309,384,283,350,275"/>
+<area shape="poly" title=" " alt="" coords="657,185,721,189,955,202,1137,208,1319,217,1553,237,1602,244,1601,249,1552,243,1319,222,1137,213,955,207,721,195,657,190"/>
+<area shape="poly" title=" " alt="" coords="571,192,575,224,586,267,605,313,619,333,636,351,657,367,681,380,732,398,783,407,828,411,827,416,782,413,730,403,678,385,654,372,632,355,615,337,601,315,581,269,570,225,566,193"/>
+<area shape="poly" title=" " alt="" coords="592,190,685,232,808,277,939,309,1053,329,1052,334,938,315,807,283,683,237,590,195"/>
+<area shape="rect" href="position_8h.html" title="Standalone chess position." alt="" coords="397,247,484,273"/>
+<area shape="poly" title=" " alt="" coords="550,194,473,242,470,238,547,190"/>
+<area shape="poly" title=" " alt="" coords="453,271,495,311,524,333,555,351,627,377,701,394,770,404,828,408,827,414,770,409,700,399,625,382,553,356,521,337,492,315,449,275"/>
+<area shape="poly" title=" " alt="" coords="476,270,504,277,659,302,813,319,1053,335,1052,340,813,324,658,308,503,283,474,275"/>
+<area shape="rect" title=" " alt="" coords="403,328,478,353"/>
+<area shape="poly" title=" " alt="" coords="443,273,443,314,438,314,438,273"/>
+<area shape="poly" title=" " alt="" coords="1183,106,1266,116,1516,127,1669,140,1724,151,1743,157,1755,165,1761,175,1762,187,1752,208,1732,227,1709,243,1706,238,1729,222,1748,204,1757,186,1756,177,1751,169,1741,162,1723,156,1668,146,1516,132,1266,121,1183,111"/>
+<area shape="poly" title=" " alt="" coords="1183,106,1266,116,1365,121,1490,122,1633,121,1783,123,1929,132,2062,152,2120,167,2171,186,2213,209,2245,238,2252,249,2254,260,2246,282,2232,294,2209,306,2155,326,2153,321,2207,301,2228,290,2241,278,2249,259,2247,251,2241,242,2210,214,2168,190,2118,172,2061,157,1929,137,1783,129,1633,126,1490,127,1365,127,1266,121,1182,112"/>
+<area shape="poly" title=" " alt="" coords="1074,114,1032,134,1014,149,999,168,992,189,992,210,999,231,1011,251,1045,289,1080,318,1077,322,1041,292,1007,254,994,233,987,211,986,188,994,165,1010,146,1030,130,1072,109"/>
+<area shape="poly" title=" " alt="" coords="1045,108,703,136,543,154,491,162,467,169,456,182,449,199,443,234,438,233,444,197,452,180,465,164,490,157,543,148,703,131,1045,102"/>
+<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="1009,167,1179,192"/>
+<area shape="poly" title=" " alt="" coords="1114,112,1103,154,1098,153,1108,111"/>
+<area shape="poly" title=" " alt="" coords="1180,188,1553,237,1602,245,1601,250,1552,243,1179,194"/>
+<area shape="poly" title=" " alt="" coords="1085,194,899,393,895,389,1081,191"/>
+<area shape="poly" title=" " alt="" coords="1087,194,1074,215,1063,241,1059,260,1063,279,1073,299,1087,316,1083,320,1069,302,1058,281,1054,260,1058,239,1069,212,1083,191"/>
+<area shape="poly" title=" " alt="" coords="1621,191,1657,235,1653,238,1617,194"/>
+<area shape="poly" title=" " alt="" coords="1609,193,1591,237,1575,261,1554,282,1503,309,1432,332,1347,352,1254,370,1068,396,926,411,926,406,1067,391,1253,365,1346,347,1431,327,1501,304,1551,278,1571,258,1586,234,1604,191"/>
+<area shape="poly" title=" " alt="" coords="1523,189,1399,206,1330,221,1264,242,1138,323,1135,318,1262,238,1329,216,1398,201,1523,183"/>
+<area shape="poly" title=" " alt="" coords="305,194,269,213,253,225,240,241,234,260,240,279,263,309,287,327,356,351,397,362,450,371,582,388,828,407,828,413,582,393,450,377,395,367,355,356,285,332,259,313,236,281,229,260,236,239,249,222,266,208,303,190"/>
+<area shape="poly" title=" " alt="" coords="381,190,517,232,695,277,891,311,1053,331,1052,336,891,317,693,283,516,237,379,195"/>
+<area shape="poly" title=" " alt="" coords="362,190,418,236,414,240,358,194"/>
+<area shape="poly" title=" " alt="" coords="789,103,1339,135,1597,153,1710,164,1719,183,1716,202,1707,221,1695,238,1691,235,1703,219,1711,201,1714,183,1707,169,1596,158,1339,141,789,108"/>
+<area shape="poly" title=" " alt="" coords="604,109,516,117,421,130,336,147,303,157,278,169,249,191,231,216,224,244,230,279,247,322,260,337,281,351,325,369,387,383,461,393,541,401,702,408,828,410,827,416,702,414,541,406,460,398,386,388,324,374,278,356,257,341,243,325,225,281,219,244,226,214,245,188,275,164,301,152,334,142,420,124,515,112,604,103"/>
+<area shape="poly" title=" " alt="" coords="700,111,705,149,712,171,723,190,747,214,784,239,855,278,906,296,958,311,1053,330,1052,335,957,316,904,301,853,282,781,244,744,218,719,194,707,173,700,150,694,112"/>
+<area shape="poly" title=" " alt="" coords="679,114,599,162,597,157,676,109"/>
+<area shape="poly" title=" " alt="" coords="1766,114,1778,116,1933,132,2065,136,2181,132,2290,126,2399,122,2515,124,2646,137,2798,164,2903,181,2924,188,2944,199,2963,215,2982,239,2990,260,2988,271,2981,282,2963,293,2934,302,2847,315,2733,323,2605,327,2359,329,2211,331,2156,336,2155,331,2211,325,2359,324,2605,322,2733,318,2846,310,2932,297,2961,288,2977,278,2983,269,2985,261,2977,241,2959,219,2941,203,2922,192,2902,186,2798,169,2645,142,2515,129,2399,128,2291,132,2182,138,2065,141,1933,137,1778,121,1765,119"/>
+<area shape="poly" title=" " alt="" coords="1766,114,1778,116,1886,124,2020,127,2332,126,2492,126,2643,131,2775,143,2831,152,2880,164,2937,183,2988,209,3006,224,3017,242,3017,261,3004,282,2986,293,2957,301,2873,313,2762,319,2638,322,2398,323,2308,325,2256,331,2229,343,2201,356,2083,376,1926,391,1743,402,1548,409,1178,415,926,416,926,410,1178,410,1548,404,1743,397,1926,386,2083,371,2200,351,2227,338,2255,325,2308,320,2398,318,2638,316,2762,314,2872,308,2956,296,2984,288,3000,278,3012,260,3012,243,3002,228,2985,213,2935,188,2879,169,2830,158,2774,148,2642,137,2492,132,2332,131,2020,133,1885,130,1778,121,1765,119"/>
+<area shape="poly" title=" " alt="" coords="1635,121,1384,195,1331,206,1288,211,1248,220,1201,242,1129,319,1125,316,1198,238,1246,215,1288,206,1330,200,1383,189,1633,116"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="2357,167,2487,192"/>
+<area shape="poly" title=" " alt="" coords="1766,114,1778,116,1935,136,2058,144,2181,150,2338,164,2344,165,2343,170,2338,169,2180,156,2057,149,1934,141,1778,121,1765,119"/>
+<area shape="poly" title=" " alt="" coords="2357,186,2091,202,1920,219,1749,243,1728,247,1727,242,1748,237,1920,214,2090,197,2357,180"/>
+<area shape="poly" title=" " alt="" coords="2418,194,2388,237,2366,262,2339,282,2266,305,2155,330,2154,325,2264,300,2337,278,2362,258,2384,234,2413,191"/>
+<area shape="poly" title=" " alt="" coords="2430,191,2483,327,2501,387,2496,389,2478,329,2425,193"/>
+<area shape="poly" title=" " alt="" coords="2424,193,2417,264,2406,310,2388,355,2373,376,2355,395,2351,391,2369,373,2384,352,2401,308,2412,263,2419,192"/>
+<area shape="poly" title=" " alt="" coords="2357,185,2224,190,2061,200,1904,217,1841,229,1794,242,1778,251,1768,260,1744,282,1691,325,1666,341,1631,356,1569,371,1485,384,1283,401,1079,411,926,415,926,409,1079,405,1283,396,1485,378,1568,366,1629,351,1663,336,1687,320,1740,278,1764,256,1775,246,1792,238,1840,223,1904,212,2060,195,2224,184,2357,179"/>
+<area shape="poly" title=" " alt="" coords="2357,185,1789,204,1488,221,1379,231,1315,243,1296,251,1283,260,1251,282,1153,325,1151,320,1249,278,1280,256,1293,246,1313,237,1378,226,1487,216,1789,199,2357,180"/>
+<area shape="poly" title=" " alt="" coords="2468,189,2675,241,2674,247,2467,195"/>
+<area shape="poly" title=" " alt="" coords="2487,186,2637,206,2815,237,2832,241,2831,246,2813,243,2636,212,2487,191"/>
+<area shape="poly" title=" " alt="" coords="2446,190,2541,239,2538,243,2443,195"/>
+<area shape="rect" title=" " alt="" coords="1805,247,1901,273"/>
+<area shape="poly" title=" " alt="" coords="2357,187,2158,205,2035,221,1913,243,1899,246,1898,241,1912,237,2034,215,2157,199,2357,182"/>
+<area shape="rect" title=" " alt="" coords="1925,247,2029,273"/>
+<area shape="poly" title=" " alt="" coords="2357,191,2212,211,2041,243,2026,246,2025,241,2040,237,2211,206,2357,186"/>
+<area shape="poly" title=" " alt="" coords="1449,107,1542,116,1685,118,1924,120,2049,124,2159,132,2243,145,2272,154,2289,165,2309,193,2314,222,2307,251,2289,282,2272,292,2238,304,2155,328,2154,323,2237,299,2269,287,2285,278,2302,249,2309,222,2304,195,2285,169,2269,159,2242,150,2158,137,2048,129,1924,125,1685,123,1542,121,1448,112"/>
+<area shape="poly" title=" " alt="" coords="1278,114,1108,141,1036,156,998,169,973,192,951,219,917,280,896,340,884,388,879,387,891,339,913,278,947,216,969,188,995,164,1035,150,1107,135,1278,109"/>
+<area shape="poly" title=" " alt="" coords="1371,119,1375,156,1371,176,1361,194,1339,214,1315,224,1291,226,1266,224,1215,222,1190,228,1164,242,1147,258,1134,277,1117,316,1112,313,1130,274,1143,255,1160,238,1188,223,1215,217,1266,219,1291,221,1314,219,1336,210,1357,190,1366,174,1369,155,1366,119"/>
+<area shape="poly" title=" " alt="" coords="1449,106,1569,116,1785,130,1954,137,2122,146,2338,164,2344,165,2343,170,2338,169,2122,151,1953,143,1785,135,1568,121,1448,111"/>
+<area shape="poly" title=" " alt="" coords="1541,270,1604,277,2046,330,2046,336,1603,283,1541,275"/>
+<area shape="poly" title=" " alt="" coords="1402,283,1291,318,1161,356,1034,385,926,407,925,401,1033,380,1160,351,1290,313,1400,278"/>
+<area shape="poly" title=" " alt="" coords="1373,283,1163,330,1162,324,1371,277"/>
+<area shape="poly" title=" " alt="" coords="125,348,144,351,538,387,828,407,827,412,537,392,143,356,124,354"/>
 </map>
 </div>
 </div>
@@ -259,6 +307,10 @@ Enumerations</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:aa86077a2e3b7e4b962cc77e75a41e8bd" id="r_aa86077a2e3b7e4b962cc77e75a41e8bd"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#aa86077a2e3b7e4b962cc77e75a41e8bd">opening_mode_bind</a> (void)</td></tr>
+<tr class="separator:aa86077a2e3b7e4b962cc77e75a41e8bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6fc555eeed038a13c3c44db728da05ad" id="r_a6fc555eeed038a13c3c44db728da05ad"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a6fc555eeed038a13c3c44db728da05ad">opening_mode_unbind</a> (void)</td></tr>
+<tr class="separator:a6fc555eeed038a13c3c44db728da05ad"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af0f5ae400b340975450b9ad270c42d2c" id="r_af0f5ae400b340975450b9ad270c42d2c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#af0f5ae400b340975450b9ad270c42d2c">opening_is_player_ply</a> (uint8_t ply)</td></tr>
 <tr class="separator:af0f5ae400b340975450b9ad270c42d2c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a030fb9737bbf5c0c1f01e534a3b4651c" id="r_a030fb9737bbf5c0c1f01e534a3b4651c"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a030fb9737bbf5c0c1f01e534a3b4651c">opening_is_checkpoint_ply</a> (uint8_t ply)</td></tr>
@@ -267,7 +319,7 @@ Functions</h2></td></tr>
 <tr class="separator:a188e4c5a57c1b823031005ca4af57eb7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0f34c6cbadeae8a955ad3ab264b4961f" id="r_a0f34c6cbadeae8a955ad3ab264b4961f"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a0f34c6cbadeae8a955ad3ab264b4961f">opening_play_move_led</a> (const char *from_sq, const char *to_sq)</td></tr>
 <tr class="separator:a0f34c6cbadeae8a955ad3ab264b4961f"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8c60a621ea27fd9ff90fd87c9e8d4881" id="r_a8c60a621ea27fd9ff90fd87c9e8d4881"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a8c60a621ea27fd9ff90fd87c9e8d4881">opening_show_opponent_physical_led</a> (bool <a class="el" href="game__task_8c.html#af81491a006e7a193e8fd657043851221">piece_lifted</a>)</td></tr>
+<tr class="memitem:a8c60a621ea27fd9ff90fd87c9e8d4881" id="r_a8c60a621ea27fd9ff90fd87c9e8d4881"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a8c60a621ea27fd9ff90fd87c9e8d4881">opening_show_opponent_physical_led</a> (bool <a class="el" href="game__board__machine_8c.html#af81491a006e7a193e8fd657043851221">piece_lifted</a>)</td></tr>
 <tr class="separator:a8c60a621ea27fd9ff90fd87c9e8d4881"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:abadfe932a50cfa6d98053a0fcb7fbc6b" id="r_abadfe932a50cfa6d98053a0fcb7fbc6b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#abadfe932a50cfa6d98053a0fcb7fbc6b">opening_show_hint_led</a> (void)</td></tr>
 <tr class="separator:abadfe932a50cfa6d98053a0fcb7fbc6b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -331,6 +383,14 @@ Functions</h2></td></tr>
 <tr class="separator:a439a555c311852447895a64468333ab6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a810d5d19738c4ef7706cf407b6079276" id="r_a810d5d19738c4ef7706cf407b6079276"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a810d5d19738c4ef7706cf407b6079276">game_opening_on_illegal_player_move</a> (void)</td></tr>
 <tr class="separator:a810d5d19738c4ef7706cf407b6079276"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd7b8f0397a757e9c9d21dbd45691f7e" id="r_afd7b8f0397a757e9c9d21dbd45691f7e"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#afd7b8f0397a757e9c9d21dbd45691f7e">opening_on_lift</a> (const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *pos, uint8_t square)</td></tr>
+<tr class="separator:afd7b8f0397a757e9c9d21dbd45691f7e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cccd460d8c0fe3baf968dbee80fae2a" id="r_a3cccd460d8c0fe3baf968dbee80fae2a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a3cccd460d8c0fe3baf968dbee80fae2a">opening_on_drop</a> (const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *pos, uint8_t from, uint8_t to, bool has_from)</td></tr>
+<tr class="separator:a3cccd460d8c0fe3baf968dbee80fae2a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a45cb37a8228d2bc6a5067541a6e14367" id="r_a45cb37a8228d2bc6a5067541a6e14367"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a45cb37a8228d2bc6a5067541a6e14367">opening_on_move_applied</a> (const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *pos, <a class="el" href="structposition__move__t.html">position_move_t</a> mv)</td></tr>
+<tr class="separator:a45cb37a8228d2bc6a5067541a6e14367"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af30279e1fd3dc58b6f306faa90fe4494" id="r_af30279e1fd3dc58b6f306faa90fe4494"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#af30279e1fd3dc58b6f306faa90fe4494">opening_on_leds</a> (const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *pos)</td></tr>
+<tr class="separator:af30279e1fd3dc58b6f306faa90fe4494"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac7d60d2552c0876918941fd21872606a" id="r_ac7d60d2552c0876918941fd21872606a"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#ac7d60d2552c0876918941fd21872606a">game_opening_feedback_key</a> (void)</td></tr>
 <tr class="separator:ac7d60d2552c0876918941fd21872606a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adbe9ad264b38d5f7b89a16f144d09649" id="r_adbe9ad264b38d5f7b89a16f144d09649"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#adbe9ad264b38d5f7b89a16f144d09649">game_opening_opponent_mode_key</a> (void)</td></tr>
@@ -355,6 +415,8 @@ Variables</h2></td></tr>
 <tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a24344f093fdca1950920b7c011ba0651" id="r_a24344f093fdca1950920b7c011ba0651"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structopening__trainer__state__t.html">opening_trainer_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a24344f093fdca1950920b7c011ba0651">opening_state</a></td></tr>
 <tr class="separator:a24344f093fdca1950920b7c011ba0651"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a609797d265ce0dae0116c002e5bbbeac" id="r_a609797d265ce0dae0116c002e5bbbeac"><td class="memItemLeft" align="right" valign="top">static const <a class="el" href="game__mode_8h.html#af05d873dd171135d2d97fe50c9e75e2a">game_mode_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__opening__trainer_8c.html#a609797d265ce0dae0116c002e5bbbeac">s_opening_mode</a></td></tr>
+<tr class="separator:a609797d265ce0dae0116c002e5bbbeac"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Interactive opening line trainer — multi-ply UCI validation + virtual opponent. </p>
@@ -373,7 +435,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00032">32</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00043">43</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -389,7 +451,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00031">31</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00042">42</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -405,7 +467,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00030">30</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00041">41</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -421,7 +483,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00029">29</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00040">40</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -437,7 +499,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00028">28</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00039">39</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -473,7 +535,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00023">23</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00034">34</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -500,7 +562,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="add2affa1f220901931edd0d4664449cea0539cf8cc1a54baea109e8edf71c9721" name="add2affa1f220901931edd0d4664449cea0539cf8cc1a54baea109e8edf71c9721"></a>OPENING_FEEDBACK_OPPONENT_TURN&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00034">34</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00045">45</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -522,7 +584,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="aa8f7b9d36dff0636b0b29e0168adab6caaf455295de6e9d77bf2b2d2ec7850a41" name="aa8f7b9d36dff0636b0b29e0168adab6caaf455295de6e9d77bf2b2d2ec7850a41"></a>OPENING_MODE_MIRROR&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00045">45</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00056">56</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -542,7 +604,7 @@ Variables</h2></td></tr>
 <tr><td class="fieldname"><a id="a5fa600b4f9b772a8c7b9bba0d53c83d8ab33991f57ec529face473f867b33d956" name="a5fa600b4f9b772a8c7b9bba0d53c83d8ab33991f57ec529face473f867b33d956"></a>OPENING_OPPONENT_PHYSICAL&#160;</td><td class="fielddoc"></td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00052">52</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00063">63</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -563,7 +625,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00333">333</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00329">329</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -583,7 +645,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00335">335</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00331">331</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -603,7 +665,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00577">577</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00574">574</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -623,7 +685,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00558">558</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00555">555</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -643,7 +705,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00219">219</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00214">214</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -663,7 +725,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00337">337</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00333">333</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -685,7 +747,7 @@ Variables</h2></td></tr>
 
 <p>Opening trainer — multi-ply line with virtual opponent replies. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00325">325</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00320">320</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -705,7 +767,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00506">506</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00503">503</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -727,7 +789,7 @@ Variables</h2></td></tr>
 
 <p>Load the built-in Italian line when none is loaded, then start or enter setup. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00431">431</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00427">427</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -747,7 +809,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00359">359</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00355">355</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -783,7 +845,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00726">726</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00791">791</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -803,7 +865,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00670">670</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00735">735</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -823,7 +885,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00494">494</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00491">491</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -843,7 +905,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00341">341</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00337">337</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -927,7 +989,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00384">384</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00380">380</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -947,7 +1009,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00696">696</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00761">761</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -989,7 +1051,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00610">610</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00607">607</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1009,7 +1071,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00654">654</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00651">651</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1029,7 +1091,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00345">345</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00341">341</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1049,7 +1111,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00620">620</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00617">617</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1069,7 +1131,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00691">691</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00756">756</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1089,7 +1151,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00352">352</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00348">348</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1131,7 +1193,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00636">636</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00633">633</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1153,7 +1215,7 @@ Variables</h2></td></tr>
 
 <p>Hall: accept the expected trainer ply from a stable occupancy snapshot. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00798">798</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00863">863</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1173,7 +1235,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00449">449</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00445">445</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1193,7 +1255,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00709">709</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00774">774</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1213,7 +1275,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00370">370</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00366">366</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1255,7 +1317,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00522">522</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00519">519</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1285,7 +1347,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00547">547</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00544">544</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1313,7 +1375,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00266">266</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00261">261</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1341,7 +1403,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00207">207</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00202">202</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1369,7 +1431,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00713">713</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00778">778</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1397,7 +1459,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00718">718</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00783">783</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1425,7 +1487,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00094">94</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00105">105</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1453,7 +1515,217 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00085">85</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00096">96</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="aa86077a2e3b7e4b962cc77e75a41e8bd" name="aa86077a2e3b7e4b962cc77e75a41e8bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa86077a2e3b7e4b962cc77e75a41e8bd">&#9670;&#160;</a></span>opening_mode_bind()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_mode_bind </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00731">731</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a6fc555eeed038a13c3c44db728da05ad" name="a6fc555eeed038a13c3c44db728da05ad"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6fc555eeed038a13c3c44db728da05ad">&#9670;&#160;</a></span>opening_mode_unbind()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_mode_unbind </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00733">733</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a3cccd460d8c0fe3baf968dbee80fae2a" name="a3cccd460d8c0fe3baf968dbee80fae2a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3cccd460d8c0fe3baf968dbee80fae2a">&#9670;&#160;</a></span>opening_on_drop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_on_drop </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *&#160;</td>
+          <td class="paramname"><em>pos</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>has_from</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00673">673</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="af30279e1fd3dc58b6f306faa90fe4494" name="af30279e1fd3dc58b6f306faa90fe4494"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af30279e1fd3dc58b6f306faa90fe4494">&#9670;&#160;</a></span>opening_on_leds()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_on_leds </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *&#160;</td>
+          <td class="paramname"><em>pos</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00701">701</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="afd7b8f0397a757e9c9d21dbd45691f7e" name="afd7b8f0397a757e9c9d21dbd45691f7e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd7b8f0397a757e9c9d21dbd45691f7e">&#9670;&#160;</a></span>opening_on_lift()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_on_lift </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *&#160;</td>
+          <td class="paramname"><em>pos</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>square</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00667">667</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a45cb37a8228d2bc6a5067541a6e14367" name="a45cb37a8228d2bc6a5067541a6e14367"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a45cb37a8228d2bc6a5067541a6e14367">&#9670;&#160;</a></span>opening_on_move_applied()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void opening_on_move_applied </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *&#160;</td>
+          <td class="paramname"><em>pos</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structposition__move__t.html">position_move_t</a>&#160;</td>
+          <td class="paramname"><em>mv</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00712">712</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1497,7 +1769,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00103">103</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00114">114</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1535,7 +1807,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00120">120</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00131">131</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1563,7 +1835,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00257">257</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00252">252</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1591,7 +1863,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00282">282</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00277">277</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1619,7 +1891,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00252">252</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00247">247</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1647,7 +1919,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00165">165</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00164">164</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1675,7 +1947,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00140">140</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00143">143</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1703,7 +1975,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00197">197</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00192">192</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1728,7 +2000,41 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00083">83</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00094">94</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+
+</div>
+</div>
+<a id="a609797d265ce0dae0116c002e5bbbeac" name="a609797d265ce0dae0116c002e5bbbeac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a609797d265ce0dae0116c002e5bbbeac">&#9670;&#160;</a></span>s_opening_mode</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="game__mode_8h.html#af05d873dd171135d2d97fe50c9e75e2a">game_mode_t</a> s_opening_mode</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    <a class="code hl_function" href="game__opening__trainer_8c.html#afd7b8f0397a757e9c9d21dbd45691f7e">opening_on_lift</a>,</div>
+<div class="line">    <a class="code hl_function" href="game__opening__trainer_8c.html#a3cccd460d8c0fe3baf968dbee80fae2a">opening_on_drop</a>,</div>
+<div class="line">    <a class="code hl_function" href="game__opening__trainer_8c.html#a45cb37a8228d2bc6a5067541a6e14367">opening_on_move_applied</a>,</div>
+<div class="line">    <a class="code hl_function" href="game__opening__trainer_8c.html#af30279e1fd3dc58b6f306faa90fe4494">opening_on_leds</a>,</div>
+<div class="line">}</div>
+<div class="ttc" id="agame__opening__trainer_8c_html_a3cccd460d8c0fe3baf968dbee80fae2a"><div class="ttname"><a href="game__opening__trainer_8c.html#a3cccd460d8c0fe3baf968dbee80fae2a">opening_on_drop</a></div><div class="ttdeci">static void opening_on_drop(const position_t *pos, uint8_t from, uint8_t to, bool has_from)</div><div class="ttdef"><b>Definition</b> <a href="game__opening__trainer_8c_source.html#l00673">game_opening_trainer.c:673</a></div></div>
+<div class="ttc" id="agame__opening__trainer_8c_html_a45cb37a8228d2bc6a5067541a6e14367"><div class="ttname"><a href="game__opening__trainer_8c.html#a45cb37a8228d2bc6a5067541a6e14367">opening_on_move_applied</a></div><div class="ttdeci">static void opening_on_move_applied(const position_t *pos, position_move_t mv)</div><div class="ttdef"><b>Definition</b> <a href="game__opening__trainer_8c_source.html#l00712">game_opening_trainer.c:712</a></div></div>
+<div class="ttc" id="agame__opening__trainer_8c_html_af30279e1fd3dc58b6f306faa90fe4494"><div class="ttname"><a href="game__opening__trainer_8c.html#af30279e1fd3dc58b6f306faa90fe4494">opening_on_leds</a></div><div class="ttdeci">static void opening_on_leds(const position_t *pos)</div><div class="ttdef"><b>Definition</b> <a href="game__opening__trainer_8c_source.html#l00701">game_opening_trainer.c:701</a></div></div>
+<div class="ttc" id="agame__opening__trainer_8c_html_afd7b8f0397a757e9c9d21dbd45691f7e"><div class="ttname"><a href="game__opening__trainer_8c.html#afd7b8f0397a757e9c9d21dbd45691f7e">opening_on_lift</a></div><div class="ttdeci">static void opening_on_lift(const position_t *pos, uint8_t square)</div><div class="ttdef"><b>Definition</b> <a href="game__opening__trainer_8c_source.html#l00667">game_opening_trainer.c:667</a></div></div>
+</div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00705">705</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>
@@ -1752,7 +2058,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00020">20</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__opening__trainer_8c_source.html#l00028">28</a> of file <a class="el" href="game__opening__trainer_8c_source.html">game_opening_trainer.c</a>.</p>
 
 </div>
 </div>

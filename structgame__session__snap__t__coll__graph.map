@@ -1,0 +1,9 @@
+<map id="game_session_snap_t" name="game_session_snap_t">
+<area shape="rect" id="Node000001" title="Session snapshot for HTTP/UART reads (position, mode, clocks, web history)." alt="" coords="152,93,317,119"/>
+<area shape="rect" id="Node000002" href="$structgame__snap__pos__t.html" title="Board header only (no position undo hist)." alt="" coords="5,5,144,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="110,35,214,91,212,95,107,40"/>
+<area shape="rect" id="Node000003" href="$structposition__status__t.html" title=" " alt="" coords="168,5,301,31"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="237,45,237,93,232,93,232,45"/>
+<area shape="rect" id="Node000004" href="$structchess__move__t.html" title="The basic structure of a sach move." alt="" coords="325,5,440,31"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="360,42,316,72,266,96,264,91,313,67,357,37"/>
+</map>

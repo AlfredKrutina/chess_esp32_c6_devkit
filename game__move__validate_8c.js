@@ -1,8 +1,6 @@
 var game__move__validate_8c =
 [
-    [ "game_check_sim_promoted_piece", "game__move__validate_8c.html#a0bf9218d435851daab732c0b084cf7b8", null ],
     [ "game_is_en_passant_possible", "game__move__validate_8c.html#a175e65acc9f386834730a86b25d6190a", null ],
-    [ "game_is_king_castling_move", "game__move__validate_8c.html#ac84667fd1d4da0428adf0ab89fae4e74", null ],
     [ "game_is_valid_move", "game__move__validate_8c.html#a20c746cc968a038cbdf28e01a9dd8307", null ],
     [ "game_is_valid_move_bool", "game__move__validate_8c.html#aefd2619f5dc787e72db00b8c24ecc405", null ],
     [ "game_validate_bishop_move", "game__move__validate_8c.html#a6d303839b2a0088558c5b56452232f4b", null ],

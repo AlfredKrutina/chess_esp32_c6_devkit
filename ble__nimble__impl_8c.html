@@ -98,7 +98,8 @@ $(document).ready(function(){initNavTree('ble__nimble__impl_8c.html',''); initRe
 
 <p>NimBLE GATT — only compiles when CONFIG_BT_ENABLED.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;stddef.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;inttypes.h&gt;</code><br />
+<code>#include &lt;stddef.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -106,13 +107,15 @@ Include dependency graph for ble_nimble_impl.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="ble__nimble__impl_8c__incl.png" border="0" usemap="#able__nimble__impl_8c" alt=""/></div>
 <map name="able__nimble__impl_8c" id="able__nimble__impl_8c">
-<area shape="rect" title="NimBLE GATT — only compiles when CONFIG_BT_ENABLED." alt="" coords="69,5,211,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,80,104"/>
-<area shape="poly" title=" " alt="" coords="126,33,71,72,68,68,123,29"/>
-<area shape="rect" title=" " alt="" coords="105,79,175,104"/>
-<area shape="poly" title=" " alt="" coords="143,31,143,65,137,65,137,31"/>
-<area shape="rect" title=" " alt="" coords="200,79,267,104"/>
-<area shape="poly" title=" " alt="" coords="157,29,209,68,206,72,153,33"/>
+<area shape="rect" title="NimBLE GATT — only compiles when CONFIG_BT_ENABLED." alt="" coords="131,5,273,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,92,104"/>
+<area shape="poly" title=" " alt="" coords="178,33,87,75,85,70,176,28"/>
+<area shape="rect" title=" " alt="" coords="117,79,191,104"/>
+<area shape="poly" title=" " alt="" coords="196,33,172,69,167,66,192,30"/>
+<area shape="rect" title=" " alt="" coords="216,79,287,104"/>
+<area shape="poly" title=" " alt="" coords="212,29,238,66,233,69,208,33"/>
+<area shape="rect" title=" " alt="" coords="311,79,378,104"/>
+<area shape="poly" title=" " alt="" coords="226,28,310,70,308,75,224,33"/>
 </map>
 </div>
 </div>
@@ -184,7 +187,7 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01401">1401</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01430">1430</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -207,7 +210,7 @@ Functions</h2></td></tr>
 <p>First successful new device takes the window. </p>
 <dl class="section return"><dt>Returns</dt><dd>false if the window was already closed or taken. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01422">1422</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01451">1451</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -230,7 +233,7 @@ Functions</h2></td></tr>
 <p>Whether the current GATT link has encryption enabled (SMP). </p>
 <dl class="section return"><dt>Returns</dt><dd>false when Bluetooth is off or no encrypted connection is up. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01402">1402</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01431">1431</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -253,7 +256,7 @@ Functions</h2></td></tr>
 <p>Stop the window timer and drop an unfinished new bond. </p>
 <p>NimBLE context or queued. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01423">1423</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01452">1452</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -292,7 +295,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01425">1425</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01454">1454</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -315,7 +318,7 @@ Functions</h2></td></tr>
 <p>NimBLE host synced with the controller (GATT + OTA reachable over BLE). </p>
 <p>Used by main as one of the health conditions before confirming a new OTA image. </p><dl class="section return"><dt>Returns</dt><dd>false when Bluetooth is off or the host has not synced yet. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01403">1403</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01432">1432</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -343,7 +346,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01416">1416</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01445">1445</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -382,7 +385,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01411">1411</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01440">1440</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -405,7 +408,7 @@ Functions</h2></td></tr>
 <p>Kept for callers. </p>
 <p>Does not open pairing; only a triple click does. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01419">1419</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01448">1448</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -426,7 +429,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>true while the calm pairing pulse should cover the board. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01421">1421</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01450">1450</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -447,7 +450,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <dl class="section return"><dt>Returns</dt><dd>true while a new device may complete pairing. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01420">1420</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01449">1449</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -470,7 +473,7 @@ Functions</h2></td></tr>
 <p>Notify IP, SSID, and online status. </p>
 <p>Call when the address or Wi-Fi status changes. No-op without Bluetooth or without a connection. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01409">1409</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01438">1438</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -509,7 +512,7 @@ Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01405">1405</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01434">1434</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -532,7 +535,7 @@ Functions</h2></td></tr>
 <p>Open the 60 s pairing window, or cancel it if it is already open. </p>
 <p>Advertising itself stays up either way. A new bond is accepted only while the window is open. A second press before it expires cancels it. </p>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01418">1418</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01447">1447</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>
@@ -555,7 +558,7 @@ Functions</h2></td></tr>
 <p>Whether a central is connected and has snapshot CCC notifications on. </p>
 <p>When this is false, a snapshot push is a no-op. The web server should not build JSON that would only be discarded. Also false while an OTA receive is active on the link. </p><dl class="section return"><dt>Returns</dt><dd>true only when a push would be delivered. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01404">1404</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ble__nimble__impl_8c_source.html#l01433">1433</a> of file <a class="el" href="ble__nimble__impl_8c_source.html">ble_nimble_impl.c</a>.</p>
 
 </div>
 </div>

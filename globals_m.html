@@ -98,7 +98,7 @@ $(document).ready(function(){initNavTree('globals_m.html',''); initResizable(); 
 <li>main_ota_transport_ready()&#160;:&#160;<a class="el" href="main_8c.html#a81c043b08e61be8eb1edaeb7f015c66c">main.c</a></li>
 <li>main_system_init()&#160;:&#160;<a class="el" href="main_8c.html#ae27993c1756124d9fa6e8af4958409ef">main.c</a></li>
 <li>manager_initialized&#160;:&#160;<a class="el" href="unified__animation__manager_8c.html#a056b36df10f165cd5a6b993fc63fa152">unified_animation_manager.c</a>, <a class="el" href="led__state__manager_8c.html#a056b36df10f165cd5a6b993fc63fa152">led_state_manager.c</a></li>
-<li>material_advantage_history&#160;:&#160;<a class="el" href="game__task_8c.html#a4c0eff8faec1369fb3d99353ccf64951">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a919011f371063105bc6e73a40625e0ed">game_task_internal.h</a></li>
+<li>material_advantage_history&#160;:&#160;<a class="el" href="game__endgame__report_8c.html#af48c14316db048d40fdd7375e8f78326">game_endgame_report.c</a></li>
 <li>MATRIX_COL_0&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a3e029f70c5d00d3e249faf7804581b0b">freertos_chess.h</a></li>
 <li>MATRIX_COL_1&#160;:&#160;<a class="el" href="freertos__chess_8h.html#ac18820617d1dcd813d8ac903a5c93a8d">freertos_chess.h</a></li>
 <li>MATRIX_COL_2&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a141d2717e84ae5d86135f4562f67481b">freertos_chess.h</a></li>
@@ -107,7 +107,7 @@ $(document).ready(function(){initNavTree('globals_m.html',''); initResizable(); 
 <li>MATRIX_COL_5&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a712d6392405fecb625bb7543219ac7a6">freertos_chess.h</a></li>
 <li>MATRIX_COL_6&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a5c56175a56a0013ce45265301301e937">freertos_chess.h</a></li>
 <li>MATRIX_COL_7&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a2194cd55ef55fe74673eff35a72c2b4b">freertos_chess.h</a></li>
-<li>matrix_col_pins&#160;:&#160;<a class="el" href="freertos__chess_8c.html#a2d07c58a77430cba050b46dd496ce081">freertos_chess.c</a>, <a class="el" href="freertos__chess_8h.html#a2d07c58a77430cba050b46dd496ce081">freertos_chess.h</a></li>
+<li>matrix_col_pins&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a2d07c58a77430cba050b46dd496ce081">freertos_chess.h</a>, <a class="el" href="freertos__chess_8c.html#a2d07c58a77430cba050b46dd496ce081">freertos_chess.c</a></li>
 <li>MATRIX_ROW_0&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a412cf595c5d992d528f572367cd382fc">freertos_chess.h</a></li>
 <li>MATRIX_ROW_1&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a26f828d1911fdbed9f5a190d38b869f4">freertos_chess.h</a></li>
 <li>MATRIX_ROW_2&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a6c3c544fb9cfc45bc5c9b321be7cd410">freertos_chess.h</a></li>
@@ -116,7 +116,7 @@ $(document).ready(function(){initNavTree('globals_m.html',''); initResizable(); 
 <li>MATRIX_ROW_5&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a42d9ffa9b417036ce69c56a7b895bebb">freertos_chess.h</a></li>
 <li>MATRIX_ROW_6&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a5f70e9694a3ea89ce6c9c4396843a3b2">freertos_chess.h</a></li>
 <li>MATRIX_ROW_7&#160;:&#160;<a class="el" href="freertos__chess_8h.html#ae9ab626eb119d23769111f56a1bcaa16">freertos_chess.h</a></li>
-<li>matrix_row_pins&#160;:&#160;<a class="el" href="freertos__chess_8h.html#ad9e3ceb44aa3ff2deb6b45b6079cc7e8">freertos_chess.h</a>, <a class="el" href="freertos__chess_8c.html#ad9e3ceb44aa3ff2deb6b45b6079cc7e8">freertos_chess.c</a></li>
+<li>matrix_row_pins&#160;:&#160;<a class="el" href="freertos__chess_8c.html#ad9e3ceb44aa3ff2deb6b45b6079cc7e8">freertos_chess.c</a>, <a class="el" href="freertos__chess_8h.html#ad9e3ceb44aa3ff2deb6b45b6079cc7e8">freertos_chess.h</a></li>
 <li>matrix_scanning_enabled&#160;:&#160;<a class="el" href="led__task_8c.html#ac4220888456a96a1308bbf06df3730b8">led_task.c</a></li>
 <li>matter_command_queue&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a1f265b8287aba27035f07a200c7ddfec">freertos_chess.h</a></li>
 <li>matter_status_queue&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a17f6bae025bf70b7775d1dd5e880e909">freertos_chess.h</a></li>
@@ -125,15 +125,14 @@ $(document).ready(function(){initNavTree('globals_m.html',''); initResizable(); 
 <li>MAX_CHUNK_SIZE&#160;:&#160;<a class="el" href="uart__task_8c.html#a523eaf5b650f38c307a6aab7f957fa2b">uart_task.c</a></li>
 <li>MAX_FIREWORKS&#160;:&#160;<a class="el" href="game__led__animations_8h.html#ad146c422c93828b517dc1801a40ca01f">game_led_animations.h</a></li>
 <li>MAX_MOVE_HISTORY&#160;:&#160;<a class="el" href="chess__types_8h.html#a3b87426d2e6f6d464ec0a2df2f66dd83">chess_types.h</a></li>
-<li>MAX_MOVES_HISTORY&#160;:&#160;<a class="el" href="game__task_8c.html#a28d6040fd0cdaaa59aef59c0a4529ce6">game_task.c</a></li>
-<li>max_moves_without_capture&#160;:&#160;<a class="el" href="game__task_8c.html#ab85ef2a6cc22b437e180ef15dfc4f043">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#ab85ef2a6cc22b437e180ef15dfc4f043">game_task_internal.h</a></li>
+<li>max_moves_without_capture&#160;:&#160;<a class="el" href="game__board__core_8c.html#ab85ef2a6cc22b437e180ef15dfc4f043">game_board_core.c</a>, <a class="el" href="game__board__core_8h.html#ab85ef2a6cc22b437e180ef15dfc4f043">game_board_core.h</a></li>
 <li>MAX_TEST_SUITES&#160;:&#160;<a class="el" href="test__task_8c.html#a1b26c6ce8cf1a1095f62b5a1b5162c9f">test_task.c</a></li>
 <li>MAX_TESTS_PER_SUITE&#160;:&#160;<a class="el" href="test__task_8c.html#a3d48460cefc49b6243ab314dd001930c">test_task.c</a></li>
 <li>MAX_WAVES&#160;:&#160;<a class="el" href="game__led__animations_8h.html#a1767d604401a9b047932166494ed7b9e">game_led_animations.h</a></li>
 <li>min&#160;:&#160;<a class="el" href="led__task_8c.html#ac6afabdc09a49a433ee19d8a9486056d">led_task.c</a>, <a class="el" href="unified__animation__manager_8c.html#ac6afabdc09a49a433ee19d8a9486056d">unified_animation_manager.c</a></li>
 <li>MOVE_COLLAPSE_FADE_MS&#160;:&#160;<a class="el" href="led__task_8c.html#afff07dc6117def507ad9efcd2046c0db">led_task.c</a></li>
 <li>MOVE_COLLAPSE_MS&#160;:&#160;<a class="el" href="led__task_8c.html#a40fde6d07edc5de65a1c4d2c618fb94d">led_task.c</a></li>
-<li>move_count&#160;:&#160;<a class="el" href="game__task_8c.html#a154fb9029ef76390cf7a42e2672c397b">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a154fb9029ef76390cf7a42e2672c397b">game_task_internal.h</a></li>
+<li>move_count&#160;:&#160;<a class="el" href="game__board__core_8c.html#a154fb9029ef76390cf7a42e2672c397b">game_board_core.c</a>, <a class="el" href="game__board__core_8h.html#a154fb9029ef76390cf7a42e2672c397b">game_board_core.h</a></li>
 <li>move_detection_timeout&#160;:&#160;<a class="el" href="squares__task_8c.html#a001592c98e5a19d78635751717390918">squares_task.c</a></li>
 <li>MOVE_ERROR_BLOCKED_PATH&#160;:&#160;<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1a641b6ce57e59a5c718ca5ee3e51f9444">chess_types.h</a></li>
 <li>MOVE_ERROR_CASTLING_BLOCKED&#160;:&#160;<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1a062f25db8c860c564d19c9e46c776fe0">chess_types.h</a></li>
@@ -156,9 +155,10 @@ $(document).ready(function(){initNavTree('globals_m.html',''); initResizable(); 
 <li>MOVE_ERROR_SYSTEM_ERROR&#160;:&#160;<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1ab3b3ce37d8c4beef920d33cd4b10fbd1">chess_types.h</a></li>
 <li>move_error_t&#160;:&#160;<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1">chess_types.h</a></li>
 <li>MOVE_ERROR_WRONG_COLOR&#160;:&#160;<a class="el" href="chess__types_8h.html#ad29cfdba222dc553f977a701312d18c1a5723bd10d7972babaac58c5fa122371e">chess_types.h</a></li>
-<li>move_history&#160;:&#160;<a class="el" href="game__task_8c.html#af35759f7837c69c445a70f697226b584">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#af35759f7837c69c445a70f697226b584">game_task_internal.h</a></li>
-<li>move_history_kind&#160;:&#160;<a class="el" href="game__task_8c.html#a63e8d9eb3a6dd157ba0375403bbd360b">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a63e8d9eb3a6dd157ba0375403bbd360b">game_task_internal.h</a></li>
-<li>move_history_meta&#160;:&#160;<a class="el" href="game__physical__undo_8c.html#ac9b8bfeabb80ca6e9af5180a3da73a42">game_physical_undo.c</a>, <a class="el" href="game__task__internal_8h.html#a35fbce0e05ba60a5cea8f67b33e58535">game_task_internal.h</a></li>
+<li>move_history&#160;:&#160;<a class="el" href="game__snapshot_8c.html#a07c6ab441bf294afe498a1db9432697b">game_snapshot.c</a>, <a class="el" href="game__snapshot_8h.html#af35759f7837c69c445a70f697226b584">game_snapshot.h</a></li>
+<li>move_history_kind&#160;:&#160;<a class="el" href="game__snapshot_8c.html#abba5f31cd0e18450f8e751ed62d1a336">game_snapshot.c</a>, <a class="el" href="game__snapshot_8h.html#a63e8d9eb3a6dd157ba0375403bbd360b">game_snapshot.h</a></li>
+<li>move_history_meta&#160;:&#160;<a class="el" href="game__physical__undo_8c.html#ac9b8bfeabb80ca6e9af5180a3da73a42">game_physical_undo.c</a>, <a class="el" href="game__physical__undo_8h.html#a35fbce0e05ba60a5cea8f67b33e58535">game_physical_undo.h</a></li>
+<li>move_needs_promo_choice()&#160;:&#160;<a class="el" href="game__board__machine_8c.html#a93a0d64400d4839f0e55b3eae3625eca">game_board_machine.c</a></li>
 <li>MOVE_TYPE_CAPTURE&#160;:&#160;<a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576a0c1ae66eb0f22d3d3da0216c3c4a4c43">chess_types.h</a></li>
 <li>MOVE_TYPE_CASTLE_KING&#160;:&#160;<a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576a348ebd44da63a3260560e30452bd3d4c">chess_types.h</a></li>
 <li>MOVE_TYPE_CASTLE_QUEEN&#160;:&#160;<a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576a9402d70bce003961f9bef482a0f05abc">chess_types.h</a></li>
@@ -167,7 +167,7 @@ $(document).ready(function(){initNavTree('globals_m.html',''); initResizable(); 
 <li>MOVE_TYPE_PROMOTION&#160;:&#160;<a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576a0616f79303505961b7054938d27c5a0f">chess_types.h</a></li>
 <li>move_type_t&#160;:&#160;<a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">chess_types.h</a></li>
 <li>MOVE_VALIDATION_MS&#160;:&#160;<a class="el" href="game__task_8c.html#a2e965abc7c554be97017710630e9e0b7">game_task.c</a></li>
-<li>moves_without_capture&#160;:&#160;<a class="el" href="game__task_8c.html#a371c1b2d4cadfc3079414c671ed85847">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a371c1b2d4cadfc3079414c671ed85847">game_task_internal.h</a></li>
+<li>moves_without_capture&#160;:&#160;<a class="el" href="game__board__core_8c.html#a371c1b2d4cadfc3079414c671ed85847">game_board_core.c</a>, <a class="el" href="game__board__core_8h.html#a371c1b2d4cadfc3079414c671ed85847">game_board_core.h</a></li>
 <li>mqtt_client&#160;:&#160;<a class="el" href="ha__light__task_8c.html#ad9332f302ae79b5195a71d791a9ccecd">ha_light_task.c</a></li>
 <li>mqtt_config&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a5d3b0c2baffc69a8a04edc5b6c653cb2">ha_light_task.c</a></li>
 <li>mqtt_connected&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a6a99fbef218ac40fc0b77e18f0e9a708">ha_light_task.c</a></li>

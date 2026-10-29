@@ -1,0 +1,25 @@
+var position_8c =
+[
+    [ "apply_on", "position_8c.html#a6cb28779d1ef1d7207bd8c3b0f93dcab", null ],
+    [ "black_piece", "position_8c.html#a74a6af2f68d463dbcc5a70c381041c07", null ],
+    [ "clear_right_on_square", "position_8c.html#a7ae99d396479bfc6fc5d134cc2927a1a", null ],
+    [ "insufficient", "position_8c.html#a43e046defde34da92cc1a06f7f2ffbcd", null ],
+    [ "on_board", "position_8c.html#ad47d896e0e0a8a0bf2cbaab3609bb0f9", null ],
+    [ "pos_hash", "position_8c.html#a140d647545bef09d237aecf34e56f87f", null ],
+    [ "position_apply", "position_8c.html#a9e19c6bea6cf3b4858890c630456ef48", null ],
+    [ "position_core_apply", "position_8c.html#ab37506945d3846f8f7faa74b49194184", null ],
+    [ "position_core_trial", "position_8c.html#a49b6fb61f54bd94764a7f5b838756e12", null ],
+    [ "position_reset", "position_8c.html#a50601f963dc63925ff6ae9542ada9711", null ],
+    [ "position_status", "position_8c.html#a45a51b6cdf3eb99a0e8fb14977544d6c", null ],
+    [ "position_undo", "position_8c.html#a8c25baec884822d42eb63c4a66291f60", null ],
+    [ "promo_piece", "position_8c.html#abf16bc39c47dd71a056f61f75706b756", null ],
+    [ "push_hist", "position_8c.html#ac631c9f2c986af7f19834d067a449da9", null ],
+    [ "repeated", "position_8c.html#a6cf561017ffecf805a1dcd9bf7e54f3c", null ],
+    [ "same_side", "position_8c.html#a6397b79c36019c0fe3142decc4634005", null ],
+    [ "slider_ok", "position_8c.html#a894ace73ed7ccd55a8eb9aaa6f6354e8", null ],
+    [ "switch_side", "position_8c.html#a02576027d6d7a4018aad3dd056f5cfa4", null ],
+    [ "try_castle", "position_8c.html#a0d7ac036c455e293949ad0fbee79e1bd", null ],
+    [ "white_piece", "position_8c.html#a9e5b5afb1661a7e8024a03942304ec35", null ],
+    [ "s_core_apply", "position_8c.html#ad53fce128201c214655d9ad6aa560e3d", null ],
+    [ "s_core_trial", "position_8c.html#a5ad08695acae407bad1e024aac762ebc", null ]
+];

@@ -1,5 +1,6 @@
 var game__init_8c =
 [
+    [ "board_setup_tutorial_active", "game__init_8c.html#ae7b833953c780c339ea0d9e09a0e7b26", null ],
     [ "GAME_START_POS_MAJORITY_VOTES", "game__init_8c.html#a20f13d61cef5da223c6badbb79cd776b", null ],
     [ "GAME_START_POS_MATRIX_SAMPLES", "game__init_8c.html#a6cd0de82d0e7794bb260865bc7f752d4", null ],
     [ "STAGING_LOGI", "game__init_8c.html#a62ecd07b10c8688371e290c8c64df0a4", null ],
@@ -18,5 +19,12 @@ var game__init_8c =
     [ "game_show_missing_pieces_led", "game__init_8c.html#abe64830444e345d32ae5d59716f0e8a3", null ],
     [ "game_start_new_game", "game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44", null ],
     [ "game_start_new_game_from_fen", "game__init_8c.html#acb4b693e8b219f086cd2082b87406da9", null ],
+    [ "game_state_board_setup_tutorial_active", "game__init_8c.html#a4453bb48c16a698d1d50f2b6554d1335", null ],
+    [ "tutorial_on_drop", "game__init_8c.html#addd609417cb4b1c6dca9a1471892d2c9", null ],
+    [ "tutorial_on_leds", "game__init_8c.html#afa600df6206030896545dad2c494198e", null ],
+    [ "tutorial_on_lift", "game__init_8c.html#aa078711ae1aecad359dae64985ddcd92", null ],
+    [ "tutorial_on_move_applied", "game__init_8c.html#a12e0a1e1a83fdca51d258437a55b08a5", null ],
+    [ "s_board_setup_tutorial_active", "game__init_8c.html#a236a4ddaad89f940b4b7804d0f842101", null ],
+    [ "s_tutorial_mode", "game__init_8c.html#a0520e84b893b3a504039c221e744bd51", null ],
     [ "TAG", "game__init_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

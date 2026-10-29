@@ -123,6 +123,7 @@ $(document).ready(function(){initNavTree('ha__light__task_8c.html',''); initResi
 <code>#include &quot;mqtt_client.h&quot;</code><br />
 <code>#include &quot;nvs.h&quot;</code><br />
 <code>#include &quot;nvs_flash.h&quot;</code><br />
+<code>#include &quot;sdkconfig.h&quot;</code><br />
 <code>#include &lt;stdarg.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;string.h&gt;</code><br />
@@ -131,112 +132,113 @@ Include dependency graph for ha_light_task.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="ha__light__task_8c__incl.png" border="0" usemap="#aha__light__task_8c" alt=""/></div>
 <map name="aha__light__task_8c" id="aha__light__task_8c">
-<area shape="rect" title="HA Light Task &#45; Home Assistant RGB Light Integration via MQTT." alt="" coords="2295,5,2415,31"/>
-<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="354,79,475,104"/>
-<area shape="poly" title=" " alt="" coords="2295,24,489,90,489,85,2294,19"/>
-<area shape="rect" title=" " alt="" coords="490,313,571,339"/>
-<area shape="poly" title=" " alt="" coords="2294,22,1864,27,1230,37,639,54,438,67,375,74,342,81,315,97,291,116,271,138,258,161,250,186,250,212,257,238,273,264,285,274,305,284,358,299,419,310,476,317,476,323,418,316,357,304,303,289,283,279,269,267,252,240,245,213,245,185,253,159,267,135,287,112,312,93,340,76,374,68,438,61,639,49,1229,31,1864,21,2294,17"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1367,152,1497,177"/>
-<area shape="poly" title=" " alt="" coords="2295,25,2058,42,1907,58,1755,81,1605,115,1482,150,1480,145,1604,110,1754,76,1906,53,2057,37,2294,19"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="745,233,860,258"/>
-<area shape="poly" title=" " alt="" coords="2295,21,2006,22,1806,27,1591,37,1375,53,1175,77,1085,92,1006,110,938,131,884,154,863,169,845,186,818,223,814,220,841,183,860,164,881,150,936,126,1004,105,1084,87,1174,71,1374,47,1590,31,1806,22,2006,17,2295,16"/>
-<area shape="rect" title=" " alt="" coords="1495,233,1633,258"/>
-<area shape="poly" title=" " alt="" coords="2295,28,2157,47,2077,62,1997,81,1882,117,1771,158,1602,229,1600,224,1769,153,1880,112,1995,76,2075,57,2156,42,2294,23"/>
-<area shape="rect" title=" " alt="" coords="2033,79,2106,104"/>
-<area shape="poly" title=" " alt="" coords="2310,33,2120,80,2119,75,2308,28"/>
-<area shape="rect" title=" " alt="" coords="2131,79,2232,104"/>
-<area shape="poly" title=" " alt="" coords="2328,33,2223,76,2221,71,2326,28"/>
-<area shape="rect" title=" " alt="" coords="2257,79,2341,104"/>
-<area shape="poly" title=" " alt="" coords="2348,33,2318,69,2314,66,2343,29"/>
-<area shape="rect" title=" " alt="" coords="2365,79,2457,104"/>
-<area shape="poly" title=" " alt="" coords="2366,29,2395,66,2391,69,2362,33"/>
-<area shape="rect" title=" " alt="" coords="2481,79,2575,104"/>
-<area shape="poly" title=" " alt="" coords="2384,28,2488,71,2486,76,2382,33"/>
-<area shape="rect" title=" " alt="" coords="2599,79,2732,104"/>
-<area shape="poly" title=" " alt="" coords="2405,28,2603,73,2601,78,2404,33"/>
-<area shape="rect" title=" " alt="" coords="2756,79,2868,104"/>
-<area shape="poly" title=" " alt="" coords="2415,26,2743,76,2742,81,2414,31"/>
-<area shape="rect" title=" " alt="" coords="2892,79,3015,104"/>
-<area shape="poly" title=" " alt="" coords="2415,23,2617,44,2878,76,2878,81,2616,49,2415,28"/>
-<area shape="rect" title=" " alt="" coords="3039,79,3137,104"/>
-<area shape="poly" title=" " alt="" coords="2415,20,2676,39,2848,55,3025,76,3025,81,2847,60,2676,44,2415,25"/>
-<area shape="rect" title=" " alt="" coords="3162,79,3249,104"/>
-<area shape="poly" title=" " alt="" coords="2415,19,2725,35,2933,52,3148,76,3148,81,2933,57,2725,40,2415,24"/>
-<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="2246,152,2365,177"/>
-<area shape="poly" title=" " alt="" coords="2295,24,2220,29,2139,39,2067,56,2041,67,2024,80,2019,91,2023,102,2046,110,2099,122,2233,148,2232,153,2098,127,2045,115,2020,106,2013,91,2019,77,2038,62,2065,51,2138,33,2220,23,2294,18"/>
-<area shape="rect" href="task__wdt_8h.html" title="Shared Task Watchdog reset helpers (ESP_ERR_NOT_FOUND → WARNING)." alt="" coords="31,152,124,177"/>
-<area shape="poly" title=" " alt="" coords="2295,22,1827,25,1126,33,776,41,472,51,250,64,180,72,144,81,127,93,112,108,91,141,86,138,108,105,123,89,142,76,179,67,249,59,472,46,776,36,1126,28,1827,19,2295,17"/>
-<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="895,152,1001,177"/>
-<area shape="poly" title=" " alt="" coords="2295,26,2013,48,1642,81,1288,122,1015,157,1014,152,1288,117,1641,76,2012,42,2294,21"/>
-<area shape="rect" href="game__gesture_8h.html" title="Game&#45;task side of the V2 button: mode commit, new game, pairing, sleep." alt="" coords="2095,152,2222,177"/>
-<area shape="poly" title=" " alt="" coords="2295,23,2218,28,2132,38,2057,55,2030,66,2011,80,2005,91,2005,101,2010,110,2019,119,2049,134,2086,146,2084,151,2047,139,2016,123,2006,114,2000,102,2000,90,2007,77,2027,62,2056,50,2132,32,2217,23,2294,18"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1766,79,1855,104"/>
-<area shape="poly" title=" " alt="" coords="2295,28,2107,50,1875,81,1869,82,1868,77,1874,76,2107,45,2294,23"/>
-<area shape="rect" title=" " alt="" coords="3273,79,3381,104"/>
-<area shape="poly" title=" " alt="" coords="2415,18,2769,35,3010,51,3259,76,3259,81,3010,57,2769,40,2415,24"/>
-<area shape="rect" title=" " alt="" coords="3405,79,3462,104"/>
-<area shape="poly" title=" " alt="" coords="2415,18,2894,37,3175,54,3296,64,3392,76,3391,82,3295,70,3175,59,2893,42,2415,24"/>
-<area shape="rect" title=" " alt="" coords="3486,79,3581,104"/>
-<area shape="poly" title=" " alt="" coords="2415,17,2593,20,2852,28,3157,46,3472,76,3472,81,3157,51,2852,34,2593,25,2415,22"/>
-<area shape="rect" title=" " alt="" coords="3605,79,3680,104"/>
-<area shape="poly" title=" " alt="" coords="2415,18,2987,37,3330,54,3477,65,3592,76,3592,82,3476,70,3330,59,2987,42,2415,23"/>
-<area shape="rect" title=" " alt="" coords="3704,79,3771,104"/>
-<area shape="poly" title=" " alt="" coords="2415,18,3033,35,3406,52,3566,63,3691,76,3690,82,3565,68,3406,57,3032,40,2415,23"/>
-<area shape="rect" title=" " alt="" coords="3795,79,3866,104"/>
-<area shape="poly" title=" " alt="" coords="2415,18,3075,34,3476,52,3648,63,3782,76,3782,82,3648,68,3476,57,3075,40,2415,23"/>
-<area shape="poly" title=" " alt="" coords="365,107,327,124,310,137,297,153,282,183,276,210,280,236,297,264,308,273,325,282,371,297,477,316,476,321,370,302,323,287,305,278,293,267,275,238,270,210,277,181,293,151,307,134,324,120,363,102"/>
-<area shape="rect" title=" " alt="" coords="187,313,338,339"/>
-<area shape="poly" title=" " alt="" coords="354,95,266,98,165,107,76,125,43,138,21,154,12,167,8,180,9,192,15,205,37,233,72,263,96,279,121,291,175,309,173,314,119,296,93,283,69,267,33,237,10,208,4,194,3,179,7,165,17,150,40,133,74,119,164,102,265,93,354,90"/>
-<area shape="rect" title=" " alt="" coords="785,313,914,339"/>
-<area shape="poly" title=" " alt="" coords="411,105,396,136,383,179,380,202,381,224,387,245,398,263,415,273,448,282,547,297,772,317,771,323,546,303,447,287,413,278,394,267,382,247,376,225,375,202,378,178,391,135,406,103"/>
-<area shape="rect" title=" " alt="" coords="1033,313,1116,339"/>
-<area shape="poly" title=" " alt="" coords="415,104,410,136,409,180,418,225,428,246,441,263,514,274,677,289,1020,318,1019,323,676,295,513,279,439,268,423,249,413,227,404,180,405,136,410,104"/>
-<area shape="rect" title=" " alt="" coords="1934,313,2005,339"/>
-<area shape="poly" title=" " alt="" coords="476,91,652,95,908,104,1206,122,1510,149,1576,154,1635,153,1737,148,1784,152,1832,163,1881,186,1934,223,1949,240,1959,260,1970,299,1964,300,1954,262,1944,243,1930,227,1878,190,1830,168,1783,157,1737,154,1635,158,1576,159,1509,155,1205,127,907,110,652,100,475,96"/>
-<area shape="poly" title=" " alt="" coords="476,94,1354,155,1354,161,476,100"/>
-<area shape="poly" title=" " alt="" coords="1367,170,1221,175,1038,186,861,203,788,214,734,228,716,236,704,246,673,268,576,311,574,306,671,263,700,241,714,232,733,223,787,209,860,197,1037,180,1221,170,1367,165"/>
-<area shape="poly" title=" " alt="" coords="1367,171,1006,188,809,205,728,216,667,228,643,237,625,247,607,258,582,268,463,298,352,317,351,312,462,293,581,263,605,253,622,242,641,232,666,223,728,211,809,200,1006,183,1367,165"/>
-<area shape="poly" title=" " alt="" coords="1432,178,1418,223,1403,247,1383,268,1323,280,1202,294,928,321,928,315,1201,289,1323,274,1380,263,1399,244,1413,220,1427,177"/>
-<area shape="poly" title=" " alt="" coords="1438,177,1443,220,1439,245,1427,267,1407,282,1376,294,1297,312,1208,322,1130,326,1130,321,1208,316,1296,306,1375,289,1404,278,1423,264,1434,243,1438,220,1433,178"/>
-<area shape="poly" title=" " alt="" coords="1497,166,1596,171,1712,182,1820,198,1863,210,1895,223,1916,239,1935,259,1960,299,1956,302,1930,262,1913,243,1892,228,1861,215,1819,204,1711,187,1596,176,1497,171"/>
-<area shape="rect" title=" " alt="" coords="1785,233,1881,258"/>
-<area shape="poly" title=" " alt="" coords="1497,172,1626,192,1774,223,1787,226,1786,231,1773,228,1625,198,1496,177"/>
-<area shape="poly" title=" " alt="" coords="1367,177,874,238,873,233,1367,171"/>
-<area shape="rect" title=" " alt="" coords="1657,233,1761,258"/>
-<area shape="poly" title=" " alt="" coords="1475,175,1646,223,1658,226,1657,231,1645,228,1473,180"/>
-<area shape="poly" title=" " alt="" coords="1453,175,1534,223,1532,228,1450,180"/>
-<area shape="rect" title=" " alt="" coords="452,233,569,258"/>
-<area shape="poly" title=" " alt="" coords="1367,170,1226,174,1032,183,812,200,588,228,566,232,565,227,588,223,811,195,1032,178,1226,168,1367,164"/>
-<area shape="rect" title=" " alt="" coords="1239,233,1369,258"/>
-<area shape="poly" title=" " alt="" coords="1415,180,1336,228,1333,223,1412,175"/>
-<area shape="poly" title=" " alt="" coords="764,261,584,312,583,307,762,255"/>
-<area shape="poly" title=" " alt="" coords="745,258,352,314,351,309,745,252"/>
-<area shape="poly" title=" " alt="" coords="812,257,838,300,833,303,807,260"/>
-<area shape="poly" title=" " alt="" coords="843,255,1023,307,1021,312,842,261"/>
-<area shape="poly" title=" " alt="" coords="861,251,974,263,1254,284,1529,300,1920,320,1920,325,1528,306,1254,289,973,268,860,256"/>
-<area shape="poly" title=" " alt="" coords="2294,180,2241,222,2205,246,2167,268,2090,298,2019,317,2017,312,2088,293,2164,263,2202,242,2238,218,2291,175"/>
-<area shape="poly" title=" " alt="" coords="84,176,105,220,122,244,144,263,170,275,205,285,295,302,392,313,476,319,476,324,392,318,294,307,204,291,168,280,141,268,118,247,100,223,79,179"/>
-<area shape="poly" title=" " alt="" coords="78,178,78,220,83,243,94,264,111,280,131,293,175,310,173,315,128,298,108,284,90,267,78,245,72,220,73,178"/>
-<area shape="poly" title=" " alt="" coords="125,172,439,228,438,234,124,177"/>
-<area shape="poly" title=" " alt="" coords="895,176,798,194,743,209,690,228,616,267,557,307,554,303,614,262,688,223,742,204,797,189,894,170"/>
-<area shape="poly" title=" " alt="" coords="895,168,807,170,692,179,566,197,502,211,441,228,398,245,357,266,291,307,288,303,354,261,396,240,439,223,501,205,565,192,692,174,806,165,895,163"/>
-<area shape="poly" title=" " alt="" coords="943,179,866,303,862,300,939,176"/>
-<area shape="poly" title=" " alt="" coords="951,177,956,218,964,242,976,264,1001,288,1030,305,1028,310,998,292,971,267,959,244,951,220,946,178"/>
-<area shape="poly" title=" " alt="" coords="1002,171,1086,189,1133,204,1177,223,1193,233,1203,244,1213,254,1228,263,1288,280,1369,293,1567,310,1769,319,1920,322,1920,327,1769,324,1567,316,1368,298,1286,285,1226,268,1210,259,1199,248,1189,238,1175,228,1131,209,1085,195,1001,176"/>
-<area shape="poly" title=" " alt="" coords="928,180,837,228,835,224,925,175"/>
-<area shape="poly" title=" " alt="" coords="1002,170,1482,231,1481,236,1001,175"/>
-<area shape="poly" title=" " alt="" coords="895,176,756,198,589,228,569,232,568,227,588,223,755,192,894,171"/>
-<area shape="poly" title=" " alt="" coords="1001,175,1221,223,1240,227,1239,232,1219,228,1000,180"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="985,225,1164,265"/>
-<area shape="poly" title=" " alt="" coords="968,175,1034,216,1031,220,965,180"/>
-<area shape="poly" title=" " alt="" coords="985,262,586,319,585,314,985,257"/>
-<area shape="poly" title=" " alt="" coords="1077,266,1077,299,1072,299,1072,266"/>
-<area shape="poly" title=" " alt="" coords="1165,260,1183,263,1398,285,1610,302,1921,320,1920,325,1609,307,1398,291,1182,268,1164,265"/>
-<area shape="poly" title=" " alt="" coords="2141,180,2055,225,1998,249,1938,268,1866,281,1770,293,1538,310,1304,321,1130,326,1130,321,1304,315,1537,305,1769,287,1865,276,1937,263,1996,244,2053,220,2138,175"/>
-<area shape="poly" title=" " alt="" coords="1766,96,1475,104,1051,125,839,142,653,164,576,178,514,193,468,209,442,227,437,236,435,244,442,264,462,288,488,305,485,310,459,292,438,267,430,245,432,234,438,223,466,204,512,188,575,172,652,159,838,137,1051,119,1475,99,1766,91"/>
-<area shape="poly" title=" " alt="" coords="1826,102,1858,133,1891,176,1903,199,1910,223,1908,246,1895,267,1879,278,1854,287,1777,301,1675,311,1558,319,1315,326,1130,328,1130,322,1315,321,1557,313,1675,306,1776,296,1852,281,1877,273,1891,263,1903,244,1904,223,1898,201,1887,179,1854,137,1822,106"/>
-<area shape="poly" title=" " alt="" coords="1857,99,1906,114,1960,138,1985,155,2008,174,2027,198,2041,224,2047,246,2041,266,2025,290,2004,308,2000,304,2021,286,2036,264,2041,246,2036,226,2023,200,2004,178,1982,159,1957,143,1904,119,1855,104"/>
-<area shape="poly" title=" " alt="" coords="1766,104,1507,152,1506,147,1765,98"/>
+<area shape="rect" title="HA Light Task &#45; Home Assistant RGB Light Integration via MQTT." alt="" coords="2113,5,2233,31"/>
+<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="440,79,562,104"/>
+<area shape="poly" title=" " alt="" coords="2113,22,1868,24,1491,32,1042,50,809,64,581,81,576,82,575,77,581,76,809,58,1042,44,1491,27,1868,19,2113,17"/>
+<area shape="rect" title=" " alt="" coords="434,313,515,339"/>
+<area shape="poly" title=" " alt="" coords="2113,22,1762,24,1236,32,694,50,468,64,297,81,252,86,212,86,141,87,110,92,80,103,52,123,23,154,14,169,11,184,14,198,21,211,48,238,85,263,129,286,169,299,206,305,242,307,321,304,367,305,420,311,420,316,367,310,321,309,242,312,205,311,167,304,127,291,82,268,44,242,17,214,9,199,6,184,9,167,19,150,48,119,78,98,109,87,141,82,212,81,252,80,297,76,467,58,694,44,1236,27,1762,19,2113,17"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1286,152,1415,177"/>
+<area shape="poly" title=" " alt="" coords="2113,23,2011,27,1877,37,1728,54,1579,81,1475,114,1389,149,1387,144,1473,108,1578,76,1727,49,1877,31,2010,22,2113,18"/>
+<area shape="rect" title=" " alt="" coords="1856,233,1952,258"/>
+<area shape="poly" title=" " alt="" coords="2113,26,2048,33,1977,44,1915,60,1891,70,1875,81,1857,102,1849,124,1849,148,1857,176,1869,200,1884,221,1880,224,1864,203,1852,178,1844,149,1844,123,1852,100,1871,77,1889,65,1913,55,1976,39,2047,28,2112,21"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="664,233,778,258"/>
+<area shape="poly" title=" " alt="" coords="2113,24,1858,36,1498,61,1311,78,1137,100,988,125,927,139,878,154,806,189,748,227,746,222,803,185,876,150,926,134,987,120,1136,94,1311,73,1498,56,1858,31,2112,19"/>
+<area shape="rect" title=" " alt="" coords="1414,233,1551,258"/>
+<area shape="poly" title=" " alt="" coords="2113,29,1990,47,1918,62,1848,81,1751,116,1658,157,1516,228,1513,224,1655,152,1749,111,1847,76,1917,57,1989,42,2112,23"/>
+<area shape="rect" title=" " alt="" coords="1907,79,1980,104"/>
+<area shape="poly" title=" " alt="" coords="2137,33,1994,77,1993,72,2135,28"/>
+<area shape="rect" title=" " alt="" coords="2005,79,2106,104"/>
+<area shape="poly" title=" " alt="" coords="2155,33,2088,74,2085,69,2153,28"/>
+<area shape="rect" title=" " alt="" coords="2131,79,2215,104"/>
+<area shape="poly" title=" " alt="" coords="2176,31,2176,65,2170,65,2170,31"/>
+<area shape="rect" title=" " alt="" coords="2239,79,2331,104"/>
+<area shape="poly" title=" " alt="" coords="2192,28,2256,69,2253,73,2190,33"/>
+<area shape="rect" title=" " alt="" coords="2356,79,2449,104"/>
+<area shape="poly" title=" " alt="" coords="2211,28,2353,72,2351,77,2209,33"/>
+<area shape="rect" title=" " alt="" coords="2473,79,2606,104"/>
+<area shape="poly" title=" " alt="" coords="2232,28,2467,73,2466,79,2231,33"/>
+<area shape="rect" title=" " alt="" coords="2630,79,2742,104"/>
+<area shape="poly" title=" " alt="" coords="2234,24,2617,76,2616,81,2233,29"/>
+<area shape="rect" title=" " alt="" coords="2766,79,2889,104"/>
+<area shape="poly" title=" " alt="" coords="2234,22,2458,43,2753,76,2752,81,2457,48,2233,27"/>
+<area shape="rect" title=" " alt="" coords="2913,79,3012,104"/>
+<area shape="poly" title=" " alt="" coords="2233,20,2517,38,2705,54,2900,76,2899,81,2705,59,2516,43,2233,25"/>
+<area shape="rect" title=" " alt="" coords="3036,79,3123,104"/>
+<area shape="poly" title=" " alt="" coords="2233,18,2565,33,2790,51,3022,76,3022,81,2790,56,2565,39,2233,24"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="2078,152,2196,177"/>
+<area shape="poly" title=" " alt="" coords="2113,26,2052,33,1987,44,1932,59,1911,69,1898,80,1893,91,1898,102,1918,113,1959,125,2064,147,2063,153,1958,130,1916,118,1894,106,1888,91,1893,77,1908,65,1930,55,1986,39,2051,28,2113,21"/>
+<area shape="rect" href="task__wdt_8h.html" title="Shared Task Watchdog reset helpers (ESP_ERR_NOT_FOUND → WARNING)." alt="" coords="33,152,126,177"/>
+<area shape="poly" title=" " alt="" coords="2113,22,1784,26,1296,35,795,53,586,66,428,81,345,96,263,114,129,151,128,145,262,109,344,90,427,76,585,60,795,48,1296,30,1784,21,2113,17"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="889,152,996,177"/>
+<area shape="poly" title=" " alt="" coords="2113,26,1843,46,1491,81,1223,119,1009,154,1009,149,1223,114,1490,76,1842,41,2112,21"/>
+<area shape="rect" href="game__gesture_8h.html" title="Game&#45;task side of the V2 button: mode commit, new game, pairing, sleep." alt="" coords="1866,152,1992,177"/>
+<area shape="poly" title=" " alt="" coords="2113,26,2049,32,1981,43,1923,59,1901,69,1887,80,1882,94,1885,110,1907,140,1902,143,1880,112,1876,94,1883,77,1898,64,1921,54,1980,38,2049,27,2112,20"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1590,79,1679,104"/>
+<area shape="poly" title=" " alt="" coords="2113,28,1928,50,1699,81,1693,82,1692,77,1698,76,1927,45,2113,23"/>
+<area shape="rect" title=" " alt="" coords="3147,79,3255,104"/>
+<area shape="poly" title=" " alt="" coords="2234,18,2609,33,2867,51,3134,76,3133,81,2867,56,2609,39,2233,23"/>
+<area shape="rect" title=" " alt="" coords="3279,79,3336,104"/>
+<area shape="poly" title=" " alt="" coords="2233,18,2738,36,3037,53,3165,64,3266,76,3265,81,3164,69,3036,59,2738,41,2233,23"/>
+<area shape="rect" title=" " alt="" coords="3360,79,3455,104"/>
+<area shape="poly" title=" " alt="" coords="2233,17,2419,19,2692,27,3014,45,3181,59,3347,76,3346,81,3181,64,3014,50,2692,33,2419,24,2233,22"/>
+<area shape="rect" title=" " alt="" coords="3480,79,3554,104"/>
+<area shape="poly" title=" " alt="" coords="2233,18,2831,36,3191,53,3345,64,3466,76,3466,81,3345,69,3191,59,2831,42,2233,23"/>
+<area shape="rect" title=" " alt="" coords="3578,79,3645,104"/>
+<area shape="poly" title=" " alt="" coords="2233,18,2877,34,3268,51,3435,63,3565,76,3565,82,3434,68,3267,57,2877,39,2233,23"/>
+<area shape="rect" title=" " alt="" coords="3670,79,3740,104"/>
+<area shape="poly" title=" " alt="" coords="2233,18,2919,34,3338,51,3517,63,3656,76,3656,82,3516,68,3337,56,2919,39,2233,23"/>
+<area shape="poly" title=" " alt="" coords="441,102,313,123,254,137,214,154,195,169,182,184,165,226,161,260,164,272,171,281,195,295,230,301,320,304,371,306,421,311,420,316,370,311,320,309,229,306,193,300,168,286,160,275,155,261,160,225,177,181,191,165,212,150,253,132,312,118,440,97"/>
+<area shape="rect" title=" " alt="" coords="259,313,410,339"/>
+<area shape="poly" title=" " alt="" coords="440,98,195,118,81,134,43,143,23,154,11,176,10,202,22,231,49,263,81,281,130,295,246,314,245,319,129,300,79,286,46,267,17,234,5,203,6,174,19,150,41,138,80,129,194,112,440,93"/>
+<area shape="rect" title=" " alt="" coords="703,313,832,339"/>
+<area shape="poly" title=" " alt="" coords="457,107,379,131,338,148,300,168,269,189,250,213,245,225,245,237,249,250,259,263,279,274,318,284,433,300,569,311,690,319,689,324,568,317,432,305,317,289,277,279,255,267,245,252,240,238,240,224,245,210,265,185,297,163,336,143,377,126,455,102"/>
+<area shape="rect" title=" " alt="" coords="1028,313,1110,339"/>
+<area shape="poly" title=" " alt="" coords="509,103,529,136,561,180,603,226,627,246,653,263,682,275,721,285,819,301,1014,319,1013,324,818,306,720,290,680,280,650,268,624,251,599,230,557,184,525,139,505,106"/>
+<area shape="rect" title=" " alt="" coords="1682,313,1752,339"/>
+<area shape="poly" title=" " alt="" coords="562,90,714,93,929,101,1176,119,1303,132,1427,149,1474,154,1517,155,1592,154,1626,158,1659,170,1690,191,1722,224,1731,242,1734,262,1728,300,1723,300,1728,262,1726,244,1717,227,1687,195,1656,174,1625,164,1592,159,1517,160,1473,159,1426,155,1302,138,1176,124,929,107,714,98,562,95"/>
+<area shape="poly" title=" " alt="" coords="562,95,1272,154,1271,159,561,100"/>
+<area shape="poly" title=" " alt="" coords="1286,170,1140,175,956,185,779,202,706,214,653,228,636,236,624,245,596,268,514,310,511,305,593,263,620,241,633,232,651,223,705,208,778,196,955,179,1139,169,1285,165"/>
+<area shape="poly" title=" " alt="" coords="1286,171,929,189,735,206,655,216,595,228,570,236,552,246,509,268,385,312,383,307,507,263,549,241,568,231,594,223,654,211,735,200,929,184,1285,165"/>
+<area shape="poly" title=" " alt="" coords="1351,178,1336,223,1322,247,1301,268,1276,277,1233,286,1111,301,846,323,846,317,1111,296,1232,281,1275,272,1298,263,1317,244,1331,220,1346,177"/>
+<area shape="poly" title=" " alt="" coords="1356,177,1361,220,1357,245,1346,267,1330,279,1308,289,1251,305,1185,316,1124,323,1124,318,1184,311,1250,300,1307,284,1328,274,1342,264,1352,243,1356,220,1351,178"/>
+<area shape="poly" title=" " alt="" coords="1415,166,1490,172,1572,183,1645,199,1673,210,1693,223,1706,240,1715,260,1720,299,1715,300,1709,262,1702,243,1690,227,1671,215,1643,205,1571,188,1489,178,1415,172"/>
+<area shape="poly" title=" " alt="" coords="1416,173,1842,233,1841,238,1415,178"/>
+<area shape="poly" title=" " alt="" coords="1286,175,1087,197,841,228,792,235,792,230,841,223,1086,192,1285,170"/>
+<area shape="rect" title=" " alt="" coords="1576,233,1680,258"/>
+<area shape="poly" title=" " alt="" coords="1392,175,1563,223,1576,226,1574,232,1562,228,1391,180"/>
+<area shape="poly" title=" " alt="" coords="1371,175,1453,223,1450,228,1368,180"/>
+<area shape="rect" title=" " alt="" coords="269,233,386,258"/>
+<area shape="poly" title=" " alt="" coords="1286,173,557,228,400,241,400,235,557,223,1285,168"/>
+<area shape="rect" title=" " alt="" coords="1157,233,1288,258"/>
+<area shape="poly" title=" " alt="" coords="1333,180,1254,228,1251,223,1330,175"/>
+<area shape="poly" title=" " alt="" coords="686,261,524,312,522,307,684,255"/>
+<area shape="poly" title=" " alt="" coords="665,261,405,313,403,308,664,255"/>
+<area shape="poly" title=" " alt="" coords="730,257,756,300,751,303,726,260"/>
+<area shape="poly" title=" " alt="" coords="772,255,1015,310,1014,315,771,261"/>
+<area shape="poly" title=" " alt="" coords="779,254,841,263,1084,286,1322,303,1668,320,1668,325,1322,308,1084,291,841,268,778,259"/>
+<area shape="poly" title=" " alt="" coords="2134,179,2107,223,2085,247,2060,268,2036,278,2004,288,1925,303,1766,323,1766,318,1924,298,2003,282,2034,273,2057,263,2082,244,2102,220,2129,176"/>
+<area shape="poly" title=" " alt="" coords="82,177,89,220,98,244,113,263,137,277,169,287,252,298,342,304,420,311,420,316,342,310,252,304,168,292,135,282,110,267,93,246,83,222,77,178"/>
+<area shape="poly" title=" " alt="" coords="74,179,65,198,57,220,55,243,63,264,74,273,91,282,136,296,190,307,246,315,245,320,190,312,135,302,88,287,71,278,59,267,50,244,52,219,60,195,70,177"/>
+<area shape="poly" title=" " alt="" coords="116,175,279,226,278,231,115,180"/>
+<area shape="poly" title=" " alt="" coords="889,171,829,176,758,186,682,202,609,228,576,245,546,265,497,306,494,302,542,261,573,240,607,223,681,197,757,180,829,170,888,165"/>
+<area shape="poly" title=" " alt="" coords="889,171,730,187,633,204,538,228,489,246,442,267,366,309,363,304,440,262,487,241,536,223,632,199,729,182,888,166"/>
+<area shape="poly" title=" " alt="" coords="918,180,881,200,843,227,809,265,783,303,779,300,805,262,839,223,878,195,915,175"/>
+<area shape="poly" title=" " alt="" coords="977,175,1013,194,1031,208,1046,224,1056,242,1064,262,1070,299,1065,300,1058,263,1052,244,1041,227,1027,212,1010,199,974,180"/>
+<area shape="poly" title=" " alt="" coords="970,175,1073,223,1109,245,1146,263,1191,274,1251,283,1398,300,1668,319,1668,325,1398,305,1251,289,1190,279,1144,268,1106,250,1070,228,968,180"/>
+<area shape="poly" title=" " alt="" coords="911,180,767,231,765,226,909,175"/>
+<area shape="poly" title=" " alt="" coords="996,171,1401,230,1400,235,996,176"/>
+<area shape="poly" title=" " alt="" coords="889,172,677,191,541,207,405,228,384,232,383,227,404,223,541,202,676,186,888,167"/>
+<area shape="poly" title=" " alt="" coords="984,175,1169,226,1168,232,982,180"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="853,225,1032,265"/>
+<area shape="poly" title=" " alt="" coords="945,178,945,212,940,212,940,178"/>
+<area shape="poly" title=" " alt="" coords="853,264,529,318,529,313,852,259"/>
+<area shape="poly" title=" " alt="" coords="974,263,1040,304,1037,308,972,268"/>
+<area shape="poly" title=" " alt="" coords="1032,255,1101,263,1668,318,1668,323,1101,268,1032,260"/>
+<area shape="poly" title=" " alt="" coords="1942,176,1956,195,1969,218,1975,244,1973,256,1965,267,1928,279,1847,289,1605,306,1124,326,1124,320,1604,301,1847,284,1927,274,1962,263,1968,254,1970,244,1964,220,1952,198,1937,179"/>
+<area shape="poly" title=" " alt="" coords="1590,96,1298,104,872,125,659,143,472,165,395,178,332,193,286,209,259,227,253,236,251,245,259,263,318,283,421,309,419,314,316,288,255,267,246,245,248,234,255,223,283,205,330,188,394,173,471,160,658,137,872,120,1298,99,1589,91"/>
+<area shape="poly" title=" " alt="" coords="1647,103,1672,134,1697,177,1706,201,1709,224,1706,247,1693,267,1663,282,1608,294,1449,311,1269,321,1124,326,1124,321,1269,316,1448,306,1607,289,1661,277,1690,263,1701,245,1704,224,1701,202,1692,179,1667,137,1643,106"/>
+<area shape="poly" title=" " alt="" coords="1679,90,1762,93,1860,102,1950,120,1984,133,2007,150,2020,173,2024,200,2014,232,1988,267,1972,279,1950,288,1891,304,1766,323,1766,318,1890,299,1948,283,1970,274,1984,263,2009,230,2018,200,2015,174,2003,154,1981,138,1948,125,1860,107,1762,99,1679,96"/>
+<area shape="poly" title=" " alt="" coords="1590,106,1410,151,1408,146,1589,101"/>
 </map>
 </div>
 </div>
@@ -244,11 +246,27 @@ Include dependency graph for ha_light_task.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a2b3dde16d2d855a807f4df41c9cf7748" id="r_a2b3dde16d2d855a807f4df41c9cf7748"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a2b3dde16d2d855a807f4df41c9cf7748">HA_MQTT_MIN_FREE_HEAP_BYTES</a>&#160;&#160;&#160;(32 * 1024)</td></tr>
-<tr class="memdesc:a2b3dde16d2d855a807f4df41c9cf7748"><td class="mdescLeft">&#160;</td><td class="mdescRight">The client takes ~10 KB (task stack + buffers).  <br /></td></tr>
-<tr class="separator:a2b3dde16d2d855a807f4df41c9cf7748"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a38376f5a11ecbe426778c8b7048e57a6" id="r_a38376f5a11ecbe426778c8b7048e57a6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a38376f5a11ecbe426778c8b7048e57a6">HA_MQTT_STOP_HEAP_BYTES</a>&#160;&#160;&#160;(16 * 1024)</td></tr>
-<tr class="memdesc:a38376f5a11ecbe426778c8b7048e57a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Drop the client before the Wi-Fi task starts failing malloc.  <br /></td></tr>
+<tr class="memitem:aad85419fc0f72160888c6ea18cfaaec2" id="r_aad85419fc0f72160888c6ea18cfaaec2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aad85419fc0f72160888c6ea18cfaaec2">HA_MQTT_TASK_STACK_BYTES</a>&#160;&#160;&#160;(6 * 1024)</td></tr>
+<tr class="memdesc:aad85419fc0f72160888c6ea18cfaaec2"><td class="mdescLeft">&#160;</td><td class="mdescRight">esp-mqtt uses this when task.stack_size is 0.  <br /></td></tr>
+<tr class="separator:aad85419fc0f72160888c6ea18cfaaec2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3eaa20a814002c526e46d25a0e241fa2" id="r_a3eaa20a814002c526e46d25a0e241fa2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a3eaa20a814002c526e46d25a0e241fa2">HA_MQTT_IN_BYTES</a>&#160;&#160;&#160;512</td></tr>
+<tr class="separator:a3eaa20a814002c526e46d25a0e241fa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae88d0b55d4aafd91f1214b6c0c576444" id="r_ae88d0b55d4aafd91f1214b6c0c576444"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ae88d0b55d4aafd91f1214b6c0c576444">HA_MQTT_OUT_BYTES</a>&#160;&#160;&#160;768</td></tr>
+<tr class="separator:ae88d0b55d4aafd91f1214b6c0c576444"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6b74f9d884510733d0c796f798efb997" id="r_a6b74f9d884510733d0c796f798efb997"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a6b74f9d884510733d0c796f798efb997">HA_MQTT_TCP_SND_BYTES</a>&#160;&#160;&#160;CONFIG_LWIP_TCP_SND_BUF_DEFAULT</td></tr>
+<tr class="separator:a6b74f9d884510733d0c796f798efb997"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a18e6423b640ba0e598ab5ee8b12df696" id="r_a18e6423b640ba0e598ab5ee8b12df696"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a18e6423b640ba0e598ab5ee8b12df696">HA_MQTT_CLIENT_OVERHEAD_BYTES</a>&#160;&#160;&#160;2048</td></tr>
+<tr class="separator:a18e6423b640ba0e598ab5ee8b12df696"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7a9d44fe0607d314bd7ca5a9ce1cbdb2" id="r_a7a9d44fe0607d314bd7ca5a9ce1cbdb2"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a7a9d44fe0607d314bd7ca5a9ce1cbdb2">HA_MQTT_NEED_BYTES</a></td></tr>
+<tr class="separator:a7a9d44fe0607d314bd7ca5a9ce1cbdb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49b12e587dbc02c78823c9f3ea9ff899" id="r_a49b12e587dbc02c78823c9f3ea9ff899"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a49b12e587dbc02c78823c9f3ea9ff899">HA_MQTT_BIGGEST_BLOCK_BYTES</a>&#160;&#160;&#160;((size_t)<a class="el" href="ha__light__task_8c.html#aad85419fc0f72160888c6ea18cfaaec2">HA_MQTT_TASK_STACK_BYTES</a>)</td></tr>
+<tr class="memdesc:a49b12e587dbc02c78823c9f3ea9ff899"><td class="mdescLeft">&#160;</td><td class="mdescRight">Biggest single internal alloc is the task stack, not the TCP cap.  <br /></td></tr>
+<tr class="separator:a49b12e587dbc02c78823c9f3ea9ff899"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9a98fb209ea25c7a17a3fdb6f4d68b0" id="r_ac9a98fb209ea25c7a17a3fdb6f4d68b0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ac9a98fb209ea25c7a17a3fdb6f4d68b0">HA_MQTT_CALM_MS</a>&#160;&#160;&#160;8000u</td></tr>
+<tr class="memdesc:ac9a98fb209ea25c7a17a3fdb6f4d68b0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Heap must stay above the start gate this long before a start.  <br /></td></tr>
+<tr class="separator:ac9a98fb209ea25c7a17a3fdb6f4d68b0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a38376f5a11ecbe426778c8b7048e57a6" id="r_a38376f5a11ecbe426778c8b7048e57a6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a38376f5a11ecbe426778c8b7048e57a6">HA_MQTT_STOP_HEAP_BYTES</a>&#160;&#160;&#160;<a class="el" href="freertos__chess_8h.html#a3b1c7a44d2432ff5ae561d89acbb04d2">CHESS_WIFI_HEAP_FLOOR_BYTES</a></td></tr>
+<tr class="memdesc:a38376f5a11ecbe426778c8b7048e57a6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release the client as soon as WiFi/lwIP lose their floor.  <br /></td></tr>
 <tr class="separator:a38376f5a11ecbe426778c8b7048e57a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a92886223f31f7f25e27a413fab7c9fd1" id="r_a92886223f31f7f25e27a413fab7c9fd1"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a92886223f31f7f25e27a413fab7c9fd1">HA_MQTT_PAYLOAD_MAX</a>&#160;&#160;&#160;768</td></tr>
 <tr class="separator:a92886223f31f7f25e27a413fab7c9fd1"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -337,10 +355,8 @@ Functions</h2></td></tr>
 <tr class="separator:a99e2c17ed7924c49fde1870dca213dc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aca85071cfa51d02823ba74527eda3c3d" id="r_aca85071cfa51d02823ba74527eda3c3d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aca85071cfa51d02823ba74527eda3c3d">lamp_nvs_save_mode</a> (void)</td></tr>
 <tr class="separator:aca85071cfa51d02823ba74527eda3c3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ad9ac55ed35a2f8e4352e7d6b45f6cb08" id="r_ad9ac55ed35a2f8e4352e7d6b45f6cb08"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ad9ac55ed35a2f8e4352e7d6b45f6cb08">ha_pattern_paint_all</a> (void)</td></tr>
-<tr class="separator:ad9ac55ed35a2f8e4352e7d6b45f6cb08"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa032a834705fb97e922d2d583f49ce82" id="r_aa032a834705fb97e922d2d583f49ce82"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aa032a834705fb97e922d2d583f49ce82">ha_pattern_nvs_load</a> (void)</td></tr>
-<tr class="separator:aa032a834705fb97e922d2d583f49ce82"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a010a27e1617821d32f1a54b4c9c947b7" id="r_a010a27e1617821d32f1a54b4c9c947b7"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a010a27e1617821d32f1a54b4c9c947b7">ha_pattern_nvs_erase_once</a> (void)</td></tr>
+<tr class="separator:a010a27e1617821d32f1a54b4c9c947b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa4ede6db32474aa8aa601b4b1b1a3108" id="r_aa4ede6db32474aa8aa601b4b1b1a3108"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aa4ede6db32474aa8aa601b4b1b1a3108">ha_light_wdt_feed_if_own_task</a> (void)</td></tr>
 <tr class="separator:aa4ede6db32474aa8aa601b4b1b1a3108"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af2c48fb0be8e0af2ec8f26872bea2721" id="r_af2c48fb0be8e0af2ec8f26872bea2721"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#af2c48fb0be8e0af2ec8f26872bea2721">ha_light_report_activity</a> (const char *activity_type)</td></tr>
@@ -379,18 +395,18 @@ Functions</h2></td></tr>
 <tr class="memitem:af54ee77cebff3b3c12301819b1082ce4" id="r_af54ee77cebff3b3c12301819b1082ce4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#af54ee77cebff3b3c12301819b1082ce4">mqtt_ensure_config_loaded</a> (void)</td></tr>
 <tr class="memdesc:af54ee77cebff3b3c12301819b1082ce4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Loads MQTT configuration from NVS (if not already loaded)  <br /></td></tr>
 <tr class="separator:af54ee77cebff3b3c12301819b1082ce4"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae54a27a9b40cc146475abe5d351c9cbb" id="r_ae54a27a9b40cc146475abe5d351c9cbb"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ae54a27a9b40cc146475abe5d351c9cbb">ha_pattern_nvs_save</a> (bool colors, bool map)</td></tr>
-<tr class="separator:ae54a27a9b40cc146475abe5d351c9cbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1cdafb8940030abd2122fe9fdc127d7a" id="r_a1cdafb8940030abd2122fe9fdc127d7a"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a1cdafb8940030abd2122fe9fdc127d7a">ha_pattern_paint_square</a> (uint8_t square)</td></tr>
-<tr class="separator:a1cdafb8940030abd2122fe9fdc127d7a"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a566d80d3c97fa562ed706fb588e65a66" id="r_a566d80d3c97fa562ed706fb588e65a66"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a566d80d3c97fa562ed706fb588e65a66">ha_pattern_apply</a> (const <a class="el" href="structha__light__command__t.html">ha_light_command_t</a> *cmd)</td></tr>
-<tr class="separator:a566d80d3c97fa562ed706fb588e65a66"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af216e6691dfd554cb969678dbfb9f4b2" id="r_af216e6691dfd554cb969678dbfb9f4b2"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#af216e6691dfd554cb969678dbfb9f4b2">ha_pattern_is_active</a> (void)</td></tr>
-<tr class="memdesc:af216e6691dfd554cb969678dbfb9f4b2"><td class="mdescLeft">&#160;</td><td class="mdescRight">True while the single piece-drawing pattern owns the lamp LEDs.  <br /></td></tr>
-<tr class="separator:af216e6691dfd554cb969678dbfb9f4b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a617911883055fbb3af9cdde7760f7159" id="r_a617911883055fbb3af9cdde7760f7159"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a617911883055fbb3af9cdde7760f7159">ha_pattern_request</a> (uint8_t action, uint8_t square, uint8_t pen, uint8_t ar, uint8_t ag, uint8_t ab, uint8_t br, uint8_t bg, uint8_t bb, uint8_t write_colors, uint8_t clear_map)</td></tr>
-<tr class="memdesc:a617911883055fbb3af9cdde7760f7159"><td class="mdescLeft">&#160;</td><td class="mdescRight">Queue a pattern change.  <br /></td></tr>
-<tr class="separator:a617911883055fbb3af9cdde7760f7159"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98403e864cac21b06119ec71d769c8ec" id="r_a98403e864cac21b06119ec71d769c8ec"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a98403e864cac21b06119ec71d769c8ec">ha_mqtt_read_mem</a> (size_t *free_b, size_t *largest)</td></tr>
+<tr class="separator:a98403e864cac21b06119ec71d769c8ec"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3238a38fac824737acdcacab76d95d06" id="r_a3238a38fac824737acdcacab76d95d06"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a3238a38fac824737acdcacab76d95d06">ha_mqtt_start_ok</a> (size_t free_b, size_t largest)</td></tr>
+<tr class="separator:a3238a38fac824737acdcacab76d95d06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07ea236d9c21f15298e3b9a3513266f5" id="r_a07ea236d9c21f15298e3b9a3513266f5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a07ea236d9c21f15298e3b9a3513266f5">ha_mqtt_log_hold</a> (size_t free_b, size_t largest)</td></tr>
+<tr class="separator:a07ea236d9c21f15298e3b9a3513266f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad0acf34b465ad710ca2c1cb362707839" id="r_ad0acf34b465ad710ca2c1cb362707839"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ad0acf34b465ad710ca2c1cb362707839">ha_mqtt_release_client</a> (size_t free_b, size_t largest)</td></tr>
+<tr class="separator:ad0acf34b465ad710ca2c1cb362707839"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ff92241a6444b087dc7749cb8160d1d" id="r_a1ff92241a6444b087dc7749cb8160d1d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a1ff92241a6444b087dc7749cb8160d1d">ha_mqtt_stop_if_low</a> (void)</td></tr>
+<tr class="separator:a1ff92241a6444b087dc7749cb8160d1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad97b914d13b859c984c12b71e17b12d4" id="r_ad97b914d13b859c984c12b71e17b12d4"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ad97b914d13b859c984c12b71e17b12d4">ha_mqtt_consider_start</a> (uint32_t now_ms)</td></tr>
+<tr class="separator:ad97b914d13b859c984c12b71e17b12d4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aea2779681f229198caf4b5a11265736c" id="r_aea2779681f229198caf4b5a11265736c"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aea2779681f229198caf4b5a11265736c">lamp_nvs_save_auto_timeout</a> (void)</td></tr>
 <tr class="separator:aea2779681f229198caf4b5a11265736c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a745b4de0bfe0480fe88c73e3d23170eb" id="r_a745b4de0bfe0480fe88c73e3d23170eb"><td class="memItemLeft" align="right" valign="top"><a class="el" href="ha__light__task_8h.html#af2a3f8e1a020167cca1ba6c844ba3588">ha_mode_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a745b4de0bfe0480fe88c73e3d23170eb">ha_light_get_mode</a> (void)</td></tr>
@@ -513,8 +529,6 @@ Variables</h2></td></tr>
 <tr class="separator:afa3c4fd245d700def50f8fbe578ca1c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a4c0b6855acdc00ce519483a2a761faaf" id="r_a4c0b6855acdc00ce519483a2a761faaf"><td class="memItemLeft" align="right" valign="top">static SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a4c0b6855acdc00ce519483a2a761faaf">ha_light_state_mutex</a> = NULL</td></tr>
 <tr class="separator:a4c0b6855acdc00ce519483a2a761faaf"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac58ea15f59132f33dbd027e6fca44280" id="r_ac58ea15f59132f33dbd027e6fca44280"><td class="memItemLeft" align="right" valign="top">static volatile bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ac58ea15f59132f33dbd027e6fca44280">s_pat_on</a></td></tr>
-<tr class="separator:ac58ea15f59132f33dbd027e6fca44280"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a6db1357d47c9403ad18f69b4004d21d5" id="r_a6db1357d47c9403ad18f69b4004d21d5"><td class="memItemLeft" align="right" valign="top">static TaskHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a6db1357d47c9403ad18f69b4004d21d5">s_ha_light_task_hdl</a></td></tr>
 <tr class="memdesc:a6db1357d47c9403ad18f69b4004d21d5"><td class="mdescLeft">&#160;</td><td class="mdescRight">Safe reset WDT.  <br /></td></tr>
 <tr class="separator:a6db1357d47c9403ad18f69b4004d21d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -528,14 +542,10 @@ Variables</h2></td></tr>
 <tr class="separator:af19ed59ac8ad3945aed184dd82299dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5227a87b40e27cb72403db831ee8599b" id="r_a5227a87b40e27cb72403db831ee8599b"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a5227a87b40e27cb72403db831ee8599b">s_game_events</a> []</td></tr>
 <tr class="separator:a5227a87b40e27cb72403db831ee8599b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae9e5987c3b9a530dfcd67e80fc53ab03" id="r_ae9e5987c3b9a530dfcd67e80fc53ab03"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ae9e5987c3b9a530dfcd67e80fc53ab03">s_pat_a</a> [3] = {255, 255, 255}</td></tr>
-<tr class="separator:ae9e5987c3b9a530dfcd67e80fc53ab03"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a1709ffa7104174a8999ff92143c1ac52" id="r_a1709ffa7104174a8999ff92143c1ac52"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a1709ffa7104174a8999ff92143c1ac52">s_pat_b</a> [3] = {40, 90, 255}</td></tr>
-<tr class="separator:a1709ffa7104174a8999ff92143c1ac52"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:adb6b6f5e56eccd87cee6c96d3950588b" id="r_adb6b6f5e56eccd87cee6c96d3950588b"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#adb6b6f5e56eccd87cee6c96d3950588b">s_pat_pen</a></td></tr>
-<tr class="separator:adb6b6f5e56eccd87cee6c96d3950588b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a98ecbc2aa61a008bc90bb8beecfb3479" id="r_a98ecbc2aa61a008bc90bb8beecfb3479"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#a98ecbc2aa61a008bc90bb8beecfb3479">s_pat_map</a> [64]</td></tr>
-<tr class="separator:a98ecbc2aa61a008bc90bb8beecfb3479"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa32d1f5311a10feb1d3ec86ef79586b4" id="r_aa32d1f5311a10feb1d3ec86ef79586b4"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#aa32d1f5311a10feb1d3ec86ef79586b4">s_mqtt_hold_logged</a></td></tr>
+<tr class="separator:aa32d1f5311a10feb1d3ec86ef79586b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac75fa6248036f9fa030307450b165ac6" id="r_ac75fa6248036f9fa030307450b165ac6"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="ha__light__task_8c.html#ac75fa6248036f9fa030307450b165ac6">s_mqtt_gate_since_ms</a></td></tr>
+<tr class="separator:ac75fa6248036f9fa030307450b165ac6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>HA Light Task - Home Assistant RGB Light Integration via MQTT. </p>
@@ -570,7 +580,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00089">89</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00113">113</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -586,7 +596,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00088">88</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00112">112</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -602,26 +612,115 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00087">87</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00111">111</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
-<a id="a2b3dde16d2d855a807f4df41c9cf7748" name="a2b3dde16d2d855a807f4df41c9cf7748"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2b3dde16d2d855a807f4df41c9cf7748">&#9670;&#160;</a></span>HA_MQTT_MIN_FREE_HEAP_BYTES</h2>
+<a id="a49b12e587dbc02c78823c9f3ea9ff899" name="a49b12e587dbc02c78823c9f3ea9ff899"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49b12e587dbc02c78823c9f3ea9ff899">&#9670;&#160;</a></span>HA_MQTT_BIGGEST_BLOCK_BYTES</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define HA_MQTT_MIN_FREE_HEAP_BYTES&#160;&#160;&#160;(32 * 1024)</td>
+          <td class="memname">#define HA_MQTT_BIGGEST_BLOCK_BYTES&#160;&#160;&#160;((size_t)<a class="el" href="ha__light__task_8c.html#aad85419fc0f72160888c6ea18cfaaec2">HA_MQTT_TASK_STACK_BYTES</a>)</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>The client takes ~10 KB (task stack + buffers). </p>
-<p>Start only if Wi-Fi still keeps headroom for RX/TX bursts afterwards ("m f null" = Wi-Fi malloc fail). </p>
+<p>Biggest single internal alloc is the task stack, not the TCP cap. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00058">58</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00078">78</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac9a98fb209ea25c7a17a3fdb6f4d68b0" name="ac9a98fb209ea25c7a17a3fdb6f4d68b0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac9a98fb209ea25c7a17a3fdb6f4d68b0">&#9670;&#160;</a></span>HA_MQTT_CALM_MS</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_CALM_MS&#160;&#160;&#160;8000u</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Heap must stay above the start gate this long before a start. </p>
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00080">80</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a18e6423b640ba0e598ab5ee8b12df696" name="a18e6423b640ba0e598ab5ee8b12df696"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18e6423b640ba0e598ab5ee8b12df696">&#9670;&#160;</a></span>HA_MQTT_CLIENT_OVERHEAD_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_CLIENT_OVERHEAD_BYTES&#160;&#160;&#160;2048</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00072">72</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a3eaa20a814002c526e46d25a0e241fa2" name="a3eaa20a814002c526e46d25a0e241fa2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3eaa20a814002c526e46d25a0e241fa2">&#9670;&#160;</a></span>HA_MQTT_IN_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_IN_BYTES&#160;&#160;&#160;512</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00068">68</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a7a9d44fe0607d314bd7ca5a9ce1cbdb2" name="a7a9d44fe0607d314bd7ca5a9ce1cbdb2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a9d44fe0607d314bd7ca5a9ce1cbdb2">&#9670;&#160;</a></span>HA_MQTT_NEED_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_NEED_BYTES</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<b>Value:</b><div class="fragment"><div class="line">  ((size_t)<a class="code hl_define" href="ha__light__task_8c.html#aad85419fc0f72160888c6ea18cfaaec2">HA_MQTT_TASK_STACK_BYTES</a> + (<span class="keywordtype">size_t</span>)<a class="code hl_define" href="ha__light__task_8c.html#a3eaa20a814002c526e46d25a0e241fa2">HA_MQTT_IN_BYTES</a> +              \</div>
+<div class="line">   (size_t)<a class="code hl_define" href="ha__light__task_8c.html#ae88d0b55d4aafd91f1214b6c0c576444">HA_MQTT_OUT_BYTES</a> + (<span class="keywordtype">size_t</span>)<a class="code hl_define" href="ha__light__task_8c.html#a6b74f9d884510733d0c796f798efb997">HA_MQTT_TCP_SND_BYTES</a> +                \</div>
+<div class="line">   (size_t)<a class="code hl_define" href="ha__light__task_8c.html#a18e6423b640ba0e598ab5ee8b12df696">HA_MQTT_CLIENT_OVERHEAD_BYTES</a>)</div>
+<div class="ttc" id="aha__light__task_8c_html_a18e6423b640ba0e598ab5ee8b12df696"><div class="ttname"><a href="ha__light__task_8c.html#a18e6423b640ba0e598ab5ee8b12df696">HA_MQTT_CLIENT_OVERHEAD_BYTES</a></div><div class="ttdeci">#define HA_MQTT_CLIENT_OVERHEAD_BYTES</div><div class="ttdef"><b>Definition</b> <a href="ha__light__task_8c_source.html#l00072">ha_light_task.c:72</a></div></div>
+<div class="ttc" id="aha__light__task_8c_html_a3eaa20a814002c526e46d25a0e241fa2"><div class="ttname"><a href="ha__light__task_8c.html#a3eaa20a814002c526e46d25a0e241fa2">HA_MQTT_IN_BYTES</a></div><div class="ttdeci">#define HA_MQTT_IN_BYTES</div><div class="ttdef"><b>Definition</b> <a href="ha__light__task_8c_source.html#l00068">ha_light_task.c:68</a></div></div>
+<div class="ttc" id="aha__light__task_8c_html_a6b74f9d884510733d0c796f798efb997"><div class="ttname"><a href="ha__light__task_8c.html#a6b74f9d884510733d0c796f798efb997">HA_MQTT_TCP_SND_BYTES</a></div><div class="ttdeci">#define HA_MQTT_TCP_SND_BYTES</div><div class="ttdef"><b>Definition</b> <a href="ha__light__task_8c_source.html#l00071">ha_light_task.c:71</a></div></div>
+<div class="ttc" id="aha__light__task_8c_html_aad85419fc0f72160888c6ea18cfaaec2"><div class="ttname"><a href="ha__light__task_8c.html#aad85419fc0f72160888c6ea18cfaaec2">HA_MQTT_TASK_STACK_BYTES</a></div><div class="ttdeci">#define HA_MQTT_TASK_STACK_BYTES</div><div class="ttdoc">esp-mqtt uses this when task.stack_size is 0.</div><div class="ttdef"><b>Definition</b> <a href="ha__light__task_8c_source.html#l00066">ha_light_task.c:66</a></div></div>
+<div class="ttc" id="aha__light__task_8c_html_ae88d0b55d4aafd91f1214b6c0c576444"><div class="ttname"><a href="ha__light__task_8c.html#ae88d0b55d4aafd91f1214b6c0c576444">HA_MQTT_OUT_BYTES</a></div><div class="ttdeci">#define HA_MQTT_OUT_BYTES</div><div class="ttdef"><b>Definition</b> <a href="ha__light__task_8c_source.html#l00070">ha_light_task.c:70</a></div></div>
+</div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00073">73</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ae88d0b55d4aafd91f1214b6c0c576444" name="ae88d0b55d4aafd91f1214b6c0c576444"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae88d0b55d4aafd91f1214b6c0c576444">&#9670;&#160;</a></span>HA_MQTT_OUT_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_OUT_BYTES&#160;&#160;&#160;768</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00070">70</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -637,7 +736,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00062">62</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00084">84</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -648,14 +747,49 @@ WHAT DID THIS FILE DO?</h1>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define HA_MQTT_STOP_HEAP_BYTES&#160;&#160;&#160;(16 * 1024)</td>
+          <td class="memname">#define HA_MQTT_STOP_HEAP_BYTES&#160;&#160;&#160;<a class="el" href="freertos__chess_8h.html#a3b1c7a44d2432ff5ae561d89acbb04d2">CHESS_WIFI_HEAP_FLOOR_BYTES</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Drop the client before the Wi-Fi task starts failing malloc. </p>
+<p>Release the client as soon as WiFi/lwIP lose their floor. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00060">60</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00082">82</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aad85419fc0f72160888c6ea18cfaaec2" name="aad85419fc0f72160888c6ea18cfaaec2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad85419fc0f72160888c6ea18cfaaec2">&#9670;&#160;</a></span>HA_MQTT_TASK_STACK_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_TASK_STACK_BYTES&#160;&#160;&#160;(6 * 1024)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>esp-mqtt uses this when task.stack_size is 0. </p>
+<p>Custom menuconfig is off, so mqtt_config.h falls back to 6144. xTaskCreate needs one internal block of that size. In buffer is 512, out buffer is HA_MQTT_PAYLOAD_MAX. URI is mqtt:// so mbedtls content buffers are not taken (CONFIG_MBEDTLS_SSL_IN_CONTENT_LEN is 16384 and does not fit a 14 KiB block). tcp_snd is the sdkconfig send-buffer cap the broker socket grows toward. </p>
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00066">66</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a6b74f9d884510733d0c796f798efb997" name="a6b74f9d884510733d0c796f798efb997"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6b74f9d884510733d0c796f798efb997">&#9670;&#160;</a></span>HA_MQTT_TCP_SND_BYTES</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define HA_MQTT_TCP_SND_BYTES&#160;&#160;&#160;CONFIG_LWIP_TCP_SND_BUF_DEFAULT</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00071">71</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -671,7 +805,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00083">83</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00107">107</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -687,7 +821,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00081">81</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00105">105</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -703,7 +837,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00082">82</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00106">106</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -719,7 +853,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00080">80</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00104">104</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -735,7 +869,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00084">84</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00108">108</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -751,7 +885,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00079">79</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00103">103</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -767,7 +901,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00078">78</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00102">102</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -783,7 +917,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00077">77</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00101">101</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -799,7 +933,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00092">92</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00116">116</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -815,7 +949,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00095">95</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00119">119</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -831,7 +965,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00093">93</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00117">117</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -847,7 +981,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00094">94</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00118">118</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -863,7 +997,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00071">71</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00095">95</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -879,7 +1013,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00074">74</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00098">98</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -895,7 +1029,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00072">72</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00096">96</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -911,7 +1045,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00073">73</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00097">97</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -927,7 +1061,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00070">70</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00094">94</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -959,7 +1093,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>One retained config per call. </p>
 <p>Steps follow s_game_events, so a new trigger is published without editing this ladder. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01061">1061</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01080">1080</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -997,7 +1131,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00962">962</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00981">981</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1025,7 +1159,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00878">878</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00897">897</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1075,7 +1209,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00998">998</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01017">1017</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1103,7 +1237,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00936">936</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00955">955</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1131,7 +1265,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01009">1009</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01028">1028</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1159,7 +1293,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00946">946</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00965">965</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1187,7 +1321,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01035">1035</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01054">1054</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1215,7 +1349,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00855">855</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00874">874</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1253,7 +1387,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00897">897</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00916">916</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1286,7 +1420,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Report a game fact to Home Assistant. </p>
 <p>Safe from the game task. If MQTT is down, the sensor state is remembered and published on the next connect. Move events are not replayed. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00980">980</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00999">999</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1316,7 +1450,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Kontroluje zda byl prekrocen 5 minutovy timeout. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00296">296</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00318">318</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1347,7 +1481,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Check if WiFi STA is connected. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the STA is connected and has an IP, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00223">223</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00245">245</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1369,7 +1503,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Doba (v sekundach) po ktere se pri necinosti prepne do rezimu lampa (5..7200). </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01490">1490</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01467">1467</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1392,7 +1526,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Get the current regime. </p>
 <dl class="section return"><dt>Returns</dt><dd>ha_mode_t Current mode (GAME or HA) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01476">1476</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01453">1453</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1443,7 +1577,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Get the current state of the lamp (thread-safe for HTTP handlers) </p>
 <p>Get the current state of the lamp (color, on) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01511">1511</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01488">1488</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1489,7 +1623,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Processes an MQTT command. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00722">722</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00741">741</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1520,7 +1654,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Initializes the MQTT client. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01146">1146</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01227">1227</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1543,7 +1677,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Check if HA mode is available (WiFi STA connected) </p>
 <dl class="section return"><dt>Returns</dt><dd>true if WiFi STA is connected, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01577">1577</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01554">1554</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1566,7 +1700,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Check if the MQTT client is connected. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if MQTT is connected, false otherwise </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01608">1608</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01585">1585</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1610,7 +1744,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Last lamp color that was not black, including after the light was turned off. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01543">1543</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01520">1520</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1641,7 +1775,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Monitors game activity and resets the timer. </p>
 <p>This function relies on <a class="el" href="ha__light__task_8c.html#af2c48fb0be8e0af2ec8f26872bea2721" title="Game activity report (called from other tasks)">ha_light_report_activity()</a> called from other tasks. We do not monitor the queues here, so as not to consume commands. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00253">253</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00275">275</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1693,7 +1827,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>MQTT event handler. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00656">656</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00675">675</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1716,7 +1850,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Write the current game/lamp mode into lamp_cfg. </p>
 <p>Safe to call before sleep. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01488">1488</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01465">1465</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1746,7 +1880,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Publish Home Assistant Auto-Discovery configuration. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00607">607</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00626">626</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1776,7 +1910,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Publikuje stav do MQTT. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00800">800</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00819">819</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1799,7 +1933,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Disconnects and reinitializes the MQTT client with the current configuration from NVS. </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01615">1615</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01592">1592</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1822,7 +1956,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Game activity report (called from other tasks) </p>
 <p>Game activity report (for resetting the 5min timer) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00263">263</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00285">285</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1845,7 +1979,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Queue a real mode switch (game or lamp). </p>
 <p>The HA task applies it and writes the mode byte into the existing lamp_cfg NVS namespace. </p><dl class="section return"><dt>Returns</dt><dd>false if the command queue is missing or full. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01478">1478</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01455">1455</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1891,7 +2025,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Lamp settings request from the web (mode Lamp, color, on)</p>
 <dl class="section return"><dt>Returns</dt><dd>true if the command is sent to the queue, false if the queue is NULL or full </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01560">1560</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01537">1537</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1913,7 +2047,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Set and save to NVS; sec will be limited to 5..7200. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01494">1494</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01471">1471</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1944,7 +2078,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Switches to game mode. </p>
 <p>Restore the chessboard (led_show_chess_board). </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00365">365</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00384">384</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1975,7 +2109,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Switches to HA mode. </p>
 <p>All 64 LED boards will be set to the color from ha_light_state. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00310">310</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00332">332</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -1998,7 +2132,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>The main functions of the HA Light task. </p>
 <p>Start the HA Light task. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01652">1652</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01631">1631</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2026,7 +2160,149 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00210">210</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00232">232</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad97b914d13b859c984c12b71e17b12d4" name="ad97b914d13b859c984c12b71e17b12d4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad97b914d13b859c984c12b71e17b12d4">&#9670;&#160;</a></span>ha_mqtt_consider_start()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_mqtt_consider_start </td>
+          <td>(</td>
+          <td class="paramtype">uint32_t&#160;</td>
+          <td class="paramname"><em>now_ms</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01304">1304</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a07ea236d9c21f15298e3b9a3513266f5" name="a07ea236d9c21f15298e3b9a3513266f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07ea236d9c21f15298e3b9a3513266f5">&#9670;&#160;</a></span>ha_mqtt_log_hold()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_mqtt_log_hold </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>free_b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>largest</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01176">1176</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="a98403e864cac21b06119ec71d769c8ec" name="a98403e864cac21b06119ec71d769c8ec"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98403e864cac21b06119ec71d769c8ec">&#9670;&#160;</a></span>ha_mqtt_read_mem()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_mqtt_read_mem </td>
+          <td>(</td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>free_b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t *&#160;</td>
+          <td class="paramname"><em>largest</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01164">1164</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ad0acf34b465ad710ca2c1cb362707839" name="ad0acf34b465ad710ca2c1cb362707839"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad0acf34b465ad710ca2c1cb362707839">&#9670;&#160;</a></span>ha_mqtt_release_client()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void ha_mqtt_release_client </td>
+          <td>(</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>free_b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>largest</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01194">1194</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2064,7 +2340,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00596">596</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00615">615</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2102,12 +2378,12 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00582">582</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00601">601</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
-<a id="a566d80d3c97fa562ed706fb588e65a66" name="a566d80d3c97fa562ed706fb588e65a66"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a566d80d3c97fa562ed706fb588e65a66">&#9670;&#160;</a></span>ha_pattern_apply()</h2>
+<a id="a3238a38fac824737acdcacab76d95d06" name="a3238a38fac824737acdcacab76d95d06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3238a38fac824737acdcacab76d95d06">&#9670;&#160;</a></span>ha_mqtt_start_ok()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2116,94 +2392,16 @@ WHAT DID THIS FILE DO?</h1>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void ha_pattern_apply </td>
+          <td class="memname">static bool ha_mqtt_start_ok </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structha__light__command__t.html">ha_light_command_t</a> *&#160;</td>
-          <td class="paramname"><em>cmd</em></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01294">1294</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="af216e6691dfd554cb969678dbfb9f4b2" name="af216e6691dfd554cb969678dbfb9f4b2"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af216e6691dfd554cb969678dbfb9f4b2">&#9670;&#160;</a></span>ha_pattern_is_active()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool ha_pattern_is_active </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>True while the single piece-drawing pattern owns the lamp LEDs. </p>
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01345">1345</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="aa032a834705fb97e922d2d583f49ce82" name="aa032a834705fb97e922d2d583f49ce82"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa032a834705fb97e922d2d583f49ce82">&#9670;&#160;</a></span>ha_pattern_nvs_load()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void ha_pattern_nvs_load </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01246">1246</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ae54a27a9b40cc146475abe5d351c9cbb" name="ae54a27a9b40cc146475abe5d351c9cbb"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae54a27a9b40cc146475abe5d351c9cbb">&#9670;&#160;</a></span>ha_pattern_nvs_save()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void ha_pattern_nvs_save </td>
-          <td>(</td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>colors</em>, </td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>free_b</em>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>map</em>&#160;</td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>largest</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -2218,12 +2416,12 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01229">1229</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01170">1170</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
-<a id="ad9ac55ed35a2f8e4352e7d6b45f6cb08" name="ad9ac55ed35a2f8e4352e7d6b45f6cb08"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ad9ac55ed35a2f8e4352e7d6b45f6cb08">&#9670;&#160;</a></span>ha_pattern_paint_all()</h2>
+<a id="a1ff92241a6444b087dc7749cb8160d1d" name="a1ff92241a6444b087dc7749cb8160d1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ff92241a6444b087dc7749cb8160d1d">&#9670;&#160;</a></span>ha_mqtt_stop_if_low()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2232,7 +2430,7 @@ WHAT DID THIS FILE DO?</h1>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void ha_pattern_paint_all </td>
+          <td class="memname">static void ha_mqtt_stop_if_low </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
@@ -2246,12 +2444,12 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01286">1286</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01209">1209</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
-<a id="a1cdafb8940030abd2122fe9fdc127d7a" name="a1cdafb8940030abd2122fe9fdc127d7a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1cdafb8940030abd2122fe9fdc127d7a">&#9670;&#160;</a></span>ha_pattern_paint_square()</h2>
+<a id="a010a27e1617821d32f1a54b4c9c947b7" name="a010a27e1617821d32f1a54b4c9c947b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a010a27e1617821d32f1a54b4c9c947b7">&#9670;&#160;</a></span>ha_pattern_nvs_erase_once()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -2260,10 +2458,10 @@ WHAT DID THIS FILE DO?</h1>
   <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void ha_pattern_paint_square </td>
+          <td class="memname">static void ha_pattern_nvs_erase_once </td>
           <td>(</td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>square</em></td><td>)</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
@@ -2274,94 +2472,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01263">1263</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a617911883055fbb3af9cdde7760f7159" name="a617911883055fbb3af9cdde7760f7159"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a617911883055fbb3af9cdde7760f7159">&#9670;&#160;</a></span>ha_pattern_request()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool ha_pattern_request </td>
-          <td>(</td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>action</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>square</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>pen</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>ar</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>ag</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>ab</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>br</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>bg</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>bb</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>write_colors</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>clear_map</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Queue a pattern change. </p>
-<p>Stamp uses square only. Colors are written when write_colors is 1. clear_map wipes the drawing. </p>
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01347">1347</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01332">1332</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2389,7 +2500,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01369">1369</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01346">1346</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2417,7 +2528,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01409">1409</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01386">1386</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2445,7 +2556,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01445">1445</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01422">1422</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2473,7 +2584,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01455">1455</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01432">1432</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2503,7 +2614,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Loads MQTT configuration from NVS (if not already loaded) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01109">1109</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01129">1129</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2566,7 +2677,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Gets MQTT configuration (will load from NVS if not already loaded) </p>
 <p>Gain MQTT configuration (load from NVS if it hasn't been loaded yet) </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01582">1582</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01559">1559</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2649,7 +2760,7 @@ WHAT DID THIS FILE DO?</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, ESP_ERR_NOT_FOUND if not in NVS (return defaults) </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00410">410</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00429">429</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2704,7 +2815,7 @@ WHAT DID THIS FILE DO?</h1>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>ESP_OK on success, error code on failure </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00489">489</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00508">508</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2754,7 +2865,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00140">140</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00164">164</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2781,7 +2892,7 @@ WHAT DID THIS FILE DO?</h1>
 <b>Initial value:</b><div class="fragment"><div class="line">=</div>
 <div class="line">     300</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00110">110</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00134">134</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2797,7 +2908,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00128">128</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00152">152</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2813,7 +2924,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00127">127</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00151">151</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2837,7 +2948,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00103">103</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00127">127</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2853,7 +2964,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00129">129</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00153">153</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2869,7 +2980,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00128">128</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00152">152</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2895,7 +3006,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Queue for game commands (new game, move, status) </p>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00092">92</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00095">95</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -2919,7 +3030,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00170">170</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00194">194</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2963,7 +3074,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00174">174</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00198">198</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -2979,7 +3090,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00154">154</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00178">178</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3003,7 +3114,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00112">112</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00136">136</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3019,7 +3130,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00158">158</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00182">182</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3043,7 +3154,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00118">118</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00142">142</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3086,7 +3197,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00122">122</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00146">146</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3102,7 +3213,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00157">157</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00181">181</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3118,7 +3229,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00155">155</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00179">179</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3134,7 +3245,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00128">128</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00152">152</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3158,7 +3269,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00853">853</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00872">872</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3182,7 +3293,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00106">106</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00130">130</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3209,7 +3320,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Next discovery message, or -1 when idle. </p>
 <p>Written from the MQTT task too. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00121">121</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00145">145</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3235,7 +3346,7 @@ WHAT DID THIS FILE DO?</h1>
 <b>Initial value:</b><div class="fragment"><div class="line">= {<span class="stringliteral">&quot;move&quot;</span>,     <span class="stringliteral">&quot;white_win&quot;</span>, <span class="stringliteral">&quot;black_win&quot;</span>,</div>
 <div class="line">                                      <span class="stringliteral">&quot;draw&quot;</span>,     <span class="stringliteral">&quot;lamp_on&quot;</span>,   <span class="stringliteral">&quot;game_mode&quot;</span>}</div>
 </div><!-- fragment -->
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00995">995</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01014">1014</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3259,7 +3370,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00851">851</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00870">870</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3283,7 +3394,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00852">852</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00871">871</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3307,7 +3418,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00850">850</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00869">869</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3334,7 +3445,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Safe reset WDT. </p>
 <p>Main loop handle — esp_task_wdt_reset only from ha_light_task (not from MQTT). </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00208">208</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00230">230</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3358,7 +3469,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00138">138</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00162">162</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3382,7 +3493,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00138">138</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00162">162</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3406,7 +3517,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00138">138</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00162">162</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3433,7 +3544,7 @@ WHAT DID THIS FILE DO?</h1>
 <p>Color that was on the lamp before it was switched off. </p>
 <p>Never black. </p>
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00138">138</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00162">162</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3457,7 +3568,55 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00119">119</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00143">143</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="ac75fa6248036f9fa030307450b165ac6" name="ac75fa6248036f9fa030307450b165ac6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac75fa6248036f9fa030307450b165ac6">&#9670;&#160;</a></span>s_mqtt_gate_since_ms</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_mqtt_gate_since_ms</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01162">1162</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+
+</div>
+</div>
+<a id="aa32d1f5311a10feb1d3ec86ef79586b4" name="aa32d1f5311a10feb1d3ec86ef79586b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa32d1f5311a10feb1d3ec86ef79586b4">&#9670;&#160;</a></span>s_mqtt_hold_logged</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool s_mqtt_hold_logged</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01161">1161</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3481,7 +3640,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00063">63</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00087">87</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3505,7 +3664,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00105">105</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00129">129</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3529,127 +3688,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00104">104</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ae9e5987c3b9a530dfcd67e80fc53ab03" name="ae9e5987c3b9a530dfcd67e80fc53ab03"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae9e5987c3b9a530dfcd67e80fc53ab03">&#9670;&#160;</a></span>s_pat_a</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint8_t s_pat_a[3] = {255, 255, 255}</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01224">1224</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a1709ffa7104174a8999ff92143c1ac52" name="a1709ffa7104174a8999ff92143c1ac52"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a1709ffa7104174a8999ff92143c1ac52">&#9670;&#160;</a></span>s_pat_b</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint8_t s_pat_b[3] = {40, 90, 255}</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01225">1225</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="a98ecbc2aa61a008bc90bb8beecfb3479" name="a98ecbc2aa61a008bc90bb8beecfb3479"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a98ecbc2aa61a008bc90bb8beecfb3479">&#9670;&#160;</a></span>s_pat_map</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint8_t s_pat_map[64]</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01227">1227</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="ac58ea15f59132f33dbd027e6fca44280" name="ac58ea15f59132f33dbd027e6fca44280"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac58ea15f59132f33dbd027e6fca44280">&#9670;&#160;</a></span>s_pat_on</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">volatile bool s_pat_on</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00197">197</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
-
-</div>
-</div>
-<a id="adb6b6f5e56eccd87cee6c96d3950588b" name="adb6b6f5e56eccd87cee6c96d3950588b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#adb6b6f5e56eccd87cee6c96d3950588b">&#9670;&#160;</a></span>s_pat_pen</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">uint8_t s_pat_pen</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l01226">1226</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00128">128</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3675,7 +3714,7 @@ WHAT DID THIS FILE DO?</h1>
 
 <p>Queue for event matrix (piece lifted/placed) </p>
 
-<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00079">79</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="freertos__chess_8c_source.html#l00082">82</a> of file <a class="el" href="freertos__chess_8c_source.html">freertos_chess.c</a>.</p>
 
 </div>
 </div>
@@ -3699,7 +3738,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00115">115</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00139">139</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3715,7 +3754,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00126">126</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00150">150</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3739,7 +3778,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00054">54</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00055">55</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3763,7 +3802,7 @@ WHAT DID THIS FILE DO?</h1>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00102">102</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00126">126</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>
@@ -3779,7 +3818,7 @@ WHAT DID THIS FILE DO?</h1>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00156">156</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="ha__light__task_8c_source.html#l00180">180</a> of file <a class="el" href="ha__light__task_8c_source.html">ha_light_task.c</a>.</p>
 
 </div>
 </div>

@@ -1,16 +1,21 @@
 <map id="game_move_validate.h" name="game_move_validate.h">
-<area shape="rect" id="Node000001" title="Move validation (internal to game_task component)." alt="" coords="371,5,545,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="354,79,469,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="453,32,429,69,424,66,448,30"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="534,152,617,177"/>
-<area shape="poly" id="edge7_Node000001_Node000006" title=" " alt="" coords="470,29,559,140,555,143,466,33"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,87,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="354,106,101,154,100,149,353,101"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="111,152,261,177"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="376,107,236,150,235,145,374,101"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="285,152,415,177"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="403,106,371,143,367,140,399,103"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="439,102,537,144,535,149,437,106"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="439,152,509,177"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="424,103,457,140,453,143,420,106"/>
+<area shape="rect" id="Node000001" title="Move validation (internal to game_task component)." alt="" coords="268,5,443,31"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="251,79,366,104"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="350,32,326,69,322,66,345,30"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="397,152,479,177"/>
+<area shape="poly" id="edge11_Node000001_Node000008" title=" " alt="" coords="364,30,427,139,422,141,360,32"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="189,152,271,177"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="298,106,255,145,251,141,294,102"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="109,225,260,251"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="310,105,303,140,295,160,284,179,258,204,228,222,225,217,255,199,280,176,291,158,298,138,305,104"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="289,225,419,251"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="315,104,349,211,344,213,310,105"/>
+<area shape="rect" id="Node000006" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="58,152,165,177"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="278,107,157,150,156,145,276,102"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="5,225,76,251"/>
+<area shape="poly" id="edge10_Node000002_Node000007" title=" " alt="" coords="251,100,194,108,133,119,80,134,61,143,48,154,41,167,37,181,38,212,32,212,32,181,36,165,44,150,58,139,78,129,132,114,193,102,250,95"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="331,102,406,143,403,147,328,106"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="125,176,165,214,161,218,122,180"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="151,175,303,219,301,224,150,180"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="102,180,64,218,60,214,98,176"/>
 </map>

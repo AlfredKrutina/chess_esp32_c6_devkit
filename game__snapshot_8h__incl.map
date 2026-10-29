@@ -1,7 +1,33 @@
 <map id="game_snapshot.h" name="game_snapshot.h">
-<area shape="rect" id="Node000001" title="NVS game snapshot save/load and boot restore logic." alt="" coords="31,5,168,31"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="93,33,65,69,61,66,88,29"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="111,79,194,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="110,29,138,66,134,69,106,33"/>
+<area shape="rect" id="Node000001" title="NVS game snapshot save/load and boot restore logic." alt="" coords="198,5,335,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="313,225,394,251"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="303,28,338,47,354,61,366,77,378,112,379,149,374,184,365,213,360,212,368,183,374,149,373,113,362,80,350,64,335,52,301,33"/>
+<area shape="rect" id="Node000003" href="$position_8h.html" title="Standalone chess position." alt="" coords="19,152,106,177"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,33,176,52,127,81,99,110,78,141,73,138,94,107,124,77,173,47,223,28"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="155,225,237,251"/>
+<area shape="poly" id="edge20_Node000001_Node000004" title=" " alt="" coords="233,33,198,52,183,64,172,80,165,96,162,113,164,149,173,183,185,212,181,214,168,185,159,150,156,113,160,95,167,77,180,61,195,47,230,28"/>
+<area shape="rect" id="Node000007" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="425,152,540,177"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="308,28,358,48,410,77,443,107,469,139,465,142,439,111,406,81,356,52,306,33"/>
+<area shape="rect" id="Node000011" href="$game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="181,79,352,104"/>
+<area shape="poly" id="edge16_Node000001_Node000011" title=" " alt="" coords="269,31,269,65,264,65,264,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="85,175,163,216,161,221,83,180"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,225,80,251"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="62,178,52,213,47,211,57,177"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="281,299,351,324"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="73,176,102,212,122,231,144,248,174,265,207,279,268,297,267,303,205,284,172,270,141,253,118,235,98,215,69,179"/>
+<area shape="poly" id="edge7_Node000007_Node000002" title=" " alt="" coords="463,180,388,221,386,216,461,175"/>
+<area shape="poly" id="edge14_Node000007_Node000004" title=" " alt="" coords="437,180,251,226,250,221,436,175"/>
+<area shape="poly" id="edge15_Node000007_Node000006" title=" " alt="" coords="476,180,447,214,408,253,350,294,347,290,405,249,443,210,472,176"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="411,299,562,324"/>
+<area shape="poly" id="edge8_Node000007_Node000008" title=" " alt="" coords="486,178,489,285,483,285,480,178"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="594,299,723,324"/>
+<area shape="poly" id="edge9_Node000007_Node000009" title=" " alt="" coords="541,172,594,190,619,204,641,224,656,253,661,284,656,285,651,255,637,227,616,209,591,194,539,177"/>
+<area shape="rect" id="Node000010" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="520,225,627,251"/>
+<area shape="poly" id="edge10_Node000007_Node000010" title=" " alt="" coords="499,175,549,214,546,219,496,179"/>
+<area shape="poly" id="edge13_Node000010_Node000006" title=" " alt="" coords="533,253,365,299,364,294,531,248"/>
+<area shape="poly" id="edge11_Node000010_Node000008" title=" " alt="" coords="561,253,513,292,510,288,558,249"/>
+<area shape="poly" id="edge12_Node000010_Node000009" title=" " alt="" coords="589,249,636,288,633,292,585,253"/>
+<area shape="poly" id="edge18_Node000011_Node000004" title=" " alt="" coords="263,106,210,214,205,212,258,103"/>
+<area shape="poly" id="edge19_Node000011_Node000006" title=" " alt="" coords="272,104,304,250,312,285,307,286,299,251,266,105"/>
+<area shape="poly" id="edge17_Node000011_Node000007" title=" " alt="" coords="302,101,436,145,434,150,301,107"/>
 </map>

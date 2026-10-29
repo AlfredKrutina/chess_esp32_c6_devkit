@@ -102,7 +102,8 @@ $(document).ready(function(){initNavTree('game__physical_8c.html',''); initResiz
 <a href="#details">More...</a></p>
 <div class="textblock"><code>#include &quot;<a class="el" href="game__physical_8h_source.html">game_physical.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__physical__undo_8h_source.html">game_physical_undo.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="chess__gameplay__policy_8h_source.html">chess_gameplay_policy.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__policy_8h_source.html">game_policy.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__required__step_8h_source.html">game_required_step.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__squares__guard_8h_source.html">game_squares_guard.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__hall__match_8h_source.html">game_hall_match.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__hall__hand_8h_source.html">game_hall_hand.h</a>&quot;</code><br />
@@ -111,8 +112,13 @@ $(document).ready(function(){initNavTree('game__physical_8c.html',''); initResiz
 <code>#include &quot;<a class="el" href="game__move__exec_8h_source.html">game_move_exec.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__move__validate_8h_source.html">game_move_validate.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__snapshot_8h_source.html">game_snapshot.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__led__direct_8h_source.html">game_led_direct.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__events_8h_source.html">game_events.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__machine_8h_source.html">game_board_machine.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__mode_8h_source.html">game_mode.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__transition_8h_source.html">game_board_transition.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__led__animations_8h_source.html">game_led_animations.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__mapping_8h_source.html">led_mapping.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="led__task_8h_source.html">../led_task/include/led_task.h</a>&quot;</code><br />
@@ -130,154 +136,192 @@ Include dependency graph for game_physical.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__physical_8c__incl.png" border="0" usemap="#agame__physical_8c" alt=""/></div>
 <map name="agame__physical_8c" id="agame__physical_8c">
-<area shape="rect" title="Physical pickup/drop/castle/promote command processing." alt="" coords="2153,5,2284,31"/>
-<area shape="rect" href="game__physical_8h.html" title="Physical move commands." alt="" coords="1742,86,1874,111"/>
-<area shape="poly" title=" " alt="" coords="2154,33,1896,81,1874,86,1873,81,1895,76,2153,28"/>
-<area shape="rect" title=" " alt="" coords="3042,328,3192,353"/>
-<area shape="poly" title=" " alt="" coords="2284,19,2417,24,2582,35,2740,52,2804,63,2853,76,2870,86,2882,97,2893,107,2910,116,2987,139,3053,148,3114,149,3171,146,3229,141,3290,140,3359,147,3438,164,3522,185,3554,203,3583,239,3592,260,3590,271,3583,282,3564,292,3531,302,3433,317,3206,337,3206,332,3432,312,3530,296,3562,287,3579,278,3585,269,3586,261,3579,241,3551,208,3520,190,3436,169,3358,152,3290,146,3229,147,3171,151,3114,155,3053,154,2985,144,2908,121,2890,112,2878,101,2867,90,2851,81,2803,68,2739,57,2581,40,2417,30,2284,24"/>
-<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="1284,167,1454,192"/>
-<area shape="poly" title=" " alt="" coords="2153,25,1891,45,1755,61,1658,81,1638,90,1624,100,1609,110,1589,121,1513,147,1440,166,1439,161,1511,142,1587,116,1606,106,1620,95,1635,85,1656,76,1754,56,1891,40,2153,20"/>
-<area shape="rect" href="chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="649,167,836,192"/>
-<area shape="poly" title=" " alt="" coords="2153,24,1817,40,1595,57,1371,81,1269,100,1167,121,848,168,847,162,1166,116,1268,95,1370,76,1595,51,1816,35,2152,18"/>
-<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="910,167,1084,192"/>
-<area shape="poly" title=" " alt="" coords="2153,23,2030,26,1867,35,1683,53,1499,81,1463,90,1435,100,1371,121,1228,149,1097,169,1097,163,1227,144,1370,116,1433,95,1461,85,1498,76,1683,48,1867,30,2030,21,2153,17"/>
-<area shape="rect" href="game__hall__match_8h.html" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="1108,167,1259,192"/>
-<area shape="poly" title=" " alt="" coords="2153,21,2044,23,1902,31,1745,50,1665,64,1588,81,1563,90,1544,100,1525,111,1499,121,1397,144,1268,167,1267,162,1396,139,1498,116,1523,106,1542,96,1561,85,1587,76,1664,58,1744,44,1902,26,2044,18,2153,16"/>
-<area shape="rect" href="game__hall__hand_8h.html" title=" " alt="" coords="246,167,388,192"/>
-<area shape="poly" title=" " alt="" coords="2153,22,1938,23,1620,31,1247,49,1054,63,865,81,729,100,595,123,380,166,379,161,594,118,728,95,865,76,1054,58,1246,43,1620,25,1938,18,2153,16"/>
-<area shape="rect" href="game__hall__restore__guide_8h.html" title="Hall type/color board&#45;restore matching and the LED guide around it." alt="" coords="24,167,223,192"/>
-<area shape="poly" title=" " alt="" coords="2153,23,1395,40,939,57,748,68,604,81,485,99,367,122,180,166,179,161,366,117,484,94,603,76,748,63,938,52,1395,34,2153,18"/>
-<area shape="rect" href="game__hall__position_8h.html" title="Last legal position compared with the live Hall snapshot." alt="" coords="412,167,574,192"/>
-<area shape="poly" title=" " alt="" coords="2153,24,1737,40,1454,57,1167,81,1000,101,834,124,571,167,570,162,833,119,999,96,1166,76,1454,52,1737,35,2153,18"/>
-<area shape="rect" href="game__move__exec_8h.html" title="Move execution (internal to game_task component)." alt="" coords="1478,167,1630,192"/>
-<area shape="poly" title=" " alt="" coords="2153,22,2067,25,1960,34,1844,52,1730,81,1588,162,1585,157,1728,76,1843,47,1960,29,2067,20,2153,16"/>
-<area shape="rect" href="game__move__validate_8h.html" title="Move validation (internal to game_task component)." alt="" coords="1706,167,1880,192"/>
-<area shape="poly" title=" " alt="" coords="2153,28,2052,46,1996,61,1942,81,1914,99,1887,121,1824,162,1821,157,1883,117,1910,95,1940,76,1994,56,2050,41,2152,23"/>
-<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="2180,247,2318,273"/>
-<area shape="poly" title=" " alt="" coords="2247,29,2277,48,2291,61,2302,77,2314,108,2317,134,2312,161,2302,193,2289,218,2273,239,2269,236,2285,215,2297,191,2307,160,2312,134,2309,109,2297,80,2287,65,2274,52,2244,33"/>
-<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="2582,86,2745,111"/>
-<area shape="poly" title=" " alt="" coords="2284,28,2586,81,2585,86,2283,33"/>
-<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="3068,167,3174,192"/>
-<area shape="poly" title=" " alt="" coords="2284,20,2557,38,2699,55,2758,65,2802,76,2821,85,2835,96,2848,106,2866,116,2914,134,2964,147,3055,166,3054,171,2962,153,2912,139,2864,121,2845,111,2832,100,2819,90,2800,81,2757,70,2699,60,2556,43,2284,25"/>
-<area shape="rect" title=" " alt="" coords="3014,247,3132,273"/>
-<area shape="poly" title=" " alt="" coords="2284,19,2399,25,2536,35,2666,52,2719,63,2758,76,2773,85,2782,95,2803,117,2863,155,2926,189,3034,240,3032,244,2924,194,2861,159,2799,121,2778,99,2769,89,2756,81,2717,68,2665,57,2536,41,2399,30,2284,24"/>
-<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="2465,167,2644,192"/>
-<area shape="poly" title=" " alt="" coords="2244,28,2346,76,2519,158,2517,163,2344,81,2241,33"/>
-<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="6,247,124,273"/>
-<area shape="poly" title=" " alt="" coords="2153,22,1804,25,1289,34,762,52,541,65,375,81,316,86,263,86,170,85,129,90,90,103,52,128,14,168,8,185,13,203,25,220,41,236,37,240,21,224,8,205,3,185,9,165,48,124,87,99,128,85,170,79,263,81,316,81,374,76,541,60,761,47,1289,29,1804,20,2153,17"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="2148,79,2288,119"/>
-<area shape="poly" title=" " alt="" coords="2221,31,2221,65,2216,65,2216,31"/>
-<area shape="rect" href="squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1953,79,2124,119"/>
-<area shape="poly" title=" " alt="" coords="2193,33,2095,76,2093,71,2191,28"/>
-<area shape="rect" title=" " alt="" coords="2922,86,3006,111"/>
-<area shape="poly" title=" " alt="" coords="2284,18,2401,22,2555,32,2729,49,2903,76,2919,80,2917,85,2902,81,2728,54,2555,37,2401,27,2284,23"/>
-<area shape="rect" title=" " alt="" coords="3030,86,3129,111"/>
-<area shape="poly" title=" " alt="" coords="2284,17,2419,20,2601,28,2809,46,2914,59,3017,76,3034,80,3032,85,3016,81,2914,65,2808,51,2601,34,2419,25,2284,22"/>
-<area shape="rect" title=" " alt="" coords="3154,86,3224,111"/>
-<area shape="poly" title=" " alt="" coords="2284,18,2720,35,2964,52,3065,63,3142,76,3152,79,3151,84,3140,81,3064,69,2964,58,2720,41,2284,24"/>
-<area shape="rect" title=" " alt="" coords="3248,86,3335,111"/>
-<area shape="poly" title=" " alt="" coords="2284,18,2764,36,3037,53,3150,64,3236,76,3250,79,3249,85,3235,81,3150,69,3037,58,2764,41,2284,24"/>
-<area shape="rect" title=" " alt="" coords="3360,86,3426,111"/>
-<area shape="poly" title=" " alt="" coords="2284,17,2509,21,2817,30,3125,48,3252,60,3348,76,3357,79,3356,84,3347,81,3251,66,3124,53,2817,35,2509,26,2284,23"/>
-<area shape="rect" title=" " alt="" coords="3451,86,3522,111"/>
-<area shape="poly" title=" " alt="" coords="2284,17,2526,20,2860,29,3195,47,3334,60,3439,76,3449,79,3448,84,3438,81,3333,65,3194,52,2860,35,2526,26,2284,22"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="1457,247,1572,273"/>
-<area shape="poly" title=" " alt="" coords="1789,114,1644,194,1550,243,1548,239,1641,190,1786,109"/>
-<area shape="rect" title=" " alt="" coords="2208,328,2290,353"/>
-<area shape="poly" title=" " alt="" coords="1572,265,2195,331,2194,336,1572,270"/>
-<area shape="poly" title=" " alt="" coords="1572,262,1888,277,2204,289,2449,296,2695,305,3011,325,3028,327,3027,332,3010,331,2695,311,2449,301,2203,295,1888,283,1572,267"/>
-<area shape="rect" title=" " alt="" coords="2870,328,2999,353"/>
-<area shape="poly" title=" " alt="" coords="1572,262,2856,332,2856,338,1572,267"/>
-<area shape="rect" title=" " alt="" coords="1473,328,1556,353"/>
-<area shape="poly" title=" " alt="" coords="1517,273,1517,314,1512,314,1512,273"/>
-<area shape="rect" title=" " alt="" coords="912,328,983,353"/>
-<area shape="poly" title=" " alt="" coords="1457,272,998,335,997,330,1457,267"/>
-<area shape="poly" title=" " alt="" coords="1392,190,1482,238,1480,243,1389,195"/>
-<area shape="poly" title=" " alt="" coords="1377,191,1401,232,1436,278,1460,300,1485,318,1482,323,1457,304,1432,282,1396,235,1373,194"/>
-<area shape="poly" title=" " alt="" coords="1302,195,1217,214,1126,242,1044,282,977,323,974,318,1041,278,1124,238,1215,209,1301,189"/>
-<area shape="poly" title=" " alt="" coords="836,187,1444,249,1443,254,836,193"/>
-<area shape="poly" title=" " alt="" coords="775,190,902,232,984,257,1068,277,1176,298,1284,313,1460,332,1459,338,1284,319,1175,303,1067,283,983,262,900,237,773,195"/>
-<area shape="poly" title=" " alt="" coords="759,190,924,317,920,322,755,194"/>
-<area shape="poly" title=" " alt="" coords="1073,189,1444,245,1443,251,1072,195"/>
-<area shape="poly" title=" " alt="" coords="1013,190,1076,241,1126,278,1214,307,1305,325,1390,334,1459,337,1459,342,1390,339,1304,330,1213,312,1124,282,1073,245,1009,194"/>
-<area shape="poly" title=" " alt="" coords="978,194,952,214,931,241,927,259,927,278,938,314,933,316,922,279,921,259,927,239,948,210,974,190"/>
-<area shape="poly" title=" " alt="" coords="1232,189,1454,242,1452,247,1231,195"/>
-<area shape="poly" title=" " alt="" coords="1209,190,1479,320,1477,324,1206,194"/>
-<area shape="poly" title=" " alt="" coords="1122,195,1039,215,1004,228,981,242,969,258,961,277,952,315,947,313,955,275,965,255,978,238,1002,223,1038,210,1121,190"/>
-<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="1138,247,1280,273"/>
-<area shape="poly" title=" " alt="" coords="1190,191,1204,234,1199,235,1185,193"/>
-<area shape="poly" title=" " alt="" coords="1281,264,1445,277,2195,333,2194,338,1445,283,1281,270"/>
-<area shape="poly" title=" " alt="" coords="1254,270,1460,323,1459,328,1253,275"/>
-<area shape="poly" title=" " alt="" coords="1172,275,997,327,995,322,1170,270"/>
-<area shape="poly" title=" " alt="" coords="388,188,400,189,650,209,845,217,1041,224,1292,237,1443,249,1443,255,1291,243,1041,229,845,223,650,214,399,195,387,193"/>
-<area shape="poly" title=" " alt="" coords="327,191,361,236,387,259,417,278,480,292,590,304,895,322,1222,332,1459,336,1459,341,1222,337,895,327,589,310,479,297,415,282,384,264,358,239,322,194"/>
-<area shape="poly" title=" " alt="" coords="322,191,338,235,353,259,373,278,415,296,473,311,544,322,621,329,777,336,899,337,899,343,776,342,621,334,543,327,472,316,413,301,370,282,349,262,334,238,317,193"/>
-<area shape="rect" title=" " alt="" coords="428,247,524,273"/>
-<area shape="poly" title=" " alt="" coords="341,190,441,239,439,244,339,194"/>
-<area shape="poly" title=" " alt="" coords="172,190,236,209,305,238,322,249,333,259,344,269,361,277,428,290,546,301,868,319,1212,330,1460,336,1460,341,1212,335,868,324,545,307,428,295,359,283,341,274,329,263,318,253,302,242,234,214,170,195"/>
-<area shape="poly" title=" " alt="" coords="144,190,225,234,279,258,335,277,413,296,494,311,654,329,795,336,898,338,898,343,794,342,653,334,493,316,412,301,334,283,277,263,223,239,141,195"/>
-<area shape="poly" title=" " alt="" coords="175,189,414,242,413,248,174,195"/>
-<area shape="poly" title=" " alt="" coords="574,184,637,189,1292,237,1443,250,1443,255,1291,243,637,195,574,190"/>
-<area shape="poly" title=" " alt="" coords="534,189,701,232,809,257,919,277,1072,299,1224,315,1460,334,1459,339,1223,321,1071,304,918,283,808,262,700,237,533,195"/>
-<area shape="poly" title=" " alt="" coords="503,190,539,234,565,258,594,278,633,295,674,308,757,327,835,335,899,338,899,343,835,341,756,332,672,314,631,300,592,282,561,262,535,238,499,194"/>
-<area shape="poly" title=" " alt="" coords="493,193,484,235,479,233,488,192"/>
-<area shape="poly" title=" " alt="" coords="1551,193,1529,236,1524,234,1546,191"/>
-<area shape="poly" title=" " alt="" coords="1513,194,1476,213,1460,225,1447,241,1441,260,1447,279,1463,301,1483,318,1480,322,1459,304,1443,281,1436,260,1443,239,1456,222,1473,208,1510,190"/>
-<area shape="poly" title=" " alt="" coords="1753,195,1569,246,1567,241,1752,189"/>
-<area shape="poly" title=" " alt="" coords="1756,195,1701,215,1642,242,1595,277,1540,321,1537,317,1592,272,1640,238,1699,210,1754,190"/>
-<area shape="poly" title=" " alt="" coords="2252,273,2252,314,2246,314,2246,273"/>
-<area shape="poly" title=" " alt="" coords="2181,274,2111,283,1805,315,1570,337,1569,332,1804,310,2110,277,2180,268"/>
-<area shape="poly" title=" " alt="" coords="2583,110,2344,134,2052,169,1586,249,1585,243,2051,164,2344,128,2582,105"/>
-<area shape="poly" title=" " alt="" coords="2745,105,3095,138,3336,164,3405,173,3463,177,3489,183,3513,194,3537,212,3561,239,3569,260,3567,271,3560,282,3536,300,3501,314,3458,324,3409,332,3303,341,3206,343,3206,338,3303,335,3408,327,3457,319,3500,308,3534,295,3556,278,3562,269,3564,261,3556,241,3534,215,3511,198,3487,188,3462,182,3405,178,3335,169,3094,144,2745,110"/>
-<area shape="poly" title=" " alt="" coords="2745,105,2945,125,3188,156,3304,174,3403,194,3477,215,3501,227,3516,238,3537,258,3560,273,3605,290,3637,294,3641,296,3639,297,3597,293,3491,294,3308,304,3029,331,3013,332,3013,327,3029,325,3307,299,3491,288,3597,288,3641,292,3646,297,3637,300,3604,295,3557,278,3533,263,3513,242,3499,231,3475,220,3402,199,3303,179,3188,161,2944,130,2745,110"/>
-<area shape="poly" title=" " alt="" coords="2606,114,2531,135,2492,150,2455,169,2393,226,2330,282,2264,302,2175,317,2071,328,1958,335,1737,342,1570,343,1570,337,1737,337,1958,330,2071,323,2175,312,2263,297,2328,278,2389,222,2451,164,2490,145,2530,130,2604,109"/>
-<area shape="poly" title=" " alt="" coords="2582,112,2384,136,2147,169,1730,243,1657,264,1584,283,1416,308,1249,325,997,340,996,335,1249,319,1415,302,1583,277,1656,258,1728,237,2146,164,2383,131,2582,107"/>
-<area shape="rect" title=" " alt="" coords="2852,247,2990,273"/>
-<area shape="poly" title=" " alt="" coords="2676,110,2713,148,2765,190,2819,219,2873,240,2871,245,2817,224,2762,194,2709,152,2672,113"/>
-<area shape="rect" title=" " alt="" coords="2697,247,2828,273"/>
-<area shape="poly" title=" " alt="" coords="2672,110,2715,191,2747,235,2742,238,2711,193,2667,113"/>
-<area shape="poly" title=" " alt="" coords="2731,109,3055,164,3054,169,2730,114"/>
-<area shape="poly" title=" " alt="" coords="3068,186,1888,243,1585,258,1585,252,1888,237,3067,181"/>
-<area shape="poly" title=" " alt="" coords="3175,178,3274,183,3329,188,3380,197,3422,210,3450,228,3458,239,3460,252,3455,266,3443,282,3425,290,3390,297,3279,309,2943,327,2572,337,2303,341,2303,336,2572,331,2943,321,3278,304,3390,292,3423,285,3439,278,3450,264,3454,252,3453,241,3447,231,3420,215,3378,202,3328,194,3274,188,3175,183"/>
-<area shape="poly" title=" " alt="" coords="3175,177,3269,179,3379,187,3433,195,3480,205,3518,220,3544,238,3554,260,3544,282,3522,299,3488,312,3400,331,3300,340,3206,343,3206,337,3299,334,3400,325,3487,307,3519,294,3540,278,3548,260,3540,242,3516,224,3479,210,3432,200,3379,192,3268,184,3174,183"/>
-<area shape="poly" title=" " alt="" coords="3175,178,3258,182,3353,191,3439,209,3472,222,3494,238,3503,260,3501,271,3493,282,3465,295,3412,306,3267,319,3029,331,3013,332,3013,327,3029,325,3266,314,3412,300,3463,290,3490,278,3496,269,3498,260,3490,242,3469,226,3437,214,3352,196,3257,187,3174,184"/>
-<area shape="poly" title=" " alt="" coords="3175,180,3261,188,3349,205,3384,217,3407,234,3413,244,3414,256,3409,269,3398,282,3327,290,3148,298,2593,315,1569,341,1569,335,2593,310,3148,293,3326,284,3396,278,3405,266,3409,255,3408,246,3403,238,3381,222,3348,210,3260,193,3174,186"/>
-<area shape="poly" title=" " alt="" coords="3132,191,3143,210,3153,234,3156,259,3153,271,3145,282,2850,295,2188,313,997,341,997,336,2188,307,2850,290,3142,278,3148,269,3151,259,3148,235,3138,212,3127,194"/>
-<area shape="poly" title=" " alt="" coords="3093,194,2964,245,2962,240,3091,190"/>
-<area shape="poly" title=" " alt="" coords="3068,194,2840,243,2822,247,2821,242,2839,237,3067,189"/>
-<area shape="poly" title=" " alt="" coords="3116,194,3089,237,3085,234,3112,191"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="3206,240,3385,280"/>
-<area shape="poly" title=" " alt="" coords="3147,190,3243,232,3240,237,3145,194"/>
-<area shape="poly" title=" " alt="" coords="3207,280,3188,283,2929,308,2674,325,2304,341,2303,335,2674,320,2928,302,3187,277,3206,275"/>
-<area shape="poly" title=" " alt="" coords="3207,280,3188,283,3035,295,2833,305,2351,323,1569,341,1569,336,2351,317,2833,300,3035,289,3187,277,3206,275"/>
-<area shape="poly" title=" " alt="" coords="3207,280,3188,283,2843,295,2169,313,997,341,997,336,2169,308,2842,290,3187,277,3206,275"/>
-<area shape="poly" title=" " alt="" coords="2557,193,2552,236,2544,261,2528,282,2512,293,2489,302,2430,318,2304,337,2303,332,2429,313,2487,297,2509,288,2524,278,2539,258,2547,235,2552,192"/>
-<area shape="poly" title=" " alt="" coords="2567,190,2616,234,2649,258,2686,277,2736,289,2824,302,3028,327,3027,332,2824,307,2735,294,2684,283,2647,263,2612,238,2563,194"/>
-<area shape="poly" title=" " alt="" coords="2540,194,2472,239,2425,264,2375,283,2303,298,2208,310,1977,328,1743,337,1569,341,1569,336,1743,332,1977,322,2207,305,2302,293,2374,277,2423,259,2469,235,2538,190"/>
-<area shape="poly" title=" " alt="" coords="2465,194,2325,214,2168,243,2093,264,2060,274,2016,283,1922,294,1798,304,1500,321,997,341,997,335,1500,316,1798,299,1922,289,2015,277,2058,269,2091,259,2167,237,2324,209,2464,189"/>
-<area shape="poly" title=" " alt="" coords="2586,190,2720,240,2718,245,2584,195"/>
-<area shape="poly" title=" " alt="" coords="119,270,163,277,377,301,588,318,899,335,899,340,588,323,377,307,162,283,118,275"/>
-<area shape="poly" title=" " alt="" coords="2250,117,2277,138,2302,165,2322,200,2332,239,2336,261,2331,281,2313,306,2289,323,2285,319,2309,302,2327,279,2331,261,2326,241,2317,202,2298,168,2273,142,2247,121"/>
-<area shape="poly" title=" " alt="" coords="2169,121,1971,194,1715,283,1569,327,1567,322,1714,277,1970,189,2168,116"/>
-<area shape="poly" title=" " alt="" coords="2149,119,2136,121,1920,126,1509,130,1293,135,1102,142,963,153,920,161,900,169,889,185,885,203,886,223,891,243,910,283,932,316,927,319,905,285,886,245,881,223,880,202,885,183,897,165,919,155,962,148,1102,137,1293,129,1509,125,1920,120,2135,116,2148,114"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="2159,167,2288,192"/>
-<area shape="poly" title=" " alt="" coords="2222,119,2225,153,2219,153,2217,119"/>
-<area shape="poly" title=" " alt="" coords="2159,190,1586,254,1585,248,2159,185"/>
-<area shape="poly" title=" " alt="" coords="2209,194,2187,214,2170,241,2165,260,2170,279,2188,302,2212,319,2208,323,2184,306,2165,281,2160,260,2165,239,2183,211,2206,190"/>
-<area shape="poly" title=" " alt="" coords="2282,190,2490,237,2553,259,2616,277,2787,300,3028,327,3028,332,2786,305,2615,283,2551,264,2488,243,2281,195"/>
-<area shape="poly" title=" " alt="" coords="2255,189,2379,232,2540,277,2709,309,2856,329,2856,334,2708,314,2539,283,2377,237,2253,195"/>
-<area shape="poly" title=" " alt="" coords="2206,195,2126,238,2072,263,2016,283,1893,311,1769,328,1657,338,1570,341,1570,336,1657,332,1769,323,1892,305,2015,277,2070,258,2124,234,2204,190"/>
-<area shape="poly" title=" " alt="" coords="2159,193,2034,214,1888,243,1809,264,1729,283,1516,310,1306,328,1125,337,997,341,997,336,1125,332,1306,322,1516,305,1729,277,1808,259,1887,237,2033,209,2159,188"/>
-<area shape="poly" title=" " alt="" coords="2159,186,537,259,537,253,2159,181"/>
-<area shape="poly" title=" " alt="" coords="2289,181,2532,200,2686,216,2840,237,2863,242,2862,247,2839,243,2685,221,2531,205,2289,187"/>
-<area shape="poly" title=" " alt="" coords="2289,187,2684,245,2683,250,2288,193"/>
-<area shape="poly" title=" " alt="" coords="2289,181,2654,204,2855,220,3001,237,3021,241,3020,247,3001,243,2855,226,2654,210,2289,187"/>
-<area shape="rect" title=" " alt="" coords="1900,247,2004,273"/>
-<area shape="poly" title=" " alt="" coords="2185,195,2005,246,2004,241,2183,189"/>
-<area shape="poly" title=" " alt="" coords="2019,121,1890,241,1883,261,1884,269,1890,278,1910,293,1940,305,2022,323,2113,332,2194,336,2194,341,2113,338,2021,328,1938,311,1907,298,1886,282,1879,271,1878,261,1885,239,2016,117"/>
-<area shape="poly" title=" " alt="" coords="2014,121,1960,157,1893,194,1852,211,1818,220,1743,243,1638,286,1552,325,1549,320,1636,281,1741,237,1817,215,1850,206,1891,190,1957,153,2011,116"/>
-<area shape="poly" title=" " alt="" coords="1953,114,1885,121,1253,129,1035,134,843,142,702,153,659,161,639,169,627,184,622,199,623,213,629,226,655,251,696,273,747,291,801,307,899,329,898,334,800,312,745,296,694,277,652,255,624,229,617,214,617,198,622,182,635,165,657,155,701,148,842,136,1035,128,1253,123,1885,116,1953,109"/>
-<area shape="poly" title=" " alt="" coords="2084,116,2185,159,2183,164,2082,121"/>
+<area shape="rect" title="Physical pickup/drop/castle/promote command processing." alt="" coords="2218,5,2349,31"/>
+<area shape="rect" href="game__physical_8h.html" title="Physical move commands." alt="" coords="2531,86,2663,111"/>
+<area shape="poly" title=" " alt="" coords="2330,28,2539,80,2537,85,2328,33"/>
+<area shape="rect" title=" " alt="" coords="3949,401,4100,427"/>
+<area shape="poly" title=" " alt="" coords="2349,17,2595,19,2936,28,3278,45,3420,59,3527,76,3555,85,3576,95,3596,106,3623,116,3669,128,3713,135,3795,139,3944,129,4012,130,4045,134,4078,143,4110,157,4141,177,4173,204,4204,239,4210,260,4212,295,4208,330,4200,355,4183,373,4161,387,4115,405,4113,400,4159,383,4179,369,4196,352,4203,329,4206,295,4205,261,4200,241,4169,208,4138,181,4107,162,4076,148,4044,140,4012,135,3944,135,3795,144,3712,141,3668,133,3621,121,3594,110,3573,100,3553,90,3525,81,3419,64,3277,51,2936,33,2595,25,2349,22"/>
+<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="1557,167,1727,192"/>
+<area shape="poly" title=" " alt="" coords="2218,28,2074,47,1990,62,1907,81,1781,122,1680,164,1678,159,1780,117,1905,76,1989,57,2073,42,2217,23"/>
+<area shape="rect" href="game__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="1418,167,1533,192"/>
+<area shape="poly" title=" " alt="" coords="2218,26,2022,43,1902,59,1783,81,1708,100,1636,122,1518,164,1516,159,1634,117,1707,95,1781,76,1901,54,2021,38,2218,20"/>
+<area shape="rect" href="game__required__step_8h.html" title="Mandatory physical steps: persistent LEDs and idle timeout." alt="" coords="496,247,663,273"/>
+<area shape="poly" title=" " alt="" coords="2218,22,1867,23,1350,29,1077,37,820,47,598,62,432,81,342,89,267,93,235,100,204,113,174,135,144,168,139,180,144,190,180,198,267,212,483,243,482,248,266,217,179,203,140,194,134,180,140,165,170,131,201,108,233,95,267,88,341,84,431,76,598,57,819,42,1076,31,1350,24,1867,17,2218,16"/>
+<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="917,167,1090,192"/>
+<area shape="poly" title=" " alt="" coords="2218,23,2006,27,1721,36,1437,54,1320,66,1232,81,1177,98,1123,119,1037,162,1034,157,1121,114,1175,93,1231,76,1319,61,1437,48,1720,31,2006,21,2218,17"/>
+<area shape="rect" href="game__hall__match_8h.html" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="2775,167,2925,192"/>
+<area shape="poly" title=" " alt="" coords="2349,19,2418,25,2501,35,2589,52,2676,76,2719,94,2760,115,2825,157,2822,161,2757,120,2717,99,2674,81,2588,57,2500,40,2418,30,2349,25"/>
+<area shape="rect" href="game__hall__hand_8h.html" title=" " alt="" coords="751,167,893,192"/>
+<area shape="poly" title=" " alt="" coords="2218,23,1986,28,1668,38,1350,56,1218,67,1118,81,1046,99,975,121,861,164,859,159,973,116,1045,93,1118,76,1217,62,1350,50,1668,33,1986,23,2218,18"/>
+<area shape="rect" href="game__hall__restore__guide_8h.html" title="Hall type/color board&#45;restore matching and the LED guide around it." alt="" coords="343,167,541,192"/>
+<area shape="poly" title=" " alt="" coords="2218,23,1933,27,1527,37,1115,55,944,67,814,81,723,99,633,121,489,165,487,160,631,116,722,94,814,76,943,62,1115,50,1527,32,1933,22,2218,17"/>
+<area shape="rect" href="game__hall__position_8h.html" title="Last legal position compared with the live Hall snapshot." alt="" coords="565,167,727,192"/>
+<area shape="poly" title=" " alt="" coords="2218,23,1961,27,1601,38,1239,55,1088,67,974,81,894,99,815,121,688,164,687,159,813,116,893,93,974,76,1088,62,1238,50,1601,32,1961,22,2218,17"/>
+<area shape="rect" href="game__move__exec_8h.html" title="Move execution (internal to game_task component)." alt="" coords="1853,167,2005,192"/>
+<area shape="poly" title=" " alt="" coords="2260,33,2068,121,1969,164,1967,159,2066,116,2258,28"/>
+<area shape="rect" href="game__move__validate_8h.html" title="Move validation (internal to game_task component)." alt="" coords="2196,167,2371,192"/>
+<area shape="poly" title=" " alt="" coords="2286,31,2286,153,2281,153,2281,31"/>
+<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="1917,86,2055,111"/>
+<area shape="poly" title=" " alt="" coords="2241,33,2043,85,2042,80,2239,28"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="3431,167,3538,192"/>
+<area shape="poly" title=" " alt="" coords="2349,17,2598,19,2931,28,3095,35,3239,46,3350,59,3389,67,3414,76,3435,92,3453,112,3477,152,3472,155,3449,115,3432,96,3411,81,3387,72,3349,64,3239,51,3095,41,2931,33,2598,25,2349,22"/>
+<area shape="rect" title=" " alt="" coords="3381,247,3498,273"/>
+<area shape="poly" title=" " alt="" coords="2349,17,2538,18,2788,26,2914,34,3032,44,3133,58,3208,76,3243,90,3276,109,3337,152,3387,198,3423,235,3419,239,3384,201,3334,156,3274,113,3241,95,3207,81,3132,63,3032,50,2914,39,2787,32,2538,24,2349,22"/>
+<area shape="rect" href="game__led__direct_8h.html" title="PRIME LED FUNCTION FOR GAME TASK &#45; Back Queue Hell." alt="" coords="2029,167,2172,192"/>
+<area shape="poly" title=" " alt="" coords="2272,33,2126,159,2123,155,2268,29"/>
+<area shape="rect" href="game__events_8h.html" title="Session&#45;to&#45;LED events (no WS2812 in game_task)." alt="" coords="298,247,421,273"/>
+<area shape="poly" title=" " alt="" coords="2218,22,1767,24,1106,32,777,40,493,50,285,64,220,72,187,81,154,104,131,131,125,145,123,159,126,175,135,190,157,207,194,222,285,244,284,249,193,227,155,212,131,194,121,176,117,160,120,143,127,128,151,100,185,76,219,67,285,58,493,45,777,34,1106,27,1767,19,2218,17"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="2447,167,2597,192"/>
+<area shape="poly" title=" " alt="" coords="2302,29,2494,156,2491,161,2299,33"/>
+<area shape="rect" href="game__board__machine_8h.html" title="Physical board state machine (lift/drop); does not write position_t." alt="" coords="1114,167,1293,192"/>
+<area shape="poly" title=" " alt="" coords="2218,23,1994,27,1700,36,1429,54,1333,66,1278,81,1257,96,1240,115,1216,155,1211,153,1236,112,1254,92,1276,76,1332,61,1429,48,1699,31,1994,21,2218,17"/>
+<area shape="rect" href="game__mode_8h.html" title="One active session mode: puzzle, opening, tutorial, or guard." alt="" coords="154,167,269,192"/>
+<area shape="poly" title=" " alt="" coords="2218,23,1902,27,1444,37,977,55,782,67,634,81,530,99,427,122,262,165,261,160,425,116,529,94,634,76,781,62,976,49,1444,32,1902,22,2218,17"/>
+<area shape="rect" href="game__board__transition_8h.html" title="Apply board machine output via position_t and post&#45;move hooks." alt="" coords="1289,86,1473,111"/>
+<area shape="poly" title=" " alt="" coords="2218,25,1910,45,1709,61,1505,81,1464,87,1463,81,1504,76,1708,56,1909,40,2217,20"/>
+<area shape="rect" href="game__led__animations_8h.html" title="ESP32&#45;C6 Chess System &#45; Advanced LED Animations Header." alt="" coords="3786,247,3965,273"/>
+<area shape="poly" title=" " alt="" coords="2349,17,2581,20,2901,29,3220,46,3352,60,3452,76,3534,103,3643,149,3840,239,3838,244,3641,154,3532,108,3451,81,3351,65,3219,52,2901,34,2581,25,2349,22"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="5,328,124,353"/>
+<area shape="poly" title=" " alt="" coords="2218,22,1755,21,1075,26,736,33,444,44,232,60,167,70,134,81,111,105,93,133,80,165,72,198,64,263,65,314,60,314,59,263,67,197,75,164,88,131,107,101,131,76,165,64,232,54,444,38,736,27,1075,21,1755,16,2218,16"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="2860,79,3000,119"/>
+<area shape="poly" title=" " alt="" coords="2349,24,2801,76,2847,82,2846,88,2800,81,2348,29"/>
+<area shape="rect" href="squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="3025,79,3195,119"/>
+<area shape="poly" title=" " alt="" coords="2349,20,2633,37,2819,54,3011,76,3011,81,2819,59,2632,43,2349,25"/>
+<area shape="rect" title=" " alt="" coords="3633,86,3717,111"/>
+<area shape="poly" title=" " alt="" coords="2349,17,2610,22,2976,32,3345,49,3498,61,3614,76,3631,80,3630,85,3614,81,3498,67,3345,55,2976,37,2610,27,2349,23"/>
+<area shape="rect" title=" " alt="" coords="3742,86,3841,111"/>
+<area shape="poly" title=" " alt="" coords="2349,17,2630,21,3030,30,3434,48,3603,60,3730,76,3747,80,3746,85,3730,81,3603,66,3434,53,3029,35,2630,26,2349,22"/>
+<area shape="rect" title=" " alt="" coords="3865,86,3936,111"/>
+<area shape="poly" title=" " alt="" coords="2349,16,2652,17,3088,23,3316,30,3530,41,3715,56,3853,76,3864,79,3862,84,3852,81,3714,61,3530,46,3316,35,3088,28,2652,22,2349,22"/>
+<area shape="rect" title=" " alt="" coords="3960,86,4047,111"/>
+<area shape="poly" title=" " alt="" coords="2349,16,2668,17,3131,24,3375,31,3604,42,3801,57,3949,76,3962,79,3961,84,3948,81,3800,62,3603,47,3375,37,3131,30,2668,23,2349,22"/>
+<area shape="rect" title=" " alt="" coords="4071,86,4138,111"/>
+<area shape="poly" title=" " alt="" coords="2349,17,3253,35,3763,52,3950,63,4060,76,4070,79,4068,84,4059,81,3949,68,3763,57,3253,40,2349,23"/>
+<area shape="rect" title=" " alt="" coords="4163,86,4233,111"/>
+<area shape="poly" title=" " alt="" coords="2349,17,3299,34,3837,52,4034,63,4150,76,4162,79,4160,84,4150,81,4034,68,3837,57,3298,40,2349,23"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="2135,247,2250,273"/>
+<area shape="poly" title=" " alt="" coords="2620,109,2646,125,2670,146,2684,169,2684,182,2677,194,2663,206,2645,215,2599,229,2544,235,2483,238,2362,238,2310,239,2269,243,2249,247,2248,242,2268,237,2309,233,2361,233,2483,233,2543,230,2598,223,2643,210,2660,201,2673,190,2679,180,2679,171,2666,149,2643,130,2618,114"/>
+<area shape="rect" title=" " alt="" coords="3181,328,3263,353"/>
+<area shape="poly" title=" " alt="" coords="2250,262,2746,294,3162,325,3168,326,3167,331,3162,331,2745,299,2250,268"/>
+<area shape="poly" title=" " alt="" coords="2250,262,2742,294,2992,312,3119,325,3145,338,3171,351,3236,364,3323,375,3535,392,3756,403,3935,408,3935,413,3756,408,3535,397,3323,380,3236,369,3169,356,3143,343,3117,331,2992,318,2742,299,2250,268"/>
+<area shape="rect" title=" " alt="" coords="3112,401,3241,427"/>
+<area shape="poly" title=" " alt="" coords="2251,268,3099,398,3098,403,2250,273"/>
+<area shape="rect" href="game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="2999,328,3106,353"/>
+<area shape="poly" title=" " alt="" coords="2250,264,2930,325,2986,330,2985,336,2930,331,2250,269"/>
+<area shape="rect" title=" " alt="" coords="1556,401,1627,427"/>
+<area shape="poly" title=" " alt="" coords="2189,274,2163,315,2143,338,2118,356,2078,371,2024,383,1891,401,1751,410,1640,414,1640,409,1751,405,1890,395,2023,378,2077,366,2115,351,2139,334,2159,312,2185,271"/>
+<area shape="rect" title=" " alt="" coords="1677,328,1759,353"/>
+<area shape="poly" title=" " alt="" coords="2135,273,1773,333,1772,328,2135,268"/>
+<area shape="poly" title=" " alt="" coords="3106,348,3125,351,3354,372,3581,389,3936,407,3935,412,3580,394,3353,378,3124,356,3106,354"/>
+<area shape="poly" title=" " alt="" coords="3074,351,3146,392,3143,397,3071,356"/>
+<area shape="poly" title=" " alt="" coords="3000,354,2981,356,2781,373,2576,387,2182,405,1852,413,1640,415,1640,410,1852,408,2182,400,2576,382,2780,368,2980,351,2999,348"/>
+<area shape="poly" title=" " alt="" coords="1722,189,2122,246,2122,251,1722,195"/>
+<area shape="poly" title=" " alt="" coords="1642,193,1599,388,1594,387,1637,192"/>
+<area shape="poly" title=" " alt="" coords="1647,191,1658,231,1676,279,1701,316,1697,319,1672,281,1652,233,1642,193"/>
+<area shape="poly" title=" " alt="" coords="1533,188,1545,189,1867,226,2122,250,2122,255,1867,232,1544,195,1532,193"/>
+<area shape="poly" title=" " alt="" coords="1484,191,1582,388,1577,390,1479,194"/>
+<area shape="poly" title=" " alt="" coords="1494,190,1690,318,1687,323,1491,194"/>
+<area shape="poly" title=" " alt="" coords="590,271,627,312,653,334,683,351,735,363,825,373,1075,390,1542,409,1542,414,1075,396,825,378,734,368,681,356,650,338,623,316,586,275"/>
+<area shape="poly" title=" " alt="" coords="663,270,733,277,1006,299,1275,316,1663,335,1663,340,1274,321,1006,304,732,283,663,275"/>
+<area shape="poly" title=" " alt="" coords="1091,188,1102,189,1399,212,1691,231,2122,253,2122,258,1691,236,1399,218,1102,195,1090,194"/>
+<area shape="poly" title=" " alt="" coords="949,195,877,215,847,228,830,241,824,264,824,298,829,332,836,352,850,360,873,368,944,381,1038,391,1147,398,1371,407,1542,410,1542,415,1371,412,1147,404,1038,396,943,386,872,373,847,365,832,355,824,334,819,299,819,263,825,239,844,223,875,210,947,189"/>
+<area shape="poly" title=" " alt="" coords="1043,189,1209,237,1361,277,1526,309,1664,329,1663,335,1525,314,1360,283,1207,242,1042,195"/>
+<area shape="poly" title=" " alt="" coords="2775,192,2756,195,2618,207,2512,214,2405,223,2269,243,2248,247,2247,242,2268,237,2404,218,2511,208,2618,202,2755,189,2774,187"/>
+<area shape="poly" title=" " alt="" coords="2775,194,2654,214,2517,243,2414,272,2335,301,2255,329,2151,356,2006,380,1863,397,1641,413,1640,408,1862,392,2005,375,2149,351,2254,324,2333,296,2412,267,2516,237,2653,209,2774,189"/>
+<area shape="poly" title=" " alt="" coords="2775,190,2512,215,2389,229,2320,243,2304,252,2292,262,2281,273,2263,282,2221,294,2165,305,2029,321,1773,339,1773,334,2029,316,2165,299,2220,289,2261,278,2278,269,2289,258,2301,247,2318,237,2388,224,2511,209,2774,184"/>
+<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="2528,247,2671,273"/>
+<area shape="poly" title=" " alt="" coords="2814,195,2650,246,2648,241,2813,189"/>
+<area shape="poly" title=" " alt="" coords="2671,266,2891,289,3162,325,3168,326,3167,331,3162,331,2890,295,2671,271"/>
+<area shape="poly" title=" " alt="" coords="2582,275,2508,316,2459,339,2408,356,2339,369,2248,381,2026,398,1804,409,1640,414,1640,409,1804,404,2026,393,2247,376,2338,364,2407,351,2458,334,2506,312,2580,271"/>
+<area shape="poly" title=" " alt="" coords="2550,275,2509,283,2296,307,2086,324,1773,340,1773,335,2086,319,2296,302,2508,277,2549,270"/>
+<area shape="poly" title=" " alt="" coords="893,188,905,189,1263,217,1613,236,2121,254,2121,260,1613,242,1262,223,904,195,892,193"/>
+<area shape="poly" title=" " alt="" coords="820,193,809,225,801,268,803,313,810,334,822,351,836,360,860,368,932,382,1029,392,1140,399,1368,408,1542,410,1542,415,1368,413,1140,405,1028,397,932,387,859,373,834,365,819,355,805,336,797,314,795,268,804,224,815,192"/>
+<area shape="poly" title=" " alt="" coords="893,188,1053,214,1122,227,1162,238,1176,248,1185,259,1193,269,1206,278,1244,290,1295,301,1421,318,1554,329,1663,335,1663,340,1554,334,1421,323,1294,306,1242,295,1203,282,1189,273,1180,262,1172,252,1160,242,1121,232,1052,219,892,194"/>
+<area shape="rect" title=" " alt="" coords="1053,247,1149,273"/>
+<area shape="poly" title=" " alt="" coords="863,189,1048,241,1046,246,862,195"/>
+<area shape="poly" title=" " alt="" coords="362,195,321,212,303,225,288,241,277,268,280,290,294,308,316,322,368,341,404,351,476,363,598,374,935,391,1542,409,1542,414,935,396,598,379,475,368,403,356,366,347,314,327,290,312,275,292,271,268,284,239,299,221,318,207,360,190"/>
+<area shape="poly" title=" " alt="" coords="542,188,786,215,889,228,939,238,954,247,963,259,971,269,984,278,1042,295,1120,308,1313,326,1511,334,1663,337,1663,342,1511,340,1313,332,1120,314,1041,300,982,282,967,273,959,262,950,251,937,242,888,234,785,221,542,194"/>
+<area shape="poly" title=" " alt="" coords="542,188,984,237,1039,246,1039,251,983,243,541,194"/>
+<area shape="poly" title=" " alt="" coords="727,188,740,189,1149,218,1550,237,2121,255,2121,260,1549,242,1149,223,739,195,727,194"/>
+<area shape="poly" title=" " alt="" coords="566,193,521,210,501,224,486,241,479,260,486,279,501,299,516,314,550,331,640,351,721,366,830,378,1092,396,1354,405,1542,409,1542,415,1354,411,1092,401,829,384,721,371,639,356,548,336,513,318,497,303,481,281,473,260,481,239,498,220,519,206,564,188"/>
+<area shape="poly" title=" " alt="" coords="727,188,870,210,937,223,984,238,1002,248,1014,259,1025,269,1042,278,1095,292,1167,303,1342,321,1523,331,1663,335,1663,341,1523,336,1342,326,1166,309,1094,297,1040,282,1022,273,1010,262,999,252,982,242,935,229,869,215,726,193"/>
+<area shape="poly" title=" " alt="" coords="727,189,896,214,1035,237,1051,241,1049,246,1033,243,895,219,727,195"/>
+<area shape="poly" title=" " alt="" coords="1968,189,2142,241,2140,246,1966,195"/>
+<area shape="poly" title=" " alt="" coords="1907,194,1869,215,1828,242,1780,282,1741,319,1737,316,1776,278,1824,238,1866,211,1904,190"/>
+<area shape="poly" title=" " alt="" coords="2272,194,2218,240,2215,236,2268,190"/>
+<area shape="poly" title=" " alt="" coords="2196,194,2046,215,1977,229,1928,242,1911,251,1898,261,1869,282,1816,307,1766,326,1764,321,1814,302,1866,278,1895,257,1908,247,1926,238,1976,223,2045,210,2195,188"/>
+<area shape="poly" title=" " alt="" coords="2055,99,2212,105,2401,117,2567,136,2624,149,2644,156,2656,165,2662,179,2656,194,2643,205,2626,214,2582,227,2530,234,2472,237,2357,238,2307,239,2269,243,2249,247,2248,242,2268,237,2307,233,2357,232,2472,232,2529,229,2581,222,2624,210,2640,201,2652,190,2657,179,2652,168,2641,161,2623,154,2566,141,2400,122,2211,110,2055,104"/>
+<area shape="poly" title=" " alt="" coords="2055,99,2249,106,2505,119,2756,138,2860,150,2939,164,2991,177,3032,191,3070,210,3117,238,3202,316,3198,320,3114,242,3068,214,3030,196,2990,182,2937,169,2859,155,2755,143,2504,124,2249,112,2055,105"/>
+<area shape="poly" title=" " alt="" coords="1935,114,1867,135,1832,150,1798,169,1755,199,1741,216,1727,241,1718,279,1718,314,1712,314,1713,278,1722,239,1736,213,1751,195,1795,164,1829,146,1866,130,1933,109"/>
+<area shape="poly" title=" " alt="" coords="1937,114,1706,166,1705,161,1935,109"/>
+<area shape="rect" href="position_8h.html" title="Standalone chess position." alt="" coords="840,247,927,273"/>
+<area shape="poly" title=" " alt="" coords="1917,105,1008,140,331,169,325,180,327,188,338,197,357,204,414,215,488,222,650,230,770,237,827,246,826,251,770,243,650,236,487,228,413,220,355,209,335,201,323,191,320,179,329,164,1007,135,1917,100"/>
+<area shape="poly" title=" " alt="" coords="922,270,947,277,1082,317,1219,351,1397,383,1543,404,1542,409,1396,388,1217,356,1081,322,945,283,920,275"/>
+<area shape="poly" title=" " alt="" coords="917,270,947,277,1048,294,1153,307,1357,325,1535,334,1663,336,1663,342,1535,339,1356,330,1152,312,1047,299,945,283,916,275"/>
+<area shape="rect" title=" " alt="" coords="846,328,921,353"/>
+<area shape="poly" title=" " alt="" coords="886,273,886,314,881,314,881,273"/>
+<area shape="poly" title=" " alt="" coords="3431,187,3318,195,2471,243,2264,256,2264,251,2471,237,3318,189,3431,182"/>
+<area shape="poly" title=" " alt="" coords="3539,188,3649,212,3694,226,3719,238,3728,260,3726,271,3718,282,3695,294,3653,304,3532,321,3393,333,3276,339,3276,334,3392,327,3531,316,3652,299,3694,289,3715,278,3721,269,3723,261,3715,242,3692,231,3647,218,3538,193"/>
+<area shape="poly" title=" " alt="" coords="3538,179,3696,182,3897,191,3994,199,4078,209,4140,222,4161,229,4175,238,4193,266,4199,295,4192,324,4175,355,4147,382,4112,399,4110,395,4144,378,4171,352,4187,322,4193,295,4189,268,4171,242,4159,234,4139,227,4077,214,3994,204,3897,197,3696,187,3538,184"/>
+<area shape="poly" title=" " alt="" coords="3538,177,3718,180,3827,187,3933,200,4023,221,4059,236,4086,253,4104,273,4110,298,4102,325,4080,355,4063,366,4036,376,3956,391,3849,401,3725,409,3465,416,3256,416,3256,411,3464,410,3724,404,3848,396,3955,385,4035,370,4061,361,4076,351,4097,322,4104,297,4099,276,4083,257,4056,240,4021,226,3932,205,3826,192,3718,185,3538,182"/>
+<area shape="poly" title=" " alt="" coords="3539,187,3596,200,3650,219,3670,232,3683,246,3685,263,3675,282,3656,293,3625,302,3535,314,3418,320,3285,322,3031,323,2936,325,2880,331,2855,343,2830,356,2720,376,2574,391,2404,402,2223,409,1878,415,1640,416,1640,410,1878,410,2223,403,2404,396,2574,386,2719,371,2828,351,2853,338,2879,325,2935,319,3031,317,3285,317,3417,315,3535,309,3624,297,3654,288,3671,278,3680,262,3678,249,3667,236,3648,224,3595,205,3538,192"/>
+<area shape="poly" title=" " alt="" coords="3431,187,3318,195,3196,200,3092,201,2915,200,2830,201,2739,207,2637,220,2517,243,2487,252,2464,262,2441,273,2409,283,2320,300,2228,314,2048,332,1890,340,1773,342,1773,337,1889,335,2048,326,2228,309,2319,295,2408,277,2439,268,2461,257,2485,247,2516,237,2636,215,2739,202,2830,196,2915,194,3092,196,3196,195,3318,189,3431,182"/>
+<area shape="rect" title=" " alt="" coords="3523,247,3660,273"/>
+<area shape="poly" title=" " alt="" coords="3502,190,3566,237,3563,241,3499,194"/>
+<area shape="poly" title=" " alt="" coords="3480,194,3455,237,3451,234,3476,191"/>
+<area shape="rect" title=" " alt="" coords="3935,328,4066,353"/>
+<area shape="poly" title=" " alt="" coords="3538,180,3664,186,3816,197,3950,214,3997,225,4023,238,4032,257,4032,278,4018,317,4013,315,4027,277,4027,258,4019,242,3995,230,3950,219,3816,203,3663,191,3538,185"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="2925,240,3103,280"/>
+<area shape="poly" title=" " alt="" coords="3432,192,3117,244,3117,239,3431,187"/>
+<area shape="poly" title=" " alt="" coords="3065,278,3180,321,3178,326,3063,283"/>
+<area shape="poly" title=" " alt="" coords="2966,283,2843,330,2812,345,2779,356,2674,372,2534,385,2199,403,1870,412,1641,415,1641,410,1870,407,2199,398,2534,380,2673,367,2777,351,2810,340,2841,326,2964,278"/>
+<area shape="poly" title=" " alt="" coords="2925,281,2913,283,2745,300,2574,313,2243,331,1961,339,1773,342,1773,337,1961,334,2242,326,2574,308,2745,294,2912,277,2924,276"/>
+<area shape="poly" title=" " alt="" coords="2116,190,2170,236,2167,240,2113,194"/>
+<area shape="poly" title=" " alt="" coords="2083,194,1955,267,1866,313,1772,356,1704,382,1640,402,1639,397,1702,377,1770,351,1863,308,1952,262,2080,190"/>
+<area shape="poly" title=" " alt="" coords="2033,195,1957,213,1878,242,1849,261,1822,282,1752,324,1750,319,1819,278,1846,257,1875,238,1956,208,2032,189"/>
+<area shape="poly" title=" " alt="" coords="368,272,395,313,416,334,441,351,467,359,507,367,625,380,777,390,950,398,1296,407,1542,410,1541,415,1296,412,950,403,777,396,624,386,506,372,465,365,438,356,412,338,391,316,363,274"/>
+<area shape="poly" title=" " alt="" coords="421,269,484,277,835,305,1178,323,1469,332,1663,336,1662,341,1469,337,1178,328,834,310,483,283,421,275"/>
+<area shape="poly" title=" " alt="" coords="2473,195,2269,243,2253,247,2251,241,2268,237,2472,190"/>
+<area shape="poly" title=" " alt="" coords="2447,193,2271,217,2124,243,2036,269,1970,296,1903,325,1816,356,1641,404,1640,399,1815,351,1901,320,1967,291,2034,264,2123,237,2270,211,2446,187"/>
+<area shape="poly" title=" " alt="" coords="2447,193,2232,220,2080,243,2023,262,1965,283,1864,310,1773,330,1772,325,1862,304,1964,277,2021,256,2079,237,2232,215,2446,187"/>
+<area shape="poly" title=" " alt="" coords="1293,185,2122,250,2121,256,1293,190"/>
+<area shape="poly" title=" " alt="" coords="1207,192,1211,224,1221,268,1240,313,1253,334,1270,351,1290,363,1318,373,1391,389,1472,400,1543,407,1542,412,1471,406,1390,395,1317,378,1288,368,1267,355,1249,337,1235,316,1215,269,1205,225,1201,192"/>
+<area shape="poly" title=" " alt="" coords="1234,190,1358,237,1472,277,1573,305,1664,325,1663,331,1572,310,1471,283,1356,242,1232,195"/>
+<area shape="poly" title=" " alt="" coords="1157,195,940,247,939,242,1156,189"/>
+<area shape="poly" title=" " alt="" coords="217,192,228,225,248,270,279,316,298,335,321,351,349,361,394,371,525,385,696,396,888,403,1273,410,1542,410,1542,416,1273,415,888,409,695,401,525,391,393,376,348,366,318,356,295,340,275,319,244,273,223,227,212,193"/>
+<area shape="poly" title=" " alt="" coords="269,184,483,210,675,237,751,258,784,268,828,277,948,294,1070,308,1310,326,1517,334,1663,337,1663,342,1517,339,1310,331,1070,313,947,300,827,283,783,273,750,263,673,243,482,215,269,190"/>
+<area shape="poly" title=" " alt="" coords="269,187,288,189,423,204,529,213,635,222,770,237,827,246,826,251,770,243,634,227,529,218,423,209,287,195,269,192"/>
+<area shape="poly" title=" " alt="" coords="1473,101,2140,128,2464,147,2567,156,2612,165,2618,179,2612,194,2585,212,2547,224,2500,231,2449,235,2347,237,2269,243,2250,247,2249,242,2268,237,2347,232,2449,230,2499,226,2545,219,2583,208,2608,190,2613,179,2608,169,2567,161,2464,152,2140,134,1473,106"/>
+<area shape="poly" title=" " alt="" coords="1382,112,1381,149,1384,170,1390,191,1406,224,1427,255,1475,311,1524,357,1565,391,1562,395,1520,361,1471,315,1423,258,1402,226,1385,193,1378,171,1376,149,1376,112"/>
+<area shape="poly" title=" " alt="" coords="1384,111,1389,149,1397,171,1408,190,1435,219,1465,244,1533,283,1603,310,1664,327,1662,332,1601,315,1531,288,1462,248,1431,223,1404,194,1392,173,1384,150,1378,112"/>
+<area shape="poly" title=" " alt="" coords="1356,114,1243,164,1240,159,1354,109"/>
+<area shape="poly" title=" " alt="" coords="3814,275,3768,283,3492,316,3277,337,3276,332,3491,311,3767,277,3813,270"/>
+<area shape="poly" title=" " alt="" coords="3881,272,3897,310,3910,332,3925,351,3954,375,3985,393,3982,397,3951,379,3921,355,3905,335,3892,312,3876,274"/>
+<area shape="poly" title=" " alt="" coords="3786,275,3717,283,3512,296,3351,300,3192,307,3098,316,2988,331,2934,343,2880,356,2764,368,2611,379,2245,396,1641,414,1641,409,2245,391,2611,374,2764,363,2879,351,2933,338,2987,325,3097,311,3191,302,3351,294,3511,291,3716,277,3785,270"/>
+<area shape="poly" title=" " alt="" coords="3786,273,3673,283,3092,311,2528,329,1773,342,1773,336,2528,323,3091,306,3672,277,3785,268"/>
+<area shape="poly" title=" " alt="" coords="3895,271,3972,318,3969,323,3892,275"/>
+<area shape="poly" title=" " alt="" coords="125,345,192,351,600,374,997,391,1542,409,1542,414,997,396,600,379,191,356,124,351"/>
+<area shape="poly" title=" " alt="" coords="2975,116,3066,165,3116,199,3161,238,3191,276,3213,314,3208,317,3187,279,3157,242,3112,203,3063,170,2972,121"/>
+<area shape="poly" title=" " alt="" coords="2941,118,2951,155,2949,176,2940,194,2925,206,2907,216,2859,229,2802,236,2738,238,2613,237,2559,238,2517,243,2413,270,2334,299,2255,329,2151,356,2006,380,1863,397,1641,413,1640,408,1862,392,2005,375,2149,351,2254,324,2332,294,2412,265,2516,237,2559,233,2613,232,2738,232,2801,230,2858,224,2905,211,2922,202,2936,190,2944,174,2946,156,2936,119"/>
+<area shape="poly" title=" " alt="" coords="2860,108,2675,121,2255,133,1994,146,1897,156,1842,169,1820,182,1801,199,1768,238,1744,280,1729,316,1724,314,1740,278,1764,235,1797,195,1817,178,1840,164,1896,151,1993,140,2255,127,2675,116,2860,103"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="3176,167,3305,192"/>
+<area shape="poly" title=" " alt="" coords="3001,115,3183,161,3181,166,2999,120"/>
+<area shape="poly" title=" " alt="" coords="3176,188,2421,243,2264,255,2264,250,2420,237,3176,182"/>
+<area shape="poly" title=" " alt="" coords="3242,192,3228,314,3222,314,3237,192"/>
+<area shape="poly" title=" " alt="" coords="3306,182,3719,211,3916,227,4007,237,4035,255,4055,273,4068,296,4081,327,4082,346,4077,364,4053,393,4049,390,4072,361,4077,345,4075,329,4063,299,4050,277,4032,259,4005,243,3915,232,3718,217,3306,188"/>
+<area shape="poly" title=" " alt="" coords="3251,191,3267,221,3282,263,3289,309,3286,333,3278,355,3255,380,3227,398,3224,393,3252,376,3273,352,3281,331,3284,309,3277,264,3262,223,3246,194"/>
+<area shape="poly" title=" " alt="" coords="3176,188,2948,211,2843,226,2806,234,2786,242,2773,255,2765,268,2759,298,2752,328,2744,343,2729,356,2703,366,2663,376,2548,391,2398,401,2227,409,1885,415,1641,416,1641,410,1885,410,2227,403,2397,396,2548,385,2662,370,2701,361,2726,351,2739,339,2747,326,2754,297,2760,266,2769,251,2783,238,2805,229,2842,221,2947,206,3175,183"/>
+<area shape="poly" title=" " alt="" coords="3176,185,3046,190,2871,200,2672,217,2472,243,2426,252,2391,262,2355,273,2309,283,2158,305,2007,321,1774,339,1773,334,2007,316,2157,299,2308,277,2354,267,2389,257,2425,247,2471,237,2672,211,2871,194,3046,184,3176,179"/>
+<area shape="poly" title=" " alt="" coords="3176,186,2938,195,1163,259,1162,254,2938,189,3176,180"/>
+<area shape="poly" title=" " alt="" coords="3293,189,3511,237,3529,242,3528,247,3509,243,3292,195"/>
+<area shape="poly" title=" " alt="" coords="3271,190,3399,240,3397,245,3269,194"/>
+<area shape="poly" title=" " alt="" coords="3306,182,3703,210,3892,226,3978,238,3992,255,4000,275,4005,314,4000,315,3995,276,3987,257,3975,242,3891,231,3703,215,3306,188"/>
+<area shape="rect" title=" " alt="" coords="2797,247,2901,273"/>
+<area shape="poly" title=" " alt="" coords="3176,193,3054,214,2913,243,2899,246,2898,241,2912,237,3053,208,3175,188"/>
+<area shape="poly" title=" " alt="" coords="3196,102,3230,109,3264,121,3295,140,3320,165,3330,186,3331,208,3325,230,3314,251,3283,290,3250,321,3246,317,3279,287,3310,248,3320,228,3326,207,3325,187,3316,168,3292,144,3262,126,3229,114,3195,107"/>
+<area shape="poly" title=" " alt="" coords="3086,121,3031,158,2962,194,2904,212,2857,219,2811,226,2754,242,2719,262,2685,282,2574,328,2524,342,2458,356,2341,376,2220,391,1984,409,1781,416,1640,416,1640,411,1781,410,1984,404,2219,385,2340,370,2458,351,2523,337,2572,323,2682,278,2716,257,2752,238,2810,220,2856,214,2903,207,2960,190,3028,154,3083,117"/>
+<area shape="poly" title=" " alt="" coords="3025,120,3013,121,2925,131,2850,134,2721,133,2660,133,2595,138,2521,149,2436,169,2410,182,2384,195,2321,209,2266,214,2171,211,2126,209,2078,212,2026,222,1966,242,1951,251,1942,261,1932,272,1917,282,1843,313,1773,331,1772,326,1842,307,1914,278,1928,268,1938,257,1948,247,1964,238,2024,217,2077,207,2126,204,2171,206,2266,209,2320,204,2382,189,2408,177,2434,164,2520,144,2594,133,2660,128,2721,128,2850,129,2925,125,3012,116,3024,114"/>
+<area shape="poly" title=" " alt="" coords="3143,117,3211,157,3208,162,3140,121"/>
 </map>
 </div>
 </div>
@@ -290,6 +334,8 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:af27f60032ea12aa652b42d75d63a8da6" id="r_af27f60032ea12aa652b42d75d63a8da6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#af27f60032ea12aa652b42d75d63a8da6">game_finish_rejected_drop</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd, uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:af27f60032ea12aa652b42d75d63a8da6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa866080024c1cf908e6fe4cc68aaf518" id="r_aa866080024c1cf908e6fe4cc68aaf518"><td class="memItemLeft" align="right" valign="top">static int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#aa866080024c1cf908e6fe4cc68aaf518">hand_manhattan</a> (uint8_t r0, uint8_t c0, uint8_t r1, uint8_t c1)</td></tr>
 <tr class="separator:aa866080024c1cf908e6fe4cc68aaf518"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a84956bacd76f942489e94b1cf0c953f8" id="r_a84956bacd76f942489e94b1cf0c953f8"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a84956bacd76f942489e94b1cf0c953f8">hand_flash_pair</a> (uint8_t r0, uint8_t c0, uint8_t r1, uint8_t c1)</td></tr>
@@ -318,23 +364,26 @@ Functions</h2></td></tr>
 <tr class="separator:a7cc0abae31827a2e66d848b38666ee54"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab7fbbc5868cc57d0b7297075edf647b6" id="r_ab7fbbc5868cc57d0b7297075edf647b6"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#ab7fbbc5868cc57d0b7297075edf647b6">game_enter_guided_capture</a> (uint8_t target_row, uint8_t target_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> target_piece)</td></tr>
 <tr class="separator:ab7fbbc5868cc57d0b7297075edf647b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ae513fccc7710f19c527f85d4a8604a86" id="r_ae513fccc7710f19c527f85d4a8604a86"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#ae513fccc7710f19c527f85d4a8604a86">game_log_pickup_latency</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="separator:ae513fccc7710f19c527f85d4a8604a86"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0216d9328bf82ee185835194077f1e33" id="r_a0216d9328bf82ee185835194077f1e33"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a0216d9328bf82ee185835194077f1e33">game_process_pickup_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a0216d9328bf82ee185835194077f1e33"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process pickup command (UP)  <br /></td></tr>
-<tr class="separator:a0216d9328bf82ee185835194077f1e33"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8de7eb2cbccf01d3c7ee792caaf9784e" id="r_a8de7eb2cbccf01d3c7ee792caaf9784e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a8de7eb2cbccf01d3c7ee792caaf9784e">game_process_drop_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a8de7eb2cbccf01d3c7ee792caaf9784e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enhanced drop command processing with smart error handling.  <br /></td></tr>
-<tr class="separator:a8de7eb2cbccf01d3c7ee792caaf9784e"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a22142c91365332eb732cca4b572b9383" id="r_a22142c91365332eb732cca4b572b9383"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a22142c91365332eb732cca4b572b9383">game_process_castle_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a22142c91365332eb732cca4b572b9383"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART CASTLE command.  <br /></td></tr>
-<tr class="separator:a22142c91365332eb732cca4b572b9383"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a195ee37f585a1c6b2a5a54afaa8aea21" id="r_a195ee37f585a1c6b2a5a54afaa8aea21"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a195ee37f585a1c6b2a5a54afaa8aea21">game_process_promote_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a195ee37f585a1c6b2a5a54afaa8aea21"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART PROMOTE command (square and piece choice).  <br /></td></tr>
-<tr class="separator:a195ee37f585a1c6b2a5a54afaa8aea21"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a13909ec7cf87ce1999cd9647689e46aa" id="r_a13909ec7cf87ce1999cd9647689e46aa"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a13909ec7cf87ce1999cd9647689e46aa">game_process_chess_move</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:a13909ec7cf87ce1999cd9647689e46aa"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process sach move from UART command.  <br /></td></tr>
-<tr class="separator:a13909ec7cf87ce1999cd9647689e46aa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a57763292b2a2512fc839371567a73fc5" id="r_a57763292b2a2512fc839371567a73fc5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a57763292b2a2512fc839371567a73fc5">game_log_pickup_latency</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd)</td></tr>
+<tr class="separator:a57763292b2a2512fc839371567a73fc5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad6d2137a795d4969c7697408452bc25c" id="r_ad6d2137a795d4969c7697408452bc25c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#ad6d2137a795d4969c7697408452bc25c">game_process_pickup_command</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd)</td></tr>
+<tr class="memdesc:ad6d2137a795d4969c7697408452bc25c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process pickup command (UP)  <br /></td></tr>
+<tr class="separator:ad6d2137a795d4969c7697408452bc25c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf77a5017fdec0b1691068cddd4cb90b" id="r_adf77a5017fdec0b1691068cddd4cb90b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#adf77a5017fdec0b1691068cddd4cb90b">game_finish_rejected_drop_no_reply</a> (uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col, <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="memdesc:adf77a5017fdec0b1691068cddd4cb90b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Enhanced drop command processing with smart error handling.  <br /></td></tr>
+<tr class="separator:adf77a5017fdec0b1691068cddd4cb90b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adff0d2e2eb21b7625c65a85221b73a2e" id="r_adff0d2e2eb21b7625c65a85221b73a2e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#adff0d2e2eb21b7625c65a85221b73a2e">game_process_drop_command</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd)</td></tr>
+<tr class="memdesc:adff0d2e2eb21b7625c65a85221b73a2e"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process the DROP command (DN)  <br /></td></tr>
+<tr class="separator:adff0d2e2eb21b7625c65a85221b73a2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa506bc891d24dd3647a1a16aaac996e6" id="r_aa506bc891d24dd3647a1a16aaac996e6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#aa506bc891d24dd3647a1a16aaac996e6">game_process_castle_command</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd)</td></tr>
+<tr class="memdesc:aa506bc891d24dd3647a1a16aaac996e6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART CASTLE command.  <br /></td></tr>
+<tr class="separator:aa506bc891d24dd3647a1a16aaac996e6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9588842961b7989d2140f61dfbc554ba" id="r_a9588842961b7989d2140f61dfbc554ba"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a9588842961b7989d2140f61dfbc554ba">game_process_promote_command</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd)</td></tr>
+<tr class="memdesc:a9588842961b7989d2140f61dfbc554ba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Handle a UART PROMOTE command (square and piece choice).  <br /></td></tr>
+<tr class="separator:a9588842961b7989d2140f61dfbc554ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5ab753cff194962681bd6dc6a091e1b4" id="r_a5ab753cff194962681bd6dc6a091e1b4"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__physical_8c.html#a5ab753cff194962681bd6dc6a091e1b4">game_process_chess_move</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd)</td></tr>
+<tr class="memdesc:a5ab753cff194962681bd6dc6a091e1b4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process a chess move from game_submit (web, BLE, squares, main)  <br /></td></tr>
+<tr class="separator:a5ab753cff194962681bd6dc6a091e1b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
@@ -380,7 +429,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00037">37</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00046">46</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -425,7 +474,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00519">519</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00510">510</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -453,7 +502,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00506">506</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00497">497</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -498,9 +547,136 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Searches for custom pieces that can <em>pick up on the field</em> (target_row,target_col). </p>
-<p>En passant ends on an empty field behind the victim — so the move typically doesn't go through here via game_is_valid_move(..., to=victim square); guided capture in the e.p. does not activate the situation and the player uses a normal move / 3-step parry. </p>
+<p>En passant ends on an empty field behind the victim � so the move typically doesn't go through here via game_is_valid_move(..., to=victim square); guided capture in the e.p. does not activate the situation and the player uses a normal move / 3-step parry. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00405">405</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00398">398</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+
+</div>
+</div>
+<a id="af27f60032ea12aa652b42d75d63a8da6" name="af27f60032ea12aa652b42d75d63a8da6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af27f60032ea12aa652b42d75d63a8da6">&#9670;&#160;</a></span>game_finish_rejected_drop()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void game_finish_rejected_drop </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
+          <td class="paramname"><em>cmd</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l01541">1541</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+
+</div>
+</div>
+<a id="adf77a5017fdec0b1691068cddd4cb90b" name="adf77a5017fdec0b1691068cddd4cb90b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf77a5017fdec0b1691068cddd4cb90b">&#9670;&#160;</a></span>game_finish_rejected_drop_no_reply()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_finish_rejected_drop_no_reply </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>from_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>to_col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Enhanced drop command processing with smart error handling. </p>
+<p>Reed-style error lock and red blink without a command reply (Hall path).</p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Drop command</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Process drop command (DN)</p>
+<p>Final integrated drop command with all fixes </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">cmd</td><td>Drop command</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Process drop command (DN) - Legacy function </p>
+
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l01520">1520</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -528,7 +704,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00388">388</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00381">381</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -558,12 +734,12 @@ Variables</h2></td></tr>
 
 <p>True if the currently lifted piece is one of the legal guided attackers. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00452">452</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00445">445</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
-<a id="ae513fccc7710f19c527f85d4a8604a86" name="ae513fccc7710f19c527f85d4a8604a86"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae513fccc7710f19c527f85d4a8604a86">&#9670;&#160;</a></span>game_log_pickup_latency()</h2>
+<a id="a57763292b2a2512fc839371567a73fc5" name="a57763292b2a2512fc839371567a73fc5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a57763292b2a2512fc839371567a73fc5">&#9670;&#160;</a></span>game_log_pickup_latency()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -574,7 +750,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">static void game_log_pickup_latency </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
           <td class="paramname"><em>cmd</em></td><td>)</td>
           <td></td>
         </tr>
@@ -586,12 +762,12 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00533">533</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00524">524</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
-<a id="a22142c91365332eb732cca4b572b9383" name="a22142c91365332eb732cca4b572b9383"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a22142c91365332eb732cca4b572b9383">&#9670;&#160;</a></span>game_process_castle_command()</h2>
+<a id="aa506bc891d24dd3647a1a16aaac996e6" name="aa506bc891d24dd3647a1a16aaac996e6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa506bc891d24dd3647a1a16aaac996e6">&#9670;&#160;</a></span>game_process_castle_command()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -599,7 +775,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">void game_process_castle_command </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
           <td class="paramname"><em>cmd</em></td><td>)</td>
           <td></td>
         </tr>
@@ -615,12 +791,12 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02936">2936</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02799">2799</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
-<a id="a13909ec7cf87ce1999cd9647689e46aa" name="a13909ec7cf87ce1999cd9647689e46aa"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a13909ec7cf87ce1999cd9647689e46aa">&#9670;&#160;</a></span>game_process_chess_move()</h2>
+<a id="a5ab753cff194962681bd6dc6a091e1b4" name="a5ab753cff194962681bd6dc6a091e1b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5ab753cff194962681bd6dc6a091e1b4">&#9670;&#160;</a></span>game_process_chess_move()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -628,14 +804,14 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">void game_process_chess_move </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
           <td class="paramname"><em>cmd</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Process sach move from UART command. </p>
+<p>Process a chess move from game_submit (web, BLE, squares, main) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">cmd</td><td>Display with stroke </td></tr>
@@ -643,12 +819,12 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l03309">3309</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l03137">3137</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
-<a id="a8de7eb2cbccf01d3c7ee792caaf9784e" name="a8de7eb2cbccf01d3c7ee792caaf9784e"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a8de7eb2cbccf01d3c7ee792caaf9784e">&#9670;&#160;</a></span>game_process_drop_command()</h2>
+<a id="adff0d2e2eb21b7625c65a85221b73a2e" name="adff0d2e2eb21b7625c65a85221b73a2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adff0d2e2eb21b7625c65a85221b73a2e">&#9670;&#160;</a></span>game_process_drop_command()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -656,36 +832,27 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">void game_process_drop_command </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
           <td class="paramname"><em>cmd</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Enhanced drop command processing with smart error handling. </p>
-<p>Process the DROP command (DN)</p>
+<p>Process the DROP command (DN) </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">cmd</td><td>Drop command</td></tr>
+    <tr><td class="paramname">cmd</td><td>Drop command with position </td></tr>
   </table>
   </dd>
 </dl>
-<p>Process drop command (DN)</p>
-<p>Final integrated drop command with all fixes </p><dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">cmd</td><td>Drop command</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Process drop command (DN) - Legacy function </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l01528">1528</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l01556">1556</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
-<a id="a0216d9328bf82ee185835194077f1e33" name="a0216d9328bf82ee185835194077f1e33"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0216d9328bf82ee185835194077f1e33">&#9670;&#160;</a></span>game_process_pickup_command()</h2>
+<a id="ad6d2137a795d4969c7697408452bc25c" name="ad6d2137a795d4969c7697408452bc25c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad6d2137a795d4969c7697408452bc25c">&#9670;&#160;</a></span>game_process_pickup_command()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -693,7 +860,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">void game_process_pickup_command </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
           <td class="paramname"><em>cmd</em></td><td>)</td>
           <td></td>
         </tr>
@@ -704,12 +871,12 @@ Variables</h2></td></tr>
 <p>Process the PICKUP display (UP)</p>
 <p>Handle a piece lift (board UP or UART pickup). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00561">561</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00552">552</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
-<a id="a195ee37f585a1c6b2a5a54afaa8aea21" name="a195ee37f585a1c6b2a5a54afaa8aea21"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a195ee37f585a1c6b2a5a54afaa8aea21">&#9670;&#160;</a></span>game_process_promote_command()</h2>
+<a id="a9588842961b7989d2140f61dfbc554ba" name="a9588842961b7989d2140f61dfbc554ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9588842961b7989d2140f61dfbc554ba">&#9670;&#160;</a></span>game_process_promote_command()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -717,7 +884,7 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">void game_process_promote_command </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
           <td class="paramname"><em>cmd</em></td><td>)</td>
           <td></td>
         </tr>
@@ -733,7 +900,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l03110">3110</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l02935">2935</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -761,7 +928,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00442">442</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00435">435</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -781,7 +948,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00374">374</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00367">367</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -804,10 +971,10 @@ Variables</h2></td></tr>
 <p>Refresh guided-capture LEDs: </p>
 <ul>
 <li>Attacker raised: only purple victim field (where to lay).</li>
-<li>Attacker selection: always purple victim; yellow only legal attackers if <a class="el" href="game__task_8c.html#a47c5e115109b9732de21f8a3d0ac318f" title="Returns the state of the guided capture help LED.">game_get_guided_capture_hints_enabled()</a> OR led_guidance_level ≥ 3 (yellow pieces). Otherwise only purple (levels 1-2). </li>
+<li>Attacker selection: always purple victim; yellow only legal attackers if <a class="el" href="game__task_8c.html#a47c5e115109b9732de21f8a3d0ac318f" title="Returns the state of the guided capture help LED.">game_get_guided_capture_hints_enabled()</a> OR led_guidance_level ? 3 (yellow pieces). Otherwise only purple (levels 1-2). </li>
 </ul>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00474">474</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00467">467</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -863,7 +1030,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00151">151</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00147">147</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -904,7 +1071,7 @@ Variables</h2></td></tr>
 <p>Which piece in the hand just landed. </p>
 <p>Blinks the two origins when both are legal. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00090">90</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00086">86</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -954,7 +1121,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00078">78</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00074">74</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -1004,7 +1171,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00066">66</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00062">62</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -1029,7 +1196,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00531">531</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00522">522</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>
@@ -1053,7 +1220,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00042">42</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__physical_8c_source.html#l00051">51</a> of file <a class="el" href="game__physical_8c_source.html">game_physical.c</a>.</p>
 
 </div>
 </div>

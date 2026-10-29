@@ -3,6 +3,7 @@ var dir_17f9138bad1f9d2ff44cddc9da54d444 =
     [ "include", "dir_dd43ffc1cdd951e881f480cb706d2add.html", "dir_dd43ffc1cdd951e881f480cb706d2add" ],
     [ "board_api_auth.c", "board__api__auth_8c.html", "board__api__auth_8c" ],
     [ "board_pair_policy.c", "board__pair__policy_8c.html", "board__pair__policy_8c" ],
+    [ "cmd_wire.c", "cmd__wire_8c.html", "cmd__wire_8c" ],
     [ "ota_update.c", "ota__update_8c.html", "ota__update_8c" ],
     [ "test_board_pair_policy.c", "test__board__pair__policy_8c.html", "test__board__pair__policy_8c" ],
     [ "web_handlers_game.c", "web__handlers__game_8c.html", "web__handlers__game_8c" ],

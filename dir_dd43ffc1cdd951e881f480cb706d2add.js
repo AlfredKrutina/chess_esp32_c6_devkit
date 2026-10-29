@@ -2,6 +2,7 @@ var dir_dd43ffc1cdd951e881f480cb706d2add =
 [
     [ "board_api_auth.h", "board__api__auth_8h.html", "board__api__auth_8h" ],
     [ "board_pair_policy.h", "board__pair__policy_8h.html", "board__pair__policy_8h" ],
+    [ "cmd_wire.h", "cmd__wire_8h.html", "cmd__wire_8h" ],
     [ "ota_update.h", "ota__update_8h.html", "ota__update_8h" ],
     [ "web_routes.h", "web__routes_8h.html", "web__routes_8h" ],
     [ "web_server_internal.h", "web__server__internal_8h.html", "web__server__internal_8h" ],

@@ -19,14 +19,16 @@ var searchData=
   ['dev0_16',['dev0',['../structhall__square__reading__t.html#acc43e09a4b6f5f4be58588b29d1ce26b',1,'hall_square_reading_t']]],
   ['dev1_17',['dev1',['../structhall__square__reading__t.html#aa027a32a88cd272ac6827924c7060cc3',1,'hall_square_reading_t']]],
   ['difficulty_18',['difficulty',['../structgame__puzzle__definition__t.html#a0cdcd3138bab36c4445f93d90c363b02',1,'game_puzzle_definition_t']]],
-  ['dirty_19',['dirty',['../structled__pixel__t.html#a43b55b0c8710014028abd706ff815082',1,'led_pixel_t::dirty'],['../structled__layer__state__t.html#a238ba32530dd3a543bde13518ad7edd1',1,'led_layer_state_t::dirty']]],
+  ['dirty_19',['dirty',['../structled__layer__state__t.html#a238ba32530dd3a543bde13518ad7edd1',1,'led_layer_state_t::dirty'],['../structled__pixel__t.html#a43b55b0c8710014028abd706ff815082',1,'led_pixel_t::dirty']]],
   ['dirty_5fcount_20',['dirty_count',['../led__state__manager_8c.html#a660e94e6e13b2e261064fed4b752f20b',1,'led_state_manager.c']]],
   ['dirty_5fpixels_21',['dirty_pixels',['../structled__state__t.html#ac3040efe9cad342ad5a6474de2467157',1,'led_state_t']]],
   ['display_5fduration_5fms_22',['display_duration_ms',['../structerror__guidance__t.html#a092d951b1b44d718a23eb4aa9de2a407',1,'error_guidance_t']]],
   ['displaying_5ferror_23',['displaying_error',['../visual__error__system_8c.html#ab48772c5b7b95dc1acb27d1e15a62b33',1,'visual_error_system.c']]],
-  ['draws_24',['draws',['../game__task_8c.html#ae9bb73183d10c72b880fb4cd10d3f585',1,'draws:&#160;game_task.c'],['../game__task__internal_8h.html#ae9bb73183d10c72b880fb4cd10d3f585',1,'draws:&#160;game_task.c']]],
-  ['dropped_5fmask_5fhigh_25',['dropped_mask_high',['../structsquares__guard__pause__state__t.html#a2af59c72a151ab000e2804fd78608f5c',1,'squares_guard_pause_state_t::dropped_mask_high'],['../structchess__move__command__t.html#a41e9c62d9acb05cac4bad9bb92baaaf0',1,'chess_move_command_t::dropped_mask_high']]],
-  ['dropped_5fmask_5flow_26',['dropped_mask_low',['../structsquares__guard__pause__state__t.html#a36ab7294f79e24c3bacb9cfd85671d71',1,'squares_guard_pause_state_t::dropped_mask_low'],['../structchess__move__command__t.html#abd3e3c4ed1d28dbac4b7c045bf152b52',1,'chess_move_command_t::dropped_mask_low']]],
-  ['duration_5fcolor_27',['duration_color',['../structled__duration__state__t.html#a390cee9413644684b60bb6b498e33649',1,'led_duration_state_t']]],
-  ['duration_5fms_28',['duration_ms',['../structanimation__state__struct.html#a9570f68952cc32df071946e4fac9882e',1,'animation_state_struct::duration_ms'],['../structtest__t.html#ae6d710128516d9ac26905194cad3fc82',1,'test_t::duration_ms'],['../structled__duration__state__t.html#a8b55f6df0e7276a5d94274a711324271',1,'led_duration_state_t::duration_ms'],['../structled__command__t.html#a42fe1a9d7b5330a035a60be952b37dfc',1,'led_command_t::duration_ms']]]
+  ['drop_24',['drop',['../structgame__cmd__t.html#ac3f2212c13daa1fadac46a049cf9eaf4',1,'game_cmd_t']]],
+  ['dropped_5fhigh_25',['dropped_high',['../structgame__cmd__guard__fields__t.html#aebc618b63f0efc0ddd85aee31b9de503',1,'game_cmd_guard_fields_t']]],
+  ['dropped_5flow_26',['dropped_low',['../structgame__cmd__guard__fields__t.html#a88a3cccfff10d078ef09e3a34f626946',1,'game_cmd_guard_fields_t']]],
+  ['dropped_5fmask_5fhigh_27',['dropped_mask_high',['../structsquares__guard__pause__state__t.html#a2af59c72a151ab000e2804fd78608f5c',1,'squares_guard_pause_state_t']]],
+  ['dropped_5fmask_5flow_28',['dropped_mask_low',['../structsquares__guard__pause__state__t.html#a36ab7294f79e24c3bacb9cfd85671d71',1,'squares_guard_pause_state_t']]],
+  ['duration_5fcolor_29',['duration_color',['../structled__duration__state__t.html#a390cee9413644684b60bb6b498e33649',1,'led_duration_state_t']]],
+  ['duration_5fms_30',['duration_ms',['../structanimation__state__struct.html#a9570f68952cc32df071946e4fac9882e',1,'animation_state_struct::duration_ms'],['../structtest__t.html#ae6d710128516d9ac26905194cad3fc82',1,'test_t::duration_ms'],['../structled__duration__state__t.html#a8b55f6df0e7276a5d94274a711324271',1,'led_duration_state_t::duration_ms'],['../structled__command__t.html#a42fe1a9d7b5330a035a60be952b37dfc',1,'led_command_t::duration_ms']]]
 ];

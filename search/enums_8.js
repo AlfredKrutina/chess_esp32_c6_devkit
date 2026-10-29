@@ -1,7 +1,8 @@
 var searchData=
 [
-  ['opening_5ffeedback_5ft_0',['opening_feedback_t',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449ce',1,'game_opening_trainer.c']]],
-  ['opening_5fmode_5ft_1',['opening_mode_t',['../game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6c',1,'game_opening_trainer.c']]],
-  ['opening_5fopponent_5fmode_5ft_2',['opening_opponent_mode_t',['../game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8',1,'game_opening_trainer.c']]],
-  ['ota_5fguard_5fstate_5ft_3',['ota_guard_state_t',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390',1,'ota_guard.h']]]
+  ['opening_5fact_5ft_0',['opening_act_t',['../game__cmd_8h.html#a4e263724100be13c2120d2e876a3f447',1,'game_cmd.h']]],
+  ['opening_5ffeedback_5ft_1',['opening_feedback_t',['../game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449ce',1,'game_opening_trainer.c']]],
+  ['opening_5fmode_5ft_2',['opening_mode_t',['../game__opening__trainer_8c.html#aa8f7b9d36dff0636b0b29e0168adab6c',1,'game_opening_trainer.c']]],
+  ['opening_5fopponent_5fmode_5ft_3',['opening_opponent_mode_t',['../game__opening__trainer_8c.html#a5fa600b4f9b772a8c7b9bba0d53c83d8',1,'game_opening_trainer.c']]],
+  ['ota_5fguard_5fstate_5ft_4',['ota_guard_state_t',['../ota__guard_8h.html#ae6f1e187435f8538749ed6693f665390',1,'ota_guard.h']]]
 ];

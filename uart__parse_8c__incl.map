@@ -2,18 +2,18 @@
 <area shape="rect" id="Node000001" title="Command lookup and dispatch." alt="" coords="658,5,761,31"/>
 <area shape="rect" id="Node000002" href="$uart__parse_8h.html" title="Command lookup and dispatch." alt="" coords="541,79,643,104"/>
 <area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="692,33,624,74,622,69,689,28"/>
-<area shape="rect" id="Node000011" href="$uart__commands__table_8h.html" title="UART command registry (name → handler)." alt="" coords="337,79,516,104"/>
-<area shape="poly" id="edge16_Node000001_Node000011" title=" " alt="" coords="665,33,486,78,485,73,663,28"/>
-<area shape="rect" id="Node000012" href="$uart__task__internal_8h.html" title="Internal API between uart_task.c and sibling source files." alt="" coords="224,225,376,251"/>
-<area shape="poly" id="edge18_Node000001_Node000012" title=" " alt="" coords="658,23,573,26,474,36,384,53,350,66,327,81,308,110,299,146,297,181,299,211,293,212,291,181,293,145,303,108,324,77,348,61,383,48,473,30,573,21,658,17"/>
-<area shape="rect" id="Node000013" title=" " alt="" coords="667,79,751,104"/>
-<area shape="poly" id="edge22_Node000001_Node000013" title=" " alt="" coords="712,31,712,65,707,65,707,31"/>
-<area shape="rect" id="Node000014" title=" " alt="" coords="776,79,875,104"/>
-<area shape="poly" id="edge23_Node000001_Node000014" title=" " alt="" coords="729,28,796,69,793,74,727,33"/>
-<area shape="rect" id="Node000015" title=" " alt="" coords="899,79,970,104"/>
-<area shape="poly" id="edge24_Node000001_Node000015" title=" " alt="" coords="746,28,887,72,886,77,745,33"/>
-<area shape="rect" id="Node000016" title=" " alt="" coords="994,79,1065,104"/>
-<area shape="poly" id="edge25_Node000001_Node000016" title=" " alt="" coords="761,28,981,76,980,81,760,33"/>
+<area shape="rect" id="Node000012" href="$uart__commands__table_8h.html" title="UART command registry (name → handler)." alt="" coords="337,79,516,104"/>
+<area shape="poly" id="edge16_Node000001_Node000012" title=" " alt="" coords="665,33,486,78,485,73,663,28"/>
+<area shape="rect" id="Node000013" href="$uart__task__internal_8h.html" title="Internal API between uart_task.c and sibling source files." alt="" coords="224,225,376,251"/>
+<area shape="poly" id="edge18_Node000001_Node000013" title=" " alt="" coords="658,23,573,26,474,36,384,53,350,66,327,81,308,110,299,146,297,181,299,211,293,212,291,181,293,145,303,108,324,77,348,61,383,48,473,30,573,21,658,17"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="667,79,751,104"/>
+<area shape="poly" id="edge22_Node000001_Node000014" title=" " alt="" coords="712,31,712,65,707,65,707,31"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="776,79,875,104"/>
+<area shape="poly" id="edge23_Node000001_Node000015" title=" " alt="" coords="729,28,796,69,793,74,727,33"/>
+<area shape="rect" id="Node000016" title=" " alt="" coords="899,79,970,104"/>
+<area shape="poly" id="edge24_Node000001_Node000016" title=" " alt="" coords="746,28,887,72,886,77,745,33"/>
+<area shape="rect" id="Node000017" title=" " alt="" coords="994,79,1065,104"/>
+<area shape="poly" id="edge25_Node000001_Node000017" title=" " alt="" coords="761,28,981,76,980,81,760,33"/>
 <area shape="rect" id="Node000003" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Header." alt="" coords="417,152,511,177"/>
 <area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="573,106,498,147,496,143,570,102"/>
 <area shape="rect" id="Node000004" title=" " alt="" coords="409,299,479,324"/>
@@ -28,16 +28,16 @@
 <area shape="poly" id="edge7_Node000003_Node000008" title=" " alt="" coords="456,179,365,290,360,286,452,176"/>
 <area shape="rect" id="Node000009" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="501,225,616,251"/>
 <area shape="poly" id="edge8_Node000003_Node000009" title=" " alt="" coords="481,175,534,215,531,219,478,179"/>
-<area shape="rect" id="Node000010" href="$uart__queue__message_8h.html" title="Common message type for UART output queue (one true for sizeof)." alt="" coords="27,225,200,251"/>
-<area shape="poly" id="edge14_Node000003_Node000010" title=" " alt="" coords="417,178,184,225,182,220,416,173"/>
+<area shape="rect" id="Node000011" href="$uart__queue__message_8h.html" title="Common message type for UART output queue (one true for sizeof)." alt="" coords="27,225,200,251"/>
+<area shape="poly" id="edge14_Node000003_Node000011" title=" " alt="" coords="417,178,184,225,182,220,416,173"/>
 <area shape="poly" id="edge13_Node000009_Node000004" title=" " alt="" coords="542,253,476,294,473,289,539,248"/>
 <area shape="poly" id="edge12_Node000009_Node000005" title=" " alt="" coords="502,253,241,302,240,297,501,248"/>
 <area shape="poly" id="edge10_Node000009_Node000006" title=" " alt="" coords="565,250,574,285,569,286,559,252"/>
 <area shape="poly" id="edge11_Node000009_Node000007" title=" " alt="" coords="589,248,701,291,699,296,587,253"/>
 <area shape="poly" id="edge9_Node000009_Node000008" title=" " alt="" coords="525,253,393,297,391,292,523,248"/>
-<area shape="poly" id="edge15_Node000010_Node000005" title=" " alt="" coords="127,249,166,287,162,291,123,253"/>
-<area shape="poly" id="edge17_Node000011_Node000003" title=" " alt="" coords="435,103,454,139,449,141,431,106"/>
-<area shape="poly" id="edge21_Node000012_Node000004" title=" " alt="" coords="324,248,409,290,407,295,322,253"/>
-<area shape="poly" id="edge20_Node000012_Node000005" title=" " alt="" coords="283,253,217,294,214,289,280,248"/>
-<area shape="poly" id="edge19_Node000012_Node000008" title=" " alt="" coords="310,250,332,286,328,288,305,252"/>
+<area shape="poly" id="edge15_Node000011_Node000005" title=" " alt="" coords="127,249,166,287,162,291,123,253"/>
+<area shape="poly" id="edge17_Node000012_Node000003" title=" " alt="" coords="435,103,454,139,449,141,431,106"/>
+<area shape="poly" id="edge21_Node000013_Node000004" title=" " alt="" coords="324,248,409,290,407,295,322,253"/>
+<area shape="poly" id="edge20_Node000013_Node000005" title=" " alt="" coords="283,253,217,294,214,289,280,248"/>
+<area shape="poly" id="edge19_Node000013_Node000008" title=" " alt="" coords="310,250,332,286,328,288,305,252"/>
 </map>

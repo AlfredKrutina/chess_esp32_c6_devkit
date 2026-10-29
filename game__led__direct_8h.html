@@ -98,27 +98,34 @@ $(document).ready(function(){initNavTree('game__led__direct_8h.html',''); initRe
 
 <p>PRIME LED FUNCTION FOR GAME TASK - Back Queue Hell.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &lt;stdint.h&gt;</code><br />
+<div class="textblock"><code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;stdint.h&gt;</code><br />
 <code>#include &quot;<a class="el" href="chess__types_8h_source.html">chess_types.h</a>&quot;</code><br />
 </div><div class="textblock"><div class="dynheader">
 Include dependency graph for game_led_direct.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__led__direct_8h__incl.png" border="0" usemap="#agame__led__direct_8h" alt=""/></div>
 <map name="agame__led__direct_8h" id="agame__led__direct_8h">
-<area shape="rect" title="PRIME LED FUNCTION FOR GAME TASK &#45; Back Queue Hell." alt="" coords="88,5,231,31"/>
-<area shape="rect" title=" " alt="" coords="5,152,76,177"/>
-<area shape="poly" title=" " alt="" coords="152,33,61,143,57,140,148,29"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="153,79,267,104"/>
-<area shape="poly" title=" " alt="" coords="170,29,196,66,192,69,166,33"/>
-<area shape="poly" title=" " alt="" coords="184,106,82,149,80,144,182,102"/>
-<area shape="rect" title=" " alt="" coords="100,152,181,177"/>
-<area shape="poly" title=" " alt="" coords="200,106,163,144,159,140,197,102"/>
-<area shape="rect" title=" " alt="" coords="205,152,356,177"/>
-<area shape="poly" title=" " alt="" coords="224,102,262,140,258,144,220,106"/>
-<area shape="rect" title=" " alt="" coords="380,152,509,177"/>
-<area shape="poly" title=" " alt="" coords="248,101,394,145,393,151,247,107"/>
-<area shape="rect" title=" " alt="" coords="534,152,617,177"/>
-<area shape="poly" title=" " alt="" coords="268,101,520,149,519,154,267,106"/>
+<area shape="rect" title="PRIME LED FUNCTION FOR GAME TASK &#45; Back Queue Hell." alt="" coords="150,5,293,31"/>
+<area shape="rect" title=" " alt="" coords="5,152,88,177"/>
+<area shape="poly" title=" " alt="" coords="209,33,73,145,69,141,205,29"/>
+<area shape="rect" title=" " alt="" coords="429,225,499,251"/>
+<area shape="poly" title=" " alt="" coords="273,28,322,44,376,69,426,104,448,126,466,151,472,166,475,182,473,212,468,212,470,182,467,167,462,153,444,129,423,108,373,74,320,49,271,33"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="164,79,279,104"/>
+<area shape="poly" title=" " alt="" coords="224,31,224,65,219,65,219,31"/>
+<area shape="poly" title=" " alt="" coords="194,106,89,149,87,144,192,102"/>
+<area shape="poly" title=" " alt="" coords="279,91,319,96,362,106,404,124,441,150,451,164,458,180,465,211,460,212,453,181,447,167,437,154,401,128,360,111,318,101,278,96"/>
+<area shape="rect" title=" " alt="" coords="345,152,426,177"/>
+<area shape="poly" title=" " alt="" coords="249,102,347,144,345,149,247,106"/>
+<area shape="rect" title=" " alt="" coords="203,225,354,251"/>
+<area shape="poly" title=" " alt="" coords="216,105,202,139,200,158,204,176,221,199,244,216,241,221,217,203,199,178,194,158,197,137,211,103"/>
+<area shape="rect" title=" " alt="" coords="50,225,179,251"/>
+<area shape="poly" title=" " alt="" coords="215,106,133,216,129,213,210,103"/>
+<area shape="rect" href="game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="213,152,320,177"/>
+<area shape="poly" title=" " alt="" coords="231,103,254,139,250,142,227,106"/>
+<area shape="poly" title=" " alt="" coords="299,175,420,218,418,223,297,180"/>
+<area shape="poly" title=" " alt="" coords="271,177,277,211,272,212,266,178"/>
+<area shape="poly" title=" " alt="" coords="243,180,153,222,151,217,241,175"/>
 </map>
 </div>
 </div>
@@ -132,16 +139,13 @@ Functions</h2></td></tr>
 <tr class="memitem:aad4c6f489504e1aace2045420bcec3d1" id="r_aad4c6f489504e1aace2045420bcec3d1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#aad4c6f489504e1aace2045420bcec3d1">game_show_piece_lift_direct</a> (uint8_t row, uint8_t col)</td></tr>
 <tr class="memdesc:aad4c6f489504e1aace2045420bcec3d1"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display raised figures with prime LED calls.  <br /></td></tr>
 <tr class="separator:aad4c6f489504e1aace2045420bcec3d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af337fa678e02039015341d7fa45e3ccc" id="r_af337fa678e02039015341d7fa45e3ccc"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#af337fa678e02039015341d7fa45e3ccc">game_show_valid_moves_direct</a> (uint8_t *valid_positions, uint8_t count)</td></tr>
-<tr class="memdesc:af337fa678e02039015341d7fa45e3ccc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display valid moves with direct LED calls.  <br /></td></tr>
-<tr class="separator:af337fa678e02039015341d7fa45e3ccc"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a11c32da99485731ac1e0cae4f2174fcd" id="r_a11c32da99485731ac1e0cae4f2174fcd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a11c32da99485731ac1e0cae4f2174fcd">game_show_error_direct</a> (uint8_t row, uint8_t col)</td></tr>
 <tr class="memdesc:a11c32da99485731ac1e0cae4f2174fcd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display error with LED prime calls.  <br /></td></tr>
 <tr class="separator:a11c32da99485731ac1e0cae4f2174fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a8b43b89b88ce59ea25698ac5a8280bf2" id="r_a8b43b89b88ce59ea25698ac5a8280bf2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a8b43b89b88ce59ea25698ac5a8280bf2">game_clear_highlights_direct</a> (void)</td></tr>
 <tr class="memdesc:a8b43b89b88ce59ea25698ac5a8280bf2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Clear highlighting with direct LED calls.  <br /></td></tr>
 <tr class="separator:a8b43b89b88ce59ea25698ac5a8280bf2"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a002b9dd58ec7cfbcac57367df453f258" id="r_a002b9dd58ec7cfbcac57367df453f258"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a002b9dd58ec7cfbcac57367df453f258">game_show_state_direct</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *<a class="el" href="game__task_8c.html#acd8995588803c845a38aeae9849f7be8">board</a>)</td></tr>
+<tr class="memitem:a002b9dd58ec7cfbcac57367df453f258" id="r_a002b9dd58ec7cfbcac57367df453f258"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a002b9dd58ec7cfbcac57367df453f258">game_show_state_direct</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *board)</td></tr>
 <tr class="memdesc:a002b9dd58ec7cfbcac57367df453f258"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show game state with prime LED calls.  <br /></td></tr>
 <tr class="separator:a002b9dd58ec7cfbcac57367df453f258"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a0ace822d82e2da6de18559787be957d0" id="r_a0ace822d82e2da6de18559787be957d0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a0ace822d82e2da6de18559787be957d0">game_show_check_direct</a> (uint8_t king_row, uint8_t king_col)</td></tr>
@@ -153,9 +157,26 @@ Functions</h2></td></tr>
 <tr class="memitem:a47ce5497c44b6af58ed04cc1c3d806b8" id="r_a47ce5497c44b6af58ed04cc1c3d806b8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a47ce5497c44b6af58ed04cc1c3d806b8">game_show_promotion_direct</a> (uint8_t row, uint8_t col)</td></tr>
 <tr class="memdesc:a47ce5497c44b6af58ed04cc1c3d806b8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Show graduation with prime LED calls.  <br /></td></tr>
 <tr class="separator:a47ce5497c44b6af58ed04cc1c3d806b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:aa112414da6cba72225e1b2958c958fa3" id="r_aa112414da6cba72225e1b2958c958fa3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#aa112414da6cba72225e1b2958c958fa3">game_show_castling_direct</a> (uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_row, uint8_t king_to_col, uint8_t <a class="el" href="game__task_8c.html#a2e655fa25f4bbdd873eabad03e266985">rook_from_row</a>, uint8_t <a class="el" href="game__task_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a>, uint8_t <a class="el" href="game__task_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a>, uint8_t <a class="el" href="game__task_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a>)</td></tr>
+<tr class="memitem:aa112414da6cba72225e1b2958c958fa3" id="r_aa112414da6cba72225e1b2958c958fa3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#aa112414da6cba72225e1b2958c958fa3">game_show_castling_direct</a> (uint8_t king_from_row, uint8_t king_from_col, uint8_t king_to_row, uint8_t king_to_col, uint8_t <a class="el" href="game__board__machine_8c.html#a2e655fa25f4bbdd873eabad03e266985">rook_from_row</a>, uint8_t <a class="el" href="game__board__machine_8c.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2">rook_from_col</a>, uint8_t <a class="el" href="game__board__machine_8c.html#ad71601a1741c8dcb2c45992ebfc373b0">rook_to_row</a>, uint8_t <a class="el" href="game__board__machine_8c.html#a802ed5327f737b0304fbc1809d0aac8f">rook_to_col</a>)</td></tr>
 <tr class="memdesc:aa112414da6cba72225e1b2958c958fa3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Display a row with prime LED calls.  <br /></td></tr>
 <tr class="separator:aa112414da6cba72225e1b2958c958fa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a36d9a5fa5c697e0298813885a5488138" id="r_a36d9a5fa5c697e0298813885a5488138"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a36d9a5fa5c697e0298813885a5488138">game_led_frame_begin</a> (uint16_t <a class="el" href="game__events_8c.html#a5cfe2ea4f5c5ba465c7956abfab039c9">fade_ms</a>, bool patch)</td></tr>
+<tr class="memdesc:a36d9a5fa5c697e0298813885a5488138"><td class="mdescLeft">&#160;</td><td class="mdescRight">Accumulate one board picture, then post a single game event.  <br /></td></tr>
+<tr class="separator:a36d9a5fa5c697e0298813885a5488138"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2077353a7be193bd1957d1f5cbb2cc9d" id="r_a2077353a7be193bd1957d1f5cbb2cc9d"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a2077353a7be193bd1957d1f5cbb2cc9d">game_led_frame_is_open</a> (void)</td></tr>
+<tr class="separator:a2077353a7be193bd1957d1f5cbb2cc9d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add36b6ab8a8820eabcf002a69ffff6f7" id="r_add36b6ab8a8820eabcf002a69ffff6f7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#add36b6ab8a8820eabcf002a69ffff6f7">game_led_frame_sq</a> (uint8_t row, uint8_t col, uint8_t <a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>)</td></tr>
+<tr class="separator:add36b6ab8a8820eabcf002a69ffff6f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a252df756f5079e28432e2e78eeaed948" id="r_a252df756f5079e28432e2e78eeaed948"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a252df756f5079e28432e2e78eeaed948">game_led_frame_breathe</a> (uint8_t row, uint8_t col, uint8_t <a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>, uint8_t mode, uint8_t floor, uint16_t period_ms, uint16_t phase_ms)</td></tr>
+<tr class="separator:a252df756f5079e28432e2e78eeaed948"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aab6f3b69c1e42b41635cfe77321a3f74" id="r_aab6f3b69c1e42b41635cfe77321a3f74"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#aab6f3b69c1e42b41635cfe77321a3f74">game_led_frame_end</a> (void)</td></tr>
+<tr class="separator:aab6f3b69c1e42b41635cfe77321a3f74"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6bde0f5bd929058a0a311c789b252a8a" id="r_a6bde0f5bd929058a0a311c789b252a8a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a6bde0f5bd929058a0a311c789b252a8a">game_led_paint_led</a> (uint8_t led, uint8_t <a class="el" href="ha__light__task_8c.html#a4c5c6ceb8ed33456261fa907136e0c3a">r</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a1673907d4d89d763bb7b94ec1eeb7b60">g</a>, uint8_t <a class="el" href="ha__light__task_8c.html#a4313c9563516f94387762ab05763456b">b</a>)</td></tr>
+<tr class="separator:a6bde0f5bd929058a0a311c789b252a8a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac341c075c6ddd4edf92563ca18c480c7" id="r_ac341c075c6ddd4edf92563ca18c480c7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#ac341c075c6ddd4edf92563ca18c480c7">game_led_flush</a> (void)</td></tr>
+<tr class="separator:ac341c075c6ddd4edf92563ca18c480c7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4bd575d64b68951fc4615c483600e981" id="r_a4bd575d64b68951fc4615c483600e981"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__led__direct_8h.html#a4bd575d64b68951fc4615c483600e981">game_led_clear_board</a> (void)</td></tr>
+<tr class="separator:a4bd575d64b68951fc4615c483600e981"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>PRIME LED FUNCTION FOR GAME TASK - Back Queue Hell. </p>
@@ -189,11 +210,283 @@ Functions</h2></td></tr>
 
 <p>Clear highlighting with direct LED calls. </p>
 <p>Clears all LED highlights on the box (save button).</p>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Clear highlighting with direct LED calls.</p>
-<p>Clears all the highlights on the chessboard, keeping the LEDs on the buttons. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00147">147</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00140">140</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a4bd575d64b68951fc4615c483600e981" name="a4bd575d64b68951fc4615c483600e981"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4bd575d64b68951fc4615c483600e981">&#9670;&#160;</a></span>game_led_clear_board()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_led_clear_board </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00109">109</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="ac341c075c6ddd4edf92563ca18c480c7" name="ac341c075c6ddd4edf92563ca18c480c7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac341c075c6ddd4edf92563ca18c480c7">&#9670;&#160;</a></span>game_led_flush()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_led_flush </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00028">28</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a36d9a5fa5c697e0298813885a5488138" name="a36d9a5fa5c697e0298813885a5488138"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a36d9a5fa5c697e0298813885a5488138">&#9670;&#160;</a></span>game_led_frame_begin()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_led_frame_begin </td>
+          <td>(</td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>fade_ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>patch</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Accumulate one board picture, then post a single game event. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00038">38</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a252df756f5079e28432e2e78eeaed948" name="a252df756f5079e28432e2e78eeaed948"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a252df756f5079e28432e2e78eeaed948">&#9670;&#160;</a></span>game_led_frame_breathe()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_led_frame_breathe </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>mode</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>floor</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>period_ms</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint16_t&#160;</td>
+          <td class="paramname"><em>phase_ms</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00075">75</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="aab6f3b69c1e42b41635cfe77321a3f74" name="aab6f3b69c1e42b41635cfe77321a3f74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aab6f3b69c1e42b41635cfe77321a3f74">&#9670;&#160;</a></span>game_led_frame_end()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_led_frame_end </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00100">100</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a2077353a7be193bd1957d1f5cbb2cc9d" name="a2077353a7be193bd1957d1f5cbb2cc9d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2077353a7be193bd1957d1f5cbb2cc9d">&#9670;&#160;</a></span>game_led_frame_is_open()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_led_frame_is_open </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00047">47</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="add36b6ab8a8820eabcf002a69ffff6f7" name="add36b6ab8a8820eabcf002a69ffff6f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add36b6ab8a8820eabcf002a69ffff6f7">&#9670;&#160;</a></span>game_led_frame_sq()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_led_frame_sq </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>col</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00049">49</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+
+</div>
+</div>
+<a id="a6bde0f5bd929058a0a311c789b252a8a" name="a6bde0f5bd929058a0a311c789b252a8a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bde0f5bd929058a0a311c789b252a8a">&#9670;&#160;</a></span>game_led_paint_led()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_led_paint_led </td>
+          <td>(</td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>led</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>r</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>g</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">uint8_t&#160;</td>
+          <td class="paramname"><em>b</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00114">114</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -274,24 +567,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Display a row with prime LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">king_from_row</td><td>The row of the king's source array </td></tr>
-    <tr><td class="paramname">king_from_col</td><td>The column of the king's source field </td></tr>
-    <tr><td class="paramname">king_to_row</td><td>The row of the king's target field </td></tr>
-    <tr><td class="paramname">king_to_col</td><td>The column of the king's target field </td></tr>
-    <tr><td class="paramname">rook_from_row</td><td>The rook's source field row </td></tr>
-    <tr><td class="paramname">rook_from_col</td><td>The column of the rook's source field </td></tr>
-    <tr><td class="paramname">rook_to_row</td><td>The rook's target field row </td></tr>
-    <tr><td class="paramname">rook_to_col</td><td>The rook's target array column</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Displays orange color on source fields and green on target fields. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00380">380</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00202">202</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -330,18 +608,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Display sach with prime LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">king_row</td><td>The row of the king in chess </td></tr>
-    <tr><td class="paramname">king_col</td><td>The king column in chess</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Shows purple color on the king in chess. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00193">193</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00148">148</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -380,18 +649,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Show checkmate with prime LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">king_row</td><td>King row in checkmate </td></tr>
-    <tr><td class="paramname">king_col</td><td>King column in checkmate</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Starts a winning animation in the king position in checkmate. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00331">331</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00173">173</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -430,18 +690,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Display error with LED prime calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">row</td><td>The row of the array with the error </td></tr>
-    <tr><td class="paramname">col</td><td>The column of the array with the error</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Shows red color on error field. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00132">132</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00136">136</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -494,20 +745,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Display a move with direct LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">from_row</td><td>The row of the source array </td></tr>
-    <tr><td class="paramname">from_col</td><td>The column of the source field </td></tr>
-    <tr><td class="paramname">to_row</td><td>The row of the target array </td></tr>
-    <tr><td class="paramname">to_col</td><td>The column of the target field</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Displays a move animation with progressive illumination of the source and target fields. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00043">43</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00124">124</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -546,18 +786,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Display raised figures with prime LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">row</td><td>The array row </td></tr>
-    <tr><td class="paramname">col</td><td>Array column</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Will display a subtle pulsing effect on the field with a raised figure. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00084">84</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00132">132</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -596,18 +827,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Show graduation with prime LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">row</td><td>The row of the graduation field </td></tr>
-    <tr><td class="paramname">col</td><td>Array column with graduation</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Shows yellow color on graduation field. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00356">356</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00177">177</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>
@@ -635,67 +857,9 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Show game state with prime LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">board</td><td>Board with pieces (8x8)</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Displays all pieces on the board using LEDs. </p>
+<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00162">162</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
-
-</div>
-</div>
-<a id="af337fa678e02039015341d7fa45e3ccc" name="af337fa678e02039015341d7fa45e3ccc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#af337fa678e02039015341d7fa45e3ccc">&#9670;&#160;</a></span>game_show_valid_moves_direct()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">void game_show_valid_moves_direct </td>
-          <td>(</td>
-          <td class="paramtype">uint8_t *&#160;</td>
-          <td class="paramname"><em>valid_positions</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">uint8_t&#160;</td>
-          <td class="paramname"><em>count</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Display valid moves with direct LED calls. </p>
-<p>Displays a soft green wave at all positions where the figure can pull out.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">valid_positions</td><td>LED index array of valid positions </td></tr>
-    <tr><td class="paramname">count</td><td>Number of valid positions</td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="section note"><dt>Note</dt><dd>PRIME CALLS - no queue</dd></dl>
-<p>Display valid moves with direct LED calls.</p>
-<dl class="params"><dt>Parameters</dt><dd>
-  <table class="params">
-    <tr><td class="paramname">valid_positions</td><td>Array of LED indices of valid moves </td></tr>
-    <tr><td class="paramname">count</td><td>Number of valid moves</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>Shows a green wave on all fields with valid moves. </p>
-
-<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00108">108</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__led__direct_8c_source.html#l00144">144</a> of file <a class="el" href="game__led__direct_8c_source.html">game_led_direct.c</a>.</p>
 
 </div>
 </div>

@@ -1,25 +1,13 @@
 var structha__light__command__t =
 [
-    [ "ab", "structha__light__command__t.html#ae53666df6aca57cf2919fcd9df242849", null ],
-    [ "action", "structha__light__command__t.html#a66f0779c7d3b3a8e892501b1660ad23b", null ],
-    [ "ag", "structha__light__command__t.html#a110d3a8c1135f180889110d1e9b7b866", null ],
-    [ "ar", "structha__light__command__t.html#ac4d51bc9dc79f35ababf9de413b65550", null ],
     [ "b", "structha__light__command__t.html#ac0d94b0ad425ea4ccca6791883c34a1a", null ],
-    [ "bb", "structha__light__command__t.html#aed9fcdbb0e41e1c77a723cd738be4142", null ],
-    [ "bg", "structha__light__command__t.html#a8594208a735d77a49712fe71be0a32cf", null ],
-    [ "br", "structha__light__command__t.html#a1de5b9c2b043a42b7fb8b5d527c1c9a3", null ],
     [ "brightness", "structha__light__command__t.html#a682b290a513bf27b18db2c465f04b6de", null ],
-    [ "clear_map", "structha__light__command__t.html#abd6dafc122635052e5636ea7eb50b233", null ],
     [ "data", "structha__light__command__t.html#ab0bc8ed3f5ca6cb30316a8163e8da184", null ],
     [ "g", "structha__light__command__t.html#aeeac8fb7ff95f15de4646510227f73d6", null ],
-    [ "pattern", "structha__light__command__t.html#a9a54c2a0c372a8608b8667421f0c6e51", null ],
-    [ "pen", "structha__light__command__t.html#a0b7fc9a22a6fcad09d59cf91ff889723", null ],
     [ "r", "structha__light__command__t.html#a3e086a18624effe55d318b717328c9fb", null ],
     [ "set_brightness", "structha__light__command__t.html#abf6c8da019a65386e8f884a823c58a20", null ],
-    [ "square", "structha__light__command__t.html#ac948dc6a5e7462b1a2fb2782320b9c08", null ],
     [ "state", "structha__light__command__t.html#a2490cf50d9626c13eb15864b189e7037", null ],
     [ "type", "structha__light__command__t.html#aa655a0a61f12692c31c68803ae070fcf", null ],
     [ "u", "structha__light__command__t.html#a9a39e226d1f3c4ce95c506d9818a50dd", null ],
-    [ "web_lamp", "structha__light__command__t.html#a2127103c4d36ddef14dff58f21d50112", null ],
-    [ "write_colors", "structha__light__command__t.html#aeee0fe839db0880d7f36ebe273b993dd", null ]
+    [ "web_lamp", "structha__light__command__t.html#a2127103c4d36ddef14dff58f21d50112", null ]
 ];

@@ -103,42 +103,17 @@ $(document).ready(function(){initNavTree('game__hall__led_8c_source.html',''); i
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span> </div>
 <div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL</span></div>
 <div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span> </div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="led__mapping_8h.html">led_mapping.h</a>&quot;</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &quot;<a class="code" href="led__task_8h.html">led_task.h</a>&quot;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span> </div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="keywordtype">void</span> game_hall_led_show_takeback(<span class="keyword">const</span> uint8_t *squares, uint8_t count) {</div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>  uint8_t leds[8];</div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span>  uint8_t n = 0;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span>  uint8_t i;</div>
-<div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span>  <span class="keywordflow">if</span> (squares == NULL || count == 0) {</div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span>    <a class="code hl_function" href="led__task_8h.html#a54b1f60faa2433dc368194510ae49985">led_takeback_clear</a>();</div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span>    <span class="keywordflow">return</span>;</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span>  }</div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>  <a class="code hl_function" href="led__task_8h.html#af9bef572a677f50e14c39bc3dce20470">led_target_begin</a>();</div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>  <span class="keywordflow">for</span> (i = 0; i &lt; count &amp;&amp; n &lt; 8; i++) {</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span>    uint8_t led;</div>
-<div class="line"><a id="l00024" name="l00024"></a><span class="lineno">   24</span>    <span class="keywordflow">if</span> (squares[i] &gt;= 64) {</div>
-<div class="line"><a id="l00025" name="l00025"></a><span class="lineno">   25</span>      <span class="keywordflow">continue</span>;</div>
-<div class="line"><a id="l00026" name="l00026"></a><span class="lineno">   26</span>    }</div>
-<div class="line"><a id="l00027" name="l00027"></a><span class="lineno">   27</span>    led = <a class="code hl_function" href="led__mapping_8h.html#a6f6c321f16b2494986ebfb82fa9bf5df">chess_pos_to_led_index</a>(squares[i] / 8, squares[i] % 8);</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span>    leds[n++] = led;</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span>    <a class="code hl_function" href="led__task_8h.html#a8d1e7e252b23657ee8c68142ce4691d1">led_target_set</a>(led, 0, 255, 255, <a class="code hl_enumvalue" href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04aea20cea9c0483fc77e4317b084a31684">LED_VIS_BREATHE</a>);</div>
-<div class="line"><a id="l00030" name="l00030"></a><span class="lineno">   30</span>  }</div>
-<div class="line"><a id="l00031" name="l00031"></a><span class="lineno">   31</span>  <a class="code hl_function" href="led__task_8h.html#a52166e472e31f8a9d0f3dbfebcf602d3">led_target_end</a>();</div>
-<div class="line"><a id="l00032" name="l00032"></a><span class="lineno">   32</span>  <a class="code hl_function" href="led__task_8h.html#a29a322088a8d21740ce74cc348f41b6e">led_takeback_arm</a>(leds, n);</div>
-<div class="line"><a id="l00033" name="l00033"></a><span class="lineno">   33</span>}</div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno">   34</span> </div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span><span class="preprocessor">#endif </span><span class="comment">/* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */</span><span class="preprocessor"></span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &quot;<a class="code" href="game__events_8h.html">game_events.h</a>&quot;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span> </div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="keywordtype">void</span> game_hall_led_show_takeback(<span class="keyword">const</span> uint8_t *squares, uint8_t <a class="code hl_variable" href="game__events_8c.html#a20302e2c99a60d3f612dba57e3f6333b">count</a>) {</div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span>  <a class="code hl_function" href="game__events_8c.html#a6de37628b2538f077fe0764fc95d1569">game_event_post_takeback</a>(squares, <a class="code hl_variable" href="game__events_8c.html#a20302e2c99a60d3f612dba57e3f6333b">count</a>);</div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span>}</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span> </div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="preprocessor">#endif </span><span class="comment">/* CONFIG_CHESS_MATRIX_INPUT_I2C_HALL */</span><span class="preprocessor"></span></div>
+<div class="ttc" id="agame__events_8c_html_a20302e2c99a60d3f612dba57e3f6333b"><div class="ttname"><a href="game__events_8c.html#a20302e2c99a60d3f612dba57e3f6333b">count</a></div><div class="ttdeci">uint8_t count</div><div class="ttdef"><b>Definition</b> <a href="game__events_8c_source.html#l00379">game_events.c:379</a></div></div>
+<div class="ttc" id="agame__events_8c_html_a6de37628b2538f077fe0764fc95d1569"><div class="ttname"><a href="game__events_8c.html#a6de37628b2538f077fe0764fc95d1569">game_event_post_takeback</a></div><div class="ttdeci">void game_event_post_takeback(const uint8_t *squares, uint8_t count)</div><div class="ttdef"><b>Definition</b> <a href="game__events_8c_source.html#l00270">game_events.c:270</a></div></div>
+<div class="ttc" id="agame__events_8h_html"><div class="ttname"><a href="game__events_8h.html">game_events.h</a></div><div class="ttdoc">Session-to-LED events (no WS2812 in game_task).</div></div>
 <div class="ttc" id="agame__hall__led_8h_html"><div class="ttname"><a href="game__hall__led_8h.html">game_hall_led.h</a></div><div class="ttdoc">One-shot Hall overlays that are not move hints or the restore guide.</div></div>
-<div class="ttc" id="aled__mapping_8h_html"><div class="ttname"><a href="led__mapping_8h.html">led_mapping.h</a></div><div class="ttdoc">ESP32-C6 Chess System - LED Mapping function.</div></div>
-<div class="ttc" id="aled__mapping_8h_html_a6f6c321f16b2494986ebfb82fa9bf5df"><div class="ttname"><a href="led__mapping_8h.html#a6f6c321f16b2494986ebfb82fa9bf5df">chess_pos_to_led_index</a></div><div class="ttdeci">uint8_t chess_pos_to_led_index(uint8_t row, uint8_t col)</div><div class="ttdoc">Converts the box position to an LED index.</div><div class="ttdef"><b>Definition</b> <a href="led__mapping_8c_source.html#l00053">led_mapping.c:53</a></div></div>
-<div class="ttc" id="aled__task_8h_html"><div class="ttname"><a href="led__task_8h.html">led_task.h</a></div><div class="ttdoc">ESP32-C6 Chess System v1.8.0 - LED Task Header.</div></div>
-<div class="ttc" id="aled__task_8h_html_a29a322088a8d21740ce74cc348f41b6e"><div class="ttname"><a href="led__task_8h.html#a29a322088a8d21740ce74cc348f41b6e">led_takeback_arm</a></div><div class="ttdeci">void led_takeback_arm(const uint8_t *led_index, uint8_t count)</div><div class="ttdoc">Cyan takeback squares.</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l03896">led_task.c:3896</a></div></div>
-<div class="ttc" id="aled__task_8h_html_a52166e472e31f8a9d0f3dbfebcf602d3"><div class="ttname"><a href="led__task_8h.html#a52166e472e31f8a9d0f3dbfebcf602d3">led_target_end</a></div><div class="ttdeci">void led_target_end(void)</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l03271">led_task.c:3271</a></div></div>
-<div class="ttc" id="aled__task_8h_html_a54b1f60faa2433dc368194510ae49985"><div class="ttname"><a href="led__task_8h.html#a54b1f60faa2433dc368194510ae49985">led_takeback_clear</a></div><div class="ttdeci">void led_takeback_clear(void)</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l03916">led_task.c:3916</a></div></div>
-<div class="ttc" id="aled__task_8h_html_a5d013010406192fb2e0cd007f0a94b04aea20cea9c0483fc77e4317b084a31684"><div class="ttname"><a href="led__task_8h.html#a5d013010406192fb2e0cd007f0a94b04aea20cea9c0483fc77e4317b084a31684">LED_VIS_BREATHE</a></div><div class="ttdeci">@ LED_VIS_BREATHE</div><div class="ttdef"><b>Definition</b> <a href="led__task_8h_source.html#l00271">led_task.h:271</a></div></div>
-<div class="ttc" id="aled__task_8h_html_a8d1e7e252b23657ee8c68142ce4691d1"><div class="ttname"><a href="led__task_8h.html#a8d1e7e252b23657ee8c68142ce4691d1">led_target_set</a></div><div class="ttdeci">void led_target_set(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue, led_vis_mode_t mode)</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l03242">led_task.c:3242</a></div></div>
-<div class="ttc" id="aled__task_8h_html_af9bef572a677f50e14c39bc3dce20470"><div class="ttname"><a href="led__task_8h.html#af9bef572a677f50e14c39bc3dce20470">led_target_begin</a></div><div class="ttdeci">void led_target_begin(void)</div><div class="ttdef"><b>Definition</b> <a href="led__task_8c_source.html#l03193">led_task.c:3193</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 <!-- start footer part -->

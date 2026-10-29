@@ -1,9 +1,9 @@
 var web__handlers__wifi_8c =
 [
-    [ "http_get_wifi_status_handler", "web__handlers__wifi_8c.html#abe0c7c2d6b3deda0b818dfc3a5d05505", null ],
-    [ "http_post_wifi_clear_handler", "web__handlers__wifi_8c.html#a2c84352ce9a635dff501b4f40749621b", null ],
-    [ "http_post_wifi_config_handler", "web__handlers__wifi_8c.html#a2e5e8730e795fa9f46cfc26e4cc7893a", null ],
-    [ "http_post_wifi_connect_handler", "web__handlers__wifi_8c.html#abbe850cf6b01634042dbe088bd681dac", null ],
-    [ "http_post_wifi_disconnect_handler", "web__handlers__wifi_8c.html#a2d36e8a891b5b7f5821b695e6f47f291", null ],
+    [ "web_get_wifi_status_handler", "web__handlers__wifi_8c.html#add5ed25462830d80d6bee9a88b8f5f1a", null ],
+    [ "web_post_wifi_clear_handler", "web__handlers__wifi_8c.html#a3bf1a149da79b8ec132c0de29adfbd6c", null ],
+    [ "web_post_wifi_config_handler", "web__handlers__wifi_8c.html#a3aa495c907d5c273cce531755ee14631", null ],
+    [ "web_post_wifi_connect_handler", "web__handlers__wifi_8c.html#a65fb4ecd530c2291f7bf2474a98795eb", null ],
+    [ "web_post_wifi_disconnect_handler", "web__handlers__wifi_8c.html#a2d9af7598aadb575261bc24cb18b1bbc", null ],
     [ "TAG", "web__handlers__wifi_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

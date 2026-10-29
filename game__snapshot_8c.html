@@ -105,7 +105,12 @@ $(document).ready(function(){initNavTree('game__snapshot_8c.html',''); initResiz
 <code>#include &quot;<a class="el" href="game__squares__guard_8h_source.html">game_squares_guard.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__hall__restore__guide_8h_source.html">game_hall_restore_guide.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__hall__position_8h_source.html">game_hall_position.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__policy_8h_source.html">game_policy.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__machine_8h_source.html">game_board_machine.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="position_8h_source.html">position.h</a>&quot;</code><br />
+<code>#include &quot;freertos/semphr.h&quot;</code><br />
 <code>#include &quot;<a class="el" href="config__manager_8h_source.html">../config_manager/include/config_manager.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="timer__system_8h_source.html">../timer_system/include/timer_system.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="hall__i2c__squares_8h_source.html">hall_i2c_squares.h</a>&quot;</code><br />
@@ -118,98 +123,124 @@ Include dependency graph for game_snapshot.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__snapshot_8c__incl.png" border="0" usemap="#agame__snapshot_8c" alt=""/></div>
 <map name="agame__snapshot_8c" id="agame__snapshot_8c">
-<area shape="rect" title="NVS persistence for game state and boot tracker." alt="" coords="789,5,925,31"/>
-<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="463,247,600,273"/>
-<area shape="poly" title=" " alt="" coords="832,33,729,86,667,124,608,169,575,203,549,237,544,234,570,200,604,165,664,120,727,81,830,28"/>
-<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="618,167,791,192"/>
-<area shape="poly" title=" " alt="" coords="848,33,727,158,723,155,844,29"/>
-<area shape="rect" href="game__hall__restore__guide_8h.html" title="Hall type/color board&#45;restore matching and the LED guide around it." alt="" coords="5,167,204,192"/>
-<area shape="poly" title=" " alt="" coords="789,24,656,29,494,39,340,56,278,67,231,81,200,97,171,117,126,158,122,154,168,113,197,92,229,76,276,62,339,51,494,34,656,23,788,18"/>
-<area shape="rect" title=" " alt="" coords="139,247,235,273"/>
-<area shape="poly" title=" " alt="" coords="788,22,711,26,616,35,515,53,416,81,383,96,351,114,292,157,243,202,208,239,204,235,239,198,288,153,348,110,381,91,414,76,514,48,616,30,710,20,788,17"/>
-<area shape="rect" href="game__hall__position_8h.html" title="Last legal position compared with the live Hall snapshot." alt="" coords="291,167,452,192"/>
-<area shape="poly" title=" " alt="" coords="789,27,615,47,531,62,472,81,447,97,424,117,389,157,385,154,421,113,444,93,470,76,530,57,614,42,788,22"/>
-<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="1294,86,1457,111"/>
-<area shape="poly" title=" " alt="" coords="925,27,1287,81,1286,87,925,32"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="894,240,1073,280"/>
-<area shape="poly" title=" " alt="" coords="865,30,969,226,965,229,860,32"/>
-<area shape="rect" href="config__manager_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Config Manager Header." alt="" coords="1686,79,1875,119"/>
-<area shape="poly" title=" " alt="" coords="925,22,1673,86,1672,91,925,28"/>
-<area shape="rect" title=" " alt="" coords="2481,167,2565,192"/>
-<area shape="poly" title=" " alt="" coords="925,18,1454,37,1730,54,1829,64,1888,76,1905,86,1915,97,1925,107,1940,116,2015,141,2081,155,2139,160,2195,160,2313,155,2382,156,2462,164,2468,165,2468,170,2462,169,2382,162,2313,160,2196,165,2139,166,2080,160,2014,146,1938,121,1922,111,1911,100,1902,90,1886,81,1829,69,1729,59,1453,42,925,24"/>
-<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="727,247,869,273"/>
-<area shape="poly" title=" " alt="" coords="856,32,807,235,801,234,851,30"/>
-<area shape="rect" title=" " alt="" coords="1951,86,2021,111"/>
-<area shape="poly" title=" " alt="" coords="925,18,1141,24,1432,34,1721,52,1841,63,1932,76,1945,79,1944,84,1931,81,1840,68,1721,57,1432,40,1141,29,925,23"/>
-<area shape="rect" title=" " alt="" coords="2046,86,2110,111"/>
-<area shape="poly" title=" " alt="" coords="925,17,1160,20,1481,29,1802,46,1934,59,2035,76,2043,79,2042,84,2033,81,1934,65,1801,52,1481,34,1160,25,925,22"/>
-<area shape="rect" title=" " alt="" coords="1215,328,1296,353"/>
-<area shape="poly" title=" " alt="" coords="600,266,1201,331,1201,336,600,271"/>
-<area shape="rect" title=" " alt="" coords="569,328,651,353"/>
-<area shape="poly" title=" " alt="" coords="545,271,590,316,587,320,541,275"/>
-<area shape="poly" title=" " alt="" coords="618,192,518,211,477,225,452,242,445,260,452,279,473,300,499,315,527,326,556,332,555,337,526,331,497,320,470,304,448,281,439,260,448,238,475,220,516,206,617,187"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="1198,247,1313,273"/>
-<area shape="poly" title=" " alt="" coords="785,189,1185,246,1184,251,784,195"/>
-<area shape="rect" title=" " alt="" coords="948,328,1019,353"/>
-<area shape="poly" title=" " alt="" coords="705,192,702,234,706,258,717,278,731,289,753,299,810,314,875,326,934,333,934,338,874,331,809,320,751,304,729,294,713,282,701,260,696,235,699,192"/>
-<area shape="poly" title=" " alt="" coords="1258,273,1258,314,1253,314,1253,273"/>
-<area shape="poly" title=" " alt="" coords="1198,271,665,335,665,330,1197,266"/>
-<area shape="rect" title=" " alt="" coords="2072,328,2223,353"/>
-<area shape="poly" title=" " alt="" coords="1313,265,1433,277,2058,330,2058,335,1432,283,1313,270"/>
-<area shape="rect" title=" " alt="" coords="1531,328,1660,353"/>
-<area shape="poly" title=" " alt="" coords="1305,270,1533,322,1532,328,1304,275"/>
-<area shape="poly" title=" " alt="" coords="1217,275,1033,328,1031,323,1215,270"/>
-<area shape="poly" title=" " alt="" coords="99,193,88,212,79,235,77,258,79,269,85,278,108,290,153,300,283,317,432,328,555,335,555,340,431,333,282,322,152,305,106,295,82,282,75,271,71,259,74,234,84,210,94,191"/>
-<area shape="poly" title=" " alt="" coords="106,192,108,235,115,259,129,278,164,287,242,297,476,313,934,335,934,340,475,319,241,302,163,292,126,282,110,261,102,236,101,192"/>
-<area shape="poly" title=" " alt="" coords="119,190,167,236,163,240,115,194"/>
-<area shape="poly" title=" " alt="" coords="355,194,333,212,312,234,301,257,301,268,307,278,322,291,347,302,412,318,487,328,555,334,555,339,486,334,411,323,345,307,320,295,303,282,296,269,296,256,308,231,329,208,352,190"/>
-<area shape="poly" title=" " alt="" coords="452,184,732,206,1085,237,1184,248,1184,253,1084,243,732,212,452,189"/>
-<area shape="poly" title=" " alt="" coords="379,191,406,235,426,259,451,278,491,293,545,305,680,323,821,332,934,336,934,341,821,338,679,328,544,311,489,298,449,282,423,263,401,238,374,194"/>
-<area shape="poly" title=" " alt="" coords="346,194,227,245,225,240,344,190"/>
-<area shape="poly" title=" " alt="" coords="1294,106,934,129,744,147,666,158,607,169,510,188,491,195,474,205,457,220,440,241,433,260,440,279,463,302,493,318,524,328,555,334,554,339,523,333,490,323,460,306,436,281,428,260,436,239,453,216,470,200,489,190,508,183,605,164,665,152,743,142,934,123,1294,101"/>
-<area shape="poly" title=" " alt="" coords="1364,113,1339,138,1312,168,1270,236,1265,233,1308,165,1335,134,1361,110"/>
-<area shape="poly" title=" " alt="" coords="1457,102,1791,127,1966,144,2093,164,2154,174,2205,180,2227,186,2249,197,2269,214,2290,239,2297,260,2290,281,2262,309,2228,326,2225,321,2259,304,2285,279,2292,260,2285,241,2266,218,2246,202,2225,191,2204,185,2153,179,2092,169,1966,149,1791,132,1457,108"/>
-<area shape="poly" title=" " alt="" coords="1457,104,1665,123,1922,153,2044,172,2149,192,2227,214,2253,226,2268,238,2277,260,2275,271,2268,282,2237,297,2181,309,2019,327,1832,336,1674,341,1674,336,1832,331,2018,321,2180,304,2235,292,2264,278,2270,269,2272,261,2264,242,2250,230,2225,219,2148,197,2043,177,1922,158,1665,128,1457,109"/>
-<area shape="poly" title=" " alt="" coords="1352,114,1253,166,1191,202,1130,242,1108,262,1086,282,1019,324,1016,319,1083,278,1105,258,1127,238,1188,197,1250,161,1350,109"/>
-<area shape="rect" title=" " alt="" coords="1489,247,1627,273"/>
-<area shape="poly" title=" " alt="" coords="1390,109,1536,236,1532,240,1387,113"/>
-<area shape="rect" title=" " alt="" coords="1651,247,1782,273"/>
-<area shape="poly" title=" " alt="" coords="1401,109,1681,239,1679,244,1399,114"/>
-<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1322,167,1429,192"/>
-<area shape="poly" title=" " alt="" coords="1378,112,1378,153,1373,153,1373,112"/>
-<area shape="poly" title=" " alt="" coords="1373,194,1356,234,1327,282,1306,303,1285,322,1281,318,1303,300,1323,278,1351,232,1369,191"/>
-<area shape="poly" title=" " alt="" coords="1322,184,1184,187,1008,196,837,213,767,226,716,242,690,258,666,278,629,318,625,315,662,274,687,254,714,238,766,221,836,208,1007,190,1184,181,1321,178"/>
-<area shape="poly" title=" " alt="" coords="1359,194,1286,242,1283,237,1356,190"/>
-<area shape="poly" title=" " alt="" coords="1388,190,1439,242,1479,278,1526,293,1590,306,1747,323,1916,332,2059,336,2059,341,1916,338,1747,329,1589,311,1525,298,1477,282,1435,245,1384,194"/>
-<area shape="poly" title=" " alt="" coords="1381,191,1400,233,1415,257,1434,278,1477,304,1523,322,1521,327,1474,309,1431,282,1411,261,1395,236,1377,193"/>
-<area shape="poly" title=" " alt="" coords="1325,195,1258,214,1187,242,1159,262,1130,282,1079,307,1031,326,1029,321,1077,302,1127,278,1156,257,1185,238,1257,209,1324,189"/>
-<area shape="poly" title=" " alt="" coords="1403,190,1520,239,1518,244,1401,194"/>
-<area shape="poly" title=" " alt="" coords="1428,189,1640,237,1658,242,1656,247,1639,243,1426,195"/>
-<area shape="rect" title=" " alt="" coords="1806,247,1923,273"/>
-<area shape="poly" title=" " alt="" coords="1430,184,1593,204,1795,237,1812,241,1811,247,1793,243,1593,209,1429,189"/>
-<area shape="poly" title=" " alt="" coords="1322,194,1087,241,1086,236,1321,189"/>
-<area shape="poly" title=" " alt="" coords="1049,277,1203,322,1202,327,1048,283"/>
-<area shape="poly" title=" " alt="" coords="894,283,666,330,664,325,893,277"/>
-<area shape="poly" title=" " alt="" coords="986,280,986,314,981,314,981,280"/>
-<area shape="poly" title=" " alt="" coords="1866,116,2107,176,2213,209,2249,224,2268,238,2277,260,2275,271,2267,282,2143,294,1864,310,1310,339,1310,334,1863,305,2142,288,2265,278,2270,269,2272,261,2264,242,2246,229,2211,214,2106,181,1865,121"/>
-<area shape="poly" title=" " alt="" coords="1876,114,1894,116,2054,132,2178,139,2303,147,2462,164,2468,165,2468,170,2462,169,2302,152,2178,144,2053,137,1894,121,1875,119"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1848,167,1977,192"/>
-<area shape="poly" title=" " alt="" coords="1814,116,1882,157,1880,162,1811,121"/>
-<area shape="poly" title=" " alt="" coords="1962,190,2001,208,2018,221,2032,239,2041,261,2039,271,2032,282,2000,292,1932,302,1725,319,1310,340,1310,335,1725,313,1931,296,1998,287,2028,278,2034,269,2035,261,2028,241,2015,225,1998,212,1960,194"/>
-<area shape="poly" title=" " alt="" coords="1923,191,1935,210,1945,234,1947,259,1944,271,1937,282,1888,288,1767,295,1390,312,665,340,665,335,1389,307,1767,290,1888,283,1934,278,1940,269,1942,259,1939,235,1930,212,1919,194"/>
-<area shape="poly" title=" " alt="" coords="1848,191,1327,253,1326,248,1848,186"/>
-<area shape="poly" title=" " alt="" coords="1978,179,2057,184,2143,194,2219,211,2248,223,2268,238,2275,249,2276,260,2268,281,2243,308,2211,325,2208,321,2240,304,2264,279,2271,259,2270,251,2264,242,2246,228,2218,216,2142,199,2056,189,1978,185"/>
-<area shape="poly" title=" " alt="" coords="1970,189,2019,204,2064,223,2081,235,2091,249,2092,265,2083,282,2062,293,2025,303,1916,319,1674,338,1673,333,1916,313,2024,298,2060,288,2079,278,2087,264,2086,251,2077,239,2061,228,2017,209,1968,195"/>
-<area shape="poly" title=" " alt="" coords="1932,190,1955,208,1977,231,1989,257,1989,270,1981,282,1580,308,1033,339,1033,334,1579,303,1978,278,1983,268,1984,258,1973,234,1952,212,1929,194"/>
-<area shape="poly" title=" " alt="" coords="1848,185,1274,205,867,222,450,243,250,256,249,251,450,237,867,217,1274,200,1848,180"/>
-<area shape="poly" title=" " alt="" coords="1860,195,1640,243,1621,247,1620,242,1639,237,1859,189"/>
-<area shape="poly" title=" " alt="" coords="1885,194,1759,245,1757,240,1883,190"/>
-<area shape="poly" title=" " alt="" coords="1908,194,1881,237,1877,234,1903,191"/>
-<area shape="rect" title=" " alt="" coords="2150,247,2254,273"/>
-<area shape="poly" title=" " alt="" coords="1955,189,2147,241,2146,246,1954,195"/>
-<area shape="poly" title=" " alt="" coords="847,270,882,277,1057,307,1201,329,1201,334,1056,313,882,283,846,275"/>
-<area shape="poly" title=" " alt="" coords="772,275,651,325,649,320,770,270"/>
-<area shape="poly" title=" " alt="" coords="826,270,945,320,943,325,824,275"/>
+<area shape="rect" title="NVS persistence for game state and boot tracker." alt="" coords="1252,5,1388,31"/>
+<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="1115,86,1253,111"/>
+<area shape="poly" title=" " alt="" coords="1301,33,1217,81,1215,77,1299,29"/>
+<area shape="rect" href="position_8h.html" title="Standalone chess position." alt="" coords="631,247,718,273"/>
+<area shape="poly" title=" " alt="" coords="1252,28,1105,46,1019,61,934,81,816,108,769,129,718,168,696,201,683,235,678,233,691,198,714,165,766,124,814,103,933,76,1018,56,1104,41,1252,22"/>
+<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="5,167,179,192"/>
+<area shape="poly" title=" " alt="" coords="1252,21,1102,23,898,31,664,49,545,63,428,81,346,99,266,121,136,164,134,159,264,116,345,94,428,76,544,58,663,44,897,26,1102,18,1252,16"/>
+<area shape="rect" href="game__hall__restore__guide_8h.html" title="Hall type/color board&#45;restore matching and the LED guide around it." alt="" coords="203,167,402,192"/>
+<area shape="poly" title=" " alt="" coords="1252,25,889,44,692,60,611,70,550,81,490,99,432,120,337,163,335,158,430,115,488,93,549,76,611,65,692,55,889,38,1251,19"/>
+<area shape="rect" title=" " alt="" coords="460,247,556,273"/>
+<area shape="poly" title=" " alt="" coords="1252,25,999,44,869,60,816,70,777,81,737,104,671,148,537,241,534,237,668,144,735,99,775,76,815,65,868,55,998,39,1251,20"/>
+<area shape="rect" href="game__hall__position_8h.html" title="Last legal position compared with the live Hall snapshot." alt="" coords="426,167,587,192"/>
+<area shape="poly" title=" " alt="" coords="1252,22,1101,24,914,32,734,50,661,64,608,81,582,97,559,116,524,157,520,153,555,112,579,92,606,76,660,58,733,45,913,27,1101,19,1252,16"/>
+<area shape="rect" href="game__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="1263,167,1377,192"/>
+<area shape="poly" title=" " alt="" coords="1323,31,1323,153,1317,153,1317,31"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1820,167,1927,192"/>
+<area shape="poly" title=" " alt="" coords="1388,16,1463,19,1553,29,1648,47,1741,76,1774,93,1805,114,1854,155,1851,159,1802,118,1772,98,1739,81,1647,52,1552,34,1462,25,1388,21"/>
+<area shape="rect" title=" " alt="" coords="2359,247,2497,273"/>
+<area shape="poly" title=" " alt="" coords="1388,16,1572,18,1811,25,1932,33,2044,43,2140,58,2212,76,2244,91,2276,109,2333,153,2380,198,2413,235,2409,238,2376,201,2329,157,2273,114,2242,95,2210,81,2139,63,2044,49,1932,38,1811,31,1572,23,1388,22"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="996,240,1175,280"/>
+<area shape="poly" title=" " alt="" coords="1252,27,1216,33,1177,44,1140,59,1106,81,1079,105,1062,129,1055,157,1059,191,1071,226,1066,228,1053,193,1050,156,1057,127,1075,101,1102,77,1137,55,1176,39,1215,28,1251,22"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="1453,167,1603,192"/>
+<area shape="poly" title=" " alt="" coords="1337,29,1504,156,1500,160,1333,33"/>
+<area shape="rect" href="game__board__machine_8h.html" title="Physical board state machine (lift/drop); does not write position_t." alt="" coords="764,167,943,192"/>
+<area shape="poly" title=" " alt="" coords="1252,28,1138,46,1075,61,1013,81,975,99,939,120,880,160,877,156,936,115,973,94,1011,76,1073,56,1137,40,1252,23"/>
+<area shape="rect" href="config__manager_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Config Manager Header." alt="" coords="1963,79,2152,119"/>
+<area shape="poly" title=" " alt="" coords="1388,24,1949,83,1949,89,1388,29"/>
+<area shape="rect" title=" " alt="" coords="2233,167,2317,192"/>
+<area shape="poly" title=" " alt="" coords="1388,16,1564,16,1790,23,1904,31,2009,42,2098,56,2165,76,2194,92,2220,112,2259,154,2256,157,2216,116,2191,97,2163,81,2097,62,2008,47,1903,36,1789,29,1564,22,1388,21"/>
+<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="1541,247,1683,273"/>
+<area shape="poly" title=" " alt="" coords="1385,28,1444,45,1509,72,1541,90,1570,111,1597,136,1618,165,1625,182,1627,200,1623,234,1618,233,1622,200,1620,183,1614,168,1593,140,1567,115,1538,94,1507,77,1442,50,1384,33"/>
+<area shape="rect" title=" " alt="" coords="2393,86,2463,111"/>
+<area shape="poly" title=" " alt="" coords="1388,18,1886,35,2168,52,2285,63,2374,76,2387,79,2386,84,2373,81,2284,68,2168,57,1885,40,1388,23"/>
+<area shape="rect" title=" " alt="" coords="2488,86,2552,111"/>
+<area shape="poly" title=" " alt="" coords="1388,17,1620,20,1935,29,2248,47,2378,60,2477,76,2485,79,2484,84,2475,81,2378,65,2248,52,1934,34,1619,26,1388,22"/>
+<area shape="rect" title=" " alt="" coords="1722,328,1803,353"/>
+<area shape="poly" title=" " alt="" coords="1253,103,1451,126,1548,143,1617,164,1641,178,1664,196,1703,236,1733,279,1753,314,1749,317,1728,281,1698,240,1660,200,1638,183,1615,169,1547,148,1450,131,1252,108"/>
+<area shape="poly" title=" " alt="" coords="1115,107,1023,116,917,129,820,146,782,157,753,169,734,183,716,200,690,236,686,233,712,197,730,179,751,164,780,152,819,141,916,123,1022,110,1115,102"/>
+<area shape="rect" title=" " alt="" coords="841,328,924,353"/>
+<area shape="poly" title=" " alt="" coords="1157,114,988,185,908,221,871,242,865,259,864,278,874,315,869,316,859,278,860,258,867,238,906,216,986,180,1155,109"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="1300,247,1415,273"/>
+<area shape="poly" title=" " alt="" coords="1253,100,1290,106,1328,118,1363,137,1392,165,1398,183,1396,202,1379,237,1374,235,1391,201,1393,184,1387,168,1360,142,1326,123,1289,111,1252,105"/>
+<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="1068,167,1239,192"/>
+<area shape="poly" title=" " alt="" coords="1182,112,1165,155,1160,153,1177,111"/>
+<area shape="poly" title=" " alt="" coords="706,270,840,321,839,326,704,275"/>
+<area shape="rect" title=" " alt="" coords="637,328,712,353"/>
+<area shape="poly" title=" " alt="" coords="677,273,677,314,672,314,672,273"/>
+<area shape="rect" title=" " alt="" coords="1202,401,1273,427"/>
+<area shape="poly" title=" " alt="" coords="691,271,750,311,789,333,830,351,927,378,1026,395,1117,405,1188,409,1188,414,1116,410,1026,401,926,383,828,356,787,338,747,315,688,275"/>
+<area shape="poly" title=" " alt="" coords="1415,270,1709,326,1708,331,1414,275"/>
+<area shape="poly" title=" " alt="" coords="1300,273,938,333,937,328,1299,268"/>
+<area shape="poly" title=" " alt="" coords="1350,274,1257,392,1253,389,1346,271"/>
+<area shape="rect" title=" " alt="" coords="1573,401,1723,427"/>
+<area shape="poly" title=" " alt="" coords="1379,271,1529,351,1613,393,1611,398,1527,356,1377,275"/>
+<area shape="rect" title=" " alt="" coords="1855,401,1985,427"/>
+<area shape="poly" title=" " alt="" coords="1416,267,1530,289,1595,306,1660,326,1686,338,1712,351,1787,376,1858,395,1857,401,1786,381,1710,356,1684,343,1658,330,1594,311,1528,295,1415,273"/>
+<area shape="rect" href="game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="1540,328,1647,353"/>
+<area shape="poly" title=" " alt="" coords="1392,270,1547,321,1545,326,1391,275"/>
+<area shape="poly" title=" " alt="" coords="1540,355,1287,406,1286,400,1539,350"/>
+<area shape="poly" title=" " alt="" coords="1604,352,1633,389,1629,392,1600,355"/>
+<area shape="poly" title=" " alt="" coords="1646,351,1854,396,1853,401,1645,356"/>
+<area shape="poly" title=" " alt="" coords="1068,191,962,210,919,224,891,242,882,258,878,277,879,314,874,314,873,276,877,256,887,238,916,219,961,205,1067,186"/>
+<area shape="poly" title=" " alt="" coords="1163,191,1189,239,1217,320,1235,387,1229,389,1212,321,1184,241,1158,193"/>
+<area shape="poly" title=" " alt="" coords="1184,190,1316,240,1314,245,1182,194"/>
+<area shape="poly" title=" " alt="" coords="118,190,225,233,294,257,366,277,458,293,586,309,828,332,827,337,586,314,458,298,365,283,293,262,223,238,116,194"/>
+<area shape="poly" title=" " alt="" coords="110,190,159,224,234,269,324,315,421,351,489,365,580,377,802,394,1024,404,1189,409,1188,414,1024,410,801,400,580,382,488,370,419,356,322,320,231,273,157,228,107,194"/>
+<area shape="poly" title=" " alt="" coords="179,188,191,189,471,207,689,214,907,220,1187,237,1286,247,1286,253,1186,243,907,226,689,219,470,212,190,195,179,194"/>
+<area shape="poly" title=" " alt="" coords="316,190,365,234,400,258,437,278,513,297,620,313,828,333,827,338,619,318,512,302,435,282,397,263,362,238,312,194"/>
+<area shape="poly" title=" " alt="" coords="310,191,332,232,348,256,367,278,396,305,421,324,449,337,486,351,548,365,631,377,832,395,1036,405,1189,409,1188,414,1036,410,832,400,630,383,547,371,485,356,447,342,418,328,393,309,363,282,344,259,328,235,305,194"/>
+<area shape="poly" title=" " alt="" coords="333,190,466,240,464,245,332,195"/>
+<area shape="poly" title=" " alt="" coords="493,194,472,212,453,234,443,258,444,268,450,278,468,288,503,297,606,313,828,333,827,338,605,318,502,302,466,293,446,282,439,270,438,257,449,231,468,208,489,190"/>
+<area shape="poly" title=" " alt="" coords="486,194,460,214,438,241,432,260,438,279,456,301,473,316,492,326,511,333,557,341,613,351,693,368,776,382,939,400,1083,408,1188,410,1188,416,1083,414,939,405,775,387,692,374,611,356,556,346,510,338,490,331,470,321,452,304,434,281,427,261,434,239,456,210,483,190"/>
+<area shape="poly" title=" " alt="" coords="588,185,1187,237,1286,248,1286,253,1186,243,588,190"/>
+<area shape="poly" title=" " alt="" coords="510,192,510,233,505,234,504,192"/>
+<area shape="poly" title=" " alt="" coords="1263,193,1251,195,1203,200,1160,200,1087,197,1053,199,1018,205,982,219,942,242,924,258,911,277,892,316,887,314,906,274,920,254,938,238,980,214,1017,200,1052,193,1087,192,1160,195,1202,194,1250,189,1262,187"/>
+<area shape="poly" title=" " alt="" coords="1315,193,1290,241,1263,321,1245,389,1240,387,1258,320,1286,239,1311,191"/>
+<area shape="poly" title=" " alt="" coords="1328,191,1348,234,1344,236,1323,193"/>
+<area shape="poly" title=" " alt="" coords="1868,194,1781,318,1777,315,1863,191"/>
+<area shape="poly" title=" " alt="" coords="1820,189,1687,208,1608,224,1530,243,1501,253,1479,263,1457,273,1427,283,1291,309,1154,327,1032,336,938,341,938,335,1032,331,1154,321,1290,304,1426,277,1455,268,1477,258,1499,248,1529,237,1607,218,1686,203,1819,184"/>
+<area shape="poly" title=" " alt="" coords="1876,192,1874,225,1866,270,1849,316,1835,338,1817,356,1788,368,1735,378,1586,395,1287,413,1286,408,1585,389,1734,373,1786,362,1815,351,1831,334,1844,314,1861,269,1869,225,1871,192"/>
+<area shape="poly" title=" " alt="" coords="1820,191,1429,251,1428,245,1819,186"/>
+<area shape="poly" title=" " alt="" coords="1882,191,1896,222,1909,265,1911,312,1906,335,1894,355,1869,373,1831,386,1737,405,1736,400,1830,381,1867,368,1890,352,1901,333,1906,312,1903,266,1891,224,1877,193"/>
+<area shape="poly" title=" " alt="" coords="1896,190,1923,210,1945,239,1955,279,1953,320,1945,359,1934,390,1928,388,1939,357,1948,320,1950,279,1940,241,1919,214,1893,194"/>
+<area shape="poly" title=" " alt="" coords="1927,186,2296,237,2346,244,2345,250,2296,243,1926,191"/>
+<area shape="rect" title=" " alt="" coords="2012,247,2129,273"/>
+<area shape="poly" title=" " alt="" coords="1903,190,2030,240,2028,245,1901,194"/>
+<area shape="rect" title=" " alt="" coords="2153,247,2284,273"/>
+<area shape="poly" title=" " alt="" coords="1927,189,2142,237,2160,242,2158,247,2141,243,1926,195"/>
+<area shape="poly" title=" " alt="" coords="1820,189,1189,251,1188,246,1820,183"/>
+<area shape="poly" title=" " alt="" coords="1175,269,1709,330,1708,336,1175,274"/>
+<area shape="poly" title=" " alt="" coords="1038,283,926,325,924,320,1036,278"/>
+<area shape="poly" title=" " alt="" coords="1106,279,1218,389,1214,393,1103,282"/>
+<area shape="poly" title=" " alt="" coords="1453,190,1172,218,1046,232,985,242,952,272,905,320,901,316,948,268,983,238,1045,227,1172,212,1452,185"/>
+<area shape="poly" title=" " alt="" coords="1519,194,1480,234,1428,282,1343,347,1269,396,1266,392,1340,342,1425,278,1477,230,1515,190"/>
+<area shape="poly" title=" " alt="" coords="1504,194,1396,244,1393,239,1502,190"/>
+<area shape="poly" title=" " alt="" coords="828,194,714,244,712,239,826,190"/>
+<area shape="poly" title=" " alt="" coords="835,194,810,214,790,241,785,260,790,279,811,303,838,320,835,324,807,307,786,281,779,260,786,239,806,210,831,190"/>
+<area shape="poly" title=" " alt="" coords="764,194,677,213,642,226,621,242,615,263,615,298,620,332,627,351,656,365,711,376,870,393,1048,404,1188,409,1188,414,1047,409,869,398,710,381,654,370,623,355,614,333,610,298,610,262,616,238,639,222,675,208,763,189"/>
+<area shape="poly" title=" " alt="" coords="927,189,1287,245,1286,250,926,195"/>
+<area shape="poly" title=" " alt="" coords="1963,106,1923,113,1882,125,1843,143,1810,169,1786,203,1773,242,1766,281,1765,315,1759,314,1761,281,1768,241,1782,200,1806,165,1840,138,1880,120,1921,107,1962,100"/>
+<area shape="poly" title=" " alt="" coords="2110,116,2231,159,2229,164,2108,121"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="2079,167,2209,192"/>
+<area shape="poly" title=" " alt="" coords="2080,117,2123,155,2119,159,2077,121"/>
+<area shape="poly" title=" " alt="" coords="2209,188,2511,238,2521,260,2518,271,2511,282,2497,291,2474,300,2405,313,2313,323,2207,331,1988,339,1817,342,1817,336,1988,334,2207,326,2313,318,2404,308,2472,294,2494,287,2507,278,2514,269,2516,260,2508,242,2208,193"/>
+<area shape="poly" title=" " alt="" coords="2210,186,2258,204,2280,219,2298,239,2307,260,2305,271,2297,282,2242,292,2110,301,1704,319,938,341,937,335,1704,313,2110,296,2241,287,2295,278,2300,269,2302,261,2294,241,2277,223,2256,209,2208,191"/>
+<area shape="poly" title=" " alt="" coords="2209,188,2534,238,2543,260,2541,271,2534,282,2514,292,2476,301,2352,321,2180,340,1980,359,1572,392,1286,412,1286,407,1572,387,1979,354,2180,335,2351,315,2475,296,2513,287,2530,278,2536,269,2538,260,2530,242,2208,193"/>
+<area shape="poly" title=" " alt="" coords="2079,189,1530,243,1429,253,1428,248,1529,237,2079,184"/>
+<area shape="poly" title=" " alt="" coords="2209,188,2222,189,2309,193,2423,194,2481,197,2533,204,2576,218,2606,238,2625,267,2632,297,2626,327,2605,356,2258,379,1737,410,1737,405,2257,374,2603,351,2621,324,2627,297,2620,270,2602,242,2574,222,2532,210,2480,202,2423,199,2309,198,2221,195,2209,193"/>
+<area shape="poly" title=" " alt="" coords="2209,188,2222,189,2513,199,2692,211,2756,222,2778,229,2791,238,2798,249,2800,259,2792,281,2765,315,2735,334,2655,356,2599,369,2524,379,2343,396,2153,407,1999,413,1998,408,2153,402,2342,391,2524,374,2598,363,2654,351,2732,329,2761,311,2787,279,2795,259,2793,251,2787,242,2775,234,2755,227,2691,216,2513,204,2221,195,2209,193"/>
+<area shape="poly" title=" " alt="" coords="2079,187,1939,195,1567,205,1278,206,989,214,819,225,619,243,570,249,569,244,618,237,819,219,989,208,1278,201,1567,200,1939,189,2079,182"/>
+<area shape="poly" title=" " alt="" coords="2186,189,2374,241,2373,246,2185,195"/>
+<area shape="poly" title=" " alt="" coords="2135,194,2093,239,2089,235,2131,190"/>
+<area shape="poly" title=" " alt="" coords="2157,190,2200,236,2196,239,2153,194"/>
+<area shape="rect" title=" " alt="" coords="2673,247,2777,273"/>
+<area shape="poly" title=" " alt="" coords="2209,188,2222,189,2344,202,2439,209,2534,218,2655,237,2674,241,2672,247,2654,243,2533,224,2438,215,2343,208,2221,195,2209,193"/>
+<area shape="poly" title=" " alt="" coords="1635,270,1730,319,1727,324,1633,275"/>
+<area shape="poly" title=" " alt="" coords="1562,275,1522,283,1355,304,1191,320,938,339,938,334,1190,315,1355,299,1521,277,1561,270"/>
+<area shape="poly" title=" " alt="" coords="1600,275,1546,314,1510,336,1472,356,1424,374,1375,389,1287,408,1286,402,1373,383,1422,369,1470,351,1507,332,1543,310,1596,271"/>
 </map>
 </div>
 </div>
@@ -243,6 +274,25 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a94137b18252c3bf8a1bdd2ff2fefa16d" id="r_a94137b18252c3bf8a1bdd2ff2fefa16d"><td class="memItemLeft" align="right" valign="top">static uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a94137b18252c3bf8a1bdd2ff2fefa16d">game_session_snap_mode</a> (void)</td></tr>
+<tr class="separator:a94137b18252c3bf8a1bdd2ff2fefa16d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7ebc3756ea34977f291d54af015d8d67" id="r_a7ebc3756ea34977f291d54af015d8d67"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a7ebc3756ea34977f291d54af015d8d67">game_session_snap_fill_pos_from_logic</a> (const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *logic)</td></tr>
+<tr class="separator:a7ebc3756ea34977f291d54af015d8d67"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa1a728480d23e260764afe493ba0489c" id="r_aa1a728480d23e260764afe493ba0489c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#aa1a728480d23e260764afe493ba0489c">game_session_snap_refresh</a> (void)</td></tr>
+<tr class="memdesc:aa1a728480d23e260764afe493ba0489c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Rebuild session snapshot from live game state (game task thread).  <br /></td></tr>
+<tr class="separator:aa1a728480d23e260764afe493ba0489c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8a1db1fc1d8a9f162456a73319f50733" id="r_a8a1db1fc1d8a9f162456a73319f50733"><td class="memItemLeft" align="right" valign="top">const <a class="el" href="structgame__session__snap__t.html">game_session_snap_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a8a1db1fc1d8a9f162456a73319f50733">game_session_snap_acquire</a> (void)</td></tr>
+<tr class="memdesc:a8a1db1fc1d8a9f162456a73319f50733"><td class="mdescLeft">&#160;</td><td class="mdescRight">Hold s_session_snap_mutex; pair with <a class="el" href="game__snapshot_8h.html#adcfda89cd1a2ffbf7bd276837d5a133c" title="Release after game_session_snap_acquire().">game_session_snap_release()</a>.  <br /></td></tr>
+<tr class="separator:a8a1db1fc1d8a9f162456a73319f50733"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adcfda89cd1a2ffbf7bd276837d5a133c" id="r_adcfda89cd1a2ffbf7bd276837d5a133c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#adcfda89cd1a2ffbf7bd276837d5a133c">game_session_snap_release</a> (void)</td></tr>
+<tr class="memdesc:adcfda89cd1a2ffbf7bd276837d5a133c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Release after <a class="el" href="game__snapshot_8h.html#a8a1db1fc1d8a9f162456a73319f50733" title="Hold s_session_snap_mutex; pair with game_session_snap_release().">game_session_snap_acquire()</a>.  <br /></td></tr>
+<tr class="separator:adcfda89cd1a2ffbf7bd276837d5a133c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac8cf7aa3995e200b87d0facd95aca688" id="r_ac8cf7aa3995e200b87d0facd95aca688"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#ac8cf7aa3995e200b87d0facd95aca688">game_session_snap_copy</a> (<a class="el" href="structgame__session__snap__t.html">game_session_snap_t</a> *out)</td></tr>
+<tr class="memdesc:ac8cf7aa3995e200b87d0facd95aca688"><td class="mdescLeft">&#160;</td><td class="mdescRight">Thread-safe copy of the last committed session snapshot.  <br /></td></tr>
+<tr class="separator:ac8cf7aa3995e200b87d0facd95aca688"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3022638e1a26695d0f20dc8013c72e50" id="r_a3022638e1a26695d0f20dc8013c72e50"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a3022638e1a26695d0f20dc8013c72e50">game_session_snap_piece</a> (int row, int col)</td></tr>
+<tr class="memdesc:a3022638e1a26695d0f20dc8013c72e50"><td class="mdescLeft">&#160;</td><td class="mdescRight">One square from the published session snapshot.  <br /></td></tr>
+<tr class="separator:a3022638e1a26695d0f20dc8013c72e50"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5556b594c61b3bf7efa27bc7176601f8" id="r_a5556b594c61b3bf7efa27bc7176601f8"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a5556b594c61b3bf7efa27bc7176601f8">game_crc32_simple</a> (const uint8_t *data, size_t len)</td></tr>
 <tr class="separator:a5556b594c61b3bf7efa27bc7176601f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3d48a17e8a038f89225afe78cead57df" id="r_a3d48a17e8a038f89225afe78cead57df"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a3d48a17e8a038f89225afe78cead57df">game_snapshot_fill_board</a> (uint8_t out_board[64])</td></tr>
@@ -272,8 +322,9 @@ Functions</h2></td></tr>
 <tr class="separator:a5da1e71ab6d35504b0b5f57afe8eea4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a65c8e5112ba559906bd05e5d34e6bd38" id="r_a65c8e5112ba559906bd05e5d34e6bd38"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a65c8e5112ba559906bd05e5d34e6bd38">game_snapshot_side_mode_active</a> (void)</td></tr>
 <tr class="separator:a65c8e5112ba559906bd05e5d34e6bd38"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0199d59042808334f8c0cf37283c76b5" id="r_a0199d59042808334f8c0cf37283c76b5"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a0199d59042808334f8c0cf37283c76b5">game_snapshot_publish_hall_empty</a> (void)</td></tr>
-<tr class="separator:a0199d59042808334f8c0cf37283c76b5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9bc8ad2da1e9df26cbc9661f6d1b33bd" id="r_a9bc8ad2da1e9df26cbc9661f6d1b33bd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a9bc8ad2da1e9df26cbc9661f6d1b33bd">game_snapshot_publish_hall_empty</a> (void)</td></tr>
+<tr class="memdesc:a9bc8ad2da1e9df26cbc9661f6d1b33bd"><td class="mdescLeft">&#160;</td><td class="mdescRight">Push the live board's empty map and piece types into the Hall driver.  <br /></td></tr>
+<tr class="separator:a9bc8ad2da1e9df26cbc9661f6d1b33bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acef7d24edc6e2602ed70d5972f522848" id="r_acef7d24edc6e2602ed70d5972f522848"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#acef7d24edc6e2602ed70d5972f522848">game_snapshot_hold_clocks</a> (uint32_t white_ms, uint32_t black_ms)</td></tr>
 <tr class="separator:acef7d24edc6e2602ed70d5972f522848"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acc4f7e25bbb39c2bd15e16e9f2a88c0d" id="r_acc4f7e25bbb39c2bd15e16e9f2a88c0d"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#acc4f7e25bbb39c2bd15e16e9f2a88c0d">game_snapshot_mark_active_from_state</a> (void)</td></tr>
@@ -316,6 +367,26 @@ Functions</h2></td></tr>
 Variables</h2></td></tr>
 <tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_SNAPSHOT&quot;</td></tr>
 <tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a07c6ab441bf294afe498a1db9432697b" id="r_a07c6ab441bf294afe498a1db9432697b"><td class="memItemLeft" align="right" valign="top"><a class="el" href="structchess__move__t.html">chess_move_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a07c6ab441bf294afe498a1db9432697b">move_history</a> [<a class="el" href="game__physical__undo_8h.html#a3e657e7e93cc35a922d00f44b94281be">GAME_TASK_MAX_MOVES_HISTORY</a>]</td></tr>
+<tr class="separator:a07c6ab441bf294afe498a1db9432697b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abba5f31cd0e18450f8e751ed62d1a336" id="r_abba5f31cd0e18450f8e751ed62d1a336"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">move_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#abba5f31cd0e18450f8e751ed62d1a336">move_history_kind</a> [<a class="el" href="game__physical__undo_8h.html#a3e657e7e93cc35a922d00f44b94281be">GAME_TASK_MAX_MOVES_HISTORY</a>]</td></tr>
+<tr class="separator:abba5f31cd0e18450f8e751ed62d1a336"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2342129729fb9edaa9cf56931d99c00e" id="r_a2342129729fb9edaa9cf56931d99c00e"><td class="memItemLeft" align="right" valign="top">uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a2342129729fb9edaa9cf56931d99c00e">history_index</a> = 0</td></tr>
+<tr class="separator:a2342129729fb9edaa9cf56931d99c00e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7f77e5e231fd9535d20f64f96ee418ba" id="r_a7f77e5e231fd9535d20f64f96ee418ba"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a7f77e5e231fd9535d20f64f96ee418ba">last_move_from_row</a> = 0</td></tr>
+<tr class="separator:a7f77e5e231fd9535d20f64f96ee418ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a39aa6c3a7f8c8803266df3d726a125e3" id="r_a39aa6c3a7f8c8803266df3d726a125e3"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a39aa6c3a7f8c8803266df3d726a125e3">last_move_from_col</a> = 0</td></tr>
+<tr class="separator:a39aa6c3a7f8c8803266df3d726a125e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5b89325f96b3f1db097a5f20d0360672" id="r_a5b89325f96b3f1db097a5f20d0360672"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a5b89325f96b3f1db097a5f20d0360672">last_move_to_row</a> = 0</td></tr>
+<tr class="separator:a5b89325f96b3f1db097a5f20d0360672"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9a6df76b92bfaac37043bfc352766c6" id="r_aa9a6df76b92bfaac37043bfc352766c6"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#aa9a6df76b92bfaac37043bfc352766c6">last_move_to_col</a> = 0</td></tr>
+<tr class="separator:aa9a6df76b92bfaac37043bfc352766c6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aae58883f4e5761e9d840b243daf855a7" id="r_aae58883f4e5761e9d840b243daf855a7"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#aae58883f4e5761e9d840b243daf855a7">has_last_move</a> = false</td></tr>
+<tr class="separator:aae58883f4e5761e9d840b243daf855a7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1f70b0c8dbc0c485ab51c2892c75b959" id="r_a1f70b0c8dbc0c485ab51c2892c75b959"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a1f70b0c8dbc0c485ab51c2892c75b959">game_saved</a> = false</td></tr>
+<tr class="separator:a1f70b0c8dbc0c485ab51c2892c75b959"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a37493b1f0bf22f8cfffaa5d37f6d589d" id="r_a37493b1f0bf22f8cfffaa5d37f6d589d"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a37493b1f0bf22f8cfffaa5d37f6d589d">saved_game_name</a> [32] = &quot;&quot;</td></tr>
+<tr class="separator:a37493b1f0bf22f8cfffaa5d37f6d589d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8c3fed5af52bae670888786251f66c4" id="r_af8c3fed5af52bae670888786251f66c4"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#af8c3fed5af52bae670888786251f66c4">snapshot_loaded_on_boot</a> = false</td></tr>
 <tr class="separator:af8c3fed5af52bae670888786251f66c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a06eeef79b957711c3443741523b404aa" id="r_a06eeef79b957711c3443741523b404aa"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a06eeef79b957711c3443741523b404aa">snapshot_restore_failed</a> = false</td></tr>
@@ -330,6 +401,10 @@ Variables</h2></td></tr>
 <tr class="separator:a686a14af286bf349c3700d2b288758e5"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ad14aaf0997661a472d6934a75e45a77a" id="r_ad14aaf0997661a472d6934a75e45a77a"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#ad14aaf0997661a472d6934a75e45a77a">s_clock_held</a> = false</td></tr>
 <tr class="separator:ad14aaf0997661a472d6934a75e45a77a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a592bb7fc152879dc963affe1eb8dfe7d" id="r_a592bb7fc152879dc963affe1eb8dfe7d"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="structgame__session__snap__t.html">game_session_snap_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#a592bb7fc152879dc963affe1eb8dfe7d">s_session_snap</a></td></tr>
+<tr class="separator:a592bb7fc152879dc963affe1eb8dfe7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5b680e37ddd05746ee45d1fcbfcad0b" id="r_ab5b680e37ddd05746ee45d1fcbfcad0b"><td class="memItemLeft" align="right" valign="top">static SemaphoreHandle_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__snapshot_8c.html#ab5b680e37ddd05746ee45d1fcbfcad0b">s_session_snap_mutex</a></td></tr>
+<tr class="separator:ab5b680e37ddd05746ee45d1fcbfcad0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>NVS persistence for game state and boot tracker. </p>
@@ -348,7 +423,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00031">31</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00053">53</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -364,7 +439,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00030">30</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00052">52</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -380,7 +455,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00028">28</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00050">50</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -396,7 +471,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00029">29</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00051">51</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -432,7 +507,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00023">23</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00045">45</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -461,7 +536,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00694">694</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00819">819</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -489,7 +564,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00675">675</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00800">800</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -527,7 +602,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00179">179</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00314">314</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -550,7 +625,7 @@ Variables</h2></td></tr>
 <p>Snapshot restore failure (CRC / format). </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the last restore attempt failed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00217">217</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00357">357</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -573,7 +648,7 @@ Variables</h2></td></tr>
 <p>Last snapshot save to NVS failed. </p>
 <dl class="section return"><dt>Returns</dt><dd>true if the last snapshot save failed. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00219">219</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00359">359</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -597,7 +672,7 @@ Variables</h2></td></tr>
 <p>true if a minimal snapshot (min) was used instead of a full one (full).</p>
 <p>Set when the full blob cannot be written or is not the blob that was loaded. </p><dl class="section return"><dt>Returns</dt><dd>true if the minimal snapshot was the one used. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00215">215</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00355">355</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -625,7 +700,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00578">578</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00699">699</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -653,7 +728,184 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00484">484</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00634">634</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a8a1db1fc1d8a9f162456a73319f50733" name="a8a1db1fc1d8a9f162456a73319f50733"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8a1db1fc1d8a9f162456a73319f50733">&#9670;&#160;</a></span>game_session_snap_acquire()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">const <a class="el" href="structgame__session__snap__t.html">game_session_snap_t</a> * game_session_snap_acquire </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Hold s_session_snap_mutex; pair with <a class="el" href="game__snapshot_8h.html#adcfda89cd1a2ffbf7bd276837d5a133c" title="Release after game_session_snap_acquire().">game_session_snap_release()</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00273">273</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="ac8cf7aa3995e200b87d0facd95aca688" name="ac8cf7aa3995e200b87d0facd95aca688"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac8cf7aa3995e200b87d0facd95aca688">&#9670;&#160;</a></span>game_session_snap_copy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_session_snap_copy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structgame__session__snap__t.html">game_session_snap_t</a> *&#160;</td>
+          <td class="paramname"><em>out</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Thread-safe copy of the last committed session snapshot. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00289">289</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a7ebc3756ea34977f291d54af015d8d67" name="a7ebc3756ea34977f291d54af015d8d67"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7ebc3756ea34977f291d54af015d8d67">&#9670;&#160;</a></span>game_session_snap_fill_pos_from_logic()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static void game_session_snap_fill_pos_from_logic </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="position_8h.html#af4dc030c1cd0aa4a06faddec003c076e">position_t</a> *&#160;</td>
+          <td class="paramname"><em>logic</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00220">220</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a94137b18252c3bf8a1bdd2ff2fefa16d" name="a94137b18252c3bf8a1bdd2ff2fefa16d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94137b18252c3bf8a1bdd2ff2fefa16d">&#9670;&#160;</a></span>game_session_snap_mode()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static uint8_t game_session_snap_mode </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00204">204</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a3022638e1a26695d0f20dc8013c72e50" name="a3022638e1a26695d0f20dc8013c72e50"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3022638e1a26695d0f20dc8013c72e50">&#9670;&#160;</a></span>game_session_snap_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> game_session_snap_piece </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>row</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>col</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>One square from the published session snapshot. </p>
+<p>Does not read s_logic. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00302">302</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="aa1a728480d23e260764afe493ba0489c" name="aa1a728480d23e260764afe493ba0489c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa1a728480d23e260764afe493ba0489c">&#9670;&#160;</a></span>game_session_snap_refresh()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_session_snap_refresh </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Rebuild session snapshot from live game state (game task thread). </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00234">234</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="adcfda89cd1a2ffbf7bd276837d5a133c" name="adcfda89cd1a2ffbf7bd276837d5a133c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adcfda89cd1a2ffbf7bd276837d5a133c">&#9670;&#160;</a></span>game_session_snap_release()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_session_snap_release </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Release after <a class="el" href="game__snapshot_8h.html#a8a1db1fc1d8a9f162456a73319f50733" title="Hold s_session_snap_mutex; pair with game_session_snap_release().">game_session_snap_acquire()</a>. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00283">283</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -681,7 +933,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00202">202</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00342">342</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -709,7 +961,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00314">314</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00454">454</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -731,7 +983,7 @@ Variables</h2></td></tr>
 
 <p>Erase snapshot and boot-tracker NVS keys (new game). </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00223">223</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00363">363</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -759,7 +1011,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00191">191</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00326">326</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -797,7 +1049,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00405">405</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00548">548</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -835,7 +1087,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00262">262</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00402">402</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -873,7 +1125,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00308">308</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00448">448</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -901,7 +1153,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00273">273</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00413">413</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -924,7 +1176,7 @@ Variables</h2></td></tr>
 <p>Whether NVS holds a full or minimal snapshot with a valid CRC. </p>
 <dl class="section return"><dt>Returns</dt><dd>true when at least one snapshot blob checks out. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00549">549</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00670">670</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -946,35 +1198,29 @@ Variables</h2></td></tr>
 
 <p>Save snapshot to NVS and update boot tracker after a valid move. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00741">741</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00866">866</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
-<a id="a0199d59042808334f8c0cf37283c76b5" name="a0199d59042808334f8c0cf37283c76b5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0199d59042808334f8c0cf37283c76b5">&#9670;&#160;</a></span>game_snapshot_publish_hall_empty()</h2>
+<a id="a9bc8ad2da1e9df26cbc9661f6d1b33bd" name="a9bc8ad2da1e9df26cbc9661f6d1b33bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9bc8ad2da1e9df26cbc9661f6d1b33bd">&#9670;&#160;</a></span>game_snapshot_publish_hall_empty()</h2>
 
 <div class="memitem">
 <div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
       <table class="memname">
         <tr>
-          <td class="memname">static void game_snapshot_publish_hall_empty </td>
+          <td class="memname">void game_snapshot_publish_hall_empty </td>
           <td>(</td>
           <td class="paramtype">void&#160;</td>
           <td class="paramname"></td><td>)</td>
           <td></td>
         </tr>
       </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00241">241</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p>Push the live board's empty map and piece types into the Hall driver. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00381">381</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -996,7 +1242,7 @@ Variables</h2></td></tr>
 
 <p>Clear save/restore failure flags after starting a fresh game. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00230">230</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00370">370</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1019,7 +1265,7 @@ Variables</h2></td></tr>
 <p>Boot path after <a class="el" href="game__board__core_8c.html#a9b4b4ef6ba4260c09a59192fc68be834" title="Initialize the inbox to the default position.">game_initialize_board()</a>: boot tracker, load NVS or force new game. </p>
 <p>May call <a class="el" href="game__init_8c.html#a57e990b9360540c1ba82ea3d5a32cf44" title="Start a new game.">game_start_new_game()</a>, <a class="el" href="game__squares__guard_8c.html#a50afe72176873627b6d0fc68fdc0fa13" title="After an NVS restore, pause if sensors still disagree with logic.">game_squares_guard_check_resync_after_restore()</a>. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00798">798</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00933">933</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1042,7 +1288,7 @@ Variables</h2></td></tr>
 <p>Whether sensors are ready to compare with a restored board. </p>
 <dl class="section return"><dt>Returns</dt><dd>false while Hall has no trustworthy baseline. Reed builds return true. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00756">756</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00882">882</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1064,7 +1310,7 @@ Variables</h2></td></tr>
 
 <p>After boot animation: once Hall (or reed) readings are usable, compare them to the restored board and, if they match, start the paused clock. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00764">764</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00890">890</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1092,7 +1338,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00235">235</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00375">375</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1130,7 +1376,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00298">298</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00438">438</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1158,7 +1404,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00280">280</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00420">420</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1182,7 +1428,7 @@ Variables</h2></td></tr>
 <p>Boot tracker vynutil novou hru (napr.</p>
 <dl class="section return"><dt>Returns</dt><dd>true when that rule fired and a valid snapshot was not present. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00221">221</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00361">361</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1206,7 +1452,7 @@ Variables</h2></td></tr>
 <p>true if <a class="el" href="game__snapshot_8c.html#a89d78dc8723fe9da9b6b1fa77090542f">game_load_snapshot_from_nvs()</a> in game_task_start successfully loaded the game.</p>
 <dl class="section return"><dt>Returns</dt><dd>true after a successful full or minimal restore. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00213">213</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00353">353</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1231,7 +1477,151 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00175">175</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00197">197</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a1f70b0c8dbc0c485ab51c2892c75b959" name="a1f70b0c8dbc0c485ab51c2892c75b959"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1f70b0c8dbc0c485ab51c2892c75b959">&#9670;&#160;</a></span>game_saved</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool game_saved = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00040">40</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="aae58883f4e5761e9d840b243daf855a7" name="aae58883f4e5761e9d840b243daf855a7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aae58883f4e5761e9d840b243daf855a7">&#9670;&#160;</a></span>has_last_move</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool has_last_move = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00039">39</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a2342129729fb9edaa9cf56931d99c00e" name="a2342129729fb9edaa9cf56931d99c00e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2342129729fb9edaa9cf56931d99c00e">&#9670;&#160;</a></span>history_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t history_index = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00034">34</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a39aa6c3a7f8c8803266df3d726a125e3" name="a39aa6c3a7f8c8803266df3d726a125e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a39aa6c3a7f8c8803266df3d726a125e3">&#9670;&#160;</a></span>last_move_from_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t last_move_from_col = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00036">36</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a7f77e5e231fd9535d20f64f96ee418ba" name="a7f77e5e231fd9535d20f64f96ee418ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7f77e5e231fd9535d20f64f96ee418ba">&#9670;&#160;</a></span>last_move_from_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t last_move_from_row = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00035">35</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="aa9a6df76b92bfaac37043bfc352766c6" name="aa9a6df76b92bfaac37043bfc352766c6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9a6df76b92bfaac37043bfc352766c6">&#9670;&#160;</a></span>last_move_to_col</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t last_move_to_col = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00038">38</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a5b89325f96b3f1db097a5f20d0360672" name="a5b89325f96b3f1db097a5f20d0360672"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5b89325f96b3f1db097a5f20d0360672">&#9670;&#160;</a></span>last_move_to_row</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t last_move_to_row = 0</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00037">37</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a07c6ab441bf294afe498a1db9432697b" name="a07c6ab441bf294afe498a1db9432697b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a07c6ab441bf294afe498a1db9432697b">&#9670;&#160;</a></span>move_history</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structchess__move__t.html">chess_move_t</a> move_history[<a class="el" href="game__physical__undo_8h.html#a3e657e7e93cc35a922d00f44b94281be">GAME_TASK_MAX_MOVES_HISTORY</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00032">32</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="abba5f31cd0e18450f8e751ed62d1a336" name="abba5f31cd0e18450f8e751ed62d1a336"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abba5f31cd0e18450f8e751ed62d1a336">&#9670;&#160;</a></span>move_history_kind</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">move_type_t</a> move_history_kind[<a class="el" href="game__physical__undo_8h.html#a3e657e7e93cc35a922d00f44b94281be">GAME_TASK_MAX_MOVES_HISTORY</a>]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00033">33</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1255,7 +1645,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00177">177</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00199">199</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1279,7 +1669,71 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00176">176</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00198">198</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a592bb7fc152879dc963affe1eb8dfe7d" name="a592bb7fc152879dc963affe1eb8dfe7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a592bb7fc152879dc963affe1eb8dfe7d">&#9670;&#160;</a></span>s_session_snap</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="structgame__session__snap__t.html">game_session_snap_t</a> s_session_snap</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00201">201</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="ab5b680e37ddd05746ee45d1fcbfcad0b" name="ab5b680e37ddd05746ee45d1fcbfcad0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5b680e37ddd05746ee45d1fcbfcad0b">&#9670;&#160;</a></span>s_session_snap_mutex</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">SemaphoreHandle_t s_session_snap_mutex</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00202">202</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+
+</div>
+</div>
+<a id="a37493b1f0bf22f8cfffaa5d37f6d589d" name="a37493b1f0bf22f8cfffaa5d37f6d589d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a37493b1f0bf22f8cfffaa5d37f6d589d">&#9670;&#160;</a></span>saved_game_name</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char saved_game_name[32] = &quot;&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00041">41</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1303,7 +1757,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00174">174</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00196">196</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1327,7 +1781,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00171">171</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00193">193</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1351,7 +1805,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00172">172</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00194">194</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1375,7 +1829,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00173">173</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00195">195</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>
@@ -1399,7 +1853,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00020">20</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__snapshot_8c_source.html#l00028">28</a> of file <a class="el" href="game__snapshot_8c_source.html">game_snapshot.c</a>.</p>
 
 </div>
 </div>

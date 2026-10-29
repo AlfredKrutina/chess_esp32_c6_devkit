@@ -1,0 +1,58 @@
+var game__board__machine_8h =
+[
+    [ "board_machine_t", "structboard__machine__t.html", "structboard__machine__t" ],
+    [ "board_machine_out_t", "structboard__machine__out__t.html", "structboard__machine__out__t" ],
+    [ "castling_state_t", "structcastling__state__t.html", "structcastling__state__t" ],
+    [ "guided_capture_state_t", "structguided__capture__state__t.html", "structguided__capture__state__t" ],
+    [ "GUIDED_CAPTURE_MAX_ATTACKERS", "game__board__machine_8h.html#a54daa47b74d01d066ede530d4c6bc26d", null ],
+    [ "board_machine_out_kind_t", "game__board__machine_8h.html#addb941a7b87867601825711a424dcca4", [
+      [ "BM_OUT_NONE", "game__board__machine_8h.html#addb941a7b87867601825711a424dcca4a5eaa3392d57d3f50f2d4cdced1cc6640", null ],
+      [ "BM_OUT_MOVE", "game__board__machine_8h.html#addb941a7b87867601825711a424dcca4ad7ab4cac52ecdf4fbdfd5623f3cdf69a", null ],
+      [ "BM_OUT_REJECT", "game__board__machine_8h.html#addb941a7b87867601825711a424dcca4a017479c4fa08cc3e193bf1129f8496a3", null ],
+      [ "BM_OUT_NEED_PROMO", "game__board__machine_8h.html#addb941a7b87867601825711a424dcca4a8bfd20c4720600b06e3a0a17c87b0591", null ]
+    ] ],
+    [ "board_machine_reject_t", "game__board__machine_8h.html#abc6a509d196d9674782bd2a2b9c672a6", [
+      [ "BM_REJECT_NONE", "game__board__machine_8h.html#abc6a509d196d9674782bd2a2b9c672a6a69daa72b00a102b8e38af5fc6e100e8b", null ],
+      [ "BM_REJECT_ILLEGAL", "game__board__machine_8h.html#abc6a509d196d9674782bd2a2b9c672a6ade0d8a6efee512bec1c6759e595af166", null ],
+      [ "BM_REJECT_NO_LIFT", "game__board__machine_8h.html#abc6a509d196d9674782bd2a2b9c672a6a12e6289da9e245527f1e2682294caa76", null ],
+      [ "BM_REJECT_WRONG_CAPTURE_STEP", "game__board__machine_8h.html#abc6a509d196d9674782bd2a2b9c672a6a8f26304d3f9cbc40e1bb6f9f45188239", null ],
+      [ "BM_REJECT_WRONG_ROOK_STEP", "game__board__machine_8h.html#abc6a509d196d9674782bd2a2b9c672a6a8f0cc5d80357e423a8cfd37cb39c0286", null ],
+      [ "BM_REJECT_PROMO_PENDING", "game__board__machine_8h.html#abc6a509d196d9674782bd2a2b9c672a6a73b7dd74a9fb0785864c667ae9c94e81", null ]
+    ] ],
+    [ "board_machine_state_t", "game__board__machine_8h.html#a1523452377d976bbf78cfd0ee36f7dc3", [
+      [ "BM_STATE_IDLE", "game__board__machine_8h.html#a1523452377d976bbf78cfd0ee36f7dc3ae7ee2d734dfec32fa366aded5485632f", null ],
+      [ "BM_STATE_LIFTED", "game__board__machine_8h.html#a1523452377d976bbf78cfd0ee36f7dc3aef4114f73c3056d907af2e9f9c0f235d", null ],
+      [ "BM_STATE_WAIT_CAPTURE", "game__board__machine_8h.html#a1523452377d976bbf78cfd0ee36f7dc3a8a9adbca66377981fcf8f8c4542b2509", null ],
+      [ "BM_STATE_WAIT_ROOK", "game__board__machine_8h.html#a1523452377d976bbf78cfd0ee36f7dc3a9184f46d5a31d789a5d5187388f96899", null ],
+      [ "BM_STATE_WAIT_PROMO", "game__board__machine_8h.html#a1523452377d976bbf78cfd0ee36f7dc3a60c97becabcd0d221d656c21940c9efe", null ]
+    ] ],
+    [ "board_machine_drop", "game__board__machine_8h.html#aaea6202f41caa7af68df7ccda7ba02f3", null ],
+    [ "board_machine_lift", "game__board__machine_8h.html#a512a1460e1bd89304666ee4ad01dd11c", null ],
+    [ "board_machine_on_capture_victim_lifted", "game__board__machine_8h.html#a60305e0d058315289627015a689994b8", null ],
+    [ "board_machine_on_castle_king_applied", "game__board__machine_8h.html#a433767a38aab74975fa920c93b049019", null ],
+    [ "board_machine_on_promo_pawn_applied", "game__board__machine_8h.html#a017b44cf2ababee950a7a8d633e19662", null ],
+    [ "board_machine_reset", "game__board__machine_8h.html#a810a3fb8dc8bb43a9a909bee16b6f31b", null ],
+    [ "game_board_machine", "game__board__machine_8h.html#a6cfc34dcf7e5d6e5748ffc02677dda7a", null ],
+    [ "game_board_set_piece_lifted", "game__board__machine_8h.html#a7be73b6ffa7faac6308ccb5f3e0eaa62", null ],
+    [ "capture_in_progress", "game__board__machine_8h.html#af4bc372309f4e974d802cf688aaff7c9", null ],
+    [ "capture_removed_piece", "game__board__machine_8h.html#a92739d92c8ffef161535f16fee1bbf44", null ],
+    [ "capture_target_col", "game__board__machine_8h.html#ac8abc30efd1065ba3e0ad3378ddedafe", null ],
+    [ "capture_target_row", "game__board__machine_8h.html#acf3c29e0755d9839817e37766abf0841", null ],
+    [ "castle_animation_active", "game__board__machine_8h.html#a7fab2e1c6f61a44564d0c595da75dc05", null ],
+    [ "castling_state", "game__board__machine_8h.html#a78f8e370f447d9c7ebea62679a5ad0c5", null ],
+    [ "guided_capture_state", "game__board__machine_8h.html#a1dde824f085a5aeb5d38891ebd71496b", null ],
+    [ "lifted_piece", "game__board__machine_8h.html#a39ddf6298a44867b27f8f0672eee5c96", null ],
+    [ "lifted_piece_col", "game__board__machine_8h.html#ac6b4fa04af83701dd9196051e02d67f2", null ],
+    [ "lifted_piece_row", "game__board__machine_8h.html#a879607e096b78cf354a1c67cd43b010a", null ],
+    [ "opponent_current_col", "game__board__machine_8h.html#aeb8179882039bb317d2467c1954ecf27", null ],
+    [ "opponent_current_row", "game__board__machine_8h.html#a5ad5daaa132c46754e7718518aac40fd", null ],
+    [ "opponent_original_col", "game__board__machine_8h.html#a83b693be32848ae61a88d70f0c1eb629", null ],
+    [ "opponent_original_row", "game__board__machine_8h.html#ae11c7fc1300aa53228b21f38059bda32", null ],
+    [ "opponent_piece_moved", "game__board__machine_8h.html#a43cb8f21829cb4cc35a7335fdf1465c1", null ],
+    [ "opponent_piece_type", "game__board__machine_8h.html#a229b05a8e7118cfca7f6bec35c02334b", null ],
+    [ "piece_lifted", "game__board__machine_8h.html#af81491a006e7a193e8fd657043851221", null ],
+    [ "rook_from_col", "game__board__machine_8h.html#aaf08ecb764a4aa8e2ce3d75d9bcf58f2", null ],
+    [ "rook_from_row", "game__board__machine_8h.html#a2e655fa25f4bbdd873eabad03e266985", null ],
+    [ "rook_to_col", "game__board__machine_8h.html#a802ed5327f737b0304fbc1809d0aac8f", null ],
+    [ "rook_to_row", "game__board__machine_8h.html#ad71601a1741c8dcb2c45992ebfc373b0", null ]
+];

@@ -6,7 +6,13 @@ var web__server__task_8h =
       [ "WEB_CMD_GET_STATUS", "web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684aeb03bffc76583b8d76e33a9e964003b0", null ],
       [ "WEB_CMD_SET_CONFIG", "web__server__task_8h.html#a2c7befe5d1c5ab38fe478aae4ae86684a6f0d3db11bea649d9b2921e7aee9dc92", null ]
     ] ],
+    [ "cmd_wire_correlation_id", "web__server__task_8h.html#aad6d6a8d2694b5434a5c82be05c3d0e8", null ],
+    [ "cmd_wire_json_u32", "web__server__task_8h.html#a072e2e55aaf25470a22bd470dfb0eadd", null ],
+    [ "cmd_wire_note_dispatch_result", "web__server__task_8h.html#a134871ab3287ab3cce070104d0d7b125", null ],
+    [ "cmd_wire_notify_with_id", "web__server__task_8h.html#a75eac7e4450dc1a2df0b5972d38944cd", null ],
+    [ "cmd_wire_on_ble_disconnect", "web__server__task_8h.html#a000623307c12ecd5f950006a589b916f", null ],
     [ "czechmate_mdns_copy_hostname", "web__server__task_8h.html#acc4474b4d2d4f4b15ed11b6c98144000", null ],
+    [ "web_game_on_client_drop", "web__server__task_8h.html#a886c507d8dbc724f36c79de306cf7fb5", null ],
     [ "web_is_locked", "web__server__task_8h.html#add53c7f34376bb856c868cab6321070b", null ],
     [ "web_lock_load_from_nvs", "web__server__task_8h.html#afd6d2236bd4fcbbe7ccbbb0e7b4a71de", null ],
     [ "web_lock_set", "web__server__task_8h.html#a325753fb6460ffaa94c0c32237c8e7e1", null ],

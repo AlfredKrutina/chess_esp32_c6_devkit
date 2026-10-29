@@ -104,6 +104,7 @@ $(document).ready(function(){initNavTree('chess__types_8h.html',''); initResizab
 <div class="textblock"><code>#include &quot;esp_err.h&quot;</code><br />
 <code>#include &quot;freertos/FreeRTOS.h&quot;</code><br />
 <code>#include &quot;freertos/queue.h&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__cmd_8h_source.html">game_cmd.h</a>&quot;</code><br />
 <code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stdint.h&gt;</code><br />
 </div><div class="textblock"><div class="dynheader">
@@ -111,17 +112,22 @@ Include dependency graph for chess_types.h:</div>
 <div class="dyncontent">
 <div class="center"><img src="chess__types_8h__incl.png" border="0" usemap="#achess__types_8h" alt=""/></div>
 <map name="achess__types_8h" id="achess__types_8h">
-<area shape="rect" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="293,5,407,31"/>
+<area shape="rect" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="203,5,318,31"/>
 <area shape="rect" title=" " alt="" coords="5,79,87,104"/>
-<area shape="poly" title=" " alt="" coords="302,33,101,80,99,75,301,28"/>
-<area shape="rect" title=" " alt="" coords="111,79,261,104"/>
-<area shape="poly" title=" " alt="" coords="325,33,226,76,224,71,323,28"/>
-<area shape="rect" title=" " alt="" coords="285,79,415,104"/>
-<area shape="poly" title=" " alt="" coords="353,31,353,65,347,65,347,31"/>
-<area shape="rect" title=" " alt="" coords="439,79,522,104"/>
-<area shape="poly" title=" " alt="" coords="372,28,449,70,446,74,370,33"/>
-<area shape="rect" title=" " alt="" coords="547,79,617,104"/>
-<area shape="poly" title=" " alt="" coords="388,28,534,73,533,78,386,33"/>
+<area shape="poly" title=" " alt="" coords="227,33,95,77,93,72,225,28"/>
+<area shape="rect" title=" " alt="" coords="21,152,172,177"/>
+<area shape="poly" title=" " alt="" coords="231,33,191,53,152,81,128,110,110,140,105,138,123,107,148,77,188,48,229,28"/>
+<area shape="rect" title=" " alt="" coords="196,152,325,177"/>
+<area shape="poly" title=" " alt="" coords="269,30,280,63,284,83,283,104,273,140,268,139,278,104,279,84,275,64,264,32"/>
+<area shape="rect" href="game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="162,79,269,104"/>
+<area shape="poly" title=" " alt="" coords="255,32,232,69,228,66,251,30"/>
+<area shape="rect" title=" " alt="" coords="349,152,420,177"/>
+<area shape="poly" title=" " alt="" coords="273,29,368,140,364,143,269,33"/>
+<area shape="rect" title=" " alt="" coords="394,79,477,104"/>
+<area shape="poly" title=" " alt="" coords="290,28,395,71,393,76,288,33"/>
+<area shape="poly" title=" " alt="" coords="198,106,129,147,127,142,195,102"/>
+<area shape="poly" title=" " alt="" coords="225,103,248,139,244,142,221,106"/>
+<area shape="poly" title=" " alt="" coords="244,102,345,144,343,149,242,106"/>
 </map>
 </div>
 </div>
@@ -134,9 +140,6 @@ Data Structures</h2></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__move__extended__t.html">chess_move_extended_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Expanded move structure for complete chess logic.  <a href="structchess__move__extended__t.html#details">More...</a><br /></td></tr>
-<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structchess__move__command__t.html">chess_move_command_t</a></td></tr>
-<tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Command structure for sach move via UART.  <a href="structchess__move__command__t.html#details">More...</a><br /></td></tr>
 <tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structgame__response__t.html">game_response_t</a></td></tr>
 <tr class="memdesc:"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game response structure for UART communication.  <a href="structgame__response__t.html#details">More...</a><br /></td></tr>
@@ -165,15 +168,6 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a81dc29d9334f7dd8085dc98118ef2a30" id="r_a81dc29d9334f7dd8085dc98118ef2a30"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a81dc29d9334f7dd8085dc98118ef2a30">GAME_RESIGN_SIDE_TO_MOVE</a>&#160;&#160;&#160;0U</td></tr>
-<tr class="memdesc:a81dc29d9334f7dd8085dc98118ef2a30"><td class="mdescLeft">&#160;</td><td class="mdescRight">GAME_CMD_RESIGN promotion_choice: who the sender expects to be on move.  <br /></td></tr>
-<tr class="separator:a81dc29d9334f7dd8085dc98118ef2a30"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a59038f396e102d9e935b1c13c1815d79" id="r_a59038f396e102d9e935b1c13c1815d79"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a59038f396e102d9e935b1c13c1815d79">GAME_RESIGN_SIDE_WHITE</a>&#160;&#160;&#160;1U</td></tr>
-<tr class="memdesc:a59038f396e102d9e935b1c13c1815d79"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refuse unless White is on move.  <br /></td></tr>
-<tr class="separator:a59038f396e102d9e935b1c13c1815d79"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ac6915333079ba1a0516743117e175f34" id="r_ac6915333079ba1a0516743117e175f34"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#ac6915333079ba1a0516743117e175f34">GAME_RESIGN_SIDE_BLACK</a>&#160;&#160;&#160;2U</td></tr>
-<tr class="memdesc:ac6915333079ba1a0516743117e175f34"><td class="mdescLeft">&#160;</td><td class="mdescRight">Refuse unless Black is on move.  <br /></td></tr>
-<tr class="separator:ac6915333079ba1a0516743117e175f34"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a490b67efe5e74def79831ae40041f654" id="r_a490b67efe5e74def79831ae40041f654"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a490b67efe5e74def79831ae40041f654">CHESS_LED_COUNT_BOARD</a>&#160;&#160;&#160;64</td></tr>
 <tr class="memdesc:a490b67efe5e74def79831ae40041f654"><td class="mdescLeft">&#160;</td><td class="mdescRight">Number of LEDs for the box (8x8 = 64)  <br /></td></tr>
 <tr class="separator:a490b67efe5e74def79831ae40041f654"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -303,75 +297,6 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr class="memdesc:a049445f8ca6e7d0daf13a256e4375576"><td class="mdescLeft">&#160;</td><td class="mdescRight">Move types for extended sach logic.  <a href="chess__types_8h.html#a049445f8ca6e7d0daf13a256e4375576">More...</a><br /></td></tr>
 <tr class="separator:a049445f8ca6e7d0daf13a256e4375576"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ade7744437207164be6ca650b128bd9e4" id="r_ade7744437207164be6ca650b128bd9e4"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4">game_command_type_t</a> { <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0">GAME_CMD_NEW_GAME</a> = 0
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afa32272119e942c6d9ecf8e41d53e0e0">GAME_CMD_RESET_GAME</a> = 1
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a4f5010e7796f733431849acc8175fdbe">GAME_CMD_MAKE_MOVE</a> = 2
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a982ea3a5c5efd162ad30ebb49ca51216">GAME_CMD_UNDO_MOVE</a> = 3
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ad280705c3d4a5140b36a1ed9bf9d0d45">GAME_CMD_GET_STATUS</a> = 4
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ac834cfe65957284eaf2fc08fb85f82c1">GAME_CMD_GET_BOARD</a> = 5
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a605e6b57d3beaf8791ef5fdb55b4eb8c">GAME_CMD_GET_VALID_MOVES</a> = 6
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ac645ae7fb45f72e070133d0486796614">GAME_CMD_PICKUP_PIECE</a> = 7
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ab7951fcd18e6890d22362a1ab5e2c264">GAME_CMD_DROP_PIECE</a> = 8
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a555e98c01f0511c7d341e43169c820da">GAME_CMD_PROMOTION</a> = 9
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aac9a76d6ee39f51d9053539f833fa9e7">GAME_CMD_MOVE</a> = 10
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a4beaa7c5ed6b0fe21e26bd42e5b7212f">GAME_CMD_SHOW_BOARD</a> = 11
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892">GAME_CMD_PICKUP</a> = 12
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102">GAME_CMD_DROP</a> = 13
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a154ca18e7adccc46914b5716a7d720d9">GAME_CMD_GET_HISTORY</a> = 14
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a5bd7b3ab11b01c056e66c73f3f16ccd7">GAME_CMD_DEBUG_INFO</a> = 15
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a52a8afc72ca379bd08e7b0796c35f92c">GAME_CMD_DEBUG_BOARD</a> = 16
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4acb7c84980c90b6f63746d28c96046913">GAME_CMD_EVALUATE</a> = 17
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a3161112d062f6a357e99eb9bf11cb44b">GAME_CMD_SAVE</a> = 18
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aee4f4884065227d8f092688459822142">GAME_CMD_LOAD</a> = 19
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ab8bc2ab1bed58cfad662329a579bbc03">GAME_CMD_RESERVED_SLOT_20</a> = 20
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ad4ee83d72efd15438c23da18cef27702">GAME_CMD_CASTLE</a> = 21
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afc983203f792a050205d8e7c320a57a0">GAME_CMD_PROMOTE</a> = 22
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a1049ce6ea8c65578b4a23f3ddb587725">GAME_CMD_COMPONENT_OFF</a> = 23
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae7a0a5eaed97f55f06722787f7c8e653">GAME_CMD_COMPONENT_ON</a> = 24
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a6fcaa25e964049b2db00af284ec8e02d">GAME_CMD_ENDGAME_WHITE</a> = 25
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afc04543eb95bbf50a58afcd3fd75e977">GAME_CMD_ENDGAME_BLACK</a> = 26
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a476e5fbe5ef283560d72a139725a2f65">GAME_CMD_LIST_GAMES</a> = 27
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ac25c5694beb04bb57b2167c15813cf6d">GAME_CMD_DELETE_GAME</a> = 28
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a0f27b5a8f5a2258a2ed7f623666d79f8">GAME_CMD_RESERVED_SLOT_29</a> = 29
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ad03f8d3baafcac16fa47ad548188c867">GAME_CMD_RESERVED_SLOT_30</a> = 30
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a411ad479086cc92829a2781eafc0244e">GAME_CMD_RESERVED_SLOT_31</a> = 31
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ab39fccde275812aa7e9f3df3d459d3bc">GAME_CMD_RESERVED_SLOT_32</a> = 32
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a4df6d159b32b16a21a371bf19c195d56">GAME_CMD_TEST_MOVE_ANIM</a> = 33
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a6cd41ae730de32de23029864ab1ece8a">GAME_CMD_TEST_PLAYER_ANIM</a> = 34
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a4f003c07c6a984387da799f3be48acac">GAME_CMD_TEST_CASTLE_ANIM</a> = 35
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a0787063d7206bb845726e1b029bd0fce">GAME_CMD_TEST_PROMOTE_ANIM</a> = 36
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4af524d161e2c33943da0a59805c227e2a">GAME_CMD_TEST_ENDGAME_ANIM</a> = 37
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aa2309d8e560fce089e0d74ef3dbc65b8">GAME_CMD_RESERVED_SLOT_38</a> = 38
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003">GAME_CMD_SET_TIME_CONTROL</a> = 39
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659">GAME_CMD_PAUSE_TIMER</a> = 40
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a">GAME_CMD_RESUME_TIMER</a> = 41
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d">GAME_CMD_RESET_TIMER</a> = 42
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2">GAME_CMD_GET_TIMER_STATE</a> = 43
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534">GAME_CMD_TIMER_TIMEOUT</a> = 44
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a97c0f8e55faff7efd857fa68b0ffeebf">GAME_CMD_SQUARES_GUARD</a> = 45
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b">GAME_CMD_BOARD_SETUP_TUTORIAL</a>
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0">GAME_CMD_PUZZLE</a>
-, <br />
-&#160;&#160;<a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b">GAME_CMD_NEW_GAME_FROM_FEN</a>
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72">GAME_CMD_OPENING_TRAINER</a>
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8">GAME_CMD_RESIGN</a>
-, <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4ac86cca917f5ac743a9ea5d43d335e0bc">GAME_CMD_DRAW</a> = 51
-<br />
- }</td></tr>
-<tr class="memdesc:ade7744437207164be6ca650b128bd9e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Game command types for UART communication.  <a href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4">More...</a><br /></td></tr>
-<tr class="separator:ade7744437207164be6ca650b128bd9e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a03211d5ca1b7406c1cb6ab6851e79502" id="r_a03211d5ca1b7406c1cb6ab6851e79502"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502">game_response_type_t</a> { <br />
 &#160;&#160;<a class="el" href="chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502a422f73724b8ecc76f312621fb868805d">GAME_RESPONSE_SUCCESS</a> = 0
 , <a class="el" href="chess__types_8h.html#a03211d5ca1b7406c1cb6ab6851e79502a39ae193ecb15c805e19efa3c004cda8b">GAME_RESPONSE_ERROR</a> = 1
@@ -520,7 +445,7 @@ Functions</h2></td></tr>
 <li>Players (player_t)</li>
 <li>Move and error types (move_error_t)</li>
 <li>Structures for moves (<a class="el" href="structchess__move__t.html" title="The basic structure of a sach move.">chess_move_t</a>, <a class="el" href="structchess__move__extended__t.html" title="Expanded move structure for complete chess logic.">chess_move_extended_t</a>)</li>
-<li>Commands and responses (game_command_type_t, <a class="el" href="structgame__response__t.html" title="Game response structure for UART communication.">game_response_t</a>)</li>
+<li>Commands (<a class="el" href="game__cmd_8h.html" title="Tagged game command queued by game_submit.">game_cmd.h</a>) and responses (<a class="el" href="structgame__response__t.html" title="Game response structure for UART communication.">game_response_t</a>)</li>
 <li>LED commands and events</li>
 <li>Button and event matrix</li>
 <li>System configuration </li>
@@ -542,7 +467,7 @@ Functions</h2></td></tr>
 
 <p>Number of buttons in the system (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00594">594</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00459">459</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -560,7 +485,7 @@ Functions</h2></td></tr>
 
 <p>Celkovy pocet LED v systemu (alias pro CHESS_LED_COUNT_TOTAL) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00590">590</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00455">455</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -578,7 +503,7 @@ Functions</h2></td></tr>
 
 <p>Number of LEDs for the box (8x8 = 64) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00584">584</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00449">449</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -596,7 +521,7 @@ Functions</h2></td></tr>
 
 <p>Number of LEDs for buttons (8 promotion + 1 reset = 9) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00586">586</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00451">451</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -614,7 +539,7 @@ Functions</h2></td></tr>
 
 <p>Total number of LEDs (64 boxes + 9 buttons = 73) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00588">588</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00453">453</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -632,62 +557,7 @@ Functions</h2></td></tr>
 
 <p>Velikost matrix (8x8 = 64 poli) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00598">598</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
-
-</div>
-</div>
-<a id="ac6915333079ba1a0516743117e175f34" name="ac6915333079ba1a0516743117e175f34"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ac6915333079ba1a0516743117e175f34">&#9670;&#160;</a></span>GAME_RESIGN_SIDE_BLACK</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define GAME_RESIGN_SIDE_BLACK&#160;&#160;&#160;2U</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Refuse unless Black is on move. </p>
-
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00311">311</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
-
-</div>
-</div>
-<a id="a81dc29d9334f7dd8085dc98118ef2a30" name="a81dc29d9334f7dd8085dc98118ef2a30"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a81dc29d9334f7dd8085dc98118ef2a30">&#9670;&#160;</a></span>GAME_RESIGN_SIDE_TO_MOVE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define GAME_RESIGN_SIDE_TO_MOVE&#160;&#160;&#160;0U</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>GAME_CMD_RESIGN promotion_choice: who the sender expects to be on move. </p>
-<p>Resign whoever is on move </p>
-
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00309">309</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
-
-</div>
-</div>
-<a id="a59038f396e102d9e935b1c13c1815d79" name="a59038f396e102d9e935b1c13c1815d79"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a59038f396e102d9e935b1c13c1815d79">&#9670;&#160;</a></span>GAME_RESIGN_SIDE_WHITE</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">#define GAME_RESIGN_SIDE_WHITE&#160;&#160;&#160;1U</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Refuse unless White is on move. </p>
-
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00310">310</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00463">463</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -705,7 +575,7 @@ Functions</h2></td></tr>
 
 <p>Maximum number of moves in history (200 moves) </p>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00602">602</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00467">467</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -735,132 +605,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00500">500</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
-
-</div>
-</div>
-<a id="ade7744437207164be6ca650b128bd9e4" name="ade7744437207164be6ca650b128bd9e4"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ade7744437207164be6ca650b128bd9e4">&#9670;&#160;</a></span>game_command_type_t</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">enum <a class="el" href="chess__types_8h.html#ade7744437207164be6ca650b128bd9e4">game_command_type_t</a></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>Game command types for UART communication. </p>
-<p>A complete list of all commands that can be sent to the game task via the queue. Used for game control, debugging, testing and system administration. </p>
-<table class="fieldtable">
-<tr><th colspan="2">Enumerator</th></tr><tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0" name="ade7744437207164be6ca650b128bd9e4a9cdd3824f45d61a774ab6868e898e1c0"></a>GAME_CMD_NEW_GAME&#160;</td><td class="fielddoc"><p>New game; board and NVS key reset (see main initialize_chess_game) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4afa32272119e942c6d9ecf8e41d53e0e0" name="ade7744437207164be6ca650b128bd9e4afa32272119e942c6d9ecf8e41d53e0e0"></a>GAME_CMD_RESET_GAME&#160;</td><td class="fielddoc"><p>Reset hry (vrati se na zacatek) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a4f5010e7796f733431849acc8175fdbe" name="ade7744437207164be6ca650b128bd9e4a4f5010e7796f733431849acc8175fdbe"></a>GAME_CMD_MAKE_MOVE&#160;</td><td class="fielddoc"><p>Perform move (move e2e4) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a982ea3a5c5efd162ad30ebb49ca51216" name="ade7744437207164be6ca650b128bd9e4a982ea3a5c5efd162ad30ebb49ca51216"></a>GAME_CMD_UNDO_MOVE&#160;</td><td class="fielddoc"><p>Vrat zpet posledni tah (undo) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ad280705c3d4a5140b36a1ed9bf9d0d45" name="ade7744437207164be6ca650b128bd9e4ad280705c3d4a5140b36a1ed9bf9d0d45"></a>GAME_CMD_GET_STATUS&#160;</td><td class="fielddoc"><p>Get game state (status) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ac834cfe65957284eaf2fc08fb85f82c1" name="ade7744437207164be6ca650b128bd9e4ac834cfe65957284eaf2fc08fb85f82c1"></a>GAME_CMD_GET_BOARD&#160;</td><td class="fielddoc"><p>Get current position (board) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a605e6b57d3beaf8791ef5fdb55b4eb8c" name="ade7744437207164be6ca650b128bd9e4a605e6b57d3beaf8791ef5fdb55b4eb8c"></a>GAME_CMD_GET_VALID_MOVES&#160;</td><td class="fielddoc"><p>Get valid moves for a figure. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ac645ae7fb45f72e070133d0486796614" name="ade7744437207164be6ca650b128bd9e4ac645ae7fb45f72e070133d0486796614"></a>GAME_CMD_PICKUP_PIECE&#160;</td><td class="fielddoc"><p>Pickup. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ab7951fcd18e6890d22362a1ab5e2c264" name="ade7744437207164be6ca650b128bd9e4ab7951fcd18e6890d22362a1ab5e2c264"></a>GAME_CMD_DROP_PIECE&#160;</td><td class="fielddoc"><p>Drop. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a555e98c01f0511c7d341e43169c820da" name="ade7744437207164be6ca650b128bd9e4a555e98c01f0511c7d341e43169c820da"></a>GAME_CMD_PROMOTION&#160;</td><td class="fielddoc"><p>Promoc pescu (promotion) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4aac9a76d6ee39f51d9053539f833fa9e7" name="ade7744437207164be6ca650b128bd9e4aac9a76d6ee39f51d9053539f833fa9e7"></a>GAME_CMD_MOVE&#160;</td><td class="fielddoc"><p>Tah (move) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a4beaa7c5ed6b0fe21e26bd42e5b7212f" name="ade7744437207164be6ca650b128bd9e4a4beaa7c5ed6b0fe21e26bd42e5b7212f"></a>GAME_CMD_SHOW_BOARD&#160;</td><td class="fielddoc"><p>Display the board. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892" name="ade7744437207164be6ca650b128bd9e4a745816733d012d70b4bda9d2fdac7892"></a>GAME_CMD_PICKUP&#160;</td><td class="fielddoc"><p>UP command - figure raised. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102" name="ade7744437207164be6ca650b128bd9e4aecfd44979b16dd3a0a3054c1eeda3102"></a>GAME_CMD_DROP&#160;</td><td class="fielddoc"><p>DN display - figure placed. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a154ca18e7adccc46914b5716a7d720d9" name="ade7744437207164be6ca650b128bd9e4a154ca18e7adccc46914b5716a7d720d9"></a>GAME_CMD_GET_HISTORY&#160;</td><td class="fielddoc"><p>Get move history. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a5bd7b3ab11b01c056e66c73f3f16ccd7" name="ade7744437207164be6ca650b128bd9e4a5bd7b3ab11b01c056e66c73f3f16ccd7"></a>GAME_CMD_DEBUG_INFO&#160;</td><td class="fielddoc"><p>Debug informace o hre. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a52a8afc72ca379bd08e7b0796c35f92c" name="ade7744437207164be6ca650b128bd9e4a52a8afc72ca379bd08e7b0796c35f92c"></a>GAME_CMD_DEBUG_BOARD&#160;</td><td class="fielddoc"><p>Debug inbox information. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4acb7c84980c90b6f63746d28c96046913" name="ade7744437207164be6ca650b128bd9e4acb7c84980c90b6f63746d28c96046913"></a>GAME_CMD_EVALUATE&#160;</td><td class="fielddoc"><p>Position evaluation (evaluated) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a3161112d062f6a357e99eb9bf11cb44b" name="ade7744437207164be6ca650b128bd9e4a3161112d062f6a357e99eb9bf11cb44b"></a>GAME_CMD_SAVE&#160;</td><td class="fielddoc"><p>Save the game to memory. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4aee4f4884065227d8f092688459822142" name="ade7744437207164be6ca650b128bd9e4aee4f4884065227d8f092688459822142"></a>GAME_CMD_LOAD&#160;</td><td class="fielddoc"><p>Load the game from memory. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ab8bc2ab1bed58cfad662329a579bbc03" name="ade7744437207164be6ca650b128bd9e4ab8bc2ab1bed58cfad662329a579bbc03"></a>GAME_CMD_RESERVED_SLOT_20&#160;</td><td class="fielddoc"><p>Rezervovano (legacy slot) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ad4ee83d72efd15438c23da18cef27702" name="ade7744437207164be6ca650b128bd9e4ad4ee83d72efd15438c23da18cef27702"></a>GAME_CMD_CASTLE&#160;</td><td class="fielddoc"><p>Castling (castle) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4afc983203f792a050205d8e7c320a57a0" name="ade7744437207164be6ca650b128bd9e4afc983203f792a050205d8e7c320a57a0"></a>GAME_CMD_PROMOTE&#160;</td><td class="fielddoc"><p>Promotion of pesca (promote) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a1049ce6ea8c65578b4a23f3ddb587725" name="ade7744437207164be6ca650b128bd9e4a1049ce6ea8c65578b4a23f3ddb587725"></a>GAME_CMD_COMPONENT_OFF&#160;</td><td class="fielddoc"><p>Vypni komponentu (off) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ae7a0a5eaed97f55f06722787f7c8e653" name="ade7744437207164be6ca650b128bd9e4ae7a0a5eaed97f55f06722787f7c8e653"></a>GAME_CMD_COMPONENT_ON&#160;</td><td class="fielddoc"><p>Zapni komponentu (on) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a6fcaa25e964049b2db00af284ec8e02d" name="ade7744437207164be6ca650b128bd9e4a6fcaa25e964049b2db00af284ec8e02d"></a>GAME_CMD_ENDGAME_WHITE&#160;</td><td class="fielddoc"><p>Konec hry - bily vitezi. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4afc04543eb95bbf50a58afcd3fd75e977" name="ade7744437207164be6ca650b128bd9e4afc04543eb95bbf50a58afcd3fd75e977"></a>GAME_CMD_ENDGAME_BLACK&#160;</td><td class="fielddoc"><p>Konec hry - cerny vitezi. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a476e5fbe5ef283560d72a139725a2f65" name="ade7744437207164be6ca650b128bd9e4a476e5fbe5ef283560d72a139725a2f65"></a>GAME_CMD_LIST_GAMES&#160;</td><td class="fielddoc"><p>List of saved games. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ac25c5694beb04bb57b2167c15813cf6d" name="ade7744437207164be6ca650b128bd9e4ac25c5694beb04bb57b2167c15813cf6d"></a>GAME_CMD_DELETE_GAME&#160;</td><td class="fielddoc"><p>Delete saved game. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a0f27b5a8f5a2258a2ed7f623666d79f8" name="ade7744437207164be6ca650b128bd9e4a0f27b5a8f5a2258a2ed7f623666d79f8"></a>GAME_CMD_RESERVED_SLOT_29&#160;</td><td class="fielddoc"><p>Rezervovano (legacy slot) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ad03f8d3baafcac16fa47ad548188c867" name="ade7744437207164be6ca650b128bd9e4ad03f8d3baafcac16fa47ad548188c867"></a>GAME_CMD_RESERVED_SLOT_30&#160;</td><td class="fielddoc"><p>Rezervovano (legacy slot) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a411ad479086cc92829a2781eafc0244e" name="ade7744437207164be6ca650b128bd9e4a411ad479086cc92829a2781eafc0244e"></a>GAME_CMD_RESERVED_SLOT_31&#160;</td><td class="fielddoc"><p>Rezervovano (legacy slot) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ab39fccde275812aa7e9f3df3d459d3bc" name="ade7744437207164be6ca650b128bd9e4ab39fccde275812aa7e9f3df3d459d3bc"></a>GAME_CMD_RESERVED_SLOT_32&#160;</td><td class="fielddoc"><p>Rezervovano (legacy slot) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a4df6d159b32b16a21a371bf19c195d56" name="ade7744437207164be6ca650b128bd9e4a4df6d159b32b16a21a371bf19c195d56"></a>GAME_CMD_TEST_MOVE_ANIM&#160;</td><td class="fielddoc"><p>Pull animation test. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a6cd41ae730de32de23029864ab1ece8a" name="ade7744437207164be6ca650b128bd9e4a6cd41ae730de32de23029864ab1ece8a"></a>GAME_CMD_TEST_PLAYER_ANIM&#160;</td><td class="fielddoc"><p>Game change animation test. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a4f003c07c6a984387da799f3be48acac" name="ade7744437207164be6ca650b128bd9e4a4f003c07c6a984387da799f3be48acac"></a>GAME_CMD_TEST_CASTLE_ANIM&#160;</td><td class="fielddoc"><p>Test animace rosady. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a0787063d7206bb845726e1b029bd0fce" name="ade7744437207164be6ca650b128bd9e4a0787063d7206bb845726e1b029bd0fce"></a>GAME_CMD_TEST_PROMOTE_ANIM&#160;</td><td class="fielddoc"><p>Graduation animation test. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4af524d161e2c33943da0a59805c227e2a" name="ade7744437207164be6ca650b128bd9e4af524d161e2c33943da0a59805c227e2a"></a>GAME_CMD_TEST_ENDGAME_ANIM&#160;</td><td class="fielddoc"><p>Test animace konce hry. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4aa2309d8e560fce089e0d74ef3dbc65b8" name="ade7744437207164be6ca650b128bd9e4aa2309d8e560fce089e0d74ef3dbc65b8"></a>GAME_CMD_RESERVED_SLOT_38&#160;</td><td class="fielddoc"><p>Rezervovano (legacy slot) </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003" name="ade7744437207164be6ca650b128bd9e4a0ba09395c8b55913ce75adb28ac19003"></a>GAME_CMD_SET_TIME_CONTROL&#160;</td><td class="fielddoc"><p>Nastav casovou kontrolu. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659" name="ade7744437207164be6ca650b128bd9e4a04714aa90de7f3ace2585fe01cf67659"></a>GAME_CMD_PAUSE_TIMER&#160;</td><td class="fielddoc"><p>Pozastav timer. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a" name="ade7744437207164be6ca650b128bd9e4a19a04a30f9a17d5a85cd43db2b1e298a"></a>GAME_CMD_RESUME_TIMER&#160;</td><td class="fielddoc"><p>Obnov timer. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d" name="ade7744437207164be6ca650b128bd9e4aee7fca1d1758d39255d3b023f569313d"></a>GAME_CMD_RESET_TIMER&#160;</td><td class="fielddoc"><p>Resetuj timer. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2" name="ade7744437207164be6ca650b128bd9e4ae152c62fc7eae57cbf8fc14a3ff749e2"></a>GAME_CMD_GET_TIMER_STATE&#160;</td><td class="fielddoc"><p>Ziskej stav timeru. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534" name="ade7744437207164be6ca650b128bd9e4a1963a76107560b25595a00d47b103534"></a>GAME_CMD_TIMER_TIMEOUT&#160;</td><td class="fielddoc"><p>Vyprseni casoveho limitu. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a97c0f8e55faff7efd857fa68b0ffeebf" name="ade7744437207164be6ca650b128bd9e4a97c0f8e55faff7efd857fa68b0ffeebf"></a>GAME_CMD_SQUARES_GUARD&#160;</td><td class="fielddoc"><p>Guard rezim pro multi-lift anomalii. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b" name="ade7744437207164be6ca650b128bd9e4ae67a6e9134f952ef77a6bb82290fb33b"></a>GAME_CMD_BOARD_SETUP_TUTORIAL&#160;</td><td class="fielddoc"><p>Web tutorial setup; promotion_choice: 0=start,1=cancel,2=finish. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0" name="ade7744437207164be6ca650b128bd9e4afd192d37892d68ffdb03f937e72914f0"></a>GAME_CMD_PUZZLE&#160;</td><td class="fielddoc"><p>Puzzle: 0=cancel, 1..5=start builtin, 101..105=prepare builtin, 210=apply staged setup, 211=start staged line. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b" name="ade7744437207164be6ca650b128bd9e4a72756f01ca729bd156199be725f62e6b"></a>GAME_CMD_NEW_GAME_FROM_FEN&#160;</td><td class="fielddoc"><p>New game from FEN (placement, side, optional rights); timer_data.fen_new_game. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72" name="ade7744437207164be6ca650b128bd9e4a9bfcf85f4da573a4e2adbfb548500b72"></a>GAME_CMD_OPENING_TRAINER&#160;</td><td class="fielddoc"><p>Opening trainer: promotion_choice 0=cancel,1=start,2=hint,3=checkpoint_ack. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8" name="ade7744437207164be6ca650b128bd9e4a19cceb5f23c852496f04e62fed59ebf8"></a>GAME_CMD_RESIGN&#160;</td><td class="fielddoc"><p>Resign from app (same end path as king lift); promotion_choice = GAME_RESIGN_SIDE_*. </p>
-</td></tr>
-<tr><td class="fieldname"><a id="ade7744437207164be6ca650b128bd9e4ac86cca917f5ac743a9ea5d43d335e0bc" name="ade7744437207164be6ca650b128bd9e4ac86cca917f5ac743a9ea5d43d335e0bc"></a>GAME_CMD_DRAW&#160;</td><td class="fielddoc"><p>Agreed draw while a game is running. </p>
-</td></tr>
-</table>
-
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00231">231</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00365">365</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -897,7 +642,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00363">363</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00229">229</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -932,7 +677,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00107">107</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00108">108</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -975,7 +720,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00078">78</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00079">79</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1098,7 +843,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00401">401</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00266">266</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1159,7 +904,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00123">123</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00124">124</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1192,7 +937,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00190">190</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00191">191</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1239,7 +984,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00050">50</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00051">51</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1264,7 +1009,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00097">97</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00098">98</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1293,7 +1038,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00158">158</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00159">159</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1326,7 +1071,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00559">559</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00424">424</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1355,7 +1100,7 @@ Functions</h2></td></tr>
 </td></tr>
 </table>
 
-<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00530">530</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="chess__types_8h_source.html#l00395">395</a> of file <a class="el" href="chess__types_8h_source.html">chess_types.h</a>.</p>
 
 </div>
 </div>
@@ -1511,7 +1256,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if insufficient material (draw)</dd></dl>
 <p>Check if piece belongs to opponent </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__detect_8c_source.html#l00097">97</a> of file <a class="el" href="game__endgame__detect_8c_source.html">game_endgame_detect.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__detect_8c_source.html#l00101">101</a> of file <a class="el" href="game__endgame__detect_8c_source.html">game_endgame_detect.c</a>.</p>
 
 </div>
 </div>
@@ -1552,7 +1297,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if the figure is owned</dd></dl>
 <p>Check if the figure is your own (belongs to the current player) </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00076">76</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00052">52</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>
@@ -1593,7 +1338,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if position is valid</dd></dl>
 <p>Verify if the position is valid on the inbox. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00069">69</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00045">45</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>
@@ -1634,7 +1379,7 @@ Functions</h2></td></tr>
 <dl class="section return"><dt>Returns</dt><dd>true if the move would leave the king in check</dd></dl>
 <p>Simulates the move and checks if it would leave the king in check. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00180">180</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__move__gen_8c_source.html#l00156">156</a> of file <a class="el" href="game__move__gen_8c_source.html">game_move_gen.c</a>.</p>
 
 </div>
 </div>

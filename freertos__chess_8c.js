@@ -49,7 +49,6 @@ var freertos__chess_8c =
     [ "freertos_initialized", "freertos__chess_8c.html#a32091f1b25b0412e3f75b7fb3dff4b90", null ],
     [ "game_command_queue", "freertos__chess_8c.html#a4ed770cbe46604586e494bae84b62304", null ],
     [ "game_mutex", "freertos__chess_8c.html#af5298ceb88597b4b25328ac7e1af7ff0", null ],
-    [ "game_status_queue", "freertos__chess_8c.html#a6dfc9956f36db9a85a34268c6e14b059", null ],
     [ "hardware_initialized", "freertos__chess_8c.html#ae37ba709842162d9a8328959d0cb0e05", null ],
     [ "led_mutex", "freertos__chess_8c.html#a864f0cc9b1f2e30bd3c0e225e2c48552", null ],
     [ "led_update_timer", "freertos__chess_8c.html#a9bd4853603c685d45ba49977256c7567", null ],

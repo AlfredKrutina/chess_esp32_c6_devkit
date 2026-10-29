@@ -2,14 +2,17 @@ var searchData=
 [
   ['led_5fboard_5frestore_5fguide_2ec_0',['led_board_restore_guide.c',['../led__board__restore__guide_8c.html',1,'']]],
   ['led_5fboard_5frestore_5fguide_2eh_1',['led_board_restore_guide.h',['../led__board__restore__guide_8h.html',1,'']]],
-  ['led_5fgesture_5fanim_2ec_2',['led_gesture_anim.c',['../led__gesture__anim_8c.html',1,'']]],
-  ['led_5fgesture_5fanim_2eh_3',['led_gesture_anim.h',['../led__gesture__anim_8h.html',1,'']]],
-  ['led_5fmapping_2ec_4',['led_mapping.c',['../led__mapping_8c.html',1,'']]],
-  ['led_5fmapping_2eh_5',['led_mapping.h',['../led__mapping_8h.html',1,'']]],
-  ['led_5fstate_5fmanager_2ec_6',['led_state_manager.c',['../led__state__manager_8c.html',1,'']]],
-  ['led_5fstate_5fmanager_2eh_7',['led_state_manager.h',['../led__state__manager_8h.html',1,'']]],
-  ['led_5ftask_2ec_8',['led_task.c',['../led__task_8c.html',1,'']]],
-  ['led_5ftask_2eh_9',['led_task.h',['../led__task_8h.html',1,'']]],
-  ['led_5ftask_5fsimple_2eh_10',['led_task_simple.h',['../led__task__simple_8h.html',1,'']]],
-  ['led_5funified_5fapi_2eh_11',['led_unified_api.h',['../led__unified__api_8h.html',1,'']]]
+  ['led_5fgame_5fevents_2ec_2',['led_game_events.c',['../led__game__events_8c.html',1,'']]],
+  ['led_5fgesture_5fanim_2ec_3',['led_gesture_anim.c',['../led__gesture__anim_8c.html',1,'']]],
+  ['led_5fgesture_5fanim_2eh_4',['led_gesture_anim.h',['../led__gesture__anim_8h.html',1,'']]],
+  ['led_5fmapping_2ec_5',['led_mapping.c',['../led__mapping_8c.html',1,'']]],
+  ['led_5fmapping_2eh_6',['led_mapping.h',['../led__mapping_8h.html',1,'']]],
+  ['led_5frequired_5fstep_5fguide_2ec_7',['led_required_step_guide.c',['../led__required__step__guide_8c.html',1,'']]],
+  ['led_5frequired_5fstep_5fguide_2eh_8',['led_required_step_guide.h',['../led__required__step__guide_8h.html',1,'']]],
+  ['led_5fstate_5fmanager_2ec_9',['led_state_manager.c',['../led__state__manager_8c.html',1,'']]],
+  ['led_5fstate_5fmanager_2eh_10',['led_state_manager.h',['../led__state__manager_8h.html',1,'']]],
+  ['led_5ftask_2ec_11',['led_task.c',['../led__task_8c.html',1,'']]],
+  ['led_5ftask_2eh_12',['led_task.h',['../led__task_8h.html',1,'']]],
+  ['led_5ftask_5fsimple_2eh_13',['led_task_simple.h',['../led__task__simple_8h.html',1,'']]],
+  ['led_5funified_5fapi_2eh_14',['led_unified_api.h',['../led__unified__api_8h.html',1,'']]]
 ];

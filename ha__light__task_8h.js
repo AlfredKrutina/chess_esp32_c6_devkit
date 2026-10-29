@@ -6,7 +6,6 @@ var ha__light__task_8h =
     [ "HA_CMD_ACTIVITY", "ha__light__task_8h.html#a37f95262744dfba54fee6a96e8c7a453", null ],
     [ "HA_CMD_GAME_FACT", "ha__light__task_8h.html#a82f794d7b9b15d798f865979975ff121", null ],
     [ "HA_CMD_MQTT_STATE", "ha__light__task_8h.html#aeadf419722048a79242345c3cf7938f3", null ],
-    [ "HA_CMD_PATTERN", "ha__light__task_8h.html#a4544118072801a9f36d7fd037edba254", null ],
     [ "HA_CMD_SET_MODE", "ha__light__task_8h.html#ae5f2ed7610f103c4436f4fd4b585fdcb", null ],
     [ "HA_CMD_WEB_LAMP", "ha__light__task_8h.html#a08a1f3e1bf3f29355b526af9058122c0", null ],
     [ "HA_COMPONENT_LIGHT", "ha__light__task_8h.html#a88f6ce72b1c205860c6f824cf2b23d8e", null ],
@@ -25,11 +24,6 @@ var ha__light__task_8h =
     [ "HA_MQTT_CLIENT_ID", "ha__light__task_8h.html#a3e86bf68640eb01f845f67eb32fbc9d6", null ],
     [ "HA_MQTT_PAYLOAD_OFFLINE", "ha__light__task_8h.html#a6842398162d1d365ca5d5c711ecb6145", null ],
     [ "HA_MQTT_PAYLOAD_ONLINE", "ha__light__task_8h.html#a6e17c7afd5219d2aad45fa7d87822f3b", null ],
-    [ "HA_PAT_CLEAR", "ha__light__task_8h.html#aff9031ef635728945c76ec410716fe6c", null ],
-    [ "HA_PAT_COLORS", "ha__light__task_8h.html#adcf12bb1f70cbaf22cb37832fa561726", null ],
-    [ "HA_PAT_OFF", "ha__light__task_8h.html#af52f24417558f674208ad74e554096c3", null ],
-    [ "HA_PAT_ON", "ha__light__task_8h.html#af1f4c2ab6d27443de6134a68f6532e33", null ],
-    [ "HA_PAT_STAMP", "ha__light__task_8h.html#ae1e3e757aef1bc25759ddd289516f042", null ],
     [ "HA_REASON_AGREEMENT", "ha__light__task_8h.html#aeb52355f9666090de9d662e3a3afcaa5", null ],
     [ "HA_REASON_CHECKMATE", "ha__light__task_8h.html#a50dec3293b0f0dee46a260d8be821ffa", null ],
     [ "HA_REASON_FIFTY", "ha__light__task_8h.html#aff00f6b86e1d1627c137aa63dcc0e7f6", null ],
@@ -63,8 +57,6 @@ var ha__light__task_8h =
     [ "ha_light_request_web_lamp", "ha__light__task_8h.html#a202ec2f125d3ba5225e410fd37f40e33", null ],
     [ "ha_light_set_activity_timeout_sec", "ha__light__task_8h.html#a93c1bbd6a8b8933ab773fbb97b35bb1e", null ],
     [ "ha_light_task_start", "ha__light__task_8h.html#adeb86d27a08d24abfd9a912c9c89a729", null ],
-    [ "ha_pattern_is_active", "ha__light__task_8h.html#af216e6691dfd554cb969678dbfb9f4b2", null ],
-    [ "ha_pattern_request", "ha__light__task_8h.html#a617911883055fbb3af9cdde7760f7159", null ],
     [ "mqtt_get_config", "ha__light__task_8h.html#a0564ec8bd0c8c4e490ed84e22246df81", null ],
     [ "mqtt_save_config_to_nvs", "ha__light__task_8h.html#ad116a346513e475c7ffe3e5137a18d0d", null ]
 ];

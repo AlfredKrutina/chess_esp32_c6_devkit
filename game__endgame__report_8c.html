@@ -91,6 +91,7 @@ $(document).ready(function(){initNavTree('game__endgame__report_8c.html',''); in
 
 <div class="header">
   <div class="summary">
+<a href="#define-members">Macros</a> &#124;
 <a href="#func-members">Functions</a> &#124;
 <a href="#var-members">Variables</a>  </div>
   <div class="headertitle"><div class="title">game_endgame_report.c File Reference</div></div>
@@ -99,8 +100,11 @@ $(document).ready(function(){initNavTree('game__endgame__report_8c.html',''); in
 
 <p>Endgame statistics update, UART report formatting, win/draw getters.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__machine_8h_source.html">game_board_machine.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__snapshot_8h_source.html">game_snapshot.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__squares__guard_8h_source.html">game_squares_guard.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="ha__light__task_8h_source.html">../ha_light_task/include/ha_light_task.h</a>&quot;</code><br />
 <code>#include &quot;esp_log.h&quot;</code><br />
 <code>#include &quot;esp_timer.h&quot;</code><br />
@@ -113,88 +117,234 @@ Include dependency graph for game_endgame_report.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__endgame__report_8c__incl.png" border="0" usemap="#agame__endgame__report_8c" alt=""/></div>
 <map name="agame__endgame__report_8c" id="agame__endgame__report_8c">
-<area shape="rect" title="Endgame statistics update, UART report formatting, win/draw getters." alt="" coords="1307,5,1491,31"/>
-<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="775,86,937,111"/>
-<area shape="poly" title=" " alt="" coords="1316,33,978,81,943,86,942,81,977,76,1316,28"/>
-<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="803,167,909,192"/>
-<area shape="poly" title=" " alt="" coords="1307,28,1176,46,1104,61,1034,81,966,116,888,162,885,157,963,111,1032,76,1103,56,1175,40,1306,23"/>
-<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="1045,79,1217,119"/>
-<area shape="poly" title=" " alt="" coords="1361,33,1209,77,1207,72,1359,28"/>
-<area shape="rect" title=" " alt="" coords="1241,86,1325,111"/>
-<area shape="poly" title=" " alt="" coords="1383,33,1313,80,1310,76,1380,29"/>
-<area shape="rect" title=" " alt="" coords="1349,86,1448,111"/>
-<area shape="poly" title=" " alt="" coords="1401,31,1401,72,1396,72,1396,31"/>
-<area shape="rect" title=" " alt="" coords="1473,86,1559,111"/>
-<area shape="poly" title=" " alt="" coords="1418,29,1489,76,1486,80,1415,33"/>
-<area shape="rect" title=" " alt="" coords="1584,86,1659,111"/>
-<area shape="poly" title=" " alt="" coords="1434,28,1573,76,1580,79,1578,84,1571,81,1433,33"/>
-<area shape="rect" title=" " alt="" coords="1683,86,1749,111"/>
-<area shape="poly" title=" " alt="" coords="1467,28,1565,48,1672,76,1678,78,1677,83,1670,81,1563,53,1466,33"/>
-<area shape="rect" title=" " alt="" coords="1774,86,1845,111"/>
-<area shape="poly" title=" " alt="" coords="1491,26,1620,45,1762,76,1771,79,1769,84,1761,81,1619,51,1490,32"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="1085,247,1200,273"/>
-<area shape="poly" title=" " alt="" coords="878,109,1111,238,1109,243,875,114"/>
-<area shape="rect" title=" " alt="" coords="1613,328,1763,353"/>
-<area shape="poly" title=" " alt="" coords="938,106,1189,134,1407,164,1452,170,1493,171,1565,172,1597,176,1629,187,1659,207,1689,238,1698,256,1702,276,1698,314,1693,314,1696,277,1693,258,1685,242,1655,211,1626,192,1596,181,1564,177,1493,177,1452,175,1406,169,1188,139,938,111"/>
-<area shape="rect" title=" " alt="" coords="1325,328,1454,353"/>
-<area shape="poly" title=" " alt="" coords="938,109,1367,173,1568,209,1634,225,1665,238,1678,263,1677,274,1673,285,1654,301,1625,314,1549,331,1468,339,1468,334,1548,326,1623,309,1651,297,1668,282,1672,273,1672,264,1661,242,1632,230,1567,215,1366,178,937,114"/>
-<area shape="rect" title=" " alt="" coords="676,328,759,353"/>
-<area shape="poly" title=" " alt="" coords="775,105,610,116,411,139,315,157,229,180,161,208,136,224,117,242,109,260,111,269,116,278,138,285,188,293,341,309,663,333,662,339,341,315,187,299,137,290,113,282,106,271,103,260,113,238,132,220,159,203,228,175,313,152,410,134,609,111,774,100"/>
-<area shape="rect" title=" " alt="" coords="358,328,429,353"/>
-<area shape="poly" title=" " alt="" coords="775,102,585,107,470,114,352,125,240,143,141,168,99,183,63,200,35,220,16,241,8,261,10,269,15,278,37,294,71,307,160,325,259,334,344,337,344,342,259,339,159,330,69,312,35,299,12,282,5,271,3,260,11,239,32,216,61,196,97,178,139,162,239,138,352,120,470,108,585,101,774,97"/>
-<area shape="rect" title=" " alt="" coords="273,247,410,273"/>
-<area shape="poly" title=" " alt="" coords="820,114,392,246,391,241,818,109"/>
-<area shape="rect" title=" " alt="" coords="435,247,565,273"/>
-<area shape="poly" title=" " alt="" coords="832,114,540,244,538,239,829,109"/>
-<area shape="poly" title=" " alt="" coords="859,112,859,153,853,153,853,112"/>
-<area shape="rect" title=" " alt="" coords="1102,328,1183,353"/>
-<area shape="poly" title=" " alt="" coords="1145,273,1145,314,1140,314,1140,273"/>
-<area shape="poly" title=" " alt="" coords="1201,267,1600,324,1599,329,1200,272"/>
-<area shape="poly" title=" " alt="" coords="1179,270,1342,321,1340,326,1178,275"/>
-<area shape="poly" title=" " alt="" coords="1104,275,1074,283,910,314,772,335,772,329,909,308,1073,277,1102,270"/>
-<area shape="poly" title=" " alt="" coords="1106,275,1074,283,892,309,713,326,443,341,442,335,712,320,892,303,1073,277,1105,270"/>
-<area shape="poly" title=" " alt="" coords="899,189,1089,241,1087,246,897,195"/>
-<area shape="poly" title=" " alt="" coords="859,192,866,235,875,258,890,278,923,296,975,311,1089,330,1088,336,974,316,921,301,886,282,870,261,861,236,854,193"/>
-<area shape="poly" title=" " alt="" coords="910,186,1213,237,1440,283,1624,322,1623,328,1439,288,1212,243,909,192"/>
-<area shape="poly" title=" " alt="" coords="864,191,889,235,909,259,933,278,988,292,1088,306,1311,330,1311,335,1088,312,987,297,931,282,905,262,885,238,859,194"/>
-<area shape="poly" title=" " alt="" coords="803,185,664,190,493,200,341,217,289,229,262,242,256,251,254,260,256,269,262,278,281,288,318,298,428,314,663,334,662,339,427,319,317,303,279,293,258,282,251,271,249,260,251,249,258,238,287,224,340,212,492,195,664,184,802,179"/>
-<area shape="poly" title=" " alt="" coords="803,185,661,189,486,200,330,217,276,228,249,242,243,251,241,259,249,279,268,299,292,314,319,324,345,331,344,336,317,330,290,319,265,303,245,281,236,260,238,249,245,238,275,223,329,212,485,194,661,184,803,179"/>
-<area shape="poly" title=" " alt="" coords="803,189,633,210,423,243,401,247,400,242,422,237,632,205,802,184"/>
-<area shape="poly" title=" " alt="" coords="804,195,585,243,565,247,564,242,584,237,803,189"/>
-<area shape="rect" title=" " alt="" coords="944,247,1061,273"/>
-<area shape="poly" title=" " alt="" coords="879,190,970,238,968,243,877,195"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="640,240,819,280"/>
-<area shape="poly" title=" " alt="" coords="839,194,773,235,770,230,836,190"/>
-<area shape="poly" title=" " alt="" coords="820,276,1089,326,1088,332,819,281"/>
-<area shape="poly" title=" " alt="" coords="729,281,724,315,719,314,724,280"/>
-<area shape="poly" title=" " alt="" coords="650,283,443,331,442,325,648,277"/>
-<area shape="poly" title=" " alt="" coords="1218,114,1344,141,1484,173,1603,207,1643,223,1665,238,1674,260,1672,271,1664,282,1644,289,1602,297,1473,313,1198,338,1197,332,1473,307,1601,292,1643,284,1661,278,1667,269,1669,261,1661,242,1640,228,1601,212,1483,178,1343,146,1217,119"/>
-<area shape="poly" title=" " alt="" coords="1217,114,1230,116,1299,122,1389,125,1597,135,1700,147,1792,166,1831,179,1865,196,1892,215,1912,239,1919,259,1916,278,1904,293,1886,305,1835,323,1778,334,1777,329,1834,318,1883,301,1901,289,1912,276,1914,260,1907,241,1888,219,1862,200,1829,184,1790,171,1699,152,1596,141,1388,131,1299,127,1229,121,1216,119"/>
-<area shape="poly" title=" " alt="" coords="1217,114,1230,116,1322,126,1406,125,1555,116,1622,120,1655,127,1687,138,1718,154,1749,175,1780,203,1810,239,1819,260,1817,271,1810,282,1793,292,1762,300,1673,316,1468,336,1468,331,1673,310,1761,295,1791,287,1806,278,1812,269,1814,260,1806,241,1776,207,1746,179,1715,158,1685,143,1654,132,1622,125,1555,122,1406,131,1322,131,1229,121,1216,119"/>
-<area shape="poly" title=" " alt="" coords="1045,113,574,177,352,213,280,229,249,242,241,260,243,269,249,278,269,288,307,298,421,315,662,334,662,339,420,320,306,303,267,293,245,282,238,271,235,260,245,238,279,224,351,208,574,171,1044,108"/>
-<area shape="poly" title=" " alt="" coords="1045,112,950,121,783,129,567,139,460,151,364,171,322,184,286,200,257,219,236,241,228,260,236,279,258,301,285,317,316,327,345,333,344,338,314,332,283,322,254,305,231,281,223,260,231,239,254,215,284,196,320,179,362,166,459,146,567,134,783,123,949,116,1044,106"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1125,167,1254,192"/>
-<area shape="poly" title=" " alt="" coords="1147,117,1175,154,1170,157,1143,120"/>
-<area shape="poly" title=" " alt="" coords="1185,194,1159,237,1155,234,1180,191"/>
-<area shape="poly" title=" " alt="" coords="1212,190,1237,210,1259,239,1265,260,1258,281,1246,297,1231,309,1198,327,1196,322,1228,305,1243,293,1254,279,1260,260,1254,241,1234,214,1208,194"/>
-<area shape="poly" title=" " alt="" coords="1255,177,1359,180,1480,188,1538,196,1591,206,1634,220,1665,238,1678,255,1686,274,1692,313,1686,314,1681,276,1673,257,1661,242,1632,225,1590,211,1538,201,1479,193,1358,185,1254,183"/>
-<area shape="poly" title=" " alt="" coords="1209,190,1279,238,1369,316,1365,320,1276,242,1206,194"/>
-<area shape="poly" title=" " alt="" coords="1200,191,1211,210,1221,234,1224,259,1221,271,1214,282,1191,294,1149,304,1028,321,889,332,773,339,772,334,889,327,1027,316,1148,299,1189,289,1210,278,1216,269,1219,258,1216,235,1206,212,1195,193"/>
-<area shape="poly" title=" " alt="" coords="1125,186,1006,192,862,203,726,219,670,230,629,242,614,251,604,261,594,272,579,282,509,312,443,331,441,326,507,307,576,278,591,268,600,257,611,247,627,238,669,225,725,214,861,197,1005,186,1124,180"/>
-<area shape="poly" title=" " alt="" coords="1125,187,765,211,567,227,423,243,399,247,398,242,422,237,567,221,764,205,1124,182"/>
-<area shape="poly" title=" " alt="" coords="1125,187,886,206,736,222,585,243,560,247,559,242,584,237,735,217,886,201,1124,182"/>
-<area shape="poly" title=" " alt="" coords="1163,194,1043,245,1041,240,1161,190"/>
-<area shape="rect" title=" " alt="" coords="1427,247,1523,273"/>
-<area shape="poly" title=" " alt="" coords="1233,189,1409,237,1422,241,1420,246,1407,243,1231,195"/>
-<area shape="rect" title=" " alt="" coords="1547,247,1651,273"/>
-<area shape="poly" title=" " alt="" coords="1255,187,1385,208,1535,237,1550,241,1549,246,1534,243,1384,213,1254,192"/>
+<area shape="rect" title="Endgame statistics update, UART report formatting, win/draw getters." alt="" coords="1033,5,1217,31"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="1360,167,1467,192"/>
+<area shape="poly" title=" " alt="" coords="1066,33,1016,47,971,66,956,77,947,89,946,102,954,117,982,136,1024,149,1075,156,1131,160,1244,161,1331,164,1347,166,1346,171,1330,169,1244,166,1131,165,1074,162,1022,154,980,141,950,120,941,103,942,88,952,74,969,61,1014,42,1065,28"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="259,167,410,192"/>
+<area shape="poly" title=" " alt="" coords="1033,28,848,46,741,61,635,81,563,100,492,122,376,164,374,159,490,117,561,95,634,76,740,56,848,40,1033,22"/>
+<area shape="rect" href="game__board__machine_8h.html" title="Physical board state machine (lift/drop); does not write position_t." alt="" coords="5,167,184,192"/>
+<area shape="poly" title=" " alt="" coords="1033,26,790,44,643,60,496,81,398,101,302,123,146,165,145,160,300,118,397,95,496,76,642,55,789,39,1033,21"/>
+<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="750,86,887,111"/>
+<area shape="poly" title=" " alt="" coords="1081,33,877,85,876,80,1080,28"/>
+<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="435,167,608,192"/>
+<area shape="poly" title=" " alt="" coords="1033,29,893,47,816,62,739,81,687,99,637,121,555,162,552,158,635,116,686,94,738,76,814,57,893,42,1033,24"/>
+<area shape="rect" href="ha__light__task_8h.html" title="HA Light Task &#45; Home Assistant RGB Light Integration." alt="" coords="963,79,1135,119"/>
+<area shape="poly" title=" " alt="" coords="1116,33,1079,71,1075,67,1112,29"/>
+<area shape="rect" title=" " alt="" coords="1159,86,1243,111"/>
+<area shape="poly" title=" " alt="" coords="1138,29,1183,74,1179,78,1135,33"/>
+<area shape="rect" title=" " alt="" coords="1268,86,1367,111"/>
+<area shape="poly" title=" " alt="" coords="1154,28,1278,78,1276,83,1152,33"/>
+<area shape="rect" title=" " alt="" coords="1391,86,1478,111"/>
+<area shape="poly" title=" " alt="" coords="1181,28,1274,49,1379,76,1390,79,1389,84,1378,81,1273,54,1180,33"/>
+<area shape="rect" title=" " alt="" coords="1503,86,1577,111"/>
+<area shape="poly" title=" " alt="" coords="1218,26,1348,46,1491,76,1501,79,1499,84,1490,81,1347,51,1217,32"/>
+<area shape="rect" title=" " alt="" coords="1601,86,1668,111"/>
+<area shape="poly" title=" " alt="" coords="1218,21,1392,39,1492,54,1590,76,1598,78,1596,84,1589,81,1491,60,1391,44,1217,27"/>
+<area shape="rect" title=" " alt="" coords="1693,86,1763,111"/>
+<area shape="poly" title=" " alt="" coords="1218,19,1314,24,1431,35,1556,51,1681,76,1690,79,1689,84,1679,81,1556,57,1430,40,1314,30,1217,24"/>
+<area shape="rect" title=" " alt="" coords="1578,328,1659,353"/>
+<area shape="poly" title=" " alt="" coords="1416,192,1424,234,1433,258,1447,278,1466,291,1496,303,1565,324,1564,329,1494,308,1464,295,1443,282,1428,260,1419,235,1411,193"/>
+<area shape="rect" title=" " alt="" coords="1622,401,1773,427"/>
+<area shape="poly" title=" " alt="" coords="1422,191,1451,234,1472,257,1497,278,1522,290,1544,295,1588,297,1630,300,1652,309,1674,326,1684,340,1692,356,1699,387,1694,388,1687,357,1680,343,1670,330,1649,314,1629,305,1588,302,1544,301,1520,295,1495,282,1469,261,1447,237,1417,194"/>
+<area shape="rect" title=" " alt="" coords="2162,401,2291,427"/>
+<area shape="poly" title=" " alt="" coords="1431,190,1495,238,1518,260,1543,278,1593,296,1660,315,1827,350,2003,379,2148,400,2148,405,2002,384,1826,355,1659,320,1591,302,1540,282,1514,264,1492,242,1428,194"/>
+<area shape="rect" title=" " alt="" coords="1553,247,1690,273"/>
+<area shape="poly" title=" " alt="" coords="1445,190,1579,240,1577,245,1443,195"/>
+<area shape="rect" title=" " alt="" coords="1715,247,1832,273"/>
+<area shape="poly" title=" " alt="" coords="1467,188,1703,237,1719,241,1718,246,1702,243,1466,193"/>
+<area shape="rect" title=" " alt="" coords="1856,247,1987,273"/>
+<area shape="poly" title=" " alt="" coords="1467,184,1636,204,1844,237,1864,242,1863,247,1844,243,1635,210,1467,189"/>
+<area shape="rect" title=" " alt="" coords="625,328,708,353"/>
+<area shape="poly" title=" " alt="" coords="1360,184,1270,188,1154,198,1024,215,895,243,841,260,787,282,701,324,698,319,785,277,839,255,894,237,1023,210,1153,193,1270,183,1360,179"/>
+<area shape="rect" title=" " alt="" coords="834,401,905,427"/>
+<area shape="poly" title=" " alt="" coords="1404,194,1356,236,1323,261,1288,282,1189,327,1086,362,993,389,919,406,918,400,991,383,1085,357,1187,322,1285,278,1320,256,1352,232,1400,190"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="1096,240,1275,280"/>
+<area shape="poly" title=" " alt="" coords="1381,195,1254,238,1252,233,1379,189"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="907,247,1021,273"/>
+<area shape="poly" title=" " alt="" coords="1360,190,1216,212,1041,243,1021,247,1020,242,1039,237,1215,206,1360,185"/>
+<area shape="poly" title=" " alt="" coords="1275,274,1559,325,1564,326,1563,332,1558,331,1274,280"/>
+<area shape="poly" title=" " alt="" coords="1096,280,1078,283,722,335,721,329,1077,277,1095,274"/>
+<area shape="poly" title=" " alt="" coords="1147,283,907,398,904,393,1145,278"/>
+<area shape="poly" title=" " alt="" coords="1022,268,1084,277,1218,292,1322,300,1426,309,1559,325,1564,326,1563,331,1558,331,1425,314,1321,305,1217,297,1084,283,1022,274"/>
+<area shape="poly" title=" " alt="" coords="1022,268,1084,277,1192,288,1276,293,1360,302,1465,325,1494,337,1522,351,1648,395,1646,400,1520,356,1492,342,1463,331,1359,307,1275,298,1191,294,1084,283,1022,273"/>
+<area shape="poly" title=" " alt="" coords="1022,268,1084,277,1205,288,1299,292,1393,300,1448,310,1512,325,1540,338,1567,351,1682,370,1842,386,2148,406,2148,412,1841,392,1682,376,1566,356,1538,343,1510,331,1447,315,1393,305,1299,297,1204,294,1084,283,1022,273"/>
+<area shape="poly" title=" " alt="" coords="921,275,722,328,721,322,920,270"/>
+<area shape="poly" title=" " alt="" coords="959,274,886,391,882,388,955,271"/>
+<area shape="rect" href="game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="1345,328,1452,353"/>
+<area shape="poly" title=" " alt="" coords="1022,269,1332,325,1331,330,1021,274"/>
+<area shape="poly" title=" " alt="" coords="1447,351,1636,395,1635,401,1446,356"/>
+<area shape="poly" title=" " alt="" coords="1453,344,1522,351,2149,404,2148,409,1521,356,1452,350"/>
+<area shape="poly" title=" " alt="" coords="1346,353,1327,356,919,409,918,404,1326,351,1345,348"/>
+<area shape="poly" title=" " alt="" coords="360,190,632,320,629,324,357,194"/>
+<area shape="poly" title=" " alt="" coords="319,194,297,214,278,241,275,266,277,302,285,352,312,364,364,375,516,392,685,403,820,409,820,414,685,408,515,397,363,380,310,369,281,355,272,303,270,266,274,239,293,211,316,190"/>
+<area shape="poly" title=" " alt="" coords="410,188,423,189,893,247,893,253,422,195,410,193"/>
+<area shape="poly" title=" " alt="" coords="185,189,284,207,336,221,388,238,423,257,457,278,538,306,613,325,611,330,536,311,455,282,420,262,386,242,335,226,282,212,184,194"/>
+<area shape="poly" title=" " alt="" coords="104,191,129,224,167,269,216,315,244,335,273,351,319,366,381,379,536,396,696,405,820,409,820,415,695,411,536,401,381,384,318,371,271,356,241,339,212,319,163,272,124,227,100,194"/>
+<area shape="poly" title=" " alt="" coords="184,186,893,250,892,255,184,191"/>
+<area shape="rect" href="position_8h.html" title="Standalone chess position." alt="" coords="289,247,375,273"/>
+<area shape="poly" title=" " alt="" coords="130,189,285,241,284,246,128,195"/>
+<area shape="poly" title=" " alt="" coords="370,270,395,277,612,326,611,331,394,283,368,275"/>
+<area shape="poly" title=" " alt="" coords="344,271,386,311,415,333,446,351,519,371,622,387,821,406,820,412,621,392,518,376,444,356,412,338,382,315,340,275"/>
+<area shape="rect" title=" " alt="" coords="295,328,369,353"/>
+<area shape="poly" title=" " alt="" coords="335,273,335,314,329,314,329,273"/>
+<area shape="poly" title=" " alt="" coords="858,109,1287,237,1418,277,1567,322,1566,327,1417,283,1286,243,856,114"/>
+<area shape="poly" title=" " alt="" coords="776,114,725,135,701,150,679,169,659,194,649,219,647,246,651,280,660,314,655,316,645,280,642,246,644,218,654,192,675,165,698,146,723,130,774,109"/>
+<area shape="poly" title=" " alt="" coords="843,109,880,132,918,165,941,199,957,233,953,235,937,202,914,168,877,137,840,114"/>
+<area shape="poly" title=" " alt="" coords="750,106,615,113,456,126,319,145,273,156,248,169,243,177,243,186,252,205,272,223,297,238,294,243,269,227,248,208,237,187,238,176,245,165,271,151,318,139,456,121,614,108,749,100"/>
+<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="733,167,904,192"/>
+<area shape="poly" title=" " alt="" coords="821,112,821,153,816,153,816,112"/>
+<area shape="poly" title=" " alt="" coords="805,194,751,242,686,319,682,315,747,238,802,190"/>
+<area shape="poly" title=" " alt="" coords="823,192,834,260,853,353,863,387,858,389,848,354,829,261,818,193"/>
+<area shape="poly" title=" " alt="" coords="841,190,932,238,929,243,839,195"/>
+<area shape="poly" title=" " alt="" coords="531,191,560,231,599,278,643,318,639,321,595,282,556,234,527,194"/>
+<area shape="poly" title=" " alt="" coords="526,191,535,224,551,269,577,315,595,335,615,351,666,377,721,394,774,404,820,409,820,414,773,409,719,399,664,382,612,356,591,338,573,318,546,271,530,226,521,193"/>
+<area shape="poly" title=" " alt="" coords="586,189,893,244,893,249,585,195"/>
+<area shape="poly" title=" " alt="" coords="1136,114,1148,116,1390,127,1792,142,2001,156,2186,175,2263,187,2326,202,2373,219,2401,238,2410,260,2408,271,2401,282,2385,292,2361,300,2289,314,2192,325,2081,332,1851,340,1673,342,1673,337,1851,335,2081,327,2192,319,2288,309,2360,295,2383,287,2397,278,2403,269,2405,261,2397,242,2370,223,2325,207,2262,193,2185,180,2001,161,1792,148,1389,132,1148,121,1136,120"/>
+<area shape="poly" title=" " alt="" coords="1136,114,1148,116,1308,130,1443,135,1674,129,1786,126,1905,129,2040,140,2198,164,2267,171,2325,176,2351,182,2376,193,2400,211,2424,239,2432,259,2427,278,2411,296,2385,311,2310,338,2212,361,2100,379,1985,393,1786,410,1786,405,1984,387,2099,373,2211,355,2309,333,2383,307,2408,292,2422,276,2427,259,2419,241,2396,215,2374,198,2350,187,2325,181,2267,177,2197,169,2039,145,1905,134,1786,131,1674,134,1443,140,1307,136,1148,121,1136,120"/>
+<area shape="poly" title=" " alt="" coords="1136,114,1148,116,1261,124,1401,127,1727,126,1894,128,2051,133,2190,144,2301,164,2347,175,2384,185,2416,203,2445,239,2455,267,2450,294,2434,318,2409,339,2379,358,2346,375,2281,400,2279,395,2344,370,2376,353,2406,335,2430,314,2445,292,2449,267,2440,241,2413,207,2382,190,2346,180,2299,169,2189,150,2051,138,1894,133,1727,132,1401,132,1260,129,1148,121,1136,120"/>
+<area shape="poly" title=" " alt="" coords="964,116,815,142,755,156,723,169,698,202,682,241,673,281,670,314,664,314,668,280,676,240,693,199,720,165,753,151,814,136,963,110"/>
+<area shape="poly" title=" " alt="" coords="1019,121,955,170,923,203,897,241,882,279,874,319,871,388,865,387,869,318,877,277,892,239,919,200,952,166,1016,117"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="1907,167,2037,192"/>
+<area shape="poly" title=" " alt="" coords="1136,114,1148,116,1359,139,1568,156,1894,173,1893,178,1568,161,1359,144,1148,121,1135,120"/>
+<area shape="poly" title=" " alt="" coords="1992,190,2016,208,2039,231,2052,256,2052,269,2045,282,2019,301,1980,315,1933,326,1879,333,1768,341,1674,343,1673,337,1768,336,1879,328,1932,320,1979,310,2016,296,2041,278,2046,268,2047,257,2035,234,2013,212,1989,194"/>
+<area shape="poly" title=" " alt="" coords="2006,190,2039,209,2054,222,2066,239,2074,260,2066,281,2040,313,2008,338,1973,359,1935,376,1858,399,1787,411,1786,406,1857,394,1934,371,1970,355,2005,334,2036,309,2062,279,2068,260,2062,241,2050,226,2036,213,2003,195"/>
+<area shape="poly" title=" " alt="" coords="2037,177,2133,179,2241,187,2293,195,2339,206,2376,220,2401,238,2413,262,2412,286,2399,309,2379,331,2324,369,2268,398,2266,393,2321,365,2375,327,2395,306,2407,285,2408,263,2397,242,2373,225,2337,211,2292,200,2241,193,2132,184,2037,182"/>
+<area shape="poly" title=" " alt="" coords="1920,195,1703,243,1684,247,1683,242,1702,237,1919,189"/>
+<area shape="poly" title=" " alt="" coords="1944,194,1816,245,1814,240,1942,190"/>
+<area shape="poly" title=" " alt="" coords="1967,194,1939,237,1934,234,1962,191"/>
+<area shape="poly" title=" " alt="" coords="1907,185,1452,206,1218,222,1134,232,1085,242,1070,251,1060,261,1050,272,1034,282,952,311,867,328,787,338,722,342,722,336,787,332,866,323,951,306,1032,278,1047,268,1057,258,1067,247,1083,238,1133,227,1218,217,1452,200,1907,180"/>
+<area shape="poly" title=" " alt="" coords="1983,191,1996,210,2007,234,2010,259,2008,271,2001,282,1985,292,1959,300,1884,312,1786,319,1675,324,1461,327,1334,331,1101,368,919,405,918,399,1100,363,1333,325,1461,322,1675,318,1785,314,1883,306,1958,295,1983,287,1997,278,2003,269,2005,259,2002,235,1991,212,1979,194"/>
+<area shape="poly" title=" " alt="" coords="1907,184,1753,186,1538,195,1291,213,1164,226,1040,243,1018,247,1017,242,1040,237,1163,221,1290,207,1537,190,1753,181,1907,178"/>
+<area shape="rect" title=" " alt="" coords="2163,247,2259,273"/>
+<area shape="poly" title=" " alt="" coords="2008,189,2164,241,2162,246,2006,195"/>
+<area shape="rect" title=" " alt="" coords="2283,247,2387,273"/>
+<area shape="poly" title=" " alt="" coords="2038,189,2147,210,2271,237,2285,241,2284,246,2270,243,2146,215,2037,195"/>
 </map>
 </div>
 </div>
 <p><a href="game__endgame__report_8c_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Macros</h2></td></tr>
+<tr class="memitem:a7a1fd46803422ded9121aad5cecb737c" id="r_a7a1fd46803422ded9121aad5cecb737c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a7a1fd46803422ded9121aad5cecb737c">total_games</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a6f6e69b395e9fdbac4ea7481629a492e">game_state_total_games</a>())</td></tr>
+<tr class="separator:a7a1fd46803422ded9121aad5cecb737c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1c2358e8f330b268e740af82fff4e1b7" id="r_a1c2358e8f330b268e740af82fff4e1b7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a1c2358e8f330b268e740af82fff4e1b7">white_wins</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a6c7888bb0b79ec96cbf2aa73bf65a988">game_state_white_wins</a>())</td></tr>
+<tr class="separator:a1c2358e8f330b268e740af82fff4e1b7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7c93e76d038c08b6eb0f0c6cf10e4406" id="r_a7c93e76d038c08b6eb0f0c6cf10e4406"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a7c93e76d038c08b6eb0f0c6cf10e4406">black_wins</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a01709f0deb401973e92203dd0eae6bff">game_state_black_wins</a>())</td></tr>
+<tr class="separator:a7c93e76d038c08b6eb0f0c6cf10e4406"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a212eab4d7394dc4bf87c169fd1ae681c" id="r_a212eab4d7394dc4bf87c169fd1ae681c"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a212eab4d7394dc4bf87c169fd1ae681c">draws</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#acd79c58eae5644c6c7873659fa9c9856">game_state_draws</a>())</td></tr>
+<tr class="separator:a212eab4d7394dc4bf87c169fd1ae681c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aee927408ed6004d9904f881fe03b3a78" id="r_aee927408ed6004d9904f881fe03b3a78"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aee927408ed6004d9904f881fe03b3a78">endgame_report_requested</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a359ccd518279c3da44b8f83d782a6fcd">game_state_endgame_report_requested</a>())</td></tr>
+<tr class="separator:aee927408ed6004d9904f881fe03b3a78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab46789382c9b7800fdcee36dd1f5440b" id="r_ab46789382c9b7800fdcee36dd1f5440b"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ab46789382c9b7800fdcee36dd1f5440b">current_endgame_reason</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a8856fa4b768d56bc3f298ce265e385cd">game_state_current_endgame_reason</a>())</td></tr>
+<tr class="separator:ab46789382c9b7800fdcee36dd1f5440b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a19c233ec30f1176bd9558a67788a561d" id="r_a19c233ec30f1176bd9558a67788a561d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a19c233ec30f1176bd9558a67788a561d">last_move_type</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a5c653c95107d02420f46ba00eda941ae">game_state_last_move_type</a>())</td></tr>
+<tr class="separator:a19c233ec30f1176bd9558a67788a561d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aad5c20d1de22bad5ef5e06b875af9f55" id="r_aad5c20d1de22bad5ef5e06b875af9f55"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aad5c20d1de22bad5ef5e06b875af9f55">game_start_time</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a098ce393f1bb557edc653a59a4c30a2f">game_state_game_start_time</a>())</td></tr>
+<tr class="separator:aad5c20d1de22bad5ef5e06b875af9f55"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1ca65f520139f74d95da4b6eb6076bae" id="r_a1ca65f520139f74d95da4b6eb6076bae"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a1ca65f520139f74d95da4b6eb6076bae">last_move_time</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#ab3242dbc19d280ce5ef502976663e3fc">game_state_last_move_time</a>())</td></tr>
+<tr class="separator:a1ca65f520139f74d95da4b6eb6076bae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3aa6d1a76eca48395ac6b0d82aaef183" id="r_a3aa6d1a76eca48395ac6b0d82aaef183"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a3aa6d1a76eca48395ac6b0d82aaef183">white_time_total</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a23ba0732a5d9af44facbc95eded4edd6">game_state_white_time_total</a>())</td></tr>
+<tr class="separator:a3aa6d1a76eca48395ac6b0d82aaef183"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0dd099d3a9ca6a38df46eb9eb7b464fc" id="r_a0dd099d3a9ca6a38df46eb9eb7b464fc"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0dd099d3a9ca6a38df46eb9eb7b464fc">black_time_total</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#ae337c822c64e7966ec26553733e1db26">game_state_black_time_total</a>())</td></tr>
+<tr class="separator:a0dd099d3a9ca6a38df46eb9eb7b464fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae496a64fa75529edaaccde5914307105" id="r_ae496a64fa75529edaaccde5914307105"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ae496a64fa75529edaaccde5914307105">white_moves_count</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a5545e0aa9849cda0d165b1ddff6b2196">game_state_white_moves_count</a>())</td></tr>
+<tr class="separator:ae496a64fa75529edaaccde5914307105"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a769b707346491e5ec3659b91894ee48e" id="r_a769b707346491e5ec3659b91894ee48e"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a769b707346491e5ec3659b91894ee48e">black_moves_count</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a73c44878e3dc7ee920181b0e602e2147">game_state_black_moves_count</a>())</td></tr>
+<tr class="separator:a769b707346491e5ec3659b91894ee48e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa6707b501585c8ee1dc547a82a532569" id="r_aa6707b501585c8ee1dc547a82a532569"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aa6707b501585c8ee1dc547a82a532569">white_captures</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a0d3636a06004ee9bb1bdbe75b67587ba">game_state_white_captures</a>())</td></tr>
+<tr class="separator:aa6707b501585c8ee1dc547a82a532569"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6ba83457257200cb8b5105b2bb0cb946" id="r_a6ba83457257200cb8b5105b2bb0cb946"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a6ba83457257200cb8b5105b2bb0cb946">black_captures</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a4e7288e6622a89c9856b59c55fcc62b6">game_state_black_captures</a>())</td></tr>
+<tr class="separator:a6ba83457257200cb8b5105b2bb0cb946"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad1cb140a4e601b0c927b02c87de6e37f" id="r_ad1cb140a4e601b0c927b02c87de6e37f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ad1cb140a4e601b0c927b02c87de6e37f">white_checks</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a49c0fa497bd76495b87d6cc3e9da77cc">game_state_white_checks</a>())</td></tr>
+<tr class="separator:ad1cb140a4e601b0c927b02c87de6e37f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a353a89edfff16c6c58bfc919446d0a1d" id="r_a353a89edfff16c6c58bfc919446d0a1d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a353a89edfff16c6c58bfc919446d0a1d">black_checks</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a7e4798c76998a82e73c02166bdf660f0">game_state_black_checks</a>())</td></tr>
+<tr class="separator:a353a89edfff16c6c58bfc919446d0a1d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa255251dfcd0f43eb2be2fa1c2173879" id="r_aa255251dfcd0f43eb2be2fa1c2173879"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aa255251dfcd0f43eb2be2fa1c2173879">white_castles</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#aa60208d89fe2877953e05b90bcd216a1">game_state_white_castles</a>())</td></tr>
+<tr class="separator:aa255251dfcd0f43eb2be2fa1c2173879"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2e5ed2ea1efe4c0cb7f1c025269d683" id="r_af2e5ed2ea1efe4c0cb7f1c025269d683"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#af2e5ed2ea1efe4c0cb7f1c025269d683">black_castles</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a9d6c64ba816de520fbf3717f4810ef2e">game_state_black_castles</a>())</td></tr>
+<tr class="separator:af2e5ed2ea1efe4c0cb7f1c025269d683"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af2ab83d0ffc4efc08e8f2aa677f0fdc0" id="r_af2ab83d0ffc4efc08e8f2aa677f0fdc0"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#af2ab83d0ffc4efc08e8f2aa677f0fdc0">white_captured_pieces</a>&#160;&#160;&#160;(<a class="el" href="game__endgame__report_8c.html#a22569b539d43ba4e58fdadcaee7f2493">game_state_white_captured_pieces</a>())</td></tr>
+<tr class="separator:af2ab83d0ffc4efc08e8f2aa677f0fdc0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5993c54ea9de8f5945254a690a035832" id="r_a5993c54ea9de8f5945254a690a035832"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a5993c54ea9de8f5945254a690a035832">black_captured_pieces</a>&#160;&#160;&#160;(<a class="el" href="game__endgame__report_8c.html#aa9a6d8ab206a4627b47c0ffba7052e17">game_state_black_captured_pieces</a>())</td></tr>
+<tr class="separator:a5993c54ea9de8f5945254a690a035832"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0c0df6cb691a15bf9a67ed7d4b7150e7" id="r_a0c0df6cb691a15bf9a67ed7d4b7150e7"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0c0df6cb691a15bf9a67ed7d4b7150e7">white_captured_count</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a7d646cc82f5936f19a90a65f454e3f5f">game_state_white_captured_count</a>())</td></tr>
+<tr class="separator:a0c0df6cb691a15bf9a67ed7d4b7150e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a592e61c9f2e0405de7dcf5becbed59ca" id="r_a592e61c9f2e0405de7dcf5becbed59ca"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a592e61c9f2e0405de7dcf5becbed59ca">black_captured_count</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#ada2ff2c73acae924a31ef3293eb9c402">game_state_black_captured_count</a>())</td></tr>
+<tr class="separator:a592e61c9f2e0405de7dcf5becbed59ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2790dc3f5a6affed3aae84dfe4a0b06" id="r_ab2790dc3f5a6affed3aae84dfe4a0b06"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ab2790dc3f5a6affed3aae84dfe4a0b06">white_captured_index</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a02fe55d85a8fb5f51137da3f0c62be52">game_state_white_captured_index</a>())</td></tr>
+<tr class="separator:ab2790dc3f5a6affed3aae84dfe4a0b06"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a650a6439cae36fe637d7f4b30215eb46" id="r_a650a6439cae36fe637d7f4b30215eb46"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a650a6439cae36fe637d7f4b30215eb46">black_captured_index</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a5a178efba32569f31ee3596c92a046cd">game_state_black_captured_index</a>())</td></tr>
+<tr class="separator:a650a6439cae36fe637d7f4b30215eb46"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af48c14316db048d40fdd7375e8f78326" id="r_af48c14316db048d40fdd7375e8f78326"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#af48c14316db048d40fdd7375e8f78326">material_advantage_history</a>&#160;&#160;&#160;(<a class="el" href="game__endgame__report_8c.html#aa65c16c1b8f3028ebd6ba8df0bcd2f29">game_state_material_advantage_history</a>())</td></tr>
+<tr class="separator:af48c14316db048d40fdd7375e8f78326"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad9fac112b83104c0d792c1e062d6f3ca" id="r_ad9fac112b83104c0d792c1e062d6f3ca"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ad9fac112b83104c0d792c1e062d6f3ca">advantage_history_count</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#afd83ddc0dc1369d540fb7a44332f3363">game_state_advantage_history_count</a>())</td></tr>
+<tr class="separator:ad9fac112b83104c0d792c1e062d6f3ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a232d561056f987fb84d2c9ab92584a09" id="r_a232d561056f987fb84d2c9ab92584a09"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a232d561056f987fb84d2c9ab92584a09">game_result</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#aa0154cedb471aa4f88676895ee3e16c4">game_state_game_result</a>())</td></tr>
+<tr class="separator:a232d561056f987fb84d2c9ab92584a09"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab2e022b2080c4fa7a0cbb6993624e23f" id="r_ab2e022b2080c4fa7a0cbb6993624e23f"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ab2e022b2080c4fa7a0cbb6993624e23f">current_result_type</a>&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a0b3a9901a83b967aef74e95dedcdf3f0">game_state_current_result_type</a>())</td></tr>
+<tr class="separator:ab2e022b2080c4fa7a0cbb6993624e23f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
+<tr class="memitem:a6f6e69b395e9fdbac4ea7481629a492e" id="r_a6f6e69b395e9fdbac4ea7481629a492e"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a6f6e69b395e9fdbac4ea7481629a492e">game_state_total_games</a> (void)</td></tr>
+<tr class="separator:a6f6e69b395e9fdbac4ea7481629a492e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6c7888bb0b79ec96cbf2aa73bf65a988" id="r_a6c7888bb0b79ec96cbf2aa73bf65a988"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a6c7888bb0b79ec96cbf2aa73bf65a988">game_state_white_wins</a> (void)</td></tr>
+<tr class="separator:a6c7888bb0b79ec96cbf2aa73bf65a988"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a01709f0deb401973e92203dd0eae6bff" id="r_a01709f0deb401973e92203dd0eae6bff"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a01709f0deb401973e92203dd0eae6bff">game_state_black_wins</a> (void)</td></tr>
+<tr class="separator:a01709f0deb401973e92203dd0eae6bff"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd79c58eae5644c6c7873659fa9c9856" id="r_acd79c58eae5644c6c7873659fa9c9856"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#acd79c58eae5644c6c7873659fa9c9856">game_state_draws</a> (void)</td></tr>
+<tr class="separator:acd79c58eae5644c6c7873659fa9c9856"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a359ccd518279c3da44b8f83d782a6fcd" id="r_a359ccd518279c3da44b8f83d782a6fcd"><td class="memItemLeft" align="right" valign="top">bool *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a359ccd518279c3da44b8f83d782a6fcd">game_state_endgame_report_requested</a> (void)</td></tr>
+<tr class="separator:a359ccd518279c3da44b8f83d782a6fcd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8856fa4b768d56bc3f298ce265e385cd" id="r_a8856fa4b768d56bc3f298ce265e385cd"><td class="memItemLeft" align="right" valign="top"><a class="el" href="game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63ca">endgame_reason_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a8856fa4b768d56bc3f298ce265e385cd">game_state_current_endgame_reason</a> (void)</td></tr>
+<tr class="separator:a8856fa4b768d56bc3f298ce265e385cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5c653c95107d02420f46ba00eda941ae" id="r_a5c653c95107d02420f46ba00eda941ae"><td class="memItemLeft" align="right" valign="top"><a class="el" href="game__task_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428">last_move_type_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a5c653c95107d02420f46ba00eda941ae">game_state_last_move_type</a> (void)</td></tr>
+<tr class="separator:a5c653c95107d02420f46ba00eda941ae"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a098ce393f1bb557edc653a59a4c30a2f" id="r_a098ce393f1bb557edc653a59a4c30a2f"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a098ce393f1bb557edc653a59a4c30a2f">game_state_game_start_time</a> (void)</td></tr>
+<tr class="separator:a098ce393f1bb557edc653a59a4c30a2f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab3242dbc19d280ce5ef502976663e3fc" id="r_ab3242dbc19d280ce5ef502976663e3fc"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ab3242dbc19d280ce5ef502976663e3fc">game_state_last_move_time</a> (void)</td></tr>
+<tr class="separator:ab3242dbc19d280ce5ef502976663e3fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a23ba0732a5d9af44facbc95eded4edd6" id="r_a23ba0732a5d9af44facbc95eded4edd6"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a23ba0732a5d9af44facbc95eded4edd6">game_state_white_time_total</a> (void)</td></tr>
+<tr class="separator:a23ba0732a5d9af44facbc95eded4edd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae337c822c64e7966ec26553733e1db26" id="r_ae337c822c64e7966ec26553733e1db26"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ae337c822c64e7966ec26553733e1db26">game_state_black_time_total</a> (void)</td></tr>
+<tr class="separator:ae337c822c64e7966ec26553733e1db26"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5545e0aa9849cda0d165b1ddff6b2196" id="r_a5545e0aa9849cda0d165b1ddff6b2196"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a5545e0aa9849cda0d165b1ddff6b2196">game_state_white_moves_count</a> (void)</td></tr>
+<tr class="separator:a5545e0aa9849cda0d165b1ddff6b2196"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a73c44878e3dc7ee920181b0e602e2147" id="r_a73c44878e3dc7ee920181b0e602e2147"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a73c44878e3dc7ee920181b0e602e2147">game_state_black_moves_count</a> (void)</td></tr>
+<tr class="separator:a73c44878e3dc7ee920181b0e602e2147"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0d3636a06004ee9bb1bdbe75b67587ba" id="r_a0d3636a06004ee9bb1bdbe75b67587ba"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0d3636a06004ee9bb1bdbe75b67587ba">game_state_white_captures</a> (void)</td></tr>
+<tr class="separator:a0d3636a06004ee9bb1bdbe75b67587ba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4e7288e6622a89c9856b59c55fcc62b6" id="r_a4e7288e6622a89c9856b59c55fcc62b6"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a4e7288e6622a89c9856b59c55fcc62b6">game_state_black_captures</a> (void)</td></tr>
+<tr class="separator:a4e7288e6622a89c9856b59c55fcc62b6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a49c0fa497bd76495b87d6cc3e9da77cc" id="r_a49c0fa497bd76495b87d6cc3e9da77cc"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a49c0fa497bd76495b87d6cc3e9da77cc">game_state_white_checks</a> (void)</td></tr>
+<tr class="separator:a49c0fa497bd76495b87d6cc3e9da77cc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7e4798c76998a82e73c02166bdf660f0" id="r_a7e4798c76998a82e73c02166bdf660f0"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a7e4798c76998a82e73c02166bdf660f0">game_state_black_checks</a> (void)</td></tr>
+<tr class="separator:a7e4798c76998a82e73c02166bdf660f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa60208d89fe2877953e05b90bcd216a1" id="r_aa60208d89fe2877953e05b90bcd216a1"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aa60208d89fe2877953e05b90bcd216a1">game_state_white_castles</a> (void)</td></tr>
+<tr class="separator:aa60208d89fe2877953e05b90bcd216a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9d6c64ba816de520fbf3717f4810ef2e" id="r_a9d6c64ba816de520fbf3717f4810ef2e"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a9d6c64ba816de520fbf3717f4810ef2e">game_state_black_castles</a> (void)</td></tr>
+<tr class="separator:a9d6c64ba816de520fbf3717f4810ef2e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a22569b539d43ba4e58fdadcaee7f2493" id="r_a22569b539d43ba4e58fdadcaee7f2493"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a22569b539d43ba4e58fdadcaee7f2493">game_state_white_captured_pieces</a> (void)</td></tr>
+<tr class="separator:a22569b539d43ba4e58fdadcaee7f2493"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa9a6d8ab206a4627b47c0ffba7052e17" id="r_aa9a6d8ab206a4627b47c0ffba7052e17"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aa9a6d8ab206a4627b47c0ffba7052e17">game_state_black_captured_pieces</a> (void)</td></tr>
+<tr class="separator:aa9a6d8ab206a4627b47c0ffba7052e17"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7d646cc82f5936f19a90a65f454e3f5f" id="r_a7d646cc82f5936f19a90a65f454e3f5f"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a7d646cc82f5936f19a90a65f454e3f5f">game_state_white_captured_count</a> (void)</td></tr>
+<tr class="separator:a7d646cc82f5936f19a90a65f454e3f5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ada2ff2c73acae924a31ef3293eb9c402" id="r_ada2ff2c73acae924a31ef3293eb9c402"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ada2ff2c73acae924a31ef3293eb9c402">game_state_black_captured_count</a> (void)</td></tr>
+<tr class="separator:ada2ff2c73acae924a31ef3293eb9c402"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02fe55d85a8fb5f51137da3f0c62be52" id="r_a02fe55d85a8fb5f51137da3f0c62be52"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a02fe55d85a8fb5f51137da3f0c62be52">game_state_white_captured_index</a> (void)</td></tr>
+<tr class="separator:a02fe55d85a8fb5f51137da3f0c62be52"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5a178efba32569f31ee3596c92a046cd" id="r_a5a178efba32569f31ee3596c92a046cd"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a5a178efba32569f31ee3596c92a046cd">game_state_black_captured_index</a> (void)</td></tr>
+<tr class="separator:a5a178efba32569f31ee3596c92a046cd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa65c16c1b8f3028ebd6ba8df0bcd2f29" id="r_aa65c16c1b8f3028ebd6ba8df0bcd2f29"><td class="memItemLeft" align="right" valign="top">int8_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aa65c16c1b8f3028ebd6ba8df0bcd2f29">game_state_material_advantage_history</a> (void)</td></tr>
+<tr class="separator:aa65c16c1b8f3028ebd6ba8df0bcd2f29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afd83ddc0dc1369d540fb7a44332f3363" id="r_afd83ddc0dc1369d540fb7a44332f3363"><td class="memItemLeft" align="right" valign="top">uint32_t *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#afd83ddc0dc1369d540fb7a44332f3363">game_state_advantage_history_count</a> (void)</td></tr>
+<tr class="separator:afd83ddc0dc1369d540fb7a44332f3363"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aa0154cedb471aa4f88676895ee3e16c4" id="r_aa0154cedb471aa4f88676895ee3e16c4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d">game_state_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aa0154cedb471aa4f88676895ee3e16c4">game_state_game_result</a> (void)</td></tr>
+<tr class="separator:aa0154cedb471aa4f88676895ee3e16c4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0b3a9901a83b967aef74e95dedcdf3f0" id="r_a0b3a9901a83b967aef74e95dedcdf3f0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10">game_result_type_t</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0b3a9901a83b967aef74e95dedcdf3f0">game_state_current_result_type</a> (void)</td></tr>
+<tr class="separator:a0b3a9901a83b967aef74e95dedcdf3f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a9b4cb898b4bc25bca38d4533fc6ff025" id="r_a9b4cb898b4bc25bca38d4533fc6ff025"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a9b4cb898b4bc25bca38d4533fc6ff025">game_update_endgame_statistics</a> (<a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10">game_result_type_t</a> result_type)</td></tr>
 <tr class="memdesc:a9b4cb898b4bc25bca38d4533fc6ff025"><td class="mdescLeft">&#160;</td><td class="mdescRight">Update endgame statistics (centralized function)  <br /></td></tr>
 <tr class="separator:a9b4cb898b4bc25bca38d4533fc6ff025"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -224,17 +374,693 @@ Functions</h2></td></tr>
 <tr class="memitem:a870a53ed0d150a3c293bcbcb76986fb2" id="r_a870a53ed0d150a3c293bcbcb76986fb2"><td class="memItemLeft" align="right" valign="top">const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a870a53ed0d150a3c293bcbcb76986fb2">game_get_game_state_string</a> (void)</td></tr>
 <tr class="memdesc:a870a53ed0d150a3c293bcbcb76986fb2"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get game state as string.  <br /></td></tr>
 <tr class="separator:a870a53ed0d150a3c293bcbcb76986fb2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2f0344775e155aaaaa2c896a13453228" id="r_a2f0344775e155aaaaa2c896a13453228"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a2f0344775e155aaaaa2c896a13453228">piece_to_char</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:a2f0344775e155aaaaa2c896a13453228"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3188c30ca0951b2b2e762ab26cb0a4b" id="r_af3188c30ca0951b2b2e762ab26cb0a4b"><td class="memItemLeft" align="right" valign="top">static int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#af3188c30ca0951b2b2e762ab26cb0a4b">game_calculate_material_advantage</a> (void)</td></tr>
+<tr class="separator:af3188c30ca0951b2b2e762ab26cb0a4b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab5de96e778a937b9331d832bd6e96cf8" id="r_ab5de96e778a937b9331d832bd6e96cf8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ab5de96e778a937b9331d832bd6e96cf8">game_record_material_advantage</a> (void)</td></tr>
+<tr class="separator:ab5de96e778a937b9331d832bd6e96cf8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af9573718b1c9e531b771c3d938ff88e3" id="r_af9573718b1c9e531b771c3d938ff88e3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#af9573718b1c9e531b771c3d938ff88e3">game_add_captured_piece</a> (<a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> piece)</td></tr>
+<tr class="separator:af9573718b1c9e531b771c3d938ff88e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a715422f9b34ce3aff72a852b7951ebba" id="r_a715422f9b34ce3aff72a852b7951ebba"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a715422f9b34ce3aff72a852b7951ebba">game_calculate_material_balance</a> (int *white_material, int *black_material)</td></tr>
+<tr class="memdesc:a715422f9b34ce3aff72a852b7951ebba"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypocitej materialovou rovnovahu.  <br /></td></tr>
+<tr class="separator:a715422f9b34ce3aff72a852b7951ebba"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a13f42aca89279614ea9159dec44ae36c" id="r_a13f42aca89279614ea9159dec44ae36c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a13f42aca89279614ea9159dec44ae36c">game_get_material_string</a> (char *buffer, size_t buffer_size)</td></tr>
+<tr class="memdesc:a13f42aca89279614ea9159dec44ae36c"><td class="mdescLeft">&#160;</td><td class="mdescRight">Ziskej textovy retezec material balance.  <br /></td></tr>
+<tr class="separator:a13f42aca89279614ea9159dec44ae36c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a605e2e1374b4e7090941389e6a581a24" id="r_a605e2e1374b4e7090941389e6a581a24"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a605e2e1374b4e7090941389e6a581a24">game_print_game_stats</a> (void)</td></tr>
+<tr class="memdesc:a605e2e1374b4e7090941389e6a581a24"><td class="mdescLeft">&#160;</td><td class="mdescRight">Vypis statistiky hry.  <br /></td></tr>
+<tr class="separator:a605e2e1374b4e7090941389e6a581a24"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0a4948efe62eece9f97fd6eef22db6e8" id="r_a0a4948efe62eece9f97fd6eef22db6e8"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0a4948efe62eece9f97fd6eef22db6e8">game_export_pgn</a> (char *pgn_buffer, size_t buffer_size)</td></tr>
+<tr class="separator:a0a4948efe62eece9f97fd6eef22db6e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5de9f9c3afdd4cd10f85b573dfe7cc32" id="r_a5de9f9c3afdd4cd10f85b573dfe7cc32"><td class="memItemLeft" align="right" valign="top">uint8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a5de9f9c3afdd4cd10f85b573dfe7cc32">game_endgame_reason</a> (void)</td></tr>
+<tr class="separator:a5de9f9c3afdd4cd10f85b573dfe7cc32"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
 Variables</h2></td></tr>
 <tr class="memitem:a5a85b9c772bbeb480b209a3e6ea92b4c" id="r_a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memItemLeft" align="right" valign="top">static const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c">TAG</a> = &quot;GAME_ENDGAME&quot;</td></tr>
 <tr class="separator:a5a85b9c772bbeb480b209a3e6ea92b4c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0225a45520b0e733624ab0d901bd1094" id="r_a0225a45520b0e733624ab0d901bd1094"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0225a45520b0e733624ab0d901bd1094">s_total_games</a> = 0</td></tr>
+<tr class="separator:a0225a45520b0e733624ab0d901bd1094"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a24022391eceb448a5cddb1898165cb02" id="r_a24022391eceb448a5cddb1898165cb02"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a24022391eceb448a5cddb1898165cb02">s_white_wins</a> = 0</td></tr>
+<tr class="separator:a24022391eceb448a5cddb1898165cb02"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6a8767c1db2a49bb15a9169d7135ee9e" id="r_a6a8767c1db2a49bb15a9169d7135ee9e"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a6a8767c1db2a49bb15a9169d7135ee9e">s_black_wins</a> = 0</td></tr>
+<tr class="separator:a6a8767c1db2a49bb15a9169d7135ee9e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f0ce4bee9371e1bbd8b041b5c23b3e7" id="r_a3f0ce4bee9371e1bbd8b041b5c23b3e7"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a3f0ce4bee9371e1bbd8b041b5c23b3e7">s_draws</a> = 0</td></tr>
+<tr class="separator:a3f0ce4bee9371e1bbd8b041b5c23b3e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af32939a65fa66a6b53de84c4a46cac76" id="r_af32939a65fa66a6b53de84c4a46cac76"><td class="memItemLeft" align="right" valign="top">static bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#af32939a65fa66a6b53de84c4a46cac76">s_endgame_report_requested</a> = false</td></tr>
+<tr class="separator:af32939a65fa66a6b53de84c4a46cac76"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aebb9f003d0409a1c1b20784363b987f8" id="r_aebb9f003d0409a1c1b20784363b987f8"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63ca">endgame_reason_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aebb9f003d0409a1c1b20784363b987f8">s_current_endgame_reason</a> = <a class="el" href="game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa52cd39edd88b14727c7fad1cef6ee7d2">ENDGAME_REASON_CHECKMATE</a></td></tr>
+<tr class="separator:aebb9f003d0409a1c1b20784363b987f8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acfe8cf41ae612470f5115eb6524935e3" id="r_acfe8cf41ae612470f5115eb6524935e3"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="game__task_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428">last_move_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#acfe8cf41ae612470f5115eb6524935e3">s_last_move_type</a> = <a class="el" href="game__task_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428adaa3371423259563b378fbafc75fd5d7">LAST_MOVE_NORMAL</a></td></tr>
+<tr class="separator:acfe8cf41ae612470f5115eb6524935e3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a33bdceffe16721f0e5c10a3150f41c5e" id="r_a33bdceffe16721f0e5c10a3150f41c5e"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a33bdceffe16721f0e5c10a3150f41c5e">s_game_start_time</a> = 0</td></tr>
+<tr class="separator:a33bdceffe16721f0e5c10a3150f41c5e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0aa867c0e7e13fb495ae767acc6604b8" id="r_a0aa867c0e7e13fb495ae767acc6604b8"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0aa867c0e7e13fb495ae767acc6604b8">s_last_move_time</a> = 0</td></tr>
+<tr class="separator:a0aa867c0e7e13fb495ae767acc6604b8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9a69225775c3336c434cffc09fbc2b58" id="r_a9a69225775c3336c434cffc09fbc2b58"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a9a69225775c3336c434cffc09fbc2b58">s_white_time_total</a> = 0</td></tr>
+<tr class="separator:a9a69225775c3336c434cffc09fbc2b58"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a142ba289ab091d19f77cdd9af0ac47a6" id="r_a142ba289ab091d19f77cdd9af0ac47a6"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a142ba289ab091d19f77cdd9af0ac47a6">s_black_time_total</a> = 0</td></tr>
+<tr class="separator:a142ba289ab091d19f77cdd9af0ac47a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9171a7c9a4c71b4bbf3aa048e343bf9c" id="r_a9171a7c9a4c71b4bbf3aa048e343bf9c"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a9171a7c9a4c71b4bbf3aa048e343bf9c">s_white_moves_count</a> = 0</td></tr>
+<tr class="separator:a9171a7c9a4c71b4bbf3aa048e343bf9c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d4f24808d919c897817f5668d1c0f04" id="r_a6d4f24808d919c897817f5668d1c0f04"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a6d4f24808d919c897817f5668d1c0f04">s_black_moves_count</a> = 0</td></tr>
+<tr class="separator:a6d4f24808d919c897817f5668d1c0f04"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a84380ae4e4242d6d00083795df89bdb5" id="r_a84380ae4e4242d6d00083795df89bdb5"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a84380ae4e4242d6d00083795df89bdb5">s_white_captures</a> = 0</td></tr>
+<tr class="separator:a84380ae4e4242d6d00083795df89bdb5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1d4e472c12f42b31776aa927519f647f" id="r_a1d4e472c12f42b31776aa927519f647f"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a1d4e472c12f42b31776aa927519f647f">s_black_captures</a> = 0</td></tr>
+<tr class="separator:a1d4e472c12f42b31776aa927519f647f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9c7d462b75035dd569cedd9fcd1c0552" id="r_a9c7d462b75035dd569cedd9fcd1c0552"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a9c7d462b75035dd569cedd9fcd1c0552">s_white_checks</a> = 0</td></tr>
+<tr class="separator:a9c7d462b75035dd569cedd9fcd1c0552"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4b9e075049ac9eed8026f8c0bc0b6411" id="r_a4b9e075049ac9eed8026f8c0bc0b6411"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a4b9e075049ac9eed8026f8c0bc0b6411">s_black_checks</a> = 0</td></tr>
+<tr class="separator:a4b9e075049ac9eed8026f8c0bc0b6411"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab6384d4d63005cae4062b931397b1b5f" id="r_ab6384d4d63005cae4062b931397b1b5f"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ab6384d4d63005cae4062b931397b1b5f">s_white_castles</a> = 0</td></tr>
+<tr class="separator:ab6384d4d63005cae4062b931397b1b5f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8280075f749e1f545147ebe80844fe42" id="r_a8280075f749e1f545147ebe80844fe42"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a8280075f749e1f545147ebe80844fe42">s_black_castles</a> = 0</td></tr>
+<tr class="separator:a8280075f749e1f545147ebe80844fe42"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adf483f2af2c4eaf989988808afcf8134" id="r_adf483f2af2c4eaf989988808afcf8134"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#adf483f2af2c4eaf989988808afcf8134">s_white_captured_pieces</a> [<a class="el" href="game__task_8h.html#a6b3124bd6d484b5a24737fb72a8dfbfd">GAME_TASK_MAX_CAPTURED_PIECES</a>]</td></tr>
+<tr class="separator:adf483f2af2c4eaf989988808afcf8134"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe5d25f68f78d592d68586fcd31cd4b2" id="r_afe5d25f68f78d592d68586fcd31cd4b2"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#afe5d25f68f78d592d68586fcd31cd4b2">s_black_captured_pieces</a> [<a class="el" href="game__task_8h.html#a6b3124bd6d484b5a24737fb72a8dfbfd">GAME_TASK_MAX_CAPTURED_PIECES</a>]</td></tr>
+<tr class="separator:afe5d25f68f78d592d68586fcd31cd4b2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaa903aa372f63ae72d75327397b72af5" id="r_aaa903aa372f63ae72d75327397b72af5"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aaa903aa372f63ae72d75327397b72af5">s_white_captured_count</a> = 0</td></tr>
+<tr class="separator:aaa903aa372f63ae72d75327397b72af5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a50498c75be51f5ab591efd7070a179a2" id="r_a50498c75be51f5ab591efd7070a179a2"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a50498c75be51f5ab591efd7070a179a2">s_black_captured_count</a> = 0</td></tr>
+<tr class="separator:a50498c75be51f5ab591efd7070a179a2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1bb9701fa467c3fe2b00ed15a229ba7d" id="r_a1bb9701fa467c3fe2b00ed15a229ba7d"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a1bb9701fa467c3fe2b00ed15a229ba7d">s_white_captured_index</a> = 0</td></tr>
+<tr class="separator:a1bb9701fa467c3fe2b00ed15a229ba7d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeee83cfdb4926581398dadc96faeff53" id="r_aeee83cfdb4926581398dadc96faeff53"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#aeee83cfdb4926581398dadc96faeff53">s_black_captured_index</a> = 0</td></tr>
+<tr class="separator:aeee83cfdb4926581398dadc96faeff53"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac218f0c02ac26ddaa2f4e36f3778b0f7" id="r_ac218f0c02ac26ddaa2f4e36f3778b0f7"><td class="memItemLeft" align="right" valign="top">static int8_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ac218f0c02ac26ddaa2f4e36f3778b0f7">s_material_advantage_history</a> [<a class="el" href="game__task_8h.html#a66c405e53a84dd46a84837a23dbc5c97">GAME_TASK_MAX_ADVANTAGE_HISTORY</a>]</td></tr>
+<tr class="separator:ac218f0c02ac26ddaa2f4e36f3778b0f7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad670f7558a0128bd46a1f3dfe006321f" id="r_ad670f7558a0128bd46a1f3dfe006321f"><td class="memItemLeft" align="right" valign="top">static uint32_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#ad670f7558a0128bd46a1f3dfe006321f">s_advantage_history_count</a> = 0</td></tr>
+<tr class="separator:ad670f7558a0128bd46a1f3dfe006321f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af55aa2e81a39ecce5dc69a9ada89ddfd" id="r_af55aa2e81a39ecce5dc69a9ada89ddfd"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d">game_state_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#af55aa2e81a39ecce5dc69a9ada89ddfd">s_game_result</a> = <a class="el" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414dac440660deb460f2f6ad318818cd0458f">GAME_STATE_IDLE</a></td></tr>
+<tr class="separator:af55aa2e81a39ecce5dc69a9ada89ddfd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addbc12751380a47c6da4a94e64372cd4" id="r_addbc12751380a47c6da4a94e64372cd4"><td class="memItemLeft" align="right" valign="top">static <a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10">game_result_type_t</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#addbc12751380a47c6da4a94e64372cd4">s_current_result_type</a></td></tr>
+<tr class="separator:addbc12751380a47c6da4a94e64372cd4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0f99785951affb36a4998ea958983b86" id="r_a0f99785951affb36a4998ea958983b86"><td class="memItemLeft" align="right" valign="top">static const int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__endgame__report_8c.html#a0f99785951affb36a4998ea958983b86">piece_values</a> []</td></tr>
+<tr class="separator:a0f99785951affb36a4998ea958983b86"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Endgame statistics update, UART report formatting, win/draw getters. </p>
 
 <p class="definition">Definition in file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
-</div><h2 class="groupheader">Function Documentation</h2>
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="ad9fac112b83104c0d792c1e062d6f3ca" name="ad9fac112b83104c0d792c1e062d6f3ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad9fac112b83104c0d792c1e062d6f3ca">&#9670;&#160;</a></span>advantage_history_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define advantage_history_count&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#afd83ddc0dc1369d540fb7a44332f3363">game_state_advantage_history_count</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00130">130</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a592e61c9f2e0405de7dcf5becbed59ca" name="a592e61c9f2e0405de7dcf5becbed59ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a592e61c9f2e0405de7dcf5becbed59ca">&#9670;&#160;</a></span>black_captured_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_captured_count&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#ada2ff2c73acae924a31ef3293eb9c402">game_state_black_captured_count</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00114">114</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a650a6439cae36fe637d7f4b30215eb46" name="a650a6439cae36fe637d7f4b30215eb46"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a650a6439cae36fe637d7f4b30215eb46">&#9670;&#160;</a></span>black_captured_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_captured_index&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a5a178efba32569f31ee3596c92a046cd">game_state_black_captured_index</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00122">122</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a5993c54ea9de8f5945254a690a035832" name="a5993c54ea9de8f5945254a690a035832"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5993c54ea9de8f5945254a690a035832">&#9670;&#160;</a></span>black_captured_pieces</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_captured_pieces&#160;&#160;&#160;(<a class="el" href="game__endgame__report_8c.html#aa9a6d8ab206a4627b47c0ffba7052e17">game_state_black_captured_pieces</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00106">106</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a6ba83457257200cb8b5105b2bb0cb946" name="a6ba83457257200cb8b5105b2bb0cb946"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6ba83457257200cb8b5105b2bb0cb946">&#9670;&#160;</a></span>black_captures</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_captures&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a4e7288e6622a89c9856b59c55fcc62b6">game_state_black_captures</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00082">82</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="af2e5ed2ea1efe4c0cb7f1c025269d683" name="af2e5ed2ea1efe4c0cb7f1c025269d683"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2e5ed2ea1efe4c0cb7f1c025269d683">&#9670;&#160;</a></span>black_castles</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_castles&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a9d6c64ba816de520fbf3717f4810ef2e">game_state_black_castles</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00098">98</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a353a89edfff16c6c58bfc919446d0a1d" name="a353a89edfff16c6c58bfc919446d0a1d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a353a89edfff16c6c58bfc919446d0a1d">&#9670;&#160;</a></span>black_checks</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_checks&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a7e4798c76998a82e73c02166bdf660f0">game_state_black_checks</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00090">90</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a769b707346491e5ec3659b91894ee48e" name="a769b707346491e5ec3659b91894ee48e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a769b707346491e5ec3659b91894ee48e">&#9670;&#160;</a></span>black_moves_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_moves_count&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a73c44878e3dc7ee920181b0e602e2147">game_state_black_moves_count</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00074">74</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a0dd099d3a9ca6a38df46eb9eb7b464fc" name="a0dd099d3a9ca6a38df46eb9eb7b464fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0dd099d3a9ca6a38df46eb9eb7b464fc">&#9670;&#160;</a></span>black_time_total</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_time_total&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#ae337c822c64e7966ec26553733e1db26">game_state_black_time_total</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00066">66</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a7c93e76d038c08b6eb0f0c6cf10e4406" name="a7c93e76d038c08b6eb0f0c6cf10e4406"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7c93e76d038c08b6eb0f0c6cf10e4406">&#9670;&#160;</a></span>black_wins</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define black_wins&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a01709f0deb401973e92203dd0eae6bff">game_state_black_wins</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00034">34</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ab46789382c9b7800fdcee36dd1f5440b" name="ab46789382c9b7800fdcee36dd1f5440b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab46789382c9b7800fdcee36dd1f5440b">&#9670;&#160;</a></span>current_endgame_reason</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define current_endgame_reason&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a8856fa4b768d56bc3f298ce265e385cd">game_state_current_endgame_reason</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00046">46</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ab2e022b2080c4fa7a0cbb6993624e23f" name="ab2e022b2080c4fa7a0cbb6993624e23f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2e022b2080c4fa7a0cbb6993624e23f">&#9670;&#160;</a></span>current_result_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define current_result_type&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a0b3a9901a83b967aef74e95dedcdf3f0">game_state_current_result_type</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00139">139</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a212eab4d7394dc4bf87c169fd1ae681c" name="a212eab4d7394dc4bf87c169fd1ae681c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a212eab4d7394dc4bf87c169fd1ae681c">&#9670;&#160;</a></span>draws</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define draws&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#acd79c58eae5644c6c7873659fa9c9856">game_state_draws</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00038">38</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aee927408ed6004d9904f881fe03b3a78" name="aee927408ed6004d9904f881fe03b3a78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aee927408ed6004d9904f881fe03b3a78">&#9670;&#160;</a></span>endgame_report_requested</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define endgame_report_requested&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a359ccd518279c3da44b8f83d782a6fcd">game_state_endgame_report_requested</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00042">42</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a232d561056f987fb84d2c9ab92584a09" name="a232d561056f987fb84d2c9ab92584a09"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a232d561056f987fb84d2c9ab92584a09">&#9670;&#160;</a></span>game_result</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define game_result&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#aa0154cedb471aa4f88676895ee3e16c4">game_state_game_result</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00134">134</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aad5c20d1de22bad5ef5e06b875af9f55" name="aad5c20d1de22bad5ef5e06b875af9f55"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aad5c20d1de22bad5ef5e06b875af9f55">&#9670;&#160;</a></span>game_start_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define game_start_time&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a098ce393f1bb557edc653a59a4c30a2f">game_state_game_start_time</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00054">54</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a1ca65f520139f74d95da4b6eb6076bae" name="a1ca65f520139f74d95da4b6eb6076bae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1ca65f520139f74d95da4b6eb6076bae">&#9670;&#160;</a></span>last_move_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define last_move_time&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#ab3242dbc19d280ce5ef502976663e3fc">game_state_last_move_time</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00058">58</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a19c233ec30f1176bd9558a67788a561d" name="a19c233ec30f1176bd9558a67788a561d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a19c233ec30f1176bd9558a67788a561d">&#9670;&#160;</a></span>last_move_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define last_move_type&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a5c653c95107d02420f46ba00eda941ae">game_state_last_move_type</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00050">50</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="af48c14316db048d40fdd7375e8f78326" name="af48c14316db048d40fdd7375e8f78326"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af48c14316db048d40fdd7375e8f78326">&#9670;&#160;</a></span>material_advantage_history</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define material_advantage_history&#160;&#160;&#160;(<a class="el" href="game__endgame__report_8c.html#aa65c16c1b8f3028ebd6ba8df0bcd2f29">game_state_material_advantage_history</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00126">126</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a7a1fd46803422ded9121aad5cecb737c" name="a7a1fd46803422ded9121aad5cecb737c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7a1fd46803422ded9121aad5cecb737c">&#9670;&#160;</a></span>total_games</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define total_games&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a6f6e69b395e9fdbac4ea7481629a492e">game_state_total_games</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00026">26</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a0c0df6cb691a15bf9a67ed7d4b7150e7" name="a0c0df6cb691a15bf9a67ed7d4b7150e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0c0df6cb691a15bf9a67ed7d4b7150e7">&#9670;&#160;</a></span>white_captured_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_captured_count&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a7d646cc82f5936f19a90a65f454e3f5f">game_state_white_captured_count</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00110">110</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ab2790dc3f5a6affed3aae84dfe4a0b06" name="ab2790dc3f5a6affed3aae84dfe4a0b06"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab2790dc3f5a6affed3aae84dfe4a0b06">&#9670;&#160;</a></span>white_captured_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_captured_index&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a02fe55d85a8fb5f51137da3f0c62be52">game_state_white_captured_index</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00118">118</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="af2ab83d0ffc4efc08e8f2aa677f0fdc0" name="af2ab83d0ffc4efc08e8f2aa677f0fdc0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af2ab83d0ffc4efc08e8f2aa677f0fdc0">&#9670;&#160;</a></span>white_captured_pieces</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_captured_pieces&#160;&#160;&#160;(<a class="el" href="game__endgame__report_8c.html#a22569b539d43ba4e58fdadcaee7f2493">game_state_white_captured_pieces</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00102">102</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aa6707b501585c8ee1dc547a82a532569" name="aa6707b501585c8ee1dc547a82a532569"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa6707b501585c8ee1dc547a82a532569">&#9670;&#160;</a></span>white_captures</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_captures&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a0d3636a06004ee9bb1bdbe75b67587ba">game_state_white_captures</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00078">78</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aa255251dfcd0f43eb2be2fa1c2173879" name="aa255251dfcd0f43eb2be2fa1c2173879"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa255251dfcd0f43eb2be2fa1c2173879">&#9670;&#160;</a></span>white_castles</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_castles&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#aa60208d89fe2877953e05b90bcd216a1">game_state_white_castles</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00094">94</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ad1cb140a4e601b0c927b02c87de6e37f" name="ad1cb140a4e601b0c927b02c87de6e37f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad1cb140a4e601b0c927b02c87de6e37f">&#9670;&#160;</a></span>white_checks</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_checks&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a49c0fa497bd76495b87d6cc3e9da77cc">game_state_white_checks</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00086">86</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ae496a64fa75529edaaccde5914307105" name="ae496a64fa75529edaaccde5914307105"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae496a64fa75529edaaccde5914307105">&#9670;&#160;</a></span>white_moves_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_moves_count&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a5545e0aa9849cda0d165b1ddff6b2196">game_state_white_moves_count</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00070">70</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a3aa6d1a76eca48395ac6b0d82aaef183" name="a3aa6d1a76eca48395ac6b0d82aaef183"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3aa6d1a76eca48395ac6b0d82aaef183">&#9670;&#160;</a></span>white_time_total</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_time_total&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a23ba0732a5d9af44facbc95eded4edd6">game_state_white_time_total</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00062">62</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a1c2358e8f330b268e740af82fff4e1b7" name="a1c2358e8f330b268e740af82fff4e1b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1c2358e8f330b268e740af82fff4e1b7">&#9670;&#160;</a></span>white_wins</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define white_wins&#160;&#160;&#160;(*<a class="el" href="game__endgame__report_8c.html#a6c7888bb0b79ec96cbf2aa73bf65a988">game_state_white_wins</a>())</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00030">30</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="af9573718b1c9e531b771c3d938ff88e3" name="af9573718b1c9e531b771c3d938ff88e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af9573718b1c9e531b771c3d938ff88e3">&#9670;&#160;</a></span>game_add_captured_piece()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_add_captured_piece </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00638">638</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="af3188c30ca0951b2b2e762ab26cb0a4b" name="af3188c30ca0951b2b2e762ab26cb0a4b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3188c30ca0951b2b2e762ab26cb0a4b">&#9670;&#160;</a></span>game_calculate_material_advantage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">static int8_t game_calculate_material_advantage </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00567">567</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a715422f9b34ce3aff72a852b7951ebba" name="a715422f9b34ce3aff72a852b7951ebba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a715422f9b34ce3aff72a852b7951ebba">&#9670;&#160;</a></span>game_calculate_material_balance()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int game_calculate_material_balance </td>
+          <td>(</td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>white_material</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *&#160;</td>
+          <td class="paramname"><em>black_material</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vypocitej materialovou rovnovahu. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00673">673</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a5de9f9c3afdd4cd10f85b573dfe7cc32" name="a5de9f9c3afdd4cd10f85b573dfe7cc32"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5de9f9c3afdd4cd10f85b573dfe7cc32">&#9670;&#160;</a></span>game_endgame_reason()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint8_t game_endgame_reason </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00842">842</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a0a4948efe62eece9f97fd6eef22db6e8" name="a0a4948efe62eece9f97fd6eef22db6e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0a4948efe62eece9f97fd6eef22db6e8">&#9670;&#160;</a></span>game_export_pgn()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_export_pgn </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>pgn_buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>buffer_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00786">786</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
 <a id="a4c5423c283319ea94779b79682ca9b98" name="a4c5423c283319ea94779b79682ca9b98"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4c5423c283319ea94779b79682ca9b98">&#9670;&#160;</a></span>game_get_black_wins()</h2>
 
@@ -254,7 +1080,7 @@ Variables</h2></td></tr>
 <p>Get black wins count. </p>
 <p>Ziskej pocet vyher cerneho. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00378">378</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00500">500</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -277,7 +1103,7 @@ Variables</h2></td></tr>
 <p>Get draws count. </p>
 <p>Ziskej pocet remiz. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00383">383</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00505">505</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -300,7 +1126,39 @@ Variables</h2></td></tr>
 <p>Get game state as string. </p>
 <p>Get the game state text string. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00393">393</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00515">515</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a13f42aca89279614ea9159dec44ae36c" name="a13f42aca89279614ea9159dec44ae36c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a13f42aca89279614ea9159dec44ae36c">&#9670;&#160;</a></span>game_get_material_string()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_get_material_string </td>
+          <td>(</td>
+          <td class="paramtype">char *&#160;</td>
+          <td class="paramname"><em>buffer</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">size_t&#160;</td>
+          <td class="paramname"><em>buffer_size</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Ziskej textovy retezec material balance. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00699">699</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -323,7 +1181,7 @@ Variables</h2></td></tr>
 <p>Get total games count. </p>
 <p>Ziskej celkovy pocet her. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00388">388</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00510">510</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -346,7 +1204,7 @@ Variables</h2></td></tr>
 <p>Get white wins count. </p>
 <p>Ziskej pocet vyher bileho. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00373">373</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00495">495</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -366,7 +1224,629 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00170">170</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00292">292</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a605e2e1374b4e7090941389e6a581a24" name="a605e2e1374b4e7090941389e6a581a24"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a605e2e1374b4e7090941389e6a581a24">&#9670;&#160;</a></span>game_print_game_stats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_print_game_stats </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Vypis statistiky hry. </p>
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00713">713</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ab5de96e778a937b9331d832bd6e96cf8" name="ab5de96e778a937b9331d832bd6e96cf8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab5de96e778a937b9331d832bd6e96cf8">&#9670;&#160;</a></span>game_record_material_advantage()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game_record_material_advantage </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00629">629</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="afd83ddc0dc1369d540fb7a44332f3363" name="afd83ddc0dc1369d540fb7a44332f3363"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afd83ddc0dc1369d540fb7a44332f3363">&#9670;&#160;</a></span>game_state_advantage_history_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_advantage_history_count </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00129">129</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ada2ff2c73acae924a31ef3293eb9c402" name="ada2ff2c73acae924a31ef3293eb9c402"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada2ff2c73acae924a31ef3293eb9c402">&#9670;&#160;</a></span>game_state_black_captured_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_captured_count </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00113">113</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a5a178efba32569f31ee3596c92a046cd" name="a5a178efba32569f31ee3596c92a046cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5a178efba32569f31ee3596c92a046cd">&#9670;&#160;</a></span>game_state_black_captured_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_captured_index </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00121">121</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aa9a6d8ab206a4627b47c0ffba7052e17" name="aa9a6d8ab206a4627b47c0ffba7052e17"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa9a6d8ab206a4627b47c0ffba7052e17">&#9670;&#160;</a></span>game_state_black_captured_pieces()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> * game_state_black_captured_pieces </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00105">105</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a4e7288e6622a89c9856b59c55fcc62b6" name="a4e7288e6622a89c9856b59c55fcc62b6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4e7288e6622a89c9856b59c55fcc62b6">&#9670;&#160;</a></span>game_state_black_captures()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_captures </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00081">81</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a9d6c64ba816de520fbf3717f4810ef2e" name="a9d6c64ba816de520fbf3717f4810ef2e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9d6c64ba816de520fbf3717f4810ef2e">&#9670;&#160;</a></span>game_state_black_castles()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_castles </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00097">97</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a7e4798c76998a82e73c02166bdf660f0" name="a7e4798c76998a82e73c02166bdf660f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7e4798c76998a82e73c02166bdf660f0">&#9670;&#160;</a></span>game_state_black_checks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_checks </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00089">89</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a73c44878e3dc7ee920181b0e602e2147" name="a73c44878e3dc7ee920181b0e602e2147"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a73c44878e3dc7ee920181b0e602e2147">&#9670;&#160;</a></span>game_state_black_moves_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_moves_count </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00073">73</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ae337c822c64e7966ec26553733e1db26" name="ae337c822c64e7966ec26553733e1db26"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae337c822c64e7966ec26553733e1db26">&#9670;&#160;</a></span>game_state_black_time_total()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_time_total </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00065">65</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a01709f0deb401973e92203dd0eae6bff" name="a01709f0deb401973e92203dd0eae6bff"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a01709f0deb401973e92203dd0eae6bff">&#9670;&#160;</a></span>game_state_black_wins()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_black_wins </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00033">33</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a8856fa4b768d56bc3f298ce265e385cd" name="a8856fa4b768d56bc3f298ce265e385cd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8856fa4b768d56bc3f298ce265e385cd">&#9670;&#160;</a></span>game_state_current_endgame_reason()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63ca">endgame_reason_t</a> * game_state_current_endgame_reason </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00045">45</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a0b3a9901a83b967aef74e95dedcdf3f0" name="a0b3a9901a83b967aef74e95dedcdf3f0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0b3a9901a83b967aef74e95dedcdf3f0">&#9670;&#160;</a></span>game_state_current_result_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10">game_result_type_t</a> * game_state_current_result_type </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00138">138</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="acd79c58eae5644c6c7873659fa9c9856" name="acd79c58eae5644c6c7873659fa9c9856"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd79c58eae5644c6c7873659fa9c9856">&#9670;&#160;</a></span>game_state_draws()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_draws </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00037">37</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a359ccd518279c3da44b8f83d782a6fcd" name="a359ccd518279c3da44b8f83d782a6fcd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a359ccd518279c3da44b8f83d782a6fcd">&#9670;&#160;</a></span>game_state_endgame_report_requested()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool * game_state_endgame_report_requested </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00041">41</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aa0154cedb471aa4f88676895ee3e16c4" name="aa0154cedb471aa4f88676895ee3e16c4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa0154cedb471aa4f88676895ee3e16c4">&#9670;&#160;</a></span>game_state_game_result()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d">game_state_t</a> * game_state_game_result </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00133">133</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a098ce393f1bb557edc653a59a4c30a2f" name="a098ce393f1bb557edc653a59a4c30a2f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a098ce393f1bb557edc653a59a4c30a2f">&#9670;&#160;</a></span>game_state_game_start_time()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_game_start_time </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00053">53</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ab3242dbc19d280ce5ef502976663e3fc" name="ab3242dbc19d280ce5ef502976663e3fc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab3242dbc19d280ce5ef502976663e3fc">&#9670;&#160;</a></span>game_state_last_move_time()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_last_move_time </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00057">57</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a5c653c95107d02420f46ba00eda941ae" name="a5c653c95107d02420f46ba00eda941ae"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5c653c95107d02420f46ba00eda941ae">&#9670;&#160;</a></span>game_state_last_move_type()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="game__task_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428">last_move_type_t</a> * game_state_last_move_type </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00049">49</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aa65c16c1b8f3028ebd6ba8df0bcd2f29" name="aa65c16c1b8f3028ebd6ba8df0bcd2f29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa65c16c1b8f3028ebd6ba8df0bcd2f29">&#9670;&#160;</a></span>game_state_material_advantage_history()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int8_t * game_state_material_advantage_history </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00125">125</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a6f6e69b395e9fdbac4ea7481629a492e" name="a6f6e69b395e9fdbac4ea7481629a492e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f6e69b395e9fdbac4ea7481629a492e">&#9670;&#160;</a></span>game_state_total_games()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_total_games </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00025">25</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a7d646cc82f5936f19a90a65f454e3f5f" name="a7d646cc82f5936f19a90a65f454e3f5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7d646cc82f5936f19a90a65f454e3f5f">&#9670;&#160;</a></span>game_state_white_captured_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_captured_count </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00109">109</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a02fe55d85a8fb5f51137da3f0c62be52" name="a02fe55d85a8fb5f51137da3f0c62be52"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02fe55d85a8fb5f51137da3f0c62be52">&#9670;&#160;</a></span>game_state_white_captured_index()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_captured_index </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00117">117</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a22569b539d43ba4e58fdadcaee7f2493" name="a22569b539d43ba4e58fdadcaee7f2493"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a22569b539d43ba4e58fdadcaee7f2493">&#9670;&#160;</a></span>game_state_white_captured_pieces()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> * game_state_white_captured_pieces </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00101">101</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a0d3636a06004ee9bb1bdbe75b67587ba" name="a0d3636a06004ee9bb1bdbe75b67587ba"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0d3636a06004ee9bb1bdbe75b67587ba">&#9670;&#160;</a></span>game_state_white_captures()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_captures </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00077">77</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aa60208d89fe2877953e05b90bcd216a1" name="aa60208d89fe2877953e05b90bcd216a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aa60208d89fe2877953e05b90bcd216a1">&#9670;&#160;</a></span>game_state_white_castles()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_castles </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00093">93</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a49c0fa497bd76495b87d6cc3e9da77cc" name="a49c0fa497bd76495b87d6cc3e9da77cc"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a49c0fa497bd76495b87d6cc3e9da77cc">&#9670;&#160;</a></span>game_state_white_checks()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_checks </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00085">85</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a5545e0aa9849cda0d165b1ddff6b2196" name="a5545e0aa9849cda0d165b1ddff6b2196"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5545e0aa9849cda0d165b1ddff6b2196">&#9670;&#160;</a></span>game_state_white_moves_count()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_moves_count </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00069">69</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a23ba0732a5d9af44facbc95eded4edd6" name="a23ba0732a5d9af44facbc95eded4edd6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a23ba0732a5d9af44facbc95eded4edd6">&#9670;&#160;</a></span>game_state_white_time_total()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_time_total </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00061">61</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a6c7888bb0b79ec96cbf2aa73bf65a988" name="a6c7888bb0b79ec96cbf2aa73bf65a988"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6c7888bb0b79ec96cbf2aa73bf65a988">&#9670;&#160;</a></span>game_state_white_wins()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t * game_state_white_wins </td>
+          <td>(</td>
+          <td class="paramtype">void&#160;</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00029">29</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -394,7 +1874,27 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00028">28</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00150">150</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a2f0344775e155aaaaa2c896a13453228" name="a2f0344775e155aaaaa2c896a13453228"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2f0344775e155aaaaa2c896a13453228">&#9670;&#160;</a></span>piece_to_char()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char piece_to_char </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a>&#160;</td>
+          <td class="paramname"><em>piece</em></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00534">534</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -438,7 +1938,7 @@ Variables</h2></td></tr>
 </dl>
 <p>Tiskne hlavicku reportu s dvojitym ohranicenim (═══). Used at the start of a report or section. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00127">127</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00249">249</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -494,7 +1994,7 @@ Variables</h2></td></tr>
 <p>Prints a single line of the report in the format " • Label: Value". Supports printf-style formatting of values.</p>
 <p>Example: print_report_line("Winner", "%s", winner); print_report_line("Total Moves", "%u", move_count); </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00159">159</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00281">281</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
@@ -525,11 +2025,749 @@ Variables</h2></td></tr>
 <p>Print separator line. </p>
 <p>Tiskne oddelovaci caru (───) mezi sekce reportu. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00140">140</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00262">262</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>
 <h2 class="groupheader">Variable Documentation</h2>
+<a id="a0f99785951affb36a4998ea958983b86" name="a0f99785951affb36a4998ea958983b86"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0f99785951affb36a4998ea958983b86">&#9670;&#160;</a></span>piece_values</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">const int piece_values[]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">= {</div>
+<div class="line">    0, </div>
+<div class="line">    1, </div>
+<div class="line">    3, </div>
+<div class="line">    3, </div>
+<div class="line">    5, </div>
+<div class="line">    9, </div>
+<div class="line">    0, </div>
+<div class="line">    1, </div>
+<div class="line">    3, </div>
+<div class="line">    3, </div>
+<div class="line">    5, </div>
+<div class="line">    9, </div>
+<div class="line">    0  </div>
+<div class="line">}</div>
+</div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00657">657</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ad670f7558a0128bd46a1f3dfe006321f" name="ad670f7558a0128bd46a1f3dfe006321f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad670f7558a0128bd46a1f3dfe006321f">&#9670;&#160;</a></span>s_advantage_history_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_advantage_history_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00127">127</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a50498c75be51f5ab591efd7070a179a2" name="a50498c75be51f5ab591efd7070a179a2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a50498c75be51f5ab591efd7070a179a2">&#9670;&#160;</a></span>s_black_captured_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_captured_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00111">111</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aeee83cfdb4926581398dadc96faeff53" name="aeee83cfdb4926581398dadc96faeff53"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeee83cfdb4926581398dadc96faeff53">&#9670;&#160;</a></span>s_black_captured_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_captured_index = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00119">119</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="afe5d25f68f78d592d68586fcd31cd4b2" name="afe5d25f68f78d592d68586fcd31cd4b2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe5d25f68f78d592d68586fcd31cd4b2">&#9670;&#160;</a></span>s_black_captured_pieces</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> s_black_captured_pieces[<a class="el" href="game__task_8h.html#a6b3124bd6d484b5a24737fb72a8dfbfd">GAME_TASK_MAX_CAPTURED_PIECES</a>]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00103">103</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a1d4e472c12f42b31776aa927519f647f" name="a1d4e472c12f42b31776aa927519f647f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1d4e472c12f42b31776aa927519f647f">&#9670;&#160;</a></span>s_black_captures</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_captures = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00079">79</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a8280075f749e1f545147ebe80844fe42" name="a8280075f749e1f545147ebe80844fe42"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8280075f749e1f545147ebe80844fe42">&#9670;&#160;</a></span>s_black_castles</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_castles = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00095">95</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a4b9e075049ac9eed8026f8c0bc0b6411" name="a4b9e075049ac9eed8026f8c0bc0b6411"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4b9e075049ac9eed8026f8c0bc0b6411">&#9670;&#160;</a></span>s_black_checks</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_checks = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00087">87</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a6d4f24808d919c897817f5668d1c0f04" name="a6d4f24808d919c897817f5668d1c0f04"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d4f24808d919c897817f5668d1c0f04">&#9670;&#160;</a></span>s_black_moves_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_moves_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00071">71</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a142ba289ab091d19f77cdd9af0ac47a6" name="a142ba289ab091d19f77cdd9af0ac47a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a142ba289ab091d19f77cdd9af0ac47a6">&#9670;&#160;</a></span>s_black_time_total</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_time_total = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00063">63</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a6a8767c1db2a49bb15a9169d7135ee9e" name="a6a8767c1db2a49bb15a9169d7135ee9e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6a8767c1db2a49bb15a9169d7135ee9e">&#9670;&#160;</a></span>s_black_wins</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_black_wins = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00031">31</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aebb9f003d0409a1c1b20784363b987f8" name="aebb9f003d0409a1c1b20784363b987f8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aebb9f003d0409a1c1b20784363b987f8">&#9670;&#160;</a></span>s_current_endgame_reason</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63ca">endgame_reason_t</a> s_current_endgame_reason = <a class="el" href="game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa52cd39edd88b14727c7fad1cef6ee7d2">ENDGAME_REASON_CHECKMATE</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00043">43</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="addbc12751380a47c6da4a94e64372cd4" name="addbc12751380a47c6da4a94e64372cd4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#addbc12751380a47c6da4a94e64372cd4">&#9670;&#160;</a></span>s_current_result_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10">game_result_type_t</a> s_current_result_type</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+<b>Initial value:</b><div class="fragment"><div class="line">=</div>
+<div class="line">    <a class="code hl_enumvalue" href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602">RESULT_WHITE_WINS</a></div>
+<div class="ttc" id="achess__types_8h_html_a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602"><div class="ttname"><a href="chess__types_8h.html#a4d48e82714c3766a44b6ae5378386b10abb26be1a9e2d11602e9c5968e1a63602">RESULT_WHITE_WINS</a></div><div class="ttdeci">@ RESULT_WHITE_WINS</div><div class="ttdoc">Bily vitezi.</div><div class="ttdef"><b>Definition</b> <a href="chess__types_8h_source.html#l00109">chess_types.h:109</a></div></div>
+</div><!-- fragment -->
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00135">135</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a3f0ce4bee9371e1bbd8b041b5c23b3e7" name="a3f0ce4bee9371e1bbd8b041b5c23b3e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f0ce4bee9371e1bbd8b041b5c23b3e7">&#9670;&#160;</a></span>s_draws</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_draws = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00035">35</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="af32939a65fa66a6b53de84c4a46cac76" name="af32939a65fa66a6b53de84c4a46cac76"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af32939a65fa66a6b53de84c4a46cac76">&#9670;&#160;</a></span>s_endgame_report_requested</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool s_endgame_report_requested = false</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00039">39</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="af55aa2e81a39ecce5dc69a9ada89ddfd" name="af55aa2e81a39ecce5dc69a9ada89ddfd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af55aa2e81a39ecce5dc69a9ada89ddfd">&#9670;&#160;</a></span>s_game_result</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414d">game_state_t</a> s_game_result = <a class="el" href="chess__types_8h.html#a4edce1ca040716922b6e4a79be4e414dac440660deb460f2f6ad318818cd0458f">GAME_STATE_IDLE</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00131">131</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a33bdceffe16721f0e5c10a3150f41c5e" name="a33bdceffe16721f0e5c10a3150f41c5e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a33bdceffe16721f0e5c10a3150f41c5e">&#9670;&#160;</a></span>s_game_start_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_game_start_time = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00051">51</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a0aa867c0e7e13fb495ae767acc6604b8" name="a0aa867c0e7e13fb495ae767acc6604b8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0aa867c0e7e13fb495ae767acc6604b8">&#9670;&#160;</a></span>s_last_move_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_last_move_time = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00055">55</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="acfe8cf41ae612470f5115eb6524935e3" name="acfe8cf41ae612470f5115eb6524935e3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acfe8cf41ae612470f5115eb6524935e3">&#9670;&#160;</a></span>s_last_move_type</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="game__task_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428">last_move_type_t</a> s_last_move_type = <a class="el" href="game__task_8h.html#a35ee807e9b8fc9f96e7a97f77e38b428adaa3371423259563b378fbafc75fd5d7">LAST_MOVE_NORMAL</a></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00047">47</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ac218f0c02ac26ddaa2f4e36f3778b0f7" name="ac218f0c02ac26ddaa2f4e36f3778b0f7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac218f0c02ac26ddaa2f4e36f3778b0f7">&#9670;&#160;</a></span>s_material_advantage_history</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">int8_t s_material_advantage_history[<a class="el" href="game__task_8h.html#a66c405e53a84dd46a84837a23dbc5c97">GAME_TASK_MAX_ADVANTAGE_HISTORY</a>]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00123">123</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a0225a45520b0e733624ab0d901bd1094" name="a0225a45520b0e733624ab0d901bd1094"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0225a45520b0e733624ab0d901bd1094">&#9670;&#160;</a></span>s_total_games</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_total_games = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00023">23</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="aaa903aa372f63ae72d75327397b72af5" name="aaa903aa372f63ae72d75327397b72af5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaa903aa372f63ae72d75327397b72af5">&#9670;&#160;</a></span>s_white_captured_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_captured_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00107">107</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a1bb9701fa467c3fe2b00ed15a229ba7d" name="a1bb9701fa467c3fe2b00ed15a229ba7d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1bb9701fa467c3fe2b00ed15a229ba7d">&#9670;&#160;</a></span>s_white_captured_index</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_captured_index = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00115">115</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="adf483f2af2c4eaf989988808afcf8134" name="adf483f2af2c4eaf989988808afcf8134"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adf483f2af2c4eaf989988808afcf8134">&#9670;&#160;</a></span>s_white_captured_pieces</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="chess__types_8h.html#ab9be55f539b97c45fb9f57efded733c2">piece_t</a> s_white_captured_pieces[<a class="el" href="game__task_8h.html#a6b3124bd6d484b5a24737fb72a8dfbfd">GAME_TASK_MAX_CAPTURED_PIECES</a>]</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00099">99</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a84380ae4e4242d6d00083795df89bdb5" name="a84380ae4e4242d6d00083795df89bdb5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a84380ae4e4242d6d00083795df89bdb5">&#9670;&#160;</a></span>s_white_captures</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_captures = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00075">75</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="ab6384d4d63005cae4062b931397b1b5f" name="ab6384d4d63005cae4062b931397b1b5f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab6384d4d63005cae4062b931397b1b5f">&#9670;&#160;</a></span>s_white_castles</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_castles = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00091">91</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a9c7d462b75035dd569cedd9fcd1c0552" name="a9c7d462b75035dd569cedd9fcd1c0552"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9c7d462b75035dd569cedd9fcd1c0552">&#9670;&#160;</a></span>s_white_checks</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_checks = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00083">83</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a9171a7c9a4c71b4bbf3aa048e343bf9c" name="a9171a7c9a4c71b4bbf3aa048e343bf9c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9171a7c9a4c71b4bbf3aa048e343bf9c">&#9670;&#160;</a></span>s_white_moves_count</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_moves_count = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00067">67</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a9a69225775c3336c434cffc09fbc2b58" name="a9a69225775c3336c434cffc09fbc2b58"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9a69225775c3336c434cffc09fbc2b58">&#9670;&#160;</a></span>s_white_time_total</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_time_total = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00059">59</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
+<a id="a24022391eceb448a5cddb1898165cb02" name="a24022391eceb448a5cddb1898165cb02"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a24022391eceb448a5cddb1898165cb02">&#9670;&#160;</a></span>s_white_wins</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">uint32_t s_white_wins = 0</td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel">static</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00027">27</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+
+</div>
+</div>
 <a id="a5a85b9c772bbeb480b209a3e6ea92b4c" name="a5a85b9c772bbeb480b209a3e6ea92b4c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a5a85b9c772bbeb480b209a3e6ea92b4c">&#9670;&#160;</a></span>TAG</h2>
 
@@ -550,7 +2788,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00018">18</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__endgame__report_8c_source.html#l00021">21</a> of file <a class="el" href="game__endgame__report_8c_source.html">game_endgame_report.c</a>.</p>
 
 </div>
 </div>

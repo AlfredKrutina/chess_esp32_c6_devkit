@@ -11,7 +11,7 @@ var game__timer_8c =
     [ "game_init_timer_system", "game__timer_8c.html#a917f1907b236e1476e75bb033e2a3165", null ],
     [ "game_is_timer_active", "game__timer_8c.html#a2f01e5a8d282157e3cd8bd5a03b9c8b5", null ],
     [ "game_pause_timer", "game__timer_8c.html#a25364833eb80653b4d30414376f3fe35", null ],
-    [ "game_process_timer_command", "game__timer_8c.html#a7c1b38b6a6342df233fdcafe702b5a0f", null ],
+    [ "game_process_timer_command", "game__timer_8c.html#aad634223cc9bb62bc89454e06deb061d", null ],
     [ "game_reset_timer", "game__timer_8c.html#a0df29c9e5d4723c41477e530799976b0", null ],
     [ "game_resume_timer", "game__timer_8c.html#aa1855cbe07e70ad38d0fbd163e7e9746", null ],
     [ "game_set_custom_time_control", "game__timer_8c.html#a66ce03930668ef5869101bef9e2a8474", null ],

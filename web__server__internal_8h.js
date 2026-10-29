@@ -13,6 +13,8 @@ var web__server__internal_8h =
     [ "setup_tutorial_finish_in_cooldown", "web__server__internal_8h.html#a7f839d29533325d76c5148c78694031d", null ],
     [ "setup_tutorial_note_finish_conflict", "web__server__internal_8h.html#a5ccbc748aeeb55810f7eefc980b0d8f1", null ],
     [ "setup_tutorial_reset_finish_cooldown", "web__server__internal_8h.html#a938fe7ffdfcaf5921d8578e63ad76b7d", null ],
+    [ "web_game_submit_hint_clear", "web__server__internal_8h.html#a82a101aac46f356853d6d8c317bd007f", null ],
+    [ "web_json_body_complete", "web__server__internal_8h.html#a6cfd84c303a7dc28c619680dc5fb25f2", null ],
     [ "web_opening_action_code", "web__server__internal_8h.html#a2a234bbf8947a15eaa69092f5785e09b", null ],
     [ "web_server_apply_hint_highlight_json_body", "web__server__internal_8h.html#ae2ee8d0febaa6efbb435ca1a93784fa2", null ],
     [ "web_server_get_httpd_handle", "web__server__internal_8h.html#a79931a21b5e20ece42b9b17b28d94e8b", null ],

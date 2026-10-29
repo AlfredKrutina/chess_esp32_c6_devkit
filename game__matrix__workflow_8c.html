@@ -99,10 +99,16 @@ $(document).ready(function(){initNavTree('game__matrix__workflow_8c.html',''); i
 
 <p>Matrix-driven LED workflow, promotion command, movable highlights.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="game__task__internal_8h_source.html">game_task_internal.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="game__board__transition_8h_source.html">game_board_transition.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__physical__undo_8h_source.html">game_physical_undo.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__task_8h_source.html">game_task.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="chess__gameplay__policy_8h_source.html">chess_gameplay_policy.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__led__direct_8h_source.html">game_led_direct.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__events_8h_source.html">game_events.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__core_8h_source.html">game_board_core.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__board__machine_8h_source.html">game_board_machine.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__snapshot_8h_source.html">game_snapshot.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__squares__guard_8h_source.html">game_squares_guard.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="game__policy_8h_source.html">game_policy.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__move__validate_8h_source.html">game_move_validate.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="game__hall__match_8h_source.html">game_hall_match.h</a>&quot;</code><br />
 <code>#include &quot;<a class="el" href="hall__i2c__squares_8h_source.html">../squares_task/include/hall_i2c_squares.h</a>&quot;</code><br />
@@ -119,110 +125,141 @@ Include dependency graph for game_matrix_workflow.c:</div>
 <div class="dyncontent">
 <div class="center"><img src="game__matrix__workflow_8c__incl.png" border="0" usemap="#agame__matrix__workflow_8c" alt=""/></div>
 <map name="agame__matrix__workflow_8c" id="agame__matrix__workflow_8c">
-<area shape="rect" title="Matrix&#45;driven LED workflow, promotion command, movable highlights." alt="" coords="1240,5,1426,31"/>
-<area shape="rect" href="game__task__internal_8h.html" title="Internal API between game_task.c and sibling source files in this component." alt="" coords="390,86,553,111"/>
-<area shape="poly" title=" " alt="" coords="1240,28,957,49,607,81,562,87,561,81,606,76,956,43,1240,23"/>
-<area shape="rect" title=" " alt="" coords="247,328,398,353"/>
-<area shape="poly" title=" " alt="" coords="1240,22,1028,25,761,34,503,52,397,65,316,81,218,105,140,128,106,145,75,167,45,199,16,241,8,261,10,269,15,278,29,289,49,299,104,315,169,325,233,332,233,337,168,331,102,320,47,304,26,294,11,282,5,271,3,260,11,239,41,196,71,163,103,140,138,123,217,100,315,76,396,60,502,47,761,29,1028,20,1240,17"/>
-<area shape="rect" title=" " alt="" coords="147,247,284,273"/>
-<area shape="poly" title=" " alt="" coords="1240,24,1022,30,754,41,514,58,429,68,379,81,354,96,330,114,288,156,254,200,231,236,227,234,250,197,284,153,326,110,351,91,377,76,428,63,513,52,754,35,1022,24,1240,18"/>
-<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="509,167,616,192"/>
-<area shape="poly" title=" " alt="" coords="1242,33,1103,53,947,81,764,125,615,165,614,160,762,119,946,76,1102,48,1242,28"/>
-<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="1045,167,1216,192"/>
-<area shape="poly" title=" " alt="" coords="1320,33,1158,160,1155,156,1317,29"/>
-<area shape="rect" href="chess__gameplay__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="1240,167,1426,192"/>
-<area shape="poly" title=" " alt="" coords="1336,31,1336,153,1330,153,1330,31"/>
-<area shape="rect" href="game__move__validate_8h.html" title="Move validation (internal to game_task component)." alt="" coords="640,167,815,192"/>
-<area shape="poly" title=" " alt="" coords="1286,33,1094,81,783,165,781,160,1092,76,1285,28"/>
-<area shape="rect" href="game__hall__match_8h.html" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="1502,167,1652,192"/>
-<area shape="poly" title=" " alt="" coords="1427,23,1490,41,1520,56,1547,77,1560,94,1569,114,1578,152,1573,153,1564,115,1556,97,1543,81,1517,61,1488,46,1425,28"/>
-<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="2056,247,2199,273"/>
-<area shape="poly" title=" " alt="" coords="1426,19,1549,29,1701,53,1781,72,1862,96,1940,127,2015,164,2066,200,2107,236,2104,240,2063,204,2012,169,1938,132,1860,101,1780,77,1700,58,1549,35,1426,24"/>
-<area shape="rect" href="squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="1608,79,1778,119"/>
-<area shape="poly" title=" " alt="" coords="1386,28,1595,73,1594,79,1385,33"/>
-<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="891,167,1020,192"/>
-<area shape="poly" title=" " alt="" coords="1307,33,997,164,995,159,1305,28"/>
-<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="1392,79,1532,119"/>
-<area shape="poly" title=" " alt="" coords="1354,29,1421,69,1418,74,1351,33"/>
-<area shape="rect" href="led__gesture__anim_8h.html" title="Non&#45;blocking board animations for the V2 gesture button." alt="" coords="2578,240,2733,280"/>
-<area shape="poly" title=" " alt="" coords="1426,16,1624,21,1752,29,1893,42,2042,60,2196,86,2348,120,2495,164,2563,195,2620,230,2617,234,2561,200,2494,169,2347,126,2194,91,2041,66,1892,47,1752,34,1624,26,1426,21"/>
-<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="2630,86,2748,111"/>
-<area shape="poly" title=" " alt="" coords="1426,19,2028,38,2365,54,2505,65,2611,76,2635,80,2634,86,2610,81,2504,70,2364,60,2027,43,1426,24"/>
-<area shape="rect" title=" " alt="" coords="2772,86,2856,111"/>
-<area shape="poly" title=" " alt="" coords="1426,17,1714,20,2100,29,2483,46,2642,59,2762,76,2774,79,2773,84,2761,81,2641,65,2483,52,2100,34,1714,25,1426,22"/>
-<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="960,247,1074,273"/>
-<area shape="poly" title=" " alt="" coords="554,106,684,127,757,144,829,164,855,176,881,190,982,239,980,244,879,194,853,181,827,169,756,149,683,133,553,112"/>
-<area shape="poly" title=" " alt="" coords="390,103,294,107,190,118,141,126,98,137,64,151,42,168,24,196,18,223,24,250,42,278,54,288,71,297,119,312,176,323,234,330,233,335,175,328,117,317,69,302,51,293,38,282,19,252,13,223,19,194,38,165,62,147,97,132,140,121,189,113,294,102,390,98"/>
-<area shape="rect" title=" " alt="" coords="640,328,770,353"/>
-<area shape="poly" title=" " alt="" coords="390,105,307,111,217,122,140,141,111,154,92,168,75,196,68,224,74,251,92,278,113,285,159,293,305,308,626,332,626,337,304,313,159,298,111,290,89,282,69,253,63,224,70,194,89,165,109,149,138,136,216,117,306,106,390,100"/>
-<area shape="rect" title=" " alt="" coords="1172,328,1254,353"/>
-<area shape="poly" title=" " alt="" coords="400,114,294,137,239,153,189,172,149,194,124,220,119,233,119,247,124,262,136,278,175,285,272,293,572,310,1158,335,1158,340,571,315,271,298,174,290,133,282,119,265,113,248,114,232,120,217,146,190,187,167,238,148,293,132,399,109"/>
-<area shape="rect" title=" " alt="" coords="2303,328,2374,353"/>
-<area shape="poly" title=" " alt="" coords="553,100,980,117,1577,148,1869,167,2119,189,2299,212,2354,225,2382,238,2390,258,2387,280,2376,301,2362,319,2358,316,2372,298,2382,278,2385,259,2378,242,2352,230,2298,217,2118,194,1868,172,1577,153,980,123,553,106"/>
-<area shape="poly" title=" " alt="" coords="455,114,247,242,244,238,452,109"/>
-<area shape="rect" title=" " alt="" coords="461,247,592,273"/>
-<area shape="poly" title=" " alt="" coords="477,111,500,191,517,234,513,236,495,193,472,112"/>
-<area shape="poly" title=" " alt="" coords="487,109,540,156,537,160,483,114"/>
-<area shape="rect" title=" " alt="" coords="1578,328,1659,353"/>
-<area shape="poly" title=" " alt="" coords="1075,266,1564,330,1564,335,1074,271"/>
-<area shape="poly" title=" " alt="" coords="960,273,891,283,630,312,412,334,411,329,629,307,890,277,959,268"/>
-<area shape="poly" title=" " alt="" coords="972,275,764,327,763,322,971,270"/>
-<area shape="poly" title=" " alt="" coords="1047,270,1173,320,1171,325,1045,275"/>
-<area shape="poly" title=" " alt="" coords="1075,262,2289,334,2289,339,1075,267"/>
-<area shape="poly" title=" " alt="" coords="616,187,628,189,947,244,946,249,627,195,616,193"/>
-<area shape="poly" title=" " alt="" coords="599,190,750,233,848,257,948,277,1124,302,1298,319,1564,335,1564,340,1298,324,1123,307,947,283,847,262,749,238,598,195"/>
-<area shape="poly" title=" " alt="" coords="510,193,451,211,421,225,393,242,375,259,359,278,336,317,331,314,355,275,371,255,390,238,418,220,449,206,508,188"/>
-<area shape="poly" title=" " alt="" coords="509,188,481,195,453,205,428,220,407,241,400,260,407,278,421,289,441,299,497,315,563,326,627,332,627,337,562,331,496,320,439,304,418,294,403,282,394,260,403,239,424,216,451,200,480,189,508,183"/>
-<area shape="poly" title=" " alt="" coords="518,194,481,212,464,225,451,241,444,261,445,269,451,278,480,287,546,296,748,313,1158,334,1158,340,748,318,546,302,479,292,448,282,440,271,439,261,447,239,461,222,478,208,516,190"/>
-<area shape="poly" title=" " alt="" coords="616,188,628,189,775,201,900,204,1113,197,1216,195,1325,198,1449,211,1594,237,1623,247,1645,257,1666,268,1695,277,1778,295,1864,308,2033,326,2181,335,2289,337,2289,342,2181,340,2032,332,1864,314,1778,300,1694,283,1664,273,1643,262,1621,251,1593,243,1448,216,1325,204,1216,200,1113,202,900,209,775,207,628,195,616,193"/>
-<area shape="poly" title=" " alt="" coords="513,195,280,247,279,242,511,189"/>
-<area shape="poly" title=" " alt="" coords="560,193,540,236,535,234,555,191"/>
-<area shape="rect" title=" " alt="" coords="616,247,733,273"/>
-<area shape="poly" title=" " alt="" coords="581,190,648,237,645,242,577,194"/>
-<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="1402,240,1581,280"/>
-<area shape="poly" title=" " alt="" coords="616,188,628,189,839,212,1050,230,1388,251,1388,257,1049,235,839,218,627,195,616,193"/>
-<area shape="poly" title=" " alt="" coords="1524,278,1590,319,1587,323,1521,282"/>
-<area shape="poly" title=" " alt="" coords="1426,283,1268,327,1267,322,1424,277"/>
-<area shape="poly" title=" " alt="" coords="1582,270,1651,277,2018,311,2290,333,2289,338,2017,316,1650,283,1581,275"/>
-<area shape="poly" title=" " alt="" coords="1115,194,1047,242,1044,237,1112,190"/>
-<area shape="poly" title=" " alt="" coords="1139,191,1203,314,1198,317,1134,193"/>
-<area shape="poly" title=" " alt="" coords="1216,188,1228,189,1422,194,1746,198,1916,202,2068,210,2187,221,2229,229,2257,238,2280,253,2300,273,2329,314,2324,317,2296,277,2277,257,2255,242,2228,234,2187,226,2068,215,1916,208,1746,203,1422,199,1228,195,1216,194"/>
-<area shape="poly" title=" " alt="" coords="1288,195,1077,247,1076,241,1287,189"/>
-<area shape="poly" title=" " alt="" coords="1309,194,1277,214,1247,242,1229,278,1219,315,1214,313,1224,276,1243,238,1274,210,1306,190"/>
-<area shape="poly" title=" " alt="" coords="1427,185,1491,189,1906,195,2041,199,2162,207,2255,220,2287,228,2308,238,2323,254,2332,274,2341,314,2335,315,2327,276,2318,257,2305,242,2286,233,2254,225,2161,213,2041,205,1905,200,1490,195,1427,190"/>
-<area shape="poly" title=" " alt="" coords="771,189,963,241,961,246,769,195"/>
-<area shape="poly" title=" " alt="" coords="750,190,836,232,949,277,1060,308,1159,328,1158,333,1059,313,947,283,834,237,748,194"/>
-<area shape="poly" title=" " alt="" coords="1502,194,1089,251,1088,246,1501,189"/>
-<area shape="poly" title=" " alt="" coords="1504,195,1427,213,1348,242,1297,276,1239,321,1236,317,1294,272,1345,238,1425,208,1503,189"/>
-<area shape="poly" title=" " alt="" coords="1653,178,1835,181,2057,189,2163,196,2254,207,2322,220,2345,229,2359,238,2369,257,2369,278,2355,317,2350,315,2364,277,2363,258,2355,242,2342,233,2320,225,2253,212,2162,202,2057,194,1835,186,1653,183"/>
-<area shape="poly" title=" " alt="" coords="1653,189,2043,244,2043,249,1652,194"/>
-<area shape="poly" title=" " alt="" coords="2076,275,2038,283,1837,314,1674,335,1673,330,1836,308,2037,277,2075,270"/>
-<area shape="poly" title=" " alt="" coords="2056,272,1943,283,1269,338,1268,333,1942,277,2056,266"/>
-<area shape="poly" title=" " alt="" coords="2159,270,2296,321,2294,326,2158,275"/>
-<area shape="poly" title=" " alt="" coords="1779,105,1840,114,1903,126,1955,143,1975,153,1989,165,2007,195,2013,224,2007,253,1988,282,1967,298,1935,311,1850,329,1756,338,1673,341,1673,336,1755,333,1849,323,1933,306,1964,293,1985,278,2002,251,2008,224,2002,197,1984,168,1972,157,1953,148,1901,131,1840,119,1778,110"/>
-<area shape="poly" title=" " alt="" coords="1696,119,1689,157,1680,177,1667,194,1633,218,1600,230,1568,233,1536,231,1468,226,1432,230,1392,242,1375,251,1364,261,1337,282,1254,325,1251,320,1334,278,1361,257,1372,247,1389,238,1431,225,1468,221,1536,226,1567,228,1599,225,1630,213,1663,190,1676,174,1684,156,1690,118"/>
-<area shape="poly" title=" " alt="" coords="1779,101,1956,109,2167,123,2355,141,2421,152,2460,164,2493,188,2516,215,2522,231,2524,247,2521,264,2511,282,2486,307,2454,324,2420,334,2388,340,2387,334,2419,329,2452,319,2483,302,2507,278,2516,262,2519,247,2517,232,2511,218,2489,192,2457,169,2420,157,2354,146,2167,128,1956,115,1779,106"/>
-<area shape="poly" title=" " alt="" coords="1608,114,1545,121,1292,144,1034,169,1034,164,1291,139,1545,116,1607,109"/>
-<area shape="poly" title=" " alt="" coords="967,191,1002,235,998,238,963,194"/>
-<area shape="poly" title=" " alt="" coords="1021,188,1033,189,1319,201,1495,214,1559,224,1595,238,1609,255,1617,275,1622,314,1617,315,1612,276,1604,257,1592,242,1557,229,1494,219,1318,206,1033,195,1020,193"/>
-<area shape="poly" title=" " alt="" coords="938,194,857,238,802,262,746,283,658,304,569,320,412,337,411,332,568,315,657,299,744,277,800,257,854,233,936,190"/>
-<area shape="poly" title=" " alt="" coords="954,194,932,236,914,261,892,282,867,298,840,311,784,329,783,324,838,306,864,294,889,278,910,257,927,234,949,191"/>
-<area shape="poly" title=" " alt="" coords="987,190,1036,210,1088,238,1146,278,1192,317,1189,321,1142,282,1085,242,1033,215,985,195"/>
-<area shape="poly" title=" " alt="" coords="1021,188,1033,189,1255,195,1626,199,1995,211,2132,222,2181,229,2213,238,2228,246,2237,256,2258,278,2311,318,2308,322,2254,282,2233,259,2224,250,2211,242,2179,234,2131,227,1995,216,1626,205,1255,200,1033,195,1020,193"/>
-<area shape="poly" title=" " alt="" coords="891,190,298,253,298,247,891,185"/>
-<area shape="poly" title=" " alt="" coords="891,193,758,214,604,243,585,247,584,242,603,237,758,209,890,188"/>
-<area shape="poly" title=" " alt="" coords="916,195,729,246,728,241,914,189"/>
-<area shape="rect" title=" " alt="" coords="1706,247,1802,273"/>
-<area shape="poly" title=" " alt="" coords="1021,188,1033,189,1217,203,1362,206,1505,213,1589,222,1688,237,1706,241,1705,246,1687,243,1589,227,1505,218,1361,212,1217,209,1033,195,1020,193"/>
-<area shape="rect" title=" " alt="" coords="1826,247,1930,273"/>
-<area shape="poly" title=" " alt="" coords="1021,188,1033,189,1152,199,1253,204,1425,204,1597,210,1697,220,1815,237,1832,241,1831,246,1814,243,1696,225,1596,215,1425,210,1253,209,1152,205,1033,195,1020,193"/>
-<area shape="poly" title=" " alt="" coords="1533,107,1641,127,1765,155,1824,172,1876,192,1917,214,1945,238,1953,260,1945,282,1926,296,1899,308,1827,325,1746,335,1673,340,1673,335,1745,330,1826,320,1897,303,1923,292,1940,278,1948,260,1940,242,1914,218,1874,197,1822,178,1764,160,1640,132,1532,113"/>
-<area shape="poly" title=" " alt="" coords="1465,119,1460,156,1453,176,1440,194,1421,210,1402,218,1364,222,1325,224,1305,230,1284,242,1257,274,1229,318,1225,315,1253,271,1281,238,1303,225,1324,219,1363,217,1400,213,1418,205,1437,190,1448,174,1455,155,1460,118"/>
-<area shape="poly" title=" " alt="" coords="1533,108,1596,116,1750,121,2006,127,2261,139,2354,150,2387,156,2409,164,2442,187,2464,215,2471,230,2472,246,2469,264,2461,281,2446,299,2428,313,2388,331,2386,326,2425,308,2443,295,2456,279,2464,262,2467,246,2465,231,2460,217,2438,191,2407,169,2386,161,2354,155,2260,144,2006,132,1749,126,1596,121,1532,114"/>
-<area shape="poly" title=" " alt="" coords="1392,113,1035,169,1034,163,1392,108"/>
-<area shape="poly" title=" " alt="" coords="2578,268,1269,339,1268,334,2578,263"/>
-<area shape="poly" title=" " alt="" coords="2580,283,2387,330,2386,325,2579,277"/>
-<area shape="poly" title=" " alt="" coords="2702,110,2726,142,2751,187,2760,212,2763,236,2759,260,2747,282,2722,300,2685,314,2638,325,2586,332,2479,340,2388,342,2388,337,2478,335,2586,327,2637,319,2683,309,2719,295,2743,278,2754,258,2758,236,2754,213,2746,189,2722,145,2697,113"/>
+<area shape="rect" title="Matrix&#45;driven LED workflow, promotion command, movable highlights." alt="" coords="1420,5,1605,31"/>
+<area shape="rect" href="game__board__transition_8h.html" title="Apply board machine output via position_t and post&#45;move hooks." alt="" coords="629,86,813,111"/>
+<area shape="poly" title=" " alt="" coords="1420,29,1165,50,854,81,811,87,810,82,854,76,1164,45,1420,24"/>
+<area shape="rect" href="game__board__machine_8h.html" title="Physical board state machine (lift/drop); does not write position_t." alt="" coords="278,167,457,192"/>
+<area shape="poly" title=" " alt="" coords="1420,23,1224,28,981,39,746,56,650,67,577,81,526,98,477,119,398,162,396,157,475,114,525,93,576,76,649,62,746,50,981,33,1224,23,1420,18"/>
+<area shape="rect" title=" " alt="" coords="2965,328,3116,353"/>
+<area shape="poly" title=" " alt="" coords="1605,16,1805,18,2077,26,2389,44,2548,58,2704,76,2824,85,2933,83,3033,77,3126,74,3213,81,3255,91,3296,106,3337,128,3377,156,3417,193,3458,239,3467,260,3464,271,3457,282,3435,298,3403,312,3318,330,3221,339,3130,342,3130,337,3221,334,3318,324,3402,307,3433,294,3453,278,3459,269,3461,260,3453,241,3413,197,3374,161,3334,132,3294,111,3253,96,3212,86,3126,79,3034,82,2934,88,2824,90,2703,81,2547,63,2388,49,2077,31,1804,23,1605,22"/>
+<area shape="rect" href="game__physical__undo_8h.html" title="Physical takeback: lift the last mover, restore the piece, then rewind." alt="" coords="758,167,929,192"/>
+<area shape="poly" title=" " alt="" coords="1420,27,1256,44,1163,60,1072,81,1017,99,964,121,877,163,875,158,962,116,1016,94,1071,76,1162,55,1255,39,1420,22"/>
+<area shape="rect" href="game__task_8h.html" title="Game task entry: rules, command dispatch, and JSON export." alt="" coords="2350,167,2457,192"/>
+<area shape="poly" title=" " alt="" coords="1606,18,1803,22,2039,32,2248,49,2321,61,2363,76,2380,93,2391,112,2403,152,2398,154,2386,114,2375,96,2361,81,2320,66,2247,54,2039,37,1803,27,1605,23"/>
+<area shape="rect" title=" " alt="" coords="2839,247,2976,273"/>
+<area shape="poly" title=" " alt="" coords="1606,17,1776,21,2002,30,2257,47,2514,76,2578,81,2635,81,2736,77,2782,81,2826,95,2868,122,2911,165,2919,181,2922,200,2918,234,2913,234,2917,200,2914,183,2907,168,2865,126,2823,100,2781,86,2736,82,2635,86,2577,87,2514,81,2257,53,2002,35,1776,26,1606,23"/>
+<area shape="rect" href="game__led__direct_8h.html" title="PRIME LED FUNCTION FOR GAME TASK &#45; Back Queue Hell." alt="" coords="1441,167,1584,192"/>
+<area shape="poly" title=" " alt="" coords="1515,31,1515,153,1510,153,1510,31"/>
+<area shape="rect" href="game__events_8h.html" title="Session&#45;to&#45;LED events (no WS2812 in game_task)." alt="" coords="126,247,249,273"/>
+<area shape="poly" title=" " alt="" coords="1420,22,1147,23,799,31,630,38,483,49,371,63,332,72,307,81,286,96,267,114,236,156,213,199,198,235,193,233,208,196,231,153,263,110,283,92,305,76,331,66,370,58,483,44,630,33,799,26,1147,18,1420,16"/>
+<area shape="rect" href="game__board__core_8h.html" title="Board initialization, FEN load, and piece helpers (internal + public API in game_task...." alt="" coords="481,167,632,192"/>
+<area shape="poly" title=" " alt="" coords="1420,23,1213,28,963,38,741,55,662,67,618,81,600,96,586,115,567,154,562,152,581,112,596,92,615,76,661,62,740,50,962,33,1213,23,1420,18"/>
+<area shape="rect" href="game__snapshot_8h.html" title="NVS game snapshot save/load and boot restore logic." alt="" coords="1084,86,1221,111"/>
+<area shape="poly" title=" " alt="" coords="1461,33,1219,86,1218,80,1460,28"/>
+<area shape="rect" href="game__squares__guard_8h.html" title="Pause play when the physical board disagrees with the logical position." alt="" coords="1105,167,1278,192"/>
+<area shape="poly" title=" " alt="" coords="1491,33,1228,163,1226,158,1488,28"/>
+<area shape="rect" href="game__policy_8h.html" title="Compile&#45;time gameplay gates." alt="" coords="1302,167,1417,192"/>
+<area shape="poly" title=" " alt="" coords="1504,33,1382,158,1378,155,1500,29"/>
+<area shape="rect" href="game__move__validate_8h.html" title="Move validation (internal to game_task component)." alt="" coords="1937,167,2112,192"/>
+<area shape="poly" title=" " alt="" coords="1606,24,1780,44,1862,58,1919,76,1947,93,1971,113,2010,154,2006,157,1968,117,1944,97,1917,81,1860,64,1780,49,1605,29"/>
+<area shape="rect" href="game__hall__match_8h.html" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="1711,167,1861,192"/>
+<area shape="poly" title=" " alt="" coords="1534,28,1756,157,1753,162,1531,33"/>
+<area shape="rect" href="hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="1665,247,1808,273"/>
+<area shape="poly" title=" " alt="" coords="1606,26,1676,41,1751,67,1787,85,1821,107,1851,134,1876,165,1882,179,1881,193,1875,205,1864,215,1834,233,1799,246,1797,241,1832,228,1861,211,1871,201,1876,191,1877,180,1872,168,1847,138,1818,111,1785,90,1749,72,1675,46,1605,31"/>
+<area shape="rect" href="squares__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Matrix Task Header." alt="" coords="2179,79,2350,119"/>
+<area shape="poly" title=" " alt="" coords="1606,22,1855,41,2008,57,2166,76,2165,81,2008,62,1854,47,1605,28"/>
+<area shape="rect" href="freertos__chess_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Main system header." alt="" coords="2767,167,2896,192"/>
+<area shape="poly" title=" " alt="" coords="1606,18,1757,23,1954,33,2173,50,2394,76,2502,95,2608,118,2778,160,2777,166,2607,123,2501,100,2394,81,2173,55,1953,38,1757,28,1606,23"/>
+<area shape="rect" href="led__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; LED Task Header." alt="" coords="2015,79,2155,119"/>
+<area shape="poly" title=" " alt="" coords="1606,28,1974,76,2002,80,2001,86,1974,81,1605,33"/>
+<area shape="rect" href="led__gesture__anim_8h.html" title="Non&#45;blocking board animations for the V2 gesture button." alt="" coords="273,240,427,280"/>
+<area shape="poly" title=" " alt="" coords="1420,23,1204,28,930,38,664,55,555,67,472,81,407,93,354,103,331,111,309,123,289,142,268,168,264,185,270,201,284,216,302,231,299,235,280,220,265,204,258,185,264,165,285,138,306,119,328,106,352,98,406,88,471,76,554,62,664,50,930,32,1204,22,1420,18"/>
+<area shape="rect" href="led__mapping_8h.html" title="ESP32&#45;C6 Chess System &#45; LED Mapping function." alt="" coords="5,86,124,111"/>
+<area shape="poly" title=" " alt="" coords="1420,22,1198,24,889,33,532,50,349,64,170,81,134,86,134,81,170,76,349,59,532,45,888,27,1198,19,1420,17"/>
+<area shape="rect" title=" " alt="" coords="3553,86,3637,111"/>
+<area shape="poly" title=" " alt="" coords="1606,16,1999,16,2557,22,2849,29,3122,40,3357,56,3534,76,3551,80,3550,85,3534,81,3356,61,3121,46,2848,35,2557,28,1999,21,1606,21"/>
+<area shape="poly" title=" " alt="" coords="670,114,432,166,431,161,669,109"/>
+<area shape="rect" href="chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="1475,247,1590,273"/>
+<area shape="poly" title=" " alt="" coords="813,103,1283,133,1499,150,1567,158,1597,164,1603,175,1605,185,1598,205,1582,224,1563,241,1560,237,1579,221,1593,203,1600,185,1598,176,1594,169,1567,163,1499,156,1282,138,813,108"/>
+<area shape="rect" title=" " alt="" coords="1371,328,1454,353"/>
+<area shape="poly" title=" " alt="" coords="723,112,728,150,736,172,748,190,765,205,781,215,813,224,850,227,893,237,948,259,1003,277,1100,298,1197,314,1358,332,1358,338,1197,319,1099,304,1001,283,946,264,892,243,849,233,812,229,779,220,762,210,744,194,731,174,723,151,718,112"/>
+<area shape="rect" title=" " alt="" coords="845,328,916,353"/>
+<area shape="poly" title=" " alt="" coords="628,102,441,107,337,116,239,131,158,154,127,169,104,185,91,204,87,225,95,250,116,278,129,287,153,295,224,309,320,319,430,326,658,335,831,337,831,342,658,340,430,332,319,324,223,314,151,300,127,292,112,282,90,252,82,226,86,202,100,181,124,164,156,149,238,126,336,111,441,102,628,96"/>
+<area shape="poly" title=" " alt="" coords="457,188,469,189,757,212,1041,230,1461,253,1461,258,1040,236,757,217,468,195,457,194"/>
+<area shape="poly" title=" " alt="" coords="413,190,474,209,539,238,555,249,566,259,577,269,592,278,659,295,748,309,967,327,1190,335,1357,337,1357,342,1189,340,967,332,747,314,658,300,590,282,573,274,562,263,552,253,537,242,472,214,411,195"/>
+<area shape="poly" title=" " alt="" coords="387,190,462,233,511,257,563,277,635,298,708,314,832,332,831,337,707,319,633,303,561,283,509,262,459,237,384,194"/>
+<area shape="rect" href="position_8h.html" title="Standalone chess position." alt="" coords="604,247,691,273"/>
+<area shape="poly" title=" " alt="" coords="411,190,585,237,597,241,596,246,584,243,410,195"/>
+<area shape="rect" title=" " alt="" coords="2236,328,2317,353"/>
+<area shape="poly" title=" " alt="" coords="1591,268,1654,277,1976,312,2222,333,2222,338,1976,317,1654,283,1590,274"/>
+<area shape="poly" title=" " alt="" coords="1591,269,1654,277,1926,296,2298,312,2952,334,2951,339,2298,317,1926,301,1654,283,1590,274"/>
+<area shape="rect" title=" " alt="" coords="2389,328,2519,353"/>
+<area shape="poly" title=" " alt="" coords="1591,269,1654,277,1844,296,1992,305,2140,312,2330,325,2376,329,2375,335,2330,331,2140,318,1992,310,1843,301,1654,283,1590,274"/>
+<area shape="poly" title=" " alt="" coords="1516,275,1444,322,1441,318,1514,271"/>
+<area shape="poly" title=" " alt="" coords="1475,271,930,336,930,331,1474,266"/>
+<area shape="poly" title=" " alt="" coords="681,270,711,277,895,305,1078,322,1240,332,1357,336,1357,341,1239,337,1078,328,895,310,709,283,680,275"/>
+<area shape="poly" title=" " alt="" coords="682,270,835,321,833,326,680,275"/>
+<area shape="poly" title=" " alt="" coords="929,188,1462,248,1462,253,929,193"/>
+<area shape="poly" title=" " alt="" coords="875,190,1116,277,1246,308,1358,328,1358,334,1245,313,1115,283,873,195"/>
+<area shape="poly" title=" " alt="" coords="837,193,815,233,810,256,814,279,829,301,850,318,846,322,825,304,809,281,804,256,810,231,832,191"/>
+<area shape="poly" title=" " alt="" coords="2350,186,2053,206,1855,222,1654,243,1604,249,1604,244,1654,237,1855,217,2053,200,2349,181"/>
+<area shape="poly" title=" " alt="" coords="2405,193,2396,234,2387,259,2373,282,2348,306,2319,324,2316,319,2345,302,2369,278,2382,257,2391,233,2400,192"/>
+<area shape="poly" title=" " alt="" coords="2416,190,2463,235,2495,258,2531,278,2565,288,2610,298,2722,313,2952,332,2952,337,2721,319,2609,303,2564,293,2529,282,2492,263,2459,239,2412,194"/>
+<area shape="poly" title=" " alt="" coords="2410,191,2449,314,2444,315,2404,193"/>
+<area shape="poly" title=" " alt="" coords="2390,194,2322,239,2276,263,2227,283,2160,297,2070,309,1853,327,1633,337,1468,341,1468,336,1633,331,1853,321,2070,304,2159,292,2225,277,2274,259,2319,235,2387,190"/>
+<area shape="poly" title=" " alt="" coords="2350,186,1907,208,1651,225,1464,243,1368,261,1273,283,1084,314,930,335,930,330,1083,308,1272,277,1367,256,1463,237,1650,220,1907,203,2350,180"/>
+<area shape="poly" title=" " alt="" coords="2457,184,2623,205,2826,237,2848,242,2847,247,2826,243,2622,210,2457,189"/>
+<area shape="rect" title=" " alt="" coords="2697,247,2814,273"/>
+<area shape="poly" title=" " alt="" coords="2457,189,2685,237,2701,241,2700,246,2684,243,2456,194"/>
+<area shape="rect" title=" " alt="" coords="2542,247,2673,273"/>
+<area shape="poly" title=" " alt="" coords="2434,190,2566,240,2564,245,2432,194"/>
+<area shape="rect" href="timer__system_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Timer System component." alt="" coords="2035,240,2214,280"/>
+<area shape="poly" title=" " alt="" coords="2364,195,2205,239,2204,234,2362,189"/>
+<area shape="poly" title=" " alt="" coords="2162,278,2243,319,2240,324,2160,282"/>
+<area shape="poly" title=" " alt="" coords="2036,280,2017,283,1707,317,1468,338,1467,333,1706,312,2016,277,2035,275"/>
+<area shape="poly" title=" " alt="" coords="2035,271,1865,283,930,339,930,334,1864,277,2035,265"/>
+<area shape="poly" title=" " alt="" coords="1518,192,1529,233,1524,235,1513,193"/>
+<area shape="poly" title=" " alt="" coords="1504,194,1466,242,1443,280,1426,316,1421,314,1438,278,1461,238,1500,191"/>
+<area shape="poly" title=" " alt="" coords="1441,193,1335,213,1218,243,1172,262,1127,283,1022,312,930,333,929,328,1021,307,1125,277,1170,257,1216,237,1334,207,1441,188"/>
+<area shape="poly" title=" " alt="" coords="227,270,261,277,362,289,495,299,816,317,1358,335,1358,341,815,322,495,305,361,294,260,283,226,275"/>
+<area shape="poly" title=" " alt="" coords="228,270,261,277,424,301,586,318,831,335,831,340,585,323,423,306,260,283,227,275"/>
+<area shape="poly" title=" " alt="" coords="632,184,1462,250,1462,256,632,189"/>
+<area shape="poly" title=" " alt="" coords="598,190,758,232,964,277,1182,311,1358,331,1357,337,1181,316,963,283,756,237,597,195"/>
+<area shape="poly" title=" " alt="" coords="560,192,568,235,577,258,593,278,610,289,634,298,698,314,832,332,831,338,697,319,633,303,608,293,590,282,573,261,562,236,555,193"/>
+<area shape="poly" title=" " alt="" coords="1222,96,1331,98,1457,107,1517,115,1570,128,1614,144,1643,165,1650,177,1650,189,1636,211,1609,230,1579,245,1576,240,1607,225,1632,207,1645,188,1644,178,1639,168,1611,148,1569,133,1516,121,1456,112,1331,103,1222,101"/>
+<area shape="poly" title=" " alt="" coords="1221,97,1421,99,1683,108,1817,116,1941,128,2047,144,2126,164,2159,178,2183,192,2204,212,2228,238,2253,277,2270,314,2266,316,2249,279,2224,242,2200,215,2180,197,2156,183,2124,169,2045,149,1940,133,1816,122,1683,113,1421,105,1221,102"/>
+<area shape="poly" title=" " alt="" coords="1137,114,1118,129,1101,149,1091,170,1091,180,1095,191,1119,222,1149,249,1183,271,1219,290,1293,315,1358,330,1357,335,1292,321,1217,294,1181,276,1146,253,1116,226,1090,193,1086,181,1086,169,1096,146,1114,125,1134,109"/>
+<area shape="poly" title=" " alt="" coords="1084,102,1011,106,925,116,834,136,790,151,747,169,723,184,701,201,667,238,663,234,698,197,720,179,745,164,788,146,833,131,924,111,1011,100,1084,97"/>
+<area shape="poly" title=" " alt="" coords="1108,114,902,166,901,161,1107,109"/>
+<area shape="poly" title=" " alt="" coords="1242,189,1470,242,1469,247,1240,195"/>
+<area shape="poly" title=" " alt="" coords="1209,190,1386,317,1383,322,1206,194"/>
+<area shape="poly" title=" " alt="" coords="1145,195,1082,214,1015,242,954,282,905,321,901,317,951,277,1013,238,1080,209,1143,190"/>
+<area shape="poly" title=" " alt="" coords="1386,190,1496,239,1494,244,1383,194"/>
+<area shape="poly" title=" " alt="" coords="1366,191,1407,314,1402,315,1361,193"/>
+<area shape="poly" title=" " alt="" coords="1321,195,1167,243,926,326,924,321,1165,237,1320,190"/>
+<area shape="poly" title=" " alt="" coords="1954,195,1604,250,1603,245,1953,189"/>
+<area shape="poly" title=" " alt="" coords="2008,194,1929,238,1876,262,1821,283,1726,307,1628,323,1468,339,1467,334,1628,318,1724,301,1820,277,1874,257,1926,233,2005,190"/>
+<area shape="poly" title=" " alt="" coords="1750,195,1583,246,1582,241,1748,189"/>
+<area shape="poly" title=" " alt="" coords="1756,195,1708,215,1655,242,1630,263,1603,282,1534,311,1468,330,1467,325,1532,306,1601,278,1627,258,1653,238,1706,210,1754,190"/>
+<area shape="poly" title=" " alt="" coords="1711,189,1531,207,1424,223,1319,243,1255,262,1191,283,1049,313,930,334,929,329,1048,308,1189,277,1253,257,1317,237,1423,217,1530,202,1710,183"/>
+<area shape="poly" title=" " alt="" coords="1781,194,1753,237,1749,234,1776,191"/>
+<area shape="poly" title=" " alt="" coords="1809,269,2222,329,2222,334,1808,274"/>
+<area shape="poly" title=" " alt="" coords="1690,275,1468,329,1467,324,1689,270"/>
+<area shape="poly" title=" " alt="" coords="1665,275,1602,283,1215,318,930,339,929,334,1215,313,1602,277,1665,269"/>
+<area shape="poly" title=" " alt="" coords="2350,98,2641,108,2822,118,3001,135,3161,157,3227,172,3283,188,3324,207,3349,229,3355,241,3356,254,3351,268,3340,282,3323,289,3289,296,3180,306,2864,320,2378,331,2331,335,2331,330,2378,325,2864,314,3180,301,3288,290,3321,284,3336,278,3346,265,3350,253,3350,242,3345,232,3321,212,3281,193,3226,177,3160,163,3000,140,2821,124,2641,113,2350,104"/>
+<area shape="poly" title=" " alt="" coords="2246,121,2202,157,2147,194,2114,211,2086,220,2059,229,2025,242,1989,264,1974,274,1952,283,1886,301,1818,315,1683,333,1561,341,1468,343,1468,338,1561,336,1683,328,1817,310,1885,296,1950,277,1971,269,1987,259,2022,238,2057,224,2085,215,2112,206,2145,190,2199,153,2242,117"/>
+<area shape="poly" title=" " alt="" coords="2180,120,2168,121,2063,129,1932,132,1628,133,1472,135,1325,140,1196,151,1093,169,1019,200,979,222,950,242,918,279,895,317,890,314,914,276,947,238,976,218,1017,195,1092,164,1195,146,1325,135,1472,129,1628,128,1932,127,2062,124,2167,116,2179,114"/>
+<area shape="poly" title=" " alt="" coords="2350,109,2753,165,2752,170,2350,114"/>
+<area shape="poly" title=" " alt="" coords="2767,186,2212,209,1890,225,1654,243,1604,249,1604,244,1654,237,1890,220,2212,204,2766,180"/>
+<area shape="poly" title=" " alt="" coords="2897,187,2956,200,3011,219,3031,231,3044,246,3046,263,3035,282,3019,292,2994,300,2920,312,2823,320,2714,324,2378,331,2331,336,2331,330,2378,325,2714,319,2823,314,2919,306,2993,295,3017,287,3031,278,3040,262,3039,248,3028,235,3009,224,2955,205,2896,192"/>
+<area shape="poly" title=" " alt="" coords="2896,180,3038,185,3207,195,3355,212,3406,224,3434,238,3442,249,3444,260,3435,282,3414,297,3385,310,3306,328,3215,337,3130,341,3130,336,3215,332,3305,322,3383,305,3412,293,3431,278,3439,260,3437,251,3431,242,3405,229,3354,218,3206,201,3037,190,2896,185"/>
+<area shape="poly" title=" " alt="" coords="2896,181,3016,188,3155,199,3276,216,3317,226,3340,238,3347,249,3350,260,3347,271,3340,282,3305,293,3231,303,3004,320,2532,340,2532,334,3004,314,3230,298,3304,288,3336,278,3342,269,3344,260,3342,251,3336,242,3315,231,3275,221,3155,205,3016,193,2896,186"/>
+<area shape="poly" title=" " alt="" coords="2882,190,2929,204,2973,224,2989,237,2999,250,3000,266,2990,282,2971,288,2927,293,2778,303,2321,320,1468,341,1467,336,2321,315,2778,298,2927,288,2970,283,2987,278,2995,265,2994,252,2986,240,2970,229,2927,209,2880,195"/>
+<area shape="poly" title=" " alt="" coords="2767,185,2447,202,2236,219,2024,243,1967,252,1923,263,1878,273,1821,283,1558,310,1301,327,1080,337,930,341,930,336,1080,332,1300,322,1558,305,1820,277,1877,268,1921,258,1966,247,2023,237,2236,213,2446,197,2767,180"/>
+<area shape="poly" title=" " alt="" coords="2844,190,2889,236,2885,239,2841,194"/>
+<area shape="poly" title=" " alt="" coords="2822,194,2778,239,2774,236,2818,190"/>
+<area shape="poly" title=" " alt="" coords="2800,195,2654,245,2652,240,2798,189"/>
+<area shape="rect" title=" " alt="" coords="3230,247,3326,273"/>
+<area shape="poly" title=" " alt="" coords="2897,185,3045,205,3219,237,3232,241,3231,246,3217,243,3044,210,2896,190"/>
+<area shape="rect" title=" " alt="" coords="3102,247,3206,273"/>
+<area shape="poly" title=" " alt="" coords="2882,189,3084,237,3100,241,3098,247,3083,243,2881,195"/>
+<area shape="poly" title=" " alt="" coords="2139,116,2181,137,2221,165,2253,198,2273,239,2280,278,2281,314,2276,314,2275,279,2267,241,2249,201,2218,169,2178,141,2136,121"/>
+<area shape="poly" title=" " alt="" coords="2106,117,2119,134,2129,153,2133,174,2127,193,2111,211,2095,222,2061,230,2024,233,1980,243,1935,264,1888,283,1772,308,1656,325,1550,335,1468,340,1467,335,1550,330,1655,320,1771,303,1887,277,1933,259,1978,237,2023,227,2060,225,2093,217,2108,207,2122,191,2128,174,2124,155,2114,137,2101,120"/>
+<area shape="poly" title=" " alt="" coords="2015,104,1805,111,1525,123,1249,143,1135,155,1049,169,949,196,897,217,877,229,864,241,857,259,858,278,870,315,865,317,852,279,852,258,860,239,874,225,894,212,948,191,1048,164,1135,150,1249,137,1525,118,1804,106,2015,99"/>
+<area shape="poly" title=" " alt="" coords="2155,114,2168,116,2330,138,2492,154,2753,172,2753,177,2492,159,2330,143,2167,121,2154,119"/>
+<area shape="poly" title=" " alt="" coords="428,266,548,277,1016,312,1358,333,1357,339,1016,317,547,283,428,272"/>
+<area shape="poly" title=" " alt="" coords="428,274,446,277,661,309,832,331,831,336,660,314,446,283,427,279"/>
+<area shape="poly" title=" " alt="" coords="64,112,58,145,56,190,64,238,73,260,88,278,103,287,127,295,202,308,302,319,418,326,653,334,832,337,832,342,653,340,417,331,302,324,202,314,126,300,100,292,84,282,69,262,59,240,51,191,53,144,59,111"/>
 </map>
 </div>
 </div>
@@ -230,9 +267,9 @@ Include dependency graph for game_matrix_workflow.c:</div>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:ae1fac0ebfd2541173adbc7d7d5639605" id="r_ae1fac0ebfd2541173adbc7d7d5639605"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__workflow_8c.html#ae1fac0ebfd2541173adbc7d7d5639605">game_process_promotion_command</a> (const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *cmd)</td></tr>
-<tr class="memdesc:ae1fac0ebfd2541173adbc7d7d5639605"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process promotion command from UART.  <br /></td></tr>
-<tr class="separator:ae1fac0ebfd2541173adbc7d7d5639605"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e3337e51e428d64efc37ad332cc5a74" id="r_a2e3337e51e428d64efc37ad332cc5a74"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__workflow_8c.html#a2e3337e51e428d64efc37ad332cc5a74">game_process_promotion_command</a> (const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *cmd)</td></tr>
+<tr class="memdesc:a2e3337e51e428d64efc37ad332cc5a74"><td class="mdescLeft">&#160;</td><td class="mdescRight">Process promotion command from game_submit.  <br /></td></tr>
+<tr class="separator:a2e3337e51e428d64efc37ad332cc5a74"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aceee5d0ba59d1f7d56248b962b96bf67" id="r_aceee5d0ba59d1f7d56248b962b96bf67"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="game__matrix__workflow_8c.html#aceee5d0ba59d1f7d56248b962b96bf67">game_execute_promotion</a> (<a class="el" href="chess__types_8h.html#a1b67a105371c4a0066f77f3fa12ad237">promotion_choice_t</a> choice)</td></tr>
 <tr class="memdesc:aceee5d0ba59d1f7d56248b962b96bf67"><td class="mdescLeft">&#160;</td><td class="mdescRight">Performs graduation pesce on the selected figure.  <br /></td></tr>
 <tr class="separator:aceee5d0ba59d1f7d56248b962b96bf67"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -291,7 +328,7 @@ Variables</h2></td></tr>
 </ul>
 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00141">141</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00164">164</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
 
 </div>
 </div>
@@ -314,12 +351,12 @@ Variables</h2></td></tr>
 <p>Highlight all movable pieces for current player. </p>
 <p>Highlight all moving pieces of the current player. </p>
 
-<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00233">233</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00266">266</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
 
 </div>
 </div>
-<a id="ae1fac0ebfd2541173adbc7d7d5639605" name="ae1fac0ebfd2541173adbc7d7d5639605"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae1fac0ebfd2541173adbc7d7d5639605">&#9670;&#160;</a></span>game_process_promotion_command()</h2>
+<a id="a2e3337e51e428d64efc37ad332cc5a74" name="a2e3337e51e428d64efc37ad332cc5a74"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e3337e51e428d64efc37ad332cc5a74">&#9670;&#160;</a></span>game_process_promotion_command()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -327,14 +364,14 @@ Variables</h2></td></tr>
         <tr>
           <td class="memname">void game_process_promotion_command </td>
           <td>(</td>
-          <td class="paramtype">const <a class="el" href="structchess__move__command__t.html">chess_move_command_t</a> *&#160;</td>
+          <td class="paramtype">const <a class="el" href="structgame__cmd__t.html">game_cmd_t</a> *&#160;</td>
           <td class="paramname"><em>cmd</em></td><td>)</td>
           <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>Process promotion command from UART. </p>
+<p>Process promotion command from game_submit. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">cmd</td><td>Promotion command structure </td></tr>
@@ -342,7 +379,7 @@ Variables</h2></td></tr>
   </dd>
 </dl>
 
-<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00035">35</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00044">44</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
 
 </div>
 </div>
@@ -367,7 +404,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00024">24</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="game__matrix__workflow_8c_source.html#l00033">33</a> of file <a class="el" href="game__matrix__workflow_8c_source.html">game_matrix_workflow.c</a>.</p>
 
 </div>
 </div>

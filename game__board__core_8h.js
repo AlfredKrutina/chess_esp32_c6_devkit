@@ -2,5 +2,24 @@ var game__board__core_8h =
 [
     [ "game_fen_position_t", "structgame__fen__position__t.html", "structgame__fen__position__t" ],
     [ "game_load_position_from_fen", "game__board__core_8h.html#a2bee90ad546979bc31ca65dfde7d94af", null ],
-    [ "game_parse_fen", "game__board__core_8h.html#ae2fece07cf1a0e656387ebff64200332", null ]
+    [ "game_parse_fen", "game__board__core_8h.html#ae2fece07cf1a0e656387ebff64200332", null ],
+    [ "black_king_moved", "game__board__core_8h.html#a8bc4bd88f8a4b4dca7d334ac907df78b", null ],
+    [ "black_rook_a_moved", "game__board__core_8h.html#a230aeeeb272e2891526956413febc269", null ],
+    [ "black_rook_h_moved", "game__board__core_8h.html#a52f58ae06711b813b98133559c278850", null ],
+    [ "current_game_state", "game__board__core_8h.html#a6b5f091d5551e8348e4b43edde98e03f", null ],
+    [ "current_player", "game__board__core_8h.html#a39560fbeaa9a251526561b4f2a86eac1", null ],
+    [ "en_passant_available", "game__board__core_8h.html#a01bb301cbe8700c281dbf823fc412923", null ],
+    [ "en_passant_target_col", "game__board__core_8h.html#a5d18dd08e04b69848244304316e48083", null ],
+    [ "en_passant_target_row", "game__board__core_8h.html#a088deaf2db03b864150aa4b907da0ce7", null ],
+    [ "en_passant_victim_col", "game__board__core_8h.html#a595cee17e3316a52530de0e4ecef9222", null ],
+    [ "en_passant_victim_row", "game__board__core_8h.html#a34994c75ae9b319265448cbd9b9a2c0c", null ],
+    [ "game_active", "game__board__core_8h.html#ab2f53c552730de70a774cd254de77ff1", null ],
+    [ "max_moves_without_capture", "game__board__core_8h.html#ab85ef2a6cc22b437e180ef15dfc4f043", null ],
+    [ "move_count", "game__board__core_8h.html#a154fb9029ef76390cf7a42e2672c397b", null ],
+    [ "moves_without_capture", "game__board__core_8h.html#a371c1b2d4cadfc3079414c671ed85847", null ],
+    [ "piece_moved", "game__board__core_8h.html#a32ed58d8bde5af2ffdbdb87e51758601", null ],
+    [ "position_history_count", "game__board__core_8h.html#aa2cf15d7d0808a9a22c4eb6462c9153d", null ],
+    [ "white_king_moved", "game__board__core_8h.html#a0620fd0930d19a0b135c237682869d90", null ],
+    [ "white_rook_a_moved", "game__board__core_8h.html#a3864eaf443fa01680872e54e26e69e49", null ],
+    [ "white_rook_h_moved", "game__board__core_8h.html#ad84cf76d9d65212e80f52ce534b3d7bf", null ]
 ];

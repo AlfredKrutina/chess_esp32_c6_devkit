@@ -1,0 +1,19 @@
+<map id="fen.c" name="fen.c">
+<area shape="rect" id="Node000001" title="FEN load and save." alt="" coords="193,5,248,31"/>
+<area shape="rect" id="Node000002" href="$position_8h.html" title="Standalone chess position." alt="" coords="136,152,223,177"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,32,189,139,184,138,215,30"/>
+<area shape="rect" id="Node000006" href="$position__internal_8h.html" title="Helpers shared inside chess_core." alt="" coords="5,79,148,104"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="199,33,114,75,111,70,196,28"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="223,79,290,104"/>
+<area shape="poly" id="edge8_Node000001_Node000007" title=" " alt="" coords="229,30,247,65,242,68,224,32"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="315,79,385,104"/>
+<area shape="poly" id="edge9_Node000001_Node000008" title=" " alt="" coords="243,28,318,69,315,74,240,33"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="35,225,118,251"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="164,180,106,219,103,215,161,175"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="142,225,217,251"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="182,178,182,212,177,212,177,178"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="241,225,312,251"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="197,175,251,215,248,219,193,180"/>
+<area shape="poly" id="edge6_Node000006_Node000002" title=" " alt="" coords="95,102,153,142,150,146,92,106"/>
+<area shape="poly" id="edge7_Node000006_Node000003" title=" " alt="" coords="79,104,79,212,74,212,74,104"/>
+</map>

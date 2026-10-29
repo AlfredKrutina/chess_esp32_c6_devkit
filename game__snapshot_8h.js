@@ -1,15 +1,32 @@
 var game__snapshot_8h =
 [
+    [ "game_snap_pos_t", "structgame__snap__pos__t.html", "structgame__snap__pos__t" ],
+    [ "game_session_snap_t", "structgame__session__snap__t.html", "structgame__session__snap__t" ],
     [ "game_has_snapshot_restore_failure", "game__snapshot_8h.html#aec08c00ac587cf88f75b6a39dc437677", null ],
     [ "game_has_snapshot_save_failure", "game__snapshot_8h.html#af6c84403a8e0eb766153ab1234605bf3", null ],
     [ "game_is_snapshot_fallback_used", "game__snapshot_8h.html#a22c95fb0cc38a88fa1b0087e95469439", null ],
+    [ "game_session_snap_acquire", "game__snapshot_8h.html#a8a1db1fc1d8a9f162456a73319f50733", null ],
+    [ "game_session_snap_copy", "game__snapshot_8h.html#ac8cf7aa3995e200b87d0facd95aca688", null ],
+    [ "game_session_snap_refresh", "game__snapshot_8h.html#aa1a728480d23e260764afe493ba0489c", null ],
+    [ "game_session_snap_release", "game__snapshot_8h.html#adcfda89cd1a2ffbf7bd276837d5a133c", null ],
     [ "game_snapshot_erase_nvs", "game__snapshot_8h.html#a2f475f68392eb7b28444670292cfea81", null ],
     [ "game_snapshot_nvs_has_valid", "game__snapshot_8h.html#ac5c681881513775c9740b76192fe65f7", null ],
     [ "game_snapshot_persist_after_valid_move", "game__snapshot_8h.html#a85b407ec50bb621c3830bec5292e8459", null ],
+    [ "game_snapshot_publish_hall_empty", "game__snapshot_8h.html#a9bc8ad2da1e9df26cbc9661f6d1b33bd", null ],
     [ "game_snapshot_reset_failure_flags", "game__snapshot_8h.html#a5da1e71ab6d35504b0b5f57afe8eea4c", null ],
     [ "game_snapshot_restore_on_boot", "game__snapshot_8h.html#a4085ff4f5f25ebced628153d9306585f", null ],
     [ "game_snapshot_sensors_ready", "game__snapshot_8h.html#a1e8cc3e15e1434ae33152a396a0358a8", null ],
     [ "game_snapshot_service_after_boot", "game__snapshot_8h.html#a9184164562ea92a033760a65a704560c", null ],
     [ "game_was_boot_new_game_triggered", "game__snapshot_8h.html#af1e09878bd4592f7f46ae5713f17fc6f", null ],
-    [ "game_was_snapshot_loaded_on_boot", "game__snapshot_8h.html#a2a5a68b3e99926a5c96f3a6eeef64c3b", null ]
+    [ "game_was_snapshot_loaded_on_boot", "game__snapshot_8h.html#a2a5a68b3e99926a5c96f3a6eeef64c3b", null ],
+    [ "game_saved", "game__snapshot_8h.html#a1f70b0c8dbc0c485ab51c2892c75b959", null ],
+    [ "has_last_move", "game__snapshot_8h.html#aae58883f4e5761e9d840b243daf855a7", null ],
+    [ "history_index", "game__snapshot_8h.html#a2342129729fb9edaa9cf56931d99c00e", null ],
+    [ "last_move_from_col", "game__snapshot_8h.html#a39aa6c3a7f8c8803266df3d726a125e3", null ],
+    [ "last_move_from_row", "game__snapshot_8h.html#a7f77e5e231fd9535d20f64f96ee418ba", null ],
+    [ "last_move_to_col", "game__snapshot_8h.html#aa9a6df76b92bfaac37043bfc352766c6", null ],
+    [ "last_move_to_row", "game__snapshot_8h.html#a5b89325f96b3f1db097a5f20d0360672", null ],
+    [ "move_history", "game__snapshot_8h.html#af35759f7837c69c445a70f697226b584", null ],
+    [ "move_history_kind", "game__snapshot_8h.html#a63e8d9eb3a6dd157ba0375403bbd360b", null ],
+    [ "saved_game_name", "game__snapshot_8h.html#a37493b1f0bf22f8cfffaa5d37f6d589d", null ]
 ];

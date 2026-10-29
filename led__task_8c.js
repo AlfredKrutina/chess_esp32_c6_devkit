@@ -80,6 +80,8 @@ var led__task_8c =
     [ "led_frame_begin", "led__task_8c.html#a7704722df4c4c2f48cfd0c96664d65fc", null ],
     [ "led_frame_busy", "led__task_8c.html#ae96aadac89c25a7e10c56ed0e07cd83d", null ],
     [ "led_frame_end", "led__task_8c.html#a28eb3150d1b1d72dc2ee363380d88509", null ],
+    [ "led_game_events_process", "led__task_8c.html#a57fc92d13937b4883f7400597f12393b", null ],
+    [ "led_game_events_report_overlay", "led__task_8c.html#a901383555e3913cd28f386f040403102", null ],
     [ "led_game_pixels_blocked", "led__task_8c.html#ad57f9f4e0845797fee0ce2308c4506c0", null ],
     [ "led_get_all_states", "led__task_8c.html#ab7562384ca3de074cd4f13eb8e96c790", null ],
     [ "led_get_button_color", "led__task_8c.html#a949ef87b771a33a9998649a33db6848d", null ],

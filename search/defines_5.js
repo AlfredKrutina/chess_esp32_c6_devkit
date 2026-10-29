@@ -1,28 +1,7 @@
 var searchData=
 [
-  ['game_5fhall_5fhand_5fmax_0',['GAME_HALL_HAND_MAX',['../game__hall__hand_8h.html#a2ddcb506bf3fc55bc222595f7e1da8b7',1,'game_hall_hand.h']]],
-  ['game_5fqueue_5fsize_1',['GAME_QUEUE_SIZE',['../freertos__chess_8h.html#a28eeb53d2d0b05fd6f19dd85f101b40e',1,'freertos_chess.h']]],
-  ['game_5fresign_5fside_5fblack_2',['GAME_RESIGN_SIDE_BLACK',['../chess__types_8h.html#ac6915333079ba1a0516743117e175f34',1,'chess_types.h']]],
-  ['game_5fresign_5fside_5fto_5fmove_3',['GAME_RESIGN_SIDE_TO_MOVE',['../chess__types_8h.html#a81dc29d9334f7dd8085dc98118ef2a30',1,'chess_types.h']]],
-  ['game_5fresign_5fside_5fwhite_4',['GAME_RESIGN_SIDE_WHITE',['../chess__types_8h.html#a59038f396e102d9e935b1c13c1815d79',1,'chess_types.h']]],
-  ['game_5fsnapshot_5fhistory_5fcap_5',['GAME_SNAPSHOT_HISTORY_CAP',['../game__snapshot_8c.html#acaac9a36a431ec4c817092b28564bc93',1,'game_snapshot.c']]],
-  ['game_5fsnapshot_5fversion_6',['GAME_SNAPSHOT_VERSION',['../game__snapshot_8c.html#af0d834baefb14ae2612ef654bce5aafa',1,'game_snapshot.c']]],
-  ['game_5fsnapshot_5fversion_5fv2_7',['GAME_SNAPSHOT_VERSION_V2',['../game__snapshot_8c.html#a40605915eb625fb2e17ec6feebca6b14',1,'game_snapshot.c']]],
-  ['game_5fstart_5fpos_5fmajority_5fvotes_8',['GAME_START_POS_MAJORITY_VOTES',['../game__init_8c.html#a20f13d61cef5da223c6badbb79cd776b',1,'game_init.c']]],
-  ['game_5fstart_5fpos_5fmatrix_5fsamples_9',['GAME_START_POS_MATRIX_SAMPLES',['../game__init_8c.html#a6cd0de82d0e7794bb260865bc7f752d4',1,'game_init.c']]],
-  ['game_5fstatus_5fjson_5fappend_10',['GAME_STATUS_JSON_APPEND',['../game__json__export_8c.html#a4923e4de4771e22783e784243eb49e4c',1,'game_json_export.c']]],
-  ['game_5ftask_5fmax_5fadvantage_5fhistory_11',['GAME_TASK_MAX_ADVANTAGE_HISTORY',['../game__task__internal_8h.html#a66c405e53a84dd46a84837a23dbc5c97',1,'game_task_internal.h']]],
-  ['game_5ftask_5fmax_5fcaptured_5fpieces_12',['GAME_TASK_MAX_CAPTURED_PIECES',['../game__task__internal_8h.html#a6b3124bd6d484b5a24737fb72a8dfbfd',1,'game_task_internal.h']]],
-  ['game_5ftask_5fmax_5fmoves_5fhistory_13',['GAME_TASK_MAX_MOVES_HISTORY',['../game__task__internal_8h.html#a3e657e7e93cc35a922d00f44b94281be',1,'game_task_internal.h']]],
-  ['game_5ftask_5fpriority_14',['GAME_TASK_PRIORITY',['../freertos__chess_8h.html#a006aed1ec383676054e95d995acd427b',1,'freertos_chess.h']]],
-  ['game_5ftask_5fstack_5fsize_15',['GAME_TASK_STACK_SIZE',['../freertos__chess_8h.html#a3742ac4e005f9654c81dac1b035e8a14',1,'freertos_chess.h']]],
-  ['gesture_5fbutton_5fled_16',['GESTURE_BUTTON_LED',['../led__gesture__anim_8c.html#a1cf89119273c380a9dd18c2336e016b7',1,'led_gesture_anim.c']]],
-  ['gesture_5fframe_5fms_17',['GESTURE_FRAME_MS',['../led__gesture__anim_8c.html#adb099eceedbcd5b0d0034775540f38c0',1,'led_gesture_anim.c']]],
-  ['get_5fshared_5fbuffer_18',['get_shared_buffer',['../shared__buffer__pool_8h.html#a70318c0bb964a91191f81e8b06a264eb',1,'shared_buffer_pool.h']]],
-  ['guide_5fblack_5ffloor_19',['GUIDE_BLACK_FLOOR',['../led__board__restore__guide_8c.html#ae81b55846a79ebfddbfa8719061711d5',1,'led_board_restore_guide.c']]],
-  ['guide_5fbreathe_5fjitter_5fms_20',['GUIDE_BREATHE_JITTER_MS',['../led__board__restore__guide_8c.html#a94b047a0497edaf67447aa7562c18499',1,'led_board_restore_guide.c']]],
-  ['guide_5fbreathe_5fperiod_5fms_21',['GUIDE_BREATHE_PERIOD_MS',['../led__board__restore__guide_8c.html#a47a9d4f337dcc51cc8cdba938dcf80d9',1,'led_board_restore_guide.c']]],
-  ['guide_5ffade_5fms_22',['GUIDE_FADE_MS',['../led__board__restore__guide_8c.html#a814abe3d507b5de794023e652d2d98d6',1,'led_board_restore_guide.c']]],
-  ['guide_5fwhite_5ffloor_23',['GUIDE_WHITE_FLOOR',['../led__board__restore__guide_8c.html#a133ecec872bdd1b3a24a883fad3eceea',1,'led_board_restore_guide.c']]],
-  ['guided_5fcapture_5fmax_5fattackers_24',['GUIDED_CAPTURE_MAX_ATTACKERS',['../game__task__internal_8h.html#a54daa47b74d01d066ede530d4c6bc26d',1,'game_task_internal.h']]]
+  ['fmt_5fdata_0',['FMT_DATA',['../game__colors_8h.html#a4c5526bcd50bcf745bcbebcd4bc1b1e4',1,'game_colors.h']]],
+  ['fmt_5ferror_1',['FMT_ERROR',['../game__colors_8h.html#a60d4e1d55cc7102123ffe5c3539ec165',1,'game_colors.h']]],
+  ['fmt_5fhint_2',['FMT_HINT',['../game__colors_8h.html#a3bfaa4ef17d08f922b975ab28af9b499',1,'game_colors.h']]],
+  ['fmt_5finfo_3',['FMT_INFO',['../game__colors_8h.html#abd9912e75415821ab3192e7cf4542b6d',1,'game_colors.h']]]
 ];

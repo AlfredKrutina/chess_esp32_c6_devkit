@@ -13,6 +13,7 @@ var shared__buffer__pool_8c =
     [ "get_shared_buffer_debug", "shared__buffer__pool_8c.html#a985626f60ba733d611f238158cd15aac", null ],
     [ "release_shared_buffer", "shared__buffer__pool_8c.html#a2dcea7230ff8c3509b7b7adaeba9874e", null ],
     [ "shared_buffer_capacity", "shared__buffer__pool_8c.html#a07be563151e4cf513ed36188d3e4e388", null ],
+    [ "shared_buffer_pair_free", "shared__buffer__pool_8c.html#a72340901070f90947c45729563cca142", null ],
     [ "allocation_failures", "shared__buffer__pool_8c.html#acd1fec8326abc9b532e4004cd0283e88", null ],
     [ "buffer_pool", "shared__buffer__pool_8c.html#a5e0361f60e1bad8be1edbdae94f17063", null ],
     [ "buffer_pool_mutex", "shared__buffer__pool_8c.html#adbfe8616935903bcea16858a74066ec6", null ],

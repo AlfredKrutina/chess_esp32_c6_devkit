@@ -95,9 +95,11 @@ $(document).ready(function(){initNavTree('globals_a.html',''); initResizable(); 
 <h3><a id="index_a" name="index_a"></a>- a -</h3><ul>
 <li>activate_subtle_animations_for_buttons()&#160;:&#160;<a class="el" href="game__led__animations_8h.html#ae9a2e770a4936e32e42c67ebb236ce01">game_led_animations.h</a></li>
 <li>activate_subtle_animations_for_movable_pieces()&#160;:&#160;<a class="el" href="game__led__animations_8h.html#acb38fb824c92dc6d289f623bc15fcac6">game_led_animations.h</a></li>
+<li>active&#160;:&#160;<a class="el" href="game__events_8c.html#a03c996f9fcf0e10baeb3e700be0c409a">game_events.c</a></li>
 <li>active_error_count&#160;:&#160;<a class="el" href="visual__error__system_8c.html#a32b1c50c1082ad40d9f9f13fd28cedd7">visual_error_system.c</a></li>
 <li>activity_timeout_auto_sec&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a56c40f3908f512205289d2a231403fc9">ha_light_task.c</a></li>
-<li>advantage_history_count&#160;:&#160;<a class="el" href="game__task__internal_8h.html#afb3b2e18e26654ce6ceb6b8ff455ad69">game_task_internal.h</a>, <a class="el" href="game__task_8c.html#afb3b2e18e26654ce6ceb6b8ff455ad69">game_task.c</a></li>
+<li>add_px()&#160;:&#160;<a class="el" href="game__required__step_8c.html#a239c456739c08ae695b5cf659bef383e">game_required_step.c</a></li>
+<li>advantage_history_count&#160;:&#160;<a class="el" href="game__endgame__report_8c.html#ad9fac112b83104c0d792c1e062d6f3ca">game_endgame_report.c</a></li>
 <li>allocation_failures&#160;:&#160;<a class="el" href="shared__buffer__pool_8c.html#acd1fec8326abc9b532e4004cd0283e88">shared_buffer_pool.c</a></li>
 <li>ANIM_PRIORITY_ALERT&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6acba2ed376381afd69a926d2344151d42">unified_animation_manager.h</a></li>
 <li>ANIM_PRIORITY_AMBIENT&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a1d14f93d2747753699b61ea7f84c97a6a3fd1a5a62f63ec47085a395af6f1ba2d">unified_animation_manager.h</a></li>
@@ -141,7 +143,7 @@ $(document).ready(function(){initNavTree('globals_a.html',''); initResizable(); 
 <li>animation_is_active()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#acaa0b94777258411e3878a2e39e54ff4">unified_animation_manager.h</a></li>
 <li>animation_is_running()&#160;:&#160;<a class="el" href="unified__animation__manager_8c.html#a86f6ae8f90264777401b852a9202bf3a">unified_animation_manager.c</a></li>
 <li>animation_is_valid_id()&#160;:&#160;<a class="el" href="unified__animation__manager_8c.html#a4f09ab7845e085532967e5bda04847ed">unified_animation_manager.c</a></li>
-<li>animation_manager_deinit()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#ae6ff7c3686a9e96ec165a58721319443">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#ae6ff7c3686a9e96ec165a58721319443">unified_animation_manager.c</a></li>
+<li>animation_manager_deinit()&#160;:&#160;<a class="el" href="unified__animation__manager_8c.html#ae6ff7c3686a9e96ec165a58721319443">unified_animation_manager.c</a>, <a class="el" href="unified__animation__manager_8h.html#ae6ff7c3686a9e96ec165a58721319443">unified_animation_manager.h</a></li>
 <li>animation_manager_init()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#abe2de9761634e293a13f1f493274aa8e">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#abe2de9761634e293a13f1f493274aa8e">unified_animation_manager.c</a></li>
 <li>animation_manager_update()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a9bc50ba514bea1a1279e8ecb31a73244">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#a9bc50ba514bea1a1279e8ecb31a73244">unified_animation_manager.c</a></li>
 <li>animation_pattern&#160;:&#160;<a class="el" href="led__task_8c.html#ae7807e34a9e000cf160c7cbdea67089b">led_task.c</a></li>
@@ -159,13 +161,13 @@ $(document).ready(function(){initNavTree('globals_a.html',''); initResizable(); 
 <li>animation_start_confirmation()&#160;:&#160;<a class="el" href="unified__animation__manager_8c.html#a76bbc5ad4b103bd31bdc2bd601684504">unified_animation_manager.c</a></li>
 <li>animation_start_endgame_cascade()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#ac8d933a0a6f26e8a53d88f5f0839386e">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#ac8d933a0a6f26e8a53d88f5f0839386e">unified_animation_manager.c</a></li>
 <li>animation_start_endgame_circles()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#aa71a3707a1b82c7f11477d902dc5ba7e">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#aa71a3707a1b82c7f11477d902dc5ba7e">unified_animation_manager.c</a></li>
-<li>animation_start_endgame_draw_pulse()&#160;:&#160;<a class="el" href="unified__animation__manager_8c.html#a5e3e1269aa710141f350d3a185db6f08">unified_animation_manager.c</a>, <a class="el" href="unified__animation__manager_8h.html#a5e3e1269aa710141f350d3a185db6f08">unified_animation_manager.h</a></li>
+<li>animation_start_endgame_draw_pulse()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a5e3e1269aa710141f350d3a185db6f08">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#a5e3e1269aa710141f350d3a185db6f08">unified_animation_manager.c</a></li>
 <li>animation_start_endgame_draw_spiral()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a36e475c8eb3e48ea57c29780f6058e78">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#a36e475c8eb3e48ea57c29780f6058e78">unified_animation_manager.c</a></li>
 <li>animation_start_endgame_fireworks()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#afe5c5efdb84c2b6f51b9b704cb9e83a8">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#afe5c5efdb84c2b6f51b9b704cb9e83a8">unified_animation_manager.c</a></li>
 <li>animation_start_endgame_wave()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#aff6580f58fa39d825446daecc92ff0b2">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#aff6580f58fa39d825446daecc92ff0b2">unified_animation_manager.c</a></li>
 <li>animation_start_error()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a881cf8eb8ba5108cffb4feb7ef24ddd0">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#a881cf8eb8ba5108cffb4feb7ef24ddd0">unified_animation_manager.c</a></li>
 <li>animation_start_guidance()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a865d7b302c8f41c03db42d4582ee053f">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#a865d7b302c8f41c03db42d4582ee053f">unified_animation_manager.c</a></li>
-<li>animation_start_move()&#160;:&#160;<a class="el" href="unified__animation__manager_8c.html#a694f6eb2c55639e1db5ae412d4d7a7ef">unified_animation_manager.c</a>, <a class="el" href="unified__animation__manager_8h.html#a694f6eb2c55639e1db5ae412d4d7a7ef">unified_animation_manager.h</a></li>
+<li>animation_start_move()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a694f6eb2c55639e1db5ae412d4d7a7ef">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#a694f6eb2c55639e1db5ae412d4d7a7ef">unified_animation_manager.c</a></li>
 <li>animation_start_promotion()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a6b72a254b0978ba666bddc35551e3a8d">unified_animation_manager.h</a>, <a class="el" href="unified__animation__manager_8c.html#a6b72a254b0978ba666bddc35551e3a8d">unified_animation_manager.c</a></li>
 <li>animation_start_simple()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a44d3ff5fe3b1258813e6552946435646">unified_animation_manager.h</a></li>
 <li>animation_start_time&#160;:&#160;<a class="el" href="led__task_8c.html#a381f77567d8c6cc3dcc0cadc9b3ad5ca">led_task.c</a></li>
@@ -177,7 +179,7 @@ $(document).ready(function(){initNavTree('globals_a.html',''); initResizable(); 
 <li>animation_stop_all_of_type()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#aa1f890d113566a136d9c2eff8fc41ea0">unified_animation_manager.h</a></li>
 <li>animation_stop_all_up_to_priority()&#160;:&#160;<a class="el" href="unified__animation__manager_8h.html#a0171410732cf87be81e06aa55a558e98">unified_animation_manager.h</a></li>
 <li>animation_system_active&#160;:&#160;<a class="el" href="game__led__animations_8c.html#a613683b2a29d20556b1ad11c52bdfdb9">game_led_animations.c</a></li>
-<li>animation_task_handle&#160;:&#160;<a class="el" href="main_8c.html#a2a20898222a990efbce3e4239f2d9aee">main.c</a>, <a class="el" href="freertos__chess_8h.html#a2a20898222a990efbce3e4239f2d9aee">freertos_chess.h</a></li>
+<li>animation_task_handle&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a2a20898222a990efbce3e4239f2d9aee">freertos_chess.h</a>, <a class="el" href="main_8c.html#a2a20898222a990efbce3e4239f2d9aee">main.c</a></li>
 <li>ANIMATION_TASK_PRIORITY&#160;:&#160;<a class="el" href="freertos__chess_8h.html#aa535c253da7bfeb4f3fcba9b47fcfe4f">freertos_chess.h</a></li>
 <li>ANIMATION_TASK_STACK_SIZE&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a6e9d80d372a5d67bfe61ef2373242891">freertos_chess.h</a></li>
 <li>animation_timer&#160;:&#160;<a class="el" href="game__led__animations_8c.html#a43f6b3d51a255773c25e705a8df30eb2">game_led_animations.c</a></li>
@@ -214,14 +216,25 @@ $(document).ready(function(){initNavTree('globals_a.html',''); initResizable(); 
 <li>ap_netif&#160;:&#160;<a class="el" href="web__server__task_8c.html#a91aeff1220701b1ecdc74ab211de8243">web_server_task.c</a></li>
 <li>app_main()&#160;:&#160;<a class="el" href="main_8c.html#a630544a7f0a2cc40d8a7fefab7e2fe70">main.c</a></li>
 <li>append_square()&#160;:&#160;<a class="el" href="game__task_8c.html#ad6648c67da9dcf078bc2e9a5b3eed081">game_task.c</a></li>
+<li>apply_board_anim()&#160;:&#160;<a class="el" href="led__game__events_8c.html#a57e32c577d2d571875cf1cefb5f86fd9">led_game_events.c</a></li>
+<li>apply_castle_token()&#160;:&#160;<a class="el" href="fen_8c.html#a708a78a2f736172f457b19ba6e264563">fen.c</a></li>
+<li>apply_check()&#160;:&#160;<a class="el" href="led__game__events_8c.html#ac8b931173141c35472da6b1fb6b21357">led_game_events.c</a></li>
 <li>apply_color_safe()&#160;:&#160;<a class="el" href="game__led__animations_8c.html#ae0c1dab4ee7a18e66fc96b45fe59e0c6">game_led_animations.c</a></li>
+<li>apply_ep_token()&#160;:&#160;<a class="el" href="fen_8c.html#afb2ba7259cdc3d15054ff8de2758afea">fen.c</a></li>
+<li>apply_game_end()&#160;:&#160;<a class="el" href="led__game__events_8c.html#a5a56832e2903a1dda17e1f332c4b3091">led_game_events.c</a></li>
+<li>apply_hints()&#160;:&#160;<a class="el" href="led__game__events_8c.html#a168a505c3a4229b25415f06ee86c06f7">led_game_events.c</a></li>
+<li>apply_led_ctrl()&#160;:&#160;<a class="el" href="led__game__events_8c.html#a4ae6ed34882bd46b307e300db096a320">led_game_events.c</a></li>
+<li>apply_move_rejected()&#160;:&#160;<a class="el" href="led__game__events_8c.html#aa70a40e61539aad7a5c146818393d6eb">led_game_events.c</a></li>
+<li>apply_on()&#160;:&#160;<a class="el" href="position_8c.html#a6cb28779d1ef1d7207bd8c3b0f93dcab">position.c</a></li>
+<li>apply_restore()&#160;:&#160;<a class="el" href="led__game__events_8c.html#ae1be0b72b1631b41593c45e2cfcafac1">led_game_events.c</a></li>
 <li>apply_subtle_animation()&#160;:&#160;<a class="el" href="game__led__animations_8c.html#a5fb652dd2b2cbe7cdac3b9cbaa30763c">game_led_animations.c</a></li>
+<li>arm_idle_timer()&#160;:&#160;<a class="el" href="game__required__step_8c.html#a631720d1168bc6d97312de4818de4f8c">game_required_step.c</a></li>
 <li>arm_wifi_lease_locked()&#160;:&#160;<a class="el" href="board__api__auth_8c.html#a2470e32f146dda5a142100e5988677bd">board_api_auth.c</a></li>
-<li>auto_new_game_blocked_until_move&#160;:&#160;<a class="el" href="game__task_8c.html#aeeb78940e65fff2e71ea41c1a8787c1c">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#aeeb78940e65fff2e71ea41c1a8787c1c">game_task_internal.h</a></li>
+<li>auto_new_game_blocked_until_move&#160;:&#160;<a class="el" href="game__task_8c.html#a63d2e02edade145bca62b50881d82a16">game_task.c</a></li>
 <li>AUTO_NEW_GAME_CONFIRMATION_TIME_MS&#160;:&#160;<a class="el" href="game__task_8c.html#ab5d37ae881c4c3c8d9ac1a35e00e7b71">game_task.c</a></li>
-<li>auto_new_game_in_starting_position&#160;:&#160;<a class="el" href="game__task_8c.html#aae9a4d0a6d4c8c30d7b645eacd06716f">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#aae9a4d0a6d4c8c30d7b645eacd06716f">game_task_internal.h</a></li>
-<li>auto_new_game_timer_start&#160;:&#160;<a class="el" href="game__task_8c.html#a742eef556956d6c9f4b0c3276501dabd">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a742eef556956d6c9f4b0c3276501dabd">game_task_internal.h</a></li>
-<li>auto_new_game_triggered&#160;:&#160;<a class="el" href="game__task_8c.html#a04d3ba5e73ae60bb8c57f895a51db47b">game_task.c</a>, <a class="el" href="game__task__internal_8h.html#a04d3ba5e73ae60bb8c57f895a51db47b">game_task_internal.h</a></li>
+<li>auto_new_game_in_starting_position&#160;:&#160;<a class="el" href="game__task_8c.html#aec72936ce88b70188ca26d8ee3d9950b">game_task.c</a></li>
+<li>auto_new_game_timer_start&#160;:&#160;<a class="el" href="game__task_8c.html#a1efed9b533ee8b119b08253aeb4b76c1">game_task.c</a></li>
+<li>auto_new_game_triggered&#160;:&#160;<a class="el" href="game__task_8c.html#a1605f51457ea484862778f55ab3cb3cf">game_task.c</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->

@@ -62,6 +62,12 @@ var game__opening__trainer_8c =
     [ "opening_fill_expected_occupied", "game__opening__trainer_8c.html#a0811e0841ff8936346444629481b8fb7", null ],
     [ "opening_is_checkpoint_ply", "game__opening__trainer_8c.html#a030fb9737bbf5c0c1f01e534a3b4651c", null ],
     [ "opening_is_player_ply", "game__opening__trainer_8c.html#af0f5ae400b340975450b9ad270c42d2c", null ],
+    [ "opening_mode_bind", "game__opening__trainer_8c.html#aa86077a2e3b7e4b962cc77e75a41e8bd", null ],
+    [ "opening_mode_unbind", "game__opening__trainer_8c.html#a6fc555eeed038a13c3c44db728da05ad", null ],
+    [ "opening_on_drop", "game__opening__trainer_8c.html#a3cccd460d8c0fe3baf968dbee80fae2a", null ],
+    [ "opening_on_leds", "game__opening__trainer_8c.html#af30279e1fd3dc58b6f306faa90fe4494", null ],
+    [ "opening_on_lift", "game__opening__trainer_8c.html#afd7b8f0397a757e9c9d21dbd45691f7e", null ],
+    [ "opening_on_move_applied", "game__opening__trainer_8c.html#a45cb37a8228d2bc6a5067541a6e14367", null ],
     [ "opening_parse_uci", "game__opening__trainer_8c.html#a188e4c5a57c1b823031005ca4af57eb7", null ],
     [ "opening_play_move_led", "game__opening__trainer_8c.html#a0f34c6cbadeae8a955ad3ab264b4961f", null ],
     [ "opening_prepare_player_turn", "game__opening__trainer_8c.html#a1f2d9e6368d691314568fb82ab8736cb", null ],
@@ -71,5 +77,6 @@ var game__opening__trainer_8c =
     [ "opening_show_opponent_physical_led", "game__opening__trainer_8c.html#a8c60a621ea27fd9ff90fd87c9e8d4881", null ],
     [ "opening_update_expected_move", "game__opening__trainer_8c.html#a87af166bbc9f958cc3ef128d4acbeac8", null ],
     [ "opening_state", "game__opening__trainer_8c.html#a24344f093fdca1950920b7c011ba0651", null ],
+    [ "s_opening_mode", "game__opening__trainer_8c.html#a609797d265ce0dae0116c002e5bbbeac", null ],
     [ "TAG", "game__opening__trainer_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];
