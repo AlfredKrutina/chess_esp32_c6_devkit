@@ -1,5 +1,17 @@
 var NAVTREEINDEX19 =
 {
+"structgame__snapshot__v2__t.html#affff47362255d44d6fbc05a1244e8148":[1,0,49,21],
+"structgame__task__error__recovery__t.html":[1,0,50],
+"structgame__task__error__recovery__t.html#a2e2f223a8428aa07865fe9aa67dd441a":[1,0,50,3],
+"structgame__task__error__recovery__t.html#a51437e624935b0c61126372af4c32d3f":[1,0,50,7],
+"structgame__task__error__recovery__t.html#a7de2dfd9c2baaa73c0971e147259ad8d":[1,0,50,1],
+"structgame__task__error__recovery__t.html#a94f42e105bfc3b418c1a6a7ea28bf6e5":[1,0,50,6],
+"structgame__task__error__recovery__t.html#ab6a8e3fd66c7d0f363d871ccced162f7":[1,0,50,0],
+"structgame__task__error__recovery__t.html#acc30154e227394cdc9060a9aad054763":[1,0,50,5],
+"structgame__task__error__recovery__t.html#aceb518a700ae80e3c908fbf79ca4a055":[1,0,50,4],
+"structgame__task__error__recovery__t.html#af28b0ed489d0d605b213bc1f751d420c":[1,0,50,2],
+"structgame__task__promotion__state__t.html":[1,0,51],
+"structgame__task__promotion__state__t.html#a1e8ccbcd9550c4e82dc36321f4a12315":[1,0,51,1],
 "structgame__task__promotion__state__t.html#a32c7a7586042bb7c4513548d54909cb0":[1,0,51,3],
 "structgame__task__promotion__state__t.html#a8500d1203a82918b0935edb0d4f6c3a0":[1,0,51,0],
 "structgame__task__promotion__state__t.html#ae714bb437e75278ff211ecb8b02896b7":[1,0,51,2],
@@ -237,17 +249,5 @@ var NAVTREEINDEX19 =
 "structota__journal__t.html#a0bcb18dd77aece7bfaebde91bf3a5345":[1,0,75,3],
 "structota__journal__t.html#a32f37f841a66bcad284d981b81158729":[1,0,75,1],
 "structota__journal__t.html#a520f1d2dd5b6196f7f12f61cf6726692":[1,0,75,0],
-"structota__journal__t.html#a74091e9702fde27e9f7858011c52c3da":[1,0,75,4],
-"structota__journal__t.html#a9d57170bff485adb41ef2bf3626ba045":[1,0,75,6],
-"structota__journal__t.html#ab0f5b15dac7311a9641ba5488b7f0799":[1,0,75,5],
-"structota__journal__t.html#aed23d820a3613d1aea241b227459feaa":[1,0,75,2],
-"structota__journal__t.html#afe3daadaf908b52e40a9fc05f7ced5cd":[1,0,75,7],
-"structphysical__undo__state__t.html":[1,0,76],
-"structphysical__undo__state__t.html#a05a753f0813ce01f93e5f08e5ba83526":[1,0,76,9],
-"structphysical__undo__state__t.html#a14b511ca2792f75192339f00acac9514":[1,0,76,4],
-"structphysical__undo__state__t.html#a4e3738117a22119c89100b095fb8a4a2":[1,0,76,1],
-"structphysical__undo__state__t.html#a55ef0afacee8612ea49d16af49b896c4":[1,0,76,10],
-"structphysical__undo__state__t.html#a6ef646e8b2ad99aeb1a121d14504fe10":[1,0,76,0],
-"structphysical__undo__state__t.html#a7f87a823fe85db5563bffc8f38a704aa":[1,0,76,11],
-"structphysical__undo__state__t.html#a8f1dbeb3721425a831faf13068b9df5c":[1,0,76,5]
+"structota__journal__t.html#a74091e9702fde27e9f7858011c52c3da":[1,0,75,4]
 };

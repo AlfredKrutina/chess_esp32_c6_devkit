@@ -298,8 +298,6 @@ Functions</h2></td></tr>
 <tr class="memitem:a3595c3ff5038a64f10d58b22aa7961ee" id="r_a3595c3ff5038a64f10d58b22aa7961ee"><td class="memItemLeft" align="right" valign="top">esp_err_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__game_8c.html#a3595c3ff5038a64f10d58b22aa7961ee">web_server_build_game_snapshot_json_shared</a> (char **out_json, size_t *out_len)</td></tr>
 <tr class="memdesc:a3595c3ff5038a64f10d58b22aa7961ee"><td class="mdescLeft">&#160;</td><td class="mdescRight">Same JSON as GET /api/game/snapshot to internal <code>snapshot_buffer</code>.  <br /></td></tr>
 <tr class="separator:a3595c3ff5038a64f10d58b22aa7961ee"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a575fa4f6efe161f8526c5c91b4e64d7b" id="r_a575fa4f6efe161f8526c5c91b4e64d7b"><td class="memItemLeft" align="right" valign="top">static void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__game_8c.html#a575fa4f6efe161f8526c5c91b4e64d7b">web_led_clear_highlights_direct</a> (void)</td></tr>
-<tr class="separator:a575fa4f6efe161f8526c5c91b4e64d7b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a82a101aac46f356853d6d8c317bd007f" id="r_a82a101aac46f356853d6d8c317bd007f"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__game_8c.html#a82a101aac46f356853d6d8c317bd007f">web_game_submit_hint_clear</a> (void)</td></tr>
 <tr class="separator:a82a101aac46f356853d6d8c317bd007f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a886c507d8dbc724f36c79de306cf7fb5" id="r_a886c507d8dbc724f36c79de306cf7fb5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="web__handlers__game_8c.html#a886c507d8dbc724f36c79de306cf7fb5">web_game_on_client_drop</a> (void)</td></tr>
@@ -563,7 +561,7 @@ Variables</h2></td></tr>
 <p>App link dropped (WS close, BLE disconnect, AP station left). </p>
 <p>One idle LED frame if the position is idle. No error palette, no heap buffer. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00367">367</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00357">357</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -583,7 +581,7 @@ Variables</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00356">356</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00350">350</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -621,35 +619,7 @@ Variables</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00378">378</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
-
-</div>
-</div>
-<a id="a575fa4f6efe161f8526c5c91b4e64d7b" name="a575fa4f6efe161f8526c5c91b4e64d7b"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a575fa4f6efe161f8526c5c91b4e64d7b">&#9670;&#160;</a></span>web_led_clear_highlights_direct()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">static void web_led_clear_highlights_direct </td>
-          <td>(</td>
-          <td class="paramtype">void&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00350">350</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00368">368</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -699,7 +669,7 @@ Variables</h2></td></tr>
 
 <p>Common logic of POST /api/game/hint_highlight and hint_highlight BLE command. </p>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00387">387</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l00377">377</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>
@@ -732,7 +702,7 @@ Variables</h2></td></tr>
 <p>BLE game commands (move, new game, timers, virtual, tutorial, puzzle, opening). </p>
 <dl class="section return"><dt>Returns</dt><dd>ESP_ERR_NOT_FOUND when cmd is not handled here. </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l01656">1656</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
+<p class="definition">Definition at line <a class="el" href="web__handlers__game_8c_source.html#l01638">1638</a> of file <a class="el" href="web__handlers__game_8c_source.html">web_handlers_game.c</a>.</p>
 
 </div>
 </div>

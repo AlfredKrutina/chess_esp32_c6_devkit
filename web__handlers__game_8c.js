@@ -11,7 +11,6 @@ var web__handlers__game_8c =
     [ "web_game_on_client_drop", "web__handlers__game_8c.html#a886c507d8dbc724f36c79de306cf7fb5", null ],
     [ "web_game_submit_hint_clear", "web__handlers__game_8c.html#a82a101aac46f356853d6d8c317bd007f", null ],
     [ "web_game_submit_hint_pixels", "web__handlers__game_8c.html#a54f2c02e90128beb2a8a6a538211568f", null ],
-    [ "web_led_clear_highlights_direct", "web__handlers__game_8c.html#a575fa4f6efe161f8526c5c91b4e64d7b", null ],
     [ "web_move_response_queue", "web__handlers__game_8c.html#a34b372e5c9ad234571f76277519535b5", null ],
     [ "web_server_apply_hint_highlight_json_body", "web__handlers__game_8c.html#ae2ee8d0febaa6efbb435ca1a93784fa2", null ],
     [ "web_server_ble_game_command_dispatch", "web__handlers__game_8c.html#a6d789f7cb5c2f381374c2de6914fcbc6", null ],

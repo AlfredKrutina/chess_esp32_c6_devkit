@@ -1,5 +1,17 @@
 var NAVTREEINDEX18 =
 {
+"structgame__cmd__t.html#ae0bdc2d1f36056ad7fef35f9726243ce":[1,0,30,5],
+"structgame__cmd__t.html#af3e1e8f7dc24bd7e0ed18101c14987e8":[1,0,30,13],
+"structgame__cmd__t.html#af830fd331422312f63fdcc7a9d18e983":[1,0,30,2],
+"structgame__cmd__timer__fields__t.html":[1,0,31],
+"structgame__cmd__timer__fields__t.html#a5d9e06c65d85388d431d06ec0a484bf8":[1,0,31,2],
+"structgame__cmd__timer__fields__t.html#abaf41485eb0bf98ce1d39cf8b1c9c040":[1,0,31,1],
+"structgame__cmd__timer__fields__t.html#aebbe14261abb9226b10b16fd00e45e0d":[1,0,31,0],
+"structgame__event__msg__t.html":[1,0,32],
+"structgame__event__msg__t.html#a09e6e7b9dcadd4668d6a10aa7dcbb3d1":[1,0,32,7],
+"structgame__event__msg__t.html#a2938d8fefea19a25e00d7199f0967364":[1,0,32,5],
+"structgame__event__msg__t.html#a3dcd1055f697a47ca3f6a82ef1f5357e":[1,0,32,4],
+"structgame__event__msg__t.html#a4afcaff016729af6cfce7b0dd3afaaf5":[1,0,32,6],
 "structgame__event__msg__t.html#a5199c17ec283876d15dd2b9e02dbcef8":[1,0,32,2],
 "structgame__event__msg__t.html#a5813f258c15cc1cdf91895df66837e2f":[1,0,32,3],
 "structgame__event__msg__t.html#a723dd77f192ece9195eb6917c873a496":[1,0,32,0],
@@ -237,17 +249,5 @@ var NAVTREEINDEX18 =
 "structgame__snapshot__v2__t.html#aee126371d814b7047a2f6bf19294f52c":[1,0,49,16],
 "structgame__snapshot__v2__t.html#aee93b5ac22d267bbbf13e7ead52f2d73":[1,0,49,17],
 "structgame__snapshot__v2__t.html#af01d4ef5704c7bf367ed2af97c1f9156":[1,0,49,11],
-"structgame__snapshot__v2__t.html#afa34da849359b88796c0304d1ed9cfb1":[1,0,49,19],
-"structgame__snapshot__v2__t.html#affff47362255d44d6fbc05a1244e8148":[1,0,49,21],
-"structgame__task__error__recovery__t.html":[1,0,50],
-"structgame__task__error__recovery__t.html#a2e2f223a8428aa07865fe9aa67dd441a":[1,0,50,3],
-"structgame__task__error__recovery__t.html#a51437e624935b0c61126372af4c32d3f":[1,0,50,7],
-"structgame__task__error__recovery__t.html#a7de2dfd9c2baaa73c0971e147259ad8d":[1,0,50,1],
-"structgame__task__error__recovery__t.html#a94f42e105bfc3b418c1a6a7ea28bf6e5":[1,0,50,6],
-"structgame__task__error__recovery__t.html#ab6a8e3fd66c7d0f363d871ccced162f7":[1,0,50,0],
-"structgame__task__error__recovery__t.html#acc30154e227394cdc9060a9aad054763":[1,0,50,5],
-"structgame__task__error__recovery__t.html#aceb518a700ae80e3c908fbf79ca4a055":[1,0,50,4],
-"structgame__task__error__recovery__t.html#af28b0ed489d0d605b213bc1f751d420c":[1,0,50,2],
-"structgame__task__promotion__state__t.html":[1,0,51],
-"structgame__task__promotion__state__t.html#a1e8ccbcd9550c4e82dc36321f4a12315":[1,0,51,1]
+"structgame__snapshot__v2__t.html#afa34da849359b88796c0304d1ed9cfb1":[1,0,49,19]
 };

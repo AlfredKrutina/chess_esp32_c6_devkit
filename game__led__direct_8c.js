@@ -1,6 +1,8 @@
 var game__led__direct_8c =
 [
     [ "game_clear_highlights_direct", "game__led__direct_8c.html#a8b43b89b88ce59ea25698ac5a8280bf2", null ],
+    [ "game_coach_hint_clear", "game__led__direct_8c.html#a37784ac4e85407644589edfb92980d94", null ],
+    [ "game_coach_hint_paint", "game__led__direct_8c.html#a0316960155736055254fea635f0624d2", null ],
     [ "game_led_clear_board", "game__led__direct_8c.html#a4bd575d64b68951fc4615c483600e981", null ],
     [ "game_led_flush", "game__led__direct_8c.html#ac341c075c6ddd4edf92563ca18c480c7", null ],
     [ "game_led_frame_begin", "game__led__direct_8c.html#a36d9a5fa5c697e0298813885a5488138", null ],
@@ -23,6 +25,9 @@ var game__led__direct_8c =
     [ "game_show_state_direct", "game__led__direct_8c.html#a002b9dd58ec7cfbcac57367df453f258", null ],
     [ "s_acc", "game__led__direct_8c.html#a1b69828b7b80b7f527ab7c80fd124ca8", null ],
     [ "s_acc_n", "game__led__direct_8c.html#ae84c7240d2888543cc452011dfa0b8df", null ],
+    [ "s_coach_from", "game__led__direct_8c.html#ad9d321220cee8217cf9ea42facd372f7", null ],
+    [ "s_coach_on", "game__led__direct_8c.html#a3e85ecaa7c9809b95c0ac9aa27b48aff", null ],
+    [ "s_coach_to", "game__led__direct_8c.html#afa65546e8bfb13ab05d84a84ef04fecb", null ],
     [ "s_frame_bn", "game__led__direct_8c.html#a8654c19aa4b85be4d21a06c6838cc5f8", null ],
     [ "s_frame_br", "game__led__direct_8c.html#a01264ecd2d27a84557638a7c781e6222", null ],
     [ "s_frame_fade", "game__led__direct_8c.html#af1578ac12286fdd3e0b3d9a089566030", null ],

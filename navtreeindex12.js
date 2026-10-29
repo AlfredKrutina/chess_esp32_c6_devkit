@@ -1,5 +1,15 @@
 var NAVTREEINDEX12 =
 {
+"hall__i2c__squares_8h.html#a454a887c39b2abd00c73dd086c9775cd":[2,0,0,12,0,1,14],
+"hall__i2c__squares_8h.html#a485b2def4f44f801fd014941452c2a44":[2,0,0,12,0,1,7],
+"hall__i2c__squares_8h.html#a4ffdafc7aabe2381877fb4c94615afd1":[2,0,0,12,0,1,9],
+"hall__i2c__squares_8h.html#a50ebc214fb7ce42f9550c192eb23e6f9":[2,0,0,12,0,1,27],
+"hall__i2c__squares_8h.html#a58557a23ffe03c863d076997816b3605":[2,0,0,12,0,1,4],
+"hall__i2c__squares_8h.html#a66b38c74236b2a1517f79d2c10fa7d65":[2,0,0,12,0,1,19],
+"hall__i2c__squares_8h.html#a8419b5cfa812309db0f8d5fe1deb5c02":[2,0,0,12,0,1,28],
+"hall__i2c__squares_8h.html#a94864aa3136cdf6765fce1ab99e390d4":[2,0,0,12,0,1,26],
+"hall__i2c__squares_8h.html#a949d4bdc0d2dfa8b079f31885f1a2846":[2,0,0,12,0,1,5],
+"hall__i2c__squares_8h.html#aa1ae9fbcaaf040215255993d4352d05c":[2,0,0,12,0,1,11],
 "hall__i2c__squares_8h.html#aa3278a7bff324a927ff9c6d198f47d8b":[2,0,0,12,0,1,17],
 "hall__i2c__squares_8h.html#aa5164d6247b30eee3a07b4b035a7adfb":[2,0,0,12,0,1,8],
 "hall__i2c__squares_8h.html#aa5a5bd26e6c7147d7d48c04f9ba5722a":[2,0,0,12,0,1,13],
@@ -239,15 +249,5 @@ var NAVTREEINDEX12 =
 "led__mapping_8h.html":[2,0,0,4,0,4],
 "led__mapping_8h.html#a6f6c321f16b2494986ebfb82fa9bf5df":[2,0,0,4,0,4,1],
 "led__mapping_8h.html#a8fdf823e1e4db3abca2c962afc09f826":[2,0,0,4,0,4,3],
-"led__mapping_8h.html#ac190470b2f78837d3df987b0951264dd":[2,0,0,4,0,4,0],
-"led__mapping_8h.html#afa2f63d0405f6da06cdeceee60aaa9d7":[2,0,0,4,0,4,2],
-"led__mapping_8h_source.html":[2,0,0,4,0,4],
-"led__required__step__guide_8c.html":[2,0,0,10,4],
-"led__required__step__guide_8c.html#a2ce22186ca80f3bbe40b56a406aad82f":[2,0,0,10,4,1],
-"led__required__step__guide_8c.html#a4aca78d2d1ce889a8c992ea4fc71f858":[2,0,0,10,4,3],
-"led__required__step__guide_8c.html#a4f48ba2c5fe73286979c512e9d59dee0":[2,0,0,10,4,5],
-"led__required__step__guide_8c.html#a67fb411c7b3c73619144cf07afa29d62":[2,0,0,10,4,4],
-"led__required__step__guide_8c.html#a700d2642da8585d7564a6e28a08466e7":[2,0,0,10,4,6],
-"led__required__step__guide_8c.html#a71c296e9fa5f7ed1a6e7f1afff663b6b":[2,0,0,10,4,0],
-"led__required__step__guide_8c.html#a850667b36431e1ad319034ea37afc75d":[2,0,0,10,4,10]
+"led__mapping_8h.html#ac190470b2f78837d3df987b0951264dd":[2,0,0,4,0,4,0]
 };

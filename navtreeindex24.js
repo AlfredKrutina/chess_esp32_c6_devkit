@@ -1,5 +1,16 @@
 var NAVTREEINDEX24 =
 {
+"web__server__task_8c.html#a72eafa147c617f3d904101d47f0b65e9":[2,0,0,20,12,49],
+"web__server__task_8c.html#a735395cc1d6e2a5b5b44d3d95faafbfe":[2,0,0,20,12,11],
+"web__server__task_8c.html#a7362e99e23548ddcd754f242bc749b2e":[2,0,0,20,12,21],
+"web__server__task_8c.html#a738f5dc6c12f15f0149e08de59f48064":[2,0,0,20,12,129],
+"web__server__task_8c.html#a7483d2770fd4b4f3acd55984ef02466f":[2,0,0,20,12,40],
+"web__server__task_8c.html#a74937acaf240abcaaac7d9260e412beb":[2,0,0,20,12,61],
+"web__server__task_8c.html#a76a1b24d8a4f73007def0e2675cb2b1c":[2,0,0,20,12,86],
+"web__server__task_8c.html#a78e57b763d02a6d2f0e9e96a9bd4bdc4":[2,0,0,20,12,142],
+"web__server__task_8c.html#a790faf9ca3eea165994f0f39f14f74ae":[2,0,0,20,12,124],
+"web__server__task_8c.html#a79931a21b5e20ece42b9b17b28d94e8b":[2,0,0,20,12,66],
+"web__server__task_8c.html#a7a944cacc1ac5f2f8077a9244aaa44e3":[2,0,0,20,12,56],
 "web__server__task_8c.html#a8022a1e78e78515682e9ac22fc7f5593":[2,0,0,20,12,121],
 "web__server__task_8c.html#a81d6b5242f9ab01bd0e2ffda90456cb5":[2,0,0,20,12,113],
 "web__server__task_8c.html#a81f3502fd237eb59ce2ebfc3999b9d36":[2,0,0,20,12,76],

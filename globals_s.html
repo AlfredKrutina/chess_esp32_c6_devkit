@@ -126,7 +126,7 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>s_ble_ota_total&#160;:&#160;<a class="el" href="ota__update_8c.html#a15876852fcb729af91544d83cf360008">ota_update.c</a></li>
 <li>s_board_picture_gen&#160;:&#160;<a class="el" href="game__events_8c.html#ac327caaed4405070ce46a2cc7ace8e5e">game_events.c</a></li>
 <li>s_board_setup_tutorial_active&#160;:&#160;<a class="el" href="game__init_8c.html#a236a4ddaad89f940b4b7804d0f842101">game_init.c</a></li>
-<li>s_board_show&#160;:&#160;<a class="el" href="led__task_8c.html#a7181583da247aa98cad31e7540b20000">led_task.c</a>, <a class="el" href="game__events_8c.html#a02a9ae5925f86d8dc775e4757ded4856">game_events.c</a></li>
+<li>s_board_show&#160;:&#160;<a class="el" href="game__events_8c.html#a02a9ae5925f86d8dc775e4757ded4856">game_events.c</a>, <a class="el" href="led__task_8c.html#a7181583da247aa98cad31e7540b20000">led_task.c</a></li>
 <li>s_boot_clock&#160;:&#160;<a class="el" href="led__task_8c.html#a1474079b19a2114410ec1f8425ca3722">led_task.c</a></li>
 <li>s_boot_faded&#160;:&#160;<a class="el" href="led__task_8c.html#a80ffde87dfcca8bde395f4c58b537136">led_task.c</a></li>
 <li>s_boot_mode_applied&#160;:&#160;<a class="el" href="ha__light__task_8c.html#ae0dcc4449791d422f92e0ed40f8f5c8c">ha_light_task.c</a></li>
@@ -147,6 +147,9 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>s_captured_n&#160;:&#160;<a class="el" href="game__hall__hand_8c.html#a6bbe992ca3d80cbc9cd6fbbd6be2dcba">game_hall_hand.c</a></li>
 <li>s_clock_held&#160;:&#160;<a class="el" href="game__snapshot_8c.html#ad14aaf0997661a472d6934a75e45a77a">game_snapshot.c</a></li>
 <li>s_clock_json_build_scratch&#160;:&#160;<a class="el" href="web__handlers__game_8c.html#a92ab82dd7ecc9be694f201047df8554b">web_handlers_game.c</a></li>
+<li>s_coach_from&#160;:&#160;<a class="el" href="game__led__direct_8c.html#ad9d321220cee8217cf9ea42facd372f7">game_led_direct.c</a></li>
+<li>s_coach_on&#160;:&#160;<a class="el" href="game__led__direct_8c.html#a3e85ecaa7c9809b95c0ac9aa27b48aff">game_led_direct.c</a></li>
+<li>s_coach_to&#160;:&#160;<a class="el" href="game__led__direct_8c.html#afa65546e8bfb13ab05d84a84ef04fecb">game_led_direct.c</a></li>
 <li>s_confirm_done&#160;:&#160;<a class="el" href="ota__guard_8c.html#a80b374e271b144c1f91a0f94f0eeabb6">ota_guard.c</a></li>
 <li>s_core_apply&#160;:&#160;<a class="el" href="position_8c.html#ad53fce128201c214655d9ad6aa560e3d">position.c</a></li>
 <li>s_core_trial&#160;:&#160;<a class="el" href="position_8c.html#a5ad08695acae407bad1e024aac762ebc">position.c</a></li>
@@ -178,6 +181,7 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>s_forced_blackout&#160;:&#160;<a class="el" href="led__task_8c.html#a64017202253c6693481656741bb55574">led_task.c</a></li>
 <li>s_frame_bn&#160;:&#160;<a class="el" href="game__led__direct_8c.html#a8654c19aa4b85be4d21a06c6838cc5f8">game_led_direct.c</a></li>
 <li>s_frame_br&#160;:&#160;<a class="el" href="game__led__direct_8c.html#a01264ecd2d27a84557638a7c781e6222">game_led_direct.c</a></li>
+<li>s_frame_changed&#160;:&#160;<a class="el" href="led__task_8c.html#ab58fede8ef4cc21c9e20d74bb6f1b4ce">led_task.c</a></li>
 <li>s_frame_fade&#160;:&#160;<a class="el" href="game__led__direct_8c.html#af1578ac12286fdd3e0b3d9a089566030">game_led_direct.c</a>, <a class="el" href="led__task_8c.html#af1578ac12286fdd3e0b3d9a089566030">led_task.c</a></li>
 <li>s_frame_n&#160;:&#160;<a class="el" href="game__led__direct_8c.html#a09f8b1641c45bb65ed35ae17c107fd71">game_led_direct.c</a></li>
 <li>s_frame_open&#160;:&#160;<a class="el" href="game__led__direct_8c.html#ab7d98fe5b496168e2c1e3e446c50cbb0">game_led_direct.c</a></li>
@@ -237,8 +241,8 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>s_mqtt_gate_since_ms&#160;:&#160;<a class="el" href="ha__light__task_8c.html#ac75fa6248036f9fa030307450b165ac6">ha_light_task.c</a></li>
 <li>s_mqtt_hold_logged&#160;:&#160;<a class="el" href="ha__light__task_8c.html#aa32d1f5311a10feb1d3ec86ef79586b4">ha_light_task.c</a></li>
 <li>s_mqtt_payload&#160;:&#160;<a class="el" href="ha__light__task_8c.html#ab44d7ea252ed8ecbafe95e8fbcccd97e">ha_light_task.c</a></li>
-<li>s_mux&#160;:&#160;<a class="el" href="led__gesture__anim_8c.html#a5e467f105c776cdaa15da1a0600beb46">led_gesture_anim.c</a>, <a class="el" href="ota__guard_8c.html#a5e467f105c776cdaa15da1a0600beb46">ota_guard.c</a></li>
-<li>s_need_push&#160;:&#160;<a class="el" href="led__required__step__guide_8c.html#aa0800cdbc18621df245f750f8cdd7578">led_required_step_guide.c</a>, <a class="el" href="led__board__restore__guide_8c.html#aa0800cdbc18621df245f750f8cdd7578">led_board_restore_guide.c</a></li>
+<li>s_mux&#160;:&#160;<a class="el" href="ota__guard_8c.html#a5e467f105c776cdaa15da1a0600beb46">ota_guard.c</a>, <a class="el" href="led__gesture__anim_8c.html#a5e467f105c776cdaa15da1a0600beb46">led_gesture_anim.c</a></li>
+<li>s_need_push&#160;:&#160;<a class="el" href="led__board__restore__guide_8c.html#aa0800cdbc18621df245f750f8cdd7578">led_board_restore_guide.c</a>, <a class="el" href="led__required__step__guide_8c.html#aa0800cdbc18621df245f750f8cdd7578">led_required_step_guide.c</a></li>
 <li>s_new&#160;:&#160;<a class="el" href="led__gesture__anim_8c.html#a67ece5d03b8600ce6baee394a9d722ab">led_gesture_anim.c</a></li>
 <li>s_noted&#160;:&#160;<a class="el" href="power__guard_8c.html#afcee0c78cd64263597996e37c4134694">power_guard.c</a></li>
 <li>s_nvs_mode&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a17a086469658cd22f0ffcbcacf621889">ha_light_task.c</a></li>
@@ -373,17 +377,17 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>scale_rgb()&#160;:&#160;<a class="el" href="led__board__restore__guide_8c.html#a38e7b41a7f5c733ea58177c855ea24b4">led_board_restore_guide.c</a></li>
 <li>scan_count&#160;:&#160;<a class="el" href="squares__task_8c.html#aadac7bd6fb2efeee4da9a5432123db70">squares_task.c</a></li>
 <li>schedule_ota()&#160;:&#160;<a class="el" href="ota__update_8c.html#af8ad2ce4fadfc32cfe70311ccd91d158">ota_update.c</a></li>
-<li>screen_saver_command_queue&#160;:&#160;<a class="el" href="freertos__chess_8c.html#ad6e2650c9733357ca904426081ccee72">freertos_chess.c</a>, <a class="el" href="freertos__chess_8h.html#ad6e2650c9733357ca904426081ccee72">freertos_chess.h</a></li>
+<li>screen_saver_command_queue&#160;:&#160;<a class="el" href="freertos__chess_8h.html#ad6e2650c9733357ca904426081ccee72">freertos_chess.h</a>, <a class="el" href="freertos__chess_8c.html#ad6e2650c9733357ca904426081ccee72">freertos_chess.c</a></li>
 <li>SCREEN_SAVER_QUEUE_SIZE&#160;:&#160;<a class="el" href="freertos__chess_8h.html#afd353feba5d0f1707fb7a70438c4dc1f">freertos_chess.h</a></li>
 <li>screen_saver_status_queue&#160;:&#160;<a class="el" href="freertos__chess_8c.html#a494d670fc3ed5c9bf7fc74a908a92712">freertos_chess.c</a>, <a class="el" href="freertos__chess_8h.html#a494d670fc3ed5c9bf7fc74a908a92712">freertos_chess.h</a></li>
 <li>screen_saver_task_handle&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a1b8705c6542b99f74f769212463bed0a">freertos_chess.h</a></li>
 <li>SCREEN_SAVER_TASK_PRIORITY&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a66161fe4e247e0f129ebe3b2bf3d1d42">freertos_chess.h</a></li>
 <li>SCREEN_SAVER_TASK_STACK_SIZE&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a203c5698d5ed09c06220f3f660867903">freertos_chess.h</a></li>
-<li>set_demo_speed_ms()&#160;:&#160;<a class="el" href="web__server__task_8c.html#a570c98f23cd91c36ce62964733732cdf">web_server_task.c</a>, <a class="el" href="main_8c.html#a570c98f23cd91c36ce62964733732cdf">main.c</a>, <a class="el" href="web__handlers__system_8c.html#a570c98f23cd91c36ce62964733732cdf">web_handlers_system.c</a></li>
+<li>set_demo_speed_ms()&#160;:&#160;<a class="el" href="main_8c.html#a570c98f23cd91c36ce62964733732cdf">main.c</a>, <a class="el" href="web__server__task_8c.html#a570c98f23cd91c36ce62964733732cdf">web_server_task.c</a>, <a class="el" href="web__handlers__system_8c.html#a570c98f23cd91c36ce62964733732cdf">web_handlers_system.c</a></li>
 <li>set_state()&#160;:&#160;<a class="el" href="ota__guard_8c.html#acd352d936ba2465b4727089e756d8290">ota_guard.c</a></li>
 <li>set_target()&#160;:&#160;<a class="el" href="ota__guard_8c.html#a35973461cd9395784e5dab6cfdeff226">ota_guard.c</a></li>
-<li>setup_tutorial_finish_in_cooldown()&#160;:&#160;<a class="el" href="web__handlers__game_8c.html#a7f839d29533325d76c5148c78694031d">web_handlers_game.c</a>, <a class="el" href="web__server__internal_8h.html#a7f839d29533325d76c5148c78694031d">web_server_internal.h</a></li>
-<li>setup_tutorial_note_finish_conflict()&#160;:&#160;<a class="el" href="web__handlers__game_8c.html#a5ccbc748aeeb55810f7eefc980b0d8f1">web_handlers_game.c</a>, <a class="el" href="web__server__internal_8h.html#a5ccbc748aeeb55810f7eefc980b0d8f1">web_server_internal.h</a></li>
+<li>setup_tutorial_finish_in_cooldown()&#160;:&#160;<a class="el" href="web__server__internal_8h.html#a7f839d29533325d76c5148c78694031d">web_server_internal.h</a>, <a class="el" href="web__handlers__game_8c.html#a7f839d29533325d76c5148c78694031d">web_handlers_game.c</a></li>
+<li>setup_tutorial_note_finish_conflict()&#160;:&#160;<a class="el" href="web__server__internal_8h.html#a5ccbc748aeeb55810f7eefc980b0d8f1">web_server_internal.h</a>, <a class="el" href="web__handlers__game_8c.html#a5ccbc748aeeb55810f7eefc980b0d8f1">web_handlers_game.c</a></li>
 <li>setup_tutorial_reset_finish_cooldown()&#160;:&#160;<a class="el" href="web__server__internal_8h.html#a938fe7ffdfcaf5921d8578e63ad76b7d">web_server_internal.h</a>, <a class="el" href="web__handlers__game_8c.html#a938fe7ffdfcaf5921d8578e63ad76b7d">web_handlers_game.c</a></li>
 <li>shared_buffer_capacity()&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#a07be563151e4cf513ed36188d3e4e388">shared_buffer_pool.h</a>, <a class="el" href="shared__buffer__pool_8c.html#a07be563151e4cf513ed36188d3e4e388">shared_buffer_pool.c</a></li>
 <li>SHARED_BUFFER_LARGE_BYTES&#160;:&#160;<a class="el" href="shared__buffer__pool_8h.html#a1edddedcd219753611040cbedcb4c128">shared_buffer_pool.h</a></li>
@@ -411,7 +415,7 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>shut_trail()&#160;:&#160;<a class="el" href="led__gesture__anim_8c.html#a54fb36478ec25d40b21ba2fafb812a9b">led_gesture_anim.c</a></li>
 <li>shutdown_button_rgb()&#160;:&#160;<a class="el" href="led__gesture__anim_8c.html#a51f8880471941a5c2a979e7c32814fc3">led_gesture_anim.c</a></li>
 <li>side_owns()&#160;:&#160;<a class="el" href="game__board__machine_8c.html#a8b492ccd08b712bfed12102d94782151">game_board_machine.c</a></li>
-<li>simulation_mode&#160;:&#160;<a class="el" href="squares__task_8c.html#a740a5ff73f18495856ddbc99ad099a6b">squares_task.c</a>, <a class="el" href="led__task_8c.html#a740a5ff73f18495856ddbc99ad099a6b">led_task.c</a>, <a class="el" href="button__task_8c.html#a740a5ff73f18495856ddbc99ad099a6b">button_task.c</a></li>
+<li>simulation_mode&#160;:&#160;<a class="el" href="squares__task_8c.html#a740a5ff73f18495856ddbc99ad099a6b">squares_task.c</a>, <a class="el" href="button__task_8c.html#a740a5ff73f18495856ddbc99ad099a6b">button_task.c</a>, <a class="el" href="led__task_8c.html#a740a5ff73f18495856ddbc99ad099a6b">led_task.c</a></li>
 <li>simulation_patterns&#160;:&#160;<a class="el" href="squares__task_8c.html#abc6d07b73f387c902d6c85c33e923cfa">squares_task.c</a></li>
 <li>skip_leading_ws()&#160;:&#160;<a class="el" href="uart__cli__panel_8c.html#aeb57740a2a0a9624b89a8655740688de">uart_cli_panel.c</a></li>
 <li>slider_ok()&#160;:&#160;<a class="el" href="position_8c.html#a894ace73ed7ccd55a8eb9aaa6f6354e8">position.c</a></li>
@@ -445,7 +449,7 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>SQUARES_CMD_RESET&#160;:&#160;<a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ac888837149a6e00a6791f653b6d74cc5">chess_types.h</a></li>
 <li>SQUARES_CMD_SCAN&#160;:&#160;<a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149ab0cd5eeffcfda1056ea54921b7d5ad8b">chess_types.h</a></li>
 <li>SQUARES_CMD_TEST&#160;:&#160;<a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149a919a167dad6d8f56cc00d591d36e741e">chess_types.h</a></li>
-<li>squares_command_queue&#160;:&#160;<a class="el" href="freertos__chess_8c.html#a729177f0568ddbfdb44c003d51acbd60">freertos_chess.c</a>, <a class="el" href="freertos__chess_8h.html#a729177f0568ddbfdb44c003d51acbd60">freertos_chess.h</a></li>
+<li>squares_command_queue&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a729177f0568ddbfdb44c003d51acbd60">freertos_chess.h</a>, <a class="el" href="freertos__chess_8c.html#a729177f0568ddbfdb44c003d51acbd60">freertos_chess.c</a></li>
 <li>squares_command_type_t&#160;:&#160;<a class="el" href="chess__types_8h.html#a69e0bce8cac82c9e703327b394a3a149">chess_types.h</a></li>
 <li>squares_component_enabled&#160;:&#160;<a class="el" href="uart__task_8c.html#a5cf3c0ee378a4e117c74de7870f43352">uart_task.c</a></li>
 <li>squares_detect_complete_move()&#160;:&#160;<a class="el" href="squares__task_8h.html#a0ed8eb7df8292f50b222c6e3bdff7851">squares_task.h</a>, <a class="el" href="squares__task_8c.html#a0ed8eb7df8292f50b222c6e3bdff7851">squares_task.c</a></li>
@@ -490,7 +494,7 @@ $(document).ready(function(){initNavTree('globals_s.html',''); initResizable(); 
 <li>squares_task_handle&#160;:&#160;<a class="el" href="main_8c.html#a7000afd1afa60b015faf625fc3b605c9">main.c</a>, <a class="el" href="freertos__chess_8h.html#a7000afd1afa60b015faf625fc3b605c9">freertos_chess.h</a>, <a class="el" href="uart__task_8c.html#a7000afd1afa60b015faf625fc3b605c9">uart_task.c</a></li>
 <li>SQUARES_TASK_PRIORITY&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a3f4890e90bffe7462d0f0a0fe9b95079">freertos_chess.h</a></li>
 <li>SQUARES_TASK_STACK_SIZE&#160;:&#160;<a class="el" href="freertos__chess_8h.html#a27dfa14486ddcad7c690d0845a9e9c07">freertos_chess.h</a></li>
-<li>squares_task_start()&#160;:&#160;<a class="el" href="squares__task_8h.html#ab0148b5ab59a348bc4117a971cd13049">squares_task.h</a>, <a class="el" href="squares__task_8c.html#ab0148b5ab59a348bc4117a971cd13049">squares_task.c</a></li>
+<li>squares_task_start()&#160;:&#160;<a class="el" href="squares__task_8c.html#ab0148b5ab59a348bc4117a971cd13049">squares_task.c</a>, <a class="el" href="squares__task_8h.html#ab0148b5ab59a348bc4117a971cd13049">squares_task.h</a></li>
 <li>squares_test_scanning()&#160;:&#160;<a class="el" href="squares__task_8c.html#a13049a844aef47eb536cecdef5730e97">squares_task.c</a></li>
 <li>STA_BLK_OCT_MAX&#160;:&#160;<a class="el" href="web__server__task_8c.html#a93a44d3a4b91d8d9249a3c92dfe8bd08">web_server_task.c</a></li>
 <li>sta_connected&#160;:&#160;<a class="el" href="ha__light__task_8c.html#a738f5dc6c12f15f0149e08de59f48064">ha_light_task.c</a>, <a class="el" href="web__server__task_8c.html#a738f5dc6c12f15f0149e08de59f48064">web_server_task.c</a></li>
