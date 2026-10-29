@@ -18,7 +18,7 @@
  * - Players (player_t)
  * - Move and error types (move_error_t)
  * - Structures for moves (chess_move_t, chess_move_extended_t)
- * - Commands and responses (game_command_type_t, game_response_t)
+ * - Commands (game_cmd.h) and responses (game_response_t)
  * - LED commands and events
  * - Button and event matrix
  * - System configuration
@@ -30,6 +30,7 @@
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "game_cmd.h"
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -218,142 +219,7 @@ typedef struct {
   bool is_stalemate;   ///< Je to pat?
 } chess_move_extended_t;
 
-// ============================================================================
-// GAME COMMAND DEFINITION
-// ============================================================================
 
-/**
- * @brief Game command types for UART communication
- *
- * A complete list of all commands that can be sent to the game task via the queue.
- * Used for game control, debugging, testing and system administration.
- */
-typedef enum {
-  GAME_CMD_NEW_GAME = 0,        ///< New game; board and NVS key reset (see main initialize_chess_game)
-  GAME_CMD_RESET_GAME = 1,      ///< Reset hry (vrati se na zacatek)
-  GAME_CMD_MAKE_MOVE = 2,       ///< Perform move (move e2e4)
-  GAME_CMD_UNDO_MOVE = 3,       ///< Vrat zpet posledni tah (undo)
-  GAME_CMD_GET_STATUS = 4,      ///< Get game state (status)
-  GAME_CMD_GET_BOARD = 5,       ///< Get current position (board)
-  GAME_CMD_GET_VALID_MOVES = 6, ///< Get valid moves for a figure
-  GAME_CMD_PICKUP_PIECE = 7,    ///< Pickup
-  GAME_CMD_DROP_PIECE = 8,      ///< Drop
-  GAME_CMD_PROMOTION = 9,       ///< Promoc pescu (promotion)
-  GAME_CMD_MOVE = 10,           ///< Tah (move)
-  GAME_CMD_SHOW_BOARD = 11,     ///< Display the board
-  GAME_CMD_PICKUP = 12,         ///< UP command - figure raised
-  GAME_CMD_DROP = 13,           ///< DN display - figure placed
-  GAME_CMD_GET_HISTORY = 14,    ///< Get move history
-  GAME_CMD_DEBUG_INFO = 15,     ///< Debug informace o hre
-  GAME_CMD_DEBUG_BOARD = 16,    ///< Debug inbox information
-
-  // High priority commands
-  GAME_CMD_EVALUATE = 17,         ///< Position evaluation (evaluated)
-  GAME_CMD_SAVE = 18,             ///< Save the game to memory
-  GAME_CMD_LOAD = 19,             ///< Load the game from memory
-  GAME_CMD_RESERVED_SLOT_20 = 20, ///< Rezervovano (legacy slot)
-
-  // Medium priority commands
-  GAME_CMD_CASTLE = 21,  ///< Castling (castle)
-  GAME_CMD_PROMOTE = 22, ///< Promotion of pesca (promote)
-
-  // Commands for controlling components
-  GAME_CMD_COMPONENT_OFF = 23, ///< Vypni komponentu (off)
-  GAME_CMD_COMPONENT_ON = 24,  ///< Zapni komponentu (on)
-
-  // Endgame commands
-  GAME_CMD_ENDGAME_WHITE = 25, ///< Konec hry - bily vitezi
-  GAME_CMD_ENDGAME_BLACK = 26, ///< Konec hry - cerny vitezi
-
-  // Game management commands
-  GAME_CMD_LIST_GAMES = 27,  ///< List of saved games
-  GAME_CMD_DELETE_GAME = 28, ///< Delete saved game
-
-  // Reserved commands (legacies)
-  GAME_CMD_RESERVED_SLOT_29 = 29, ///< Rezervovano (legacy slot)
-  GAME_CMD_RESERVED_SLOT_30 = 30, ///< Rezervovano (legacy slot)
-  GAME_CMD_RESERVED_SLOT_31 = 31, ///< Rezervovano (legacy slot)
-  GAME_CMD_RESERVED_SLOT_32 = 32, ///< Rezervovano (legacy slot)
-
-  // Commands for testing animation
-  GAME_CMD_TEST_MOVE_ANIM = 33,    ///< Pull animation test
-  GAME_CMD_TEST_PLAYER_ANIM = 34,  ///< Game change animation test
-  GAME_CMD_TEST_CASTLE_ANIM = 35,  ///< Test animace rosady
-  GAME_CMD_TEST_PROMOTE_ANIM = 36, ///< Graduation animation test
-  GAME_CMD_TEST_ENDGAME_ANIM = 37, ///< Test animace konce hry
-  GAME_CMD_RESERVED_SLOT_38 = 38,  ///< Rezervovano (legacy slot)
-
-  // Commands for the time system
-  GAME_CMD_SET_TIME_CONTROL = 39, ///< Nastav casovou kontrolu
-  GAME_CMD_PAUSE_TIMER = 40,      ///< Pozastav timer
-  GAME_CMD_RESUME_TIMER = 41,     ///< Obnov timer
-  GAME_CMD_RESET_TIMER = 42,      ///< Resetuj timer
-  GAME_CMD_GET_TIMER_STATE = 43,  ///< Ziskej stav timeru
-  GAME_CMD_TIMER_TIMEOUT = 44,    ///< Vyprseni casoveho limitu
-  GAME_CMD_SQUARES_GUARD = 45,     ///< Guard rezim pro multi-lift anomalii
-  GAME_CMD_BOARD_SETUP_TUTORIAL =
-      46, ///< Web tutorial setup; promotion_choice: 0=start,1=cancel,2=finish
-  GAME_CMD_PUZZLE =
-      47, ///< Puzzle: 0=cancel, 1..5=start builtin, 101..105=prepare builtin,
-          ///< 210=apply staged setup, 211=start staged line
-  GAME_CMD_NEW_GAME_FROM_FEN =
-      48, ///< New game from FEN (placement, side, optional rights); timer_data.fen_new_game
-  GAME_CMD_OPENING_TRAINER =
-      49, ///< Opening trainer: promotion_choice 0=cancel,1=start,2=hint,3=checkpoint_ack
-  GAME_CMD_RESIGN =
-      50, ///< Resign from app (same end path as king lift); promotion_choice = GAME_RESIGN_SIDE_*
-  GAME_CMD_DRAW = 51 ///< Agreed draw while a game is running
-} game_command_type_t;
-
-/** GAME_CMD_RESIGN promotion_choice: who the sender expects to be on move. */
-#define GAME_RESIGN_SIDE_TO_MOVE 0U ///< Resign whoever is on move
-#define GAME_RESIGN_SIDE_WHITE 1U   ///< Refuse unless White is on move
-#define GAME_RESIGN_SIDE_BLACK 2U   ///< Refuse unless Black is on move
-
-/**
- * @brief Command structure for sach move via UART
- *
- * This structure is used to send the game task command through the queue.
- * Contains all the necessary information to perform the move and process the response.
- */
-typedef struct {
-  uint8_t type;          ///< Command type (game_command_type_t)
-  char from_notation[8]; ///< Zdrojova notace (napr. "e2") - zvetseno z 4 na 8
-                         ///< for security
-  char to_notation[8];   ///< Cilova notace (napr. "e4") - zvetseno z 4 na 8 pro
-                         ///< security
-  uint8_t player; ///< Player performing the command (PLAYER_WHITE or PLAYER_BLACK)
-  QueueHandle_t response_queue; ///< Queue for sending responses
-  uint8_t promotion_choice;     ///< Choice of promotion (for promotion commands)
-  uint8_t promotion_from_remote; ///< 1 = WEB/BLE poslalo pole promotion u GAME_CMD_MOVE
-
-  // Pole pro timer system
-  union {
-    struct {
-      uint8_t time_control_type; ///< Typ casove kontroly (pro
-                                 ///< GAME_CMD_SET_TIME_CONTROL)
-      uint32_t
-          custom_minutes; ///< Vlastni minuty (pro vlastni casovou kontrolu)
-      uint32_t custom_increment; ///< Vlastni increment (pro vlastni casovou
-                                 ///< kontrolu)
-    } timer_config;              ///< Konfigurace timeru
-    struct {
-      bool is_white_turn; ///< Is the ball on the move? (for timer operations)
-    } timer_state;        ///< Stav timeru
-    struct {
-      uint32_t lifted_mask_low;  ///< Bits 0-31 for raised fields
-      uint32_t lifted_mask_high; ///< Bits 32-63 for raised fields
-      uint32_t dropped_mask_low; ///< Bits 0-31 for array positions
-      uint32_t dropped_mask_high; ///< Bits 32-63 for array positions
-      uint8_t action;            ///< 1=enter/update, 0=clear
-    } squares_guard;              ///< Data pro matrix guard rezim
-    struct {
-      char fen[120]; ///< FEN pro GAME_CMD_NEW_GAME_FROM_FEN (placement + w/b)
-    } fen_new_game;
-  } timer_data;           ///< Union pro timer data
-  bool is_demo_mode;      ///< Flag pro demo mode (skip resignation timer)
-  uint32_t event_ms;      ///< Scan time when a matrix pickup/drop was detected
-} chess_move_command_t;
 
 /**
  * @brief Game response types
@@ -379,9 +245,8 @@ typedef enum {
  */
 typedef struct {
   uint8_t type;         ///< Response Type (game_response_type_t)
-  uint8_t command_type; ///< Original command type (game_command_type_t)
+  uint8_t command_type; ///< Response tag (unused by the command queue)
   uint8_t error_code;   ///< Error code (move_error_t, 0 if no error)
-  char message[256];    ///< Message for users (human-readable)
   char data[64];        ///< Response data (reduced from 3584 to 64 bytes for
                         ///< memory optimization)
   uint32_t timestamp;   ///< Response timestamp (in milliseconds)

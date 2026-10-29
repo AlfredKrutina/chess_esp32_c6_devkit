@@ -4,34 +4,19 @@
  */
 
 #include "game_move_validate.h"
-#include "game_task_internal.h"
 
 #include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "position.h"
 
 #include "esp_log.h"
 #include <stdlib.h>
 #include <string.h>
 
 static const char *TAG = "GAME_VALIDATE";
-
-static piece_t game_check_sim_promoted_piece(piece_t pawn) {
-  if (pawn == PIECE_WHITE_PAWN) {
-    return PIECE_WHITE_QUEEN;
-  }
-  if (pawn == PIECE_BLACK_PAWN) {
-    return PIECE_BLACK_QUEEN;
-  }
-  return pawn;
-}
-
-static bool game_is_king_castling_move(const chess_move_t *move,
-                                       piece_t piece) {
-  if (piece != PIECE_WHITE_KING && piece != PIECE_BLACK_KING) {
-    return false;
-  }
-  return move->from_row == move->to_row &&
-         abs((int)move->to_col - (int)move->from_col) == 2;
-}
 
 // ============================================================================
 // MOVE VALIDATION FUNCTIONS
@@ -59,10 +44,10 @@ move_error_t game_is_valid_move(const chess_move_t *move) {
   if (source_piece == PIECE_EMPTY) {
     // If resignation timer is active and move->piece is king, use
     // move->piece
-    if (resignation_state.active && move->piece != PIECE_EMPTY &&
+    if ((*game_state_resignation_state()).active && move->piece != PIECE_EMPTY &&
         (move->piece == PIECE_WHITE_KING || move->piece == PIECE_BLACK_KING) &&
-        resignation_state.king_row == move->from_row &&
-        resignation_state.king_col == move->from_col) {
+        (*game_state_resignation_state()).king_row == move->from_row &&
+        (*game_state_resignation_state()).king_col == move->from_col) {
       source_piece = move->piece;
       ESP_LOGI(TAG,
                "🏰 game_is_valid_move: Using move->piece (%d) because king is "
@@ -512,104 +497,37 @@ bool game_validate_king_move(const chess_move_t *move) {
  *
  */
 bool game_would_move_leave_king_in_check(const chess_move_t *move) {
-  if (!move)
-    return true; // Safety check
+  position_t *scratch = game_logic_scratch_position();
+  position_move_t mv;
+  piece_t moving;
 
-  // Save original board state
-  piece_t original_from_piece = board[move->from_row][move->from_col];
-  piece_t original_to_piece = board[move->to_row][move->to_col];
-
-  // If from_piece is empty (the king is raised during the resignation timer),
-  // use move->piece instead of original_from_piece
-  if (original_from_piece == PIECE_EMPTY && move->piece != PIECE_EMPTY) {
-    original_from_piece = move->piece;
-    ESP_LOGD(TAG,
-             "🏰 game_would_move_leave_king_in_check: Using move->piece (%d) "
-             "because from square is empty (king lifted)",
-             move->piece);
+  if (!move || scratch == NULL) {
+    return true;
+  }
+  if (castling_state.in_progress &&
+      move->from_row == castling_state.rook_from_row &&
+      move->from_col == castling_state.rook_from_col &&
+      move->to_row == castling_state.rook_to_row &&
+      move->to_col == castling_state.rook_to_col) {
+    return false;
   }
 
-  // Check if this is an en passant move
-  bool is_en_passant = game_is_en_passant_possible(move);
-  piece_t original_en_passant_piece = PIECE_EMPTY;
-  uint8_t en_passant_victim_row_local = 0;
-  uint8_t en_passant_victim_col_local = 0;
-
-  bool is_castling = game_is_king_castling_move(move, original_from_piece);
-  piece_t original_rook = PIECE_EMPTY;
-  int rook_row = move->from_row;
-  int rook_from_col = -1;
-  int rook_to_col = -1;
-
-  // If en passant, save the victim pawn position
-  if (is_en_passant) {
-    original_en_passant_piece =
-        board[en_passant_victim_row][en_passant_victim_col];
-    en_passant_victim_row_local = en_passant_victim_row;
-    en_passant_victim_col_local = en_passant_victim_col;
-    // Remove the victim pawn for simulation
-    board[en_passant_victim_row][en_passant_victim_col] = PIECE_EMPTY;
+  game_logic_copy_globals(scratch);
+  moving = (piece_t)scratch->board[move->from_row][move->from_col];
+  if (moving == PIECE_EMPTY && move->piece != PIECE_EMPTY) {
+    moving = move->piece;
+    scratch->board[move->from_row][move->from_col] = (uint8_t)moving;
   }
-
-  if (is_castling) {
-    bool kingside = move->to_col > move->from_col;
-    rook_from_col = kingside ? 7 : 0;
-    rook_to_col = kingside ? 5 : 3;
-    original_rook = board[rook_row][rook_from_col];
-    board[rook_row][rook_from_col] = PIECE_EMPTY;
-    board[rook_row][rook_to_col] = original_rook;
+  mv.from = (uint8_t)(move->from_row * 8u + move->from_col);
+  mv.to = (uint8_t)(move->to_row * 8u + move->to_col);
+  mv.promo = POS_PROMO_NONE;
+  if ((moving == PIECE_WHITE_PAWN && move->to_row == 7) ||
+      (moving == PIECE_BLACK_PAWN && move->to_row == 0)) {
+    mv.promo = POS_PROMO_Q;
   }
-
-  piece_t placed = original_from_piece;
-  if (original_from_piece == PIECE_WHITE_PAWN && move->to_row == 7) {
-    placed = game_check_sim_promoted_piece(original_from_piece);
-  } else if (original_from_piece == PIECE_BLACK_PAWN && move->to_row == 0) {
-    placed = game_check_sim_promoted_piece(original_from_piece);
-  }
-
-  // Make the move temporarily
-  board[move->to_row][move->to_col] = placed;
-  board[move->from_row][move->from_col] = PIECE_EMPTY;
-
-  // Determine which player's king to check
-  player_t player =
-      (game_is_white_piece(original_from_piece)) ? PLAYER_WHITE : PLAYER_BLACK;
-
-  // Check if king is in check after this move
-  bool king_in_check = game_is_king_in_check(player);
-
-  // Undo the move
-  board[move->from_row][move->from_col] = original_from_piece;
-  board[move->to_row][move->to_col] = original_to_piece;
-
-  // Restore en passant victim if it was removed
-  if (is_en_passant) {
-    board[en_passant_victim_row_local][en_passant_victim_col_local] =
-        original_en_passant_piece;
-  }
-
-  if (is_castling) {
-    board[rook_row][rook_to_col] = PIECE_EMPTY;
-    board[rook_row][rook_from_col] = original_rook;
-  }
-
-  return king_in_check;
+  return !position_apply(scratch, mv);
 }
 
-/**
- * @brief Checks if en passant is possible for the given move
- *
- * @param move A pointer to the move structure to test
- * @return true if en passant is valid, false if not possible
- *
- * @details
- * En passant is only possible if:
- * 1. The last move was the king moving 2 squares
- * 2. The attacking pawn is on the same line as the right moved pawn
- * 3. The attacking pesce is right next to the right moved pesce
- * 4. The target field is in the middle between the start and the target position of the opponent's fish
- *
- */
 bool game_is_en_passant_possible(const chess_move_t *move) {
   if (!has_last_move) {
     ESP_LOGD(TAG, "🔍 En passant: no last move");
@@ -617,7 +535,7 @@ bool game_is_en_passant_possible(const chess_move_t *move) {
   }
 
   // Check if the last move was a pawn moving two squares
-  piece_t last_piece = board[last_move_to_row][last_move_to_col];
+  piece_t last_piece = game_get_piece(last_move_to_row, last_move_to_col);
   bool last_was_pawn =
       (last_piece == PIECE_WHITE_PAWN || last_piece == PIECE_BLACK_PAWN);
 
@@ -717,25 +635,25 @@ move_error_t game_validate_castling(const chess_move_t *move) {
   }
 
   // If the resignation timer is active and the king is raised,
-  // use the saved king position from resignation_state instead of checking the board
+  // use the saved king position from (*game_state_resignation_state()) instead of checking the board
   int king_row = is_white ? 0 : 7;
   int expected_king_col = 4; // e-file
 
   // If the resignation timer is active and the king belongs to the current player,
-  // use saved king position from resignation_state
-  if (resignation_state.active &&
-      resignation_state.player == (is_white ? PLAYER_WHITE : PLAYER_BLACK)) {
-    // King is raised - use saved position from resignation_state
-    king_row = resignation_state.king_row;
-    expected_king_col = resignation_state.king_col;
+  // use saved king position from (*game_state_resignation_state())
+  if ((*game_state_resignation_state()).active &&
+      (*game_state_resignation_state()).player == (is_white ? PLAYER_WHITE : PLAYER_BLACK)) {
+    // King is raised - use saved position from (*game_state_resignation_state())
+    king_row = (*game_state_resignation_state()).king_row;
+    expected_king_col = (*game_state_resignation_state()).king_col;
     ESP_LOGI(TAG,
              "🏰 Castling validation: Using stored king position from "
-             "resignation_state: %c%d",
+             "(*game_state_resignation_state()): %c%d",
              'a' + expected_king_col, king_row + 1);
   }
 
   // Checking that from_row/from_col matches the expected position of the king
-  // (either from board or resignation_state)
+  // (either from board or (*game_state_resignation_state()))
   if (move->from_row != king_row || move->from_col != expected_king_col) {
     ESP_LOGD(
         TAG,
@@ -758,7 +676,7 @@ move_error_t game_validate_castling(const chess_move_t *move) {
 
   // Check if rook exists at expected position
   piece_t expected_rook = is_white ? PIECE_WHITE_ROOK : PIECE_BLACK_ROOK;
-  piece_t rook_piece = board[king_row][rook_col];
+  piece_t rook_piece = game_get_piece(king_row, rook_col);
   if (rook_piece != expected_rook) {
     ESP_LOGD(TAG, "❌ Castling: rook not found at expected position %c%d",
              'a' + rook_col, king_row + 1);

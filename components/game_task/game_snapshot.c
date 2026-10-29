@@ -7,7 +7,15 @@
 #include "game_squares_guard.h"
 #include "game_hall_restore_guide.h"
 #include "game_hall_position.h"
-#include "game_task_internal.h"
+#include "game_policy.h"
+#include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_board_core.h"
+#include "position.h"
+#include "freertos/semphr.h"
 
 #include "../config_manager/include/config_manager.h"
 #include "../timer_system/include/timer_system.h"
@@ -18,6 +26,20 @@
 #include <time.h>
 
 static const char *TAG = "GAME_SNAPSHOT";
+
+_Static_assert(sizeof(game_session_snap_t) <= 4096, "game_session_snap_t size");
+/* Move list shared with undo and the session snapshot. */
+chess_move_t move_history[GAME_TASK_MAX_MOVES_HISTORY];
+move_type_t move_history_kind[GAME_TASK_MAX_MOVES_HISTORY];
+uint32_t history_index = 0;
+uint8_t last_move_from_row = 0;
+uint8_t last_move_from_col = 0;
+uint8_t last_move_to_row = 0;
+uint8_t last_move_to_col = 0;
+bool has_last_move = false;
+bool game_saved = false;
+char saved_game_name[32] = "";
+
 
 #ifndef NDEBUG
 #define STAGING_LOGI(tag, fmt, ...) ESP_LOGI(tag, "[STAGING] " fmt, ##__VA_ARGS__)
@@ -176,6 +198,119 @@ static bool boot_new_game_triggered = false;
 static bool s_reconcile_pending = false;
 static bool s_clock_held = false;
 
+static game_session_snap_t s_session_snap;
+static SemaphoreHandle_t s_session_snap_mutex;
+
+static uint8_t game_session_snap_mode(void) {
+  if (game_is_squares_guard_active()) {
+    return 4;
+  }
+  if ((*game_state_board_setup_tutorial_active())) {
+    return 3;
+  }
+  if ((*game_state_puzzle_active()) || (*game_state_puzzle_setup_active())) {
+    return 1;
+  }
+  if (game_is_opening_trainer_active() || game_is_opening_trainer_setup_active()) {
+    return 2;
+  }
+  return 0;
+}
+
+static void game_session_snap_fill_pos_from_logic(const position_t *logic) {
+  if (logic == NULL) {
+    return;
+  }
+  memcpy(s_session_snap.pos.board, logic->board, sizeof(logic->board));
+  s_session_snap.pos.side = logic->side;
+  s_session_snap.pos.castling = logic->castling;
+  s_session_snap.pos.ep_square = logic->ep_square;
+  s_session_snap.pos.halfmove = logic->halfmove;
+  s_session_snap.pos.fullmove = logic->fullmove;
+  s_session_snap.pos_status = position_status(logic);
+  (void)position_to_fen(logic, s_session_snap.fen, sizeof(s_session_snap.fen));
+}
+
+void game_session_snap_refresh(void) {
+  if (s_session_snap_mutex == NULL) {
+    return;
+  }
+  if (game_mutex != NULL &&
+      xSemaphoreTake(game_mutex, pdMS_TO_TICKS(500)) != pdTRUE) {
+    return;
+  }
+  if (xSemaphoreTake(s_session_snap_mutex, pdMS_TO_TICKS(500)) != pdTRUE) {
+    if (game_mutex != NULL) {
+      xSemaphoreGive(game_mutex);
+    }
+    return;
+  }
+
+  game_session_snap_fill_pos_from_logic(game_logic_position());
+  s_session_snap.mode = game_session_snap_mode();
+  s_session_snap.timer_fields_ready = 1;
+  s_session_snap.white_time_total = (*game_state_white_time_total());
+  s_session_snap.black_time_total = (*game_state_black_time_total());
+  s_session_snap.white_remaining_ms = game_get_remaining_time(true);
+  s_session_snap.black_remaining_ms = game_get_remaining_time(false);
+  s_session_snap.move_count = move_count;
+  s_session_snap.game_state = (uint8_t)current_game_state;
+  s_session_snap.history_len = history_index;
+  if (s_session_snap.history_len > POSITION_HIST_CAP) {
+    s_session_snap.history_len = POSITION_HIST_CAP;
+  }
+  if (s_session_snap.history_len > 0) {
+    memcpy(s_session_snap.history_moves, move_history,
+           s_session_snap.history_len * sizeof(chess_move_t));
+  }
+
+  xSemaphoreGive(s_session_snap_mutex);
+  if (game_mutex != NULL) {
+    xSemaphoreGive(game_mutex);
+  }
+}
+
+const game_session_snap_t *game_session_snap_acquire(void) {
+  if (s_session_snap_mutex == NULL) {
+    return NULL;
+  }
+  if (xSemaphoreTake(s_session_snap_mutex, pdMS_TO_TICKS(1000)) != pdTRUE) {
+    return NULL;
+  }
+  return &s_session_snap;
+}
+
+void game_session_snap_release(void) {
+  if (s_session_snap_mutex != NULL) {
+    xSemaphoreGive(s_session_snap_mutex);
+  }
+}
+
+void game_session_snap_copy(game_session_snap_t *out) {
+  if (out == NULL) {
+    return;
+  }
+  const game_session_snap_t *snap = game_session_snap_acquire();
+  if (snap == NULL) {
+    memset(out, 0, sizeof(*out));
+    return;
+  }
+  *out = *snap;
+  game_session_snap_release();
+}
+
+piece_t game_session_snap_piece(int row, int col) {
+  piece_t piece = PIECE_EMPTY;
+  if (row < 0 || row > 7 || col < 0 || col > 7 || s_session_snap_mutex == NULL) {
+    return PIECE_EMPTY;
+  }
+  if (xSemaphoreTake(s_session_snap_mutex, pdMS_TO_TICKS(50)) == pdTRUE) {
+    piece = (piece_t)s_session_snap.pos.board[row][col];
+    xSemaphoreGive(s_session_snap_mutex);
+  }
+  return piece;
+}
+
 static uint32_t game_crc32_simple(const uint8_t *data, size_t len) {
   uint32_t h = 2166136261u;
   if (data == NULL) {
@@ -189,12 +324,17 @@ static uint32_t game_crc32_simple(const uint8_t *data, size_t len) {
 }
 
 static void game_snapshot_fill_board(uint8_t out_board[64]) {
+  const position_t *pos;
   if (out_board == NULL) {
+    return;
+  }
+  pos = game_logic_position();
+  if (pos == NULL) {
     return;
   }
   for (uint8_t row = 0; row < 8; row++) {
     for (uint8_t col = 0; col < 8; col++) {
-      out_board[row * 8 + col] = (uint8_t)board[row][col];
+      out_board[row * 8 + col] = pos->board[row][col];
     }
   }
 }
@@ -205,7 +345,7 @@ static void game_snapshot_apply_board(const uint8_t in_board[64]) {
   }
   for (uint8_t row = 0; row < 8; row++) {
     for (uint8_t col = 0; col < 8; col++) {
-      board[row][col] = (piece_t)in_board[row * 8 + col];
+      game_set_piece((int)row, (int)col, (piece_t)in_board[row * 8 + col]);
     }
   }
 }
@@ -234,16 +374,16 @@ void game_snapshot_reset_failure_flags(void) {
 
 static bool game_snapshot_side_mode_active(void) {
   return game_is_opening_trainer_active() ||
-         game_is_opening_trainer_setup_active() || puzzle_active ||
-         puzzle_setup_active || board_setup_tutorial_active;
+         game_is_opening_trainer_setup_active() || (*game_state_puzzle_active()) ||
+         (*game_state_puzzle_setup_active()) || (*game_state_board_setup_tutorial_active());
 }
 
-static void game_snapshot_publish_hall_empty(void) {
+void game_snapshot_publish_hall_empty(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   uint8_t empty[64];
   uint8_t types[64];
   for (int i = 0; i < 64; i++) {
-    piece_t p = board[i / 8][i % 8];
+    piece_t p = game_get_piece(i / 8, i % 8);
     uint8_t t = 0;
     if (p >= PIECE_WHITE_PAWN && p <= PIECE_WHITE_KING) {
       t = (uint8_t)p;
@@ -274,7 +414,7 @@ static void game_snapshot_mark_active_from_state(void) {
   game_active = (current_game_state == GAME_STATE_ACTIVE ||
                  current_game_state == GAME_STATE_PLAYING ||
                  current_game_state == GAME_STATE_PROMOTION ||
-                 promotion_state.pending);
+                 (*game_state_promotion_state()).pending);
 }
 
 static bool game_snapshot_v2_sane(const game_snapshot_v2_t *snap) {
@@ -327,16 +467,16 @@ static void game_snapshot_apply_v2(const game_snapshot_v2_t *snap) {
   en_passant_target_col = snap->en_passant_target_col;
   en_passant_victim_row = snap->en_passant_victim_row;
   en_passant_victim_col = snap->en_passant_victim_col;
-  promotion_state.pending = snap->promotion_pending;
-  promotion_state.square_row = snap->promotion_row;
-  promotion_state.square_col = snap->promotion_col;
-  promotion_state.player = (player_t)snap->promotion_player;
-  white_time_total = snap->white_time_total;
-  black_time_total = snap->black_time_total;
+  (*game_state_promotion_state()).pending = snap->promotion_pending;
+  (*game_state_promotion_state()).square_row = snap->promotion_row;
+  (*game_state_promotion_state()).square_col = snap->promotion_col;
+  (*game_state_promotion_state()).player = (player_t)snap->promotion_player;
+  (*game_state_white_time_total()) = snap->white_time_total;
+  (*game_state_black_time_total()) = snap->black_time_total;
   game_set_fifty_move_counter(snap->fifty_move);
   moves_without_capture = snap->moves_without_capture;
-  current_result_type = (game_result_type_t)snap->result_type;
-  current_endgame_reason = (endgame_reason_t)snap->endgame_reason;
+  (*game_state_current_result_type()) = (game_result_type_t)snap->result_type;
+  (*game_state_current_endgame_reason()) = (endgame_reason_t)snap->endgame_reason;
 
   memset(&castling_state, 0, sizeof(castling_state));
   if (snap->castle_in_progress) {
@@ -400,6 +540,9 @@ static void game_snapshot_apply_v2(const game_snapshot_v2_t *snap) {
   snapshot_fallback_used = false;
   game_snapshot_mark_active_from_state();
   game_snapshot_hold_clocks(snap->white_remaining_ms, snap->black_remaining_ms);
+  game_logic_adopt_globals();
+  game_logic_sync_globals_from_position(game_logic_position());
+  game_session_snap_refresh();
 }
 
 static void game_snapshot_fill_v2(game_snapshot_v2_t *snap, uint32_t seq) {
@@ -408,7 +551,14 @@ static void game_snapshot_fill_v2(game_snapshot_v2_t *snap, uint32_t seq) {
   snap->seq = seq;
   snap->format = 2;
   game_snapshot_fill_board(snap->board);
-  snap->current_player = (uint8_t)current_player;
+  {
+    const position_t *pos = game_logic_position();
+    if (pos != NULL) {
+      snap->current_player = pos->side;
+    } else {
+      snap->current_player = (uint8_t)current_player;
+    }
+  }
   snap->game_state = (uint8_t)current_game_state;
   snap->move_count = move_count;
   snap->white_king_moved = (uint8_t)white_king_moved;
@@ -422,18 +572,18 @@ static void game_snapshot_fill_v2(game_snapshot_v2_t *snap, uint32_t seq) {
   snap->en_passant_target_col = en_passant_target_col;
   snap->en_passant_victim_row = en_passant_victim_row;
   snap->en_passant_victim_col = en_passant_victim_col;
-  snap->promotion_pending = (uint8_t)promotion_state.pending;
-  snap->promotion_row = promotion_state.square_row;
-  snap->promotion_col = promotion_state.square_col;
-  snap->promotion_player = (uint8_t)promotion_state.player;
-  snap->white_time_total = white_time_total;
-  snap->black_time_total = black_time_total;
+  snap->promotion_pending = (uint8_t)(*game_state_promotion_state()).pending;
+  snap->promotion_row = (*game_state_promotion_state()).square_row;
+  snap->promotion_col = (*game_state_promotion_state()).square_col;
+  snap->promotion_player = (uint8_t)(*game_state_promotion_state()).player;
+  snap->white_time_total = (*game_state_white_time_total());
+  snap->black_time_total = (*game_state_black_time_total());
   snap->white_remaining_ms = game_get_remaining_time(true);
   snap->black_remaining_ms = game_get_remaining_time(false);
   snap->fifty_move = game_get_fifty_move_counter();
   snap->moves_without_capture = moves_without_capture;
-  snap->result_type = (uint8_t)current_result_type;
-  snap->endgame_reason = (uint8_t)current_endgame_reason;
+  snap->result_type = (uint8_t)(*game_state_current_result_type());
+  snap->endgame_reason = (uint8_t)(*game_state_current_endgame_reason());
   snap->castle_in_progress = (uint8_t)castling_state.in_progress;
   snap->castle_player = (uint8_t)castling_state.player;
   snap->castle_kingside = (uint8_t)castling_state.is_kingside;
@@ -512,37 +662,8 @@ static esp_err_t game_save_snapshot_to_nvs(void) {
     return ESP_OK;
   }
 
-  game_snapshot_min_t min = {0};
-  min.version = GAME_SNAPSHOT_VERSION;
-  min.format = 1;
-  memcpy(min.board, snap.board, sizeof(min.board));
-  min.current_player = snap.current_player;
-  min.game_state = snap.game_state;
-  min.move_count = snap.move_count;
-  min.white_king_moved = snap.white_king_moved;
-  min.white_rook_a_moved = snap.white_rook_a_moved;
-  min.white_rook_h_moved = snap.white_rook_h_moved;
-  min.black_king_moved = snap.black_king_moved;
-  min.black_rook_a_moved = snap.black_rook_a_moved;
-  min.black_rook_h_moved = snap.black_rook_h_moved;
-  min.en_passant_available = snap.en_passant_available;
-  min.en_passant_target_row = snap.en_passant_target_row;
-  min.en_passant_target_col = snap.en_passant_target_col;
-  min.en_passant_victim_row = snap.en_passant_victim_row;
-  min.en_passant_victim_col = snap.en_passant_victim_col;
-  min.promotion_pending = snap.promotion_pending;
-  min.promotion_row = snap.promotion_row;
-  min.promotion_col = snap.promotion_col;
-  min.promotion_player = snap.promotion_player;
-  min.crc32 = game_crc32_simple(((const uint8_t *)&min) + 8, sizeof(min) - 8);
-
-  ret = config_save_blob_to_nvs(CONFIG_NVS_KEY_GAME_SNAPSHOT_MIN, &min, sizeof(min));
-  if (ret == ESP_OK) {
-    snapshot_fallback_used = true;
-    snapshot_save_failed = false;
-  } else {
-    snapshot_save_failed = true;
-  }
+  /* v2 only. The other slot stays. Old v1 blobs are read on boot, not written. */
+  snapshot_save_failed = true;
   return ret;
 }
 
@@ -618,17 +739,19 @@ static esp_err_t game_load_snapshot_from_nvs(void) {
     en_passant_target_col = full.en_passant_target_col;
     en_passant_victim_row = full.en_passant_victim_row;
     en_passant_victim_col = full.en_passant_victim_col;
-    promotion_state.pending = full.promotion_pending;
-    promotion_state.square_row = full.promotion_row;
-    promotion_state.square_col = full.promotion_col;
-    promotion_state.player = (player_t)full.promotion_player;
-    white_time_total = full.white_time_total;
-    black_time_total = full.black_time_total;
+    (*game_state_promotion_state()).pending = full.promotion_pending;
+    (*game_state_promotion_state()).square_row = full.promotion_row;
+    (*game_state_promotion_state()).square_col = full.promotion_col;
+    (*game_state_promotion_state()).player = (player_t)full.promotion_player;
+    (*game_state_white_time_total()) = full.white_time_total;
+    (*game_state_black_time_total()) = full.black_time_total;
     game_snapshot_hold_clocks(full.white_remaining_ms, full.black_remaining_ms);
     history_index = full.history_count;
     if (history_index > 0) {
       memcpy(move_history, full.history, sizeof(chess_move_t) * history_index);
     }
+    game_logic_adopt_globals();
+    game_session_snap_refresh();
     snapshot_loaded_on_boot = true;
     snapshot_fallback_used = false;
     game_snapshot_mark_active_from_state();
@@ -657,11 +780,13 @@ static esp_err_t game_load_snapshot_from_nvs(void) {
     en_passant_target_col = min.en_passant_target_col;
     en_passant_victim_row = min.en_passant_victim_row;
     en_passant_victim_col = min.en_passant_victim_col;
-    promotion_state.pending = min.promotion_pending;
-    promotion_state.square_row = min.promotion_row;
-    promotion_state.square_col = min.promotion_col;
-    promotion_state.player = (player_t)min.promotion_player;
+    (*game_state_promotion_state()).pending = min.promotion_pending;
+    (*game_state_promotion_state()).square_row = min.promotion_row;
+    (*game_state_promotion_state()).square_col = min.promotion_col;
+    (*game_state_promotion_state()).player = (player_t)min.promotion_player;
     history_index = 0;
+    game_logic_adopt_globals();
+    game_session_snap_refresh();
     snapshot_loaded_on_boot = true;
     snapshot_fallback_used = true;
     game_snapshot_mark_active_from_state();
@@ -751,6 +876,7 @@ void game_snapshot_persist_after_valid_move(void) {
     game_snapshot_publish_hall_empty();
   }
   game_boot_tracker_update_on_move();
+  game_session_snap_refresh();
 }
 
 bool game_snapshot_sensors_ready(void) {
@@ -770,6 +896,15 @@ void game_snapshot_service_after_boot(void) {
     game_squares_guard_check_resync_after_restore();
     ESP_LOGI(TAG, "Post-boot sensor reconcile done (guard=%d)",
              game_is_squares_guard_active() ? 1 : 0);
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    /* Boot animation has ended. Paint movable pieces when the restored
+     * position is already sitting on the board. */
+    if (game_hall_restore_guide_in_play() &&
+        game_hall_sensors_match_last_valid()) {
+      game_hall_position_arm_idle_handover();
+      game_policy_refresh_idle_board_leds();
+    }
+#endif
   }
   if (!s_clock_held) {
     return;
@@ -796,6 +931,9 @@ void game_snapshot_service_after_boot(void) {
 }
 
 void game_snapshot_restore_on_boot(void) {
+  if (s_session_snap_mutex == NULL) {
+    s_session_snap_mutex = xSemaphoreCreateMutex();
+  }
   bool has_valid_snapshot = game_snapshot_nvs_has_valid();
   if (has_valid_snapshot) {
     boot_new_game_triggered = false;
@@ -816,13 +954,24 @@ void game_snapshot_restore_on_boot(void) {
     if (restore_ret == ESP_OK) {
       ESP_LOGI(TAG, "Game snapshot restored from NVS");
       s_reconcile_pending = true;
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+      /* A game already in progress must not wait on the opening guide. */
+      if (move_count > 0 || current_game_state == GAME_STATE_ACTIVE ||
+          current_game_state == GAME_STATE_PLAYING) {
+        game_hall_restore_guide_end_for_play();
+      }
+#endif
     } else {
       ESP_LOGI(TAG, "No valid snapshot found, using fresh board");
       s_reconcile_pending = false;
+      game_session_snap_refresh();
     }
   }
   game_snapshot_publish_hall_empty();
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-  game_hall_snapshot_last_valid();
+  /* Pawn still on the last rank is not a committed position. */
+  if (!(*game_state_promotion_state()).pending) {
+    game_hall_snapshot_last_valid();
+  }
 #endif
 }

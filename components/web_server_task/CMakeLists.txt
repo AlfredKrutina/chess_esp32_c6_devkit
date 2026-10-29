@@ -7,6 +7,7 @@
 set(WS_SRCS
     "board_api_auth.c"
     "board_pair_policy.c"
+    "cmd_wire.c"
     "ota_update.c"
     "web_opening_dispatch.c"
     "web_resign_dispatch.c"
@@ -60,3 +61,6 @@ idf_component_register(
     REQUIRES ${WS_REQUIRES}
     PRIV_REQUIRES transport_policy
 )
+
+# httpd_accept_conn spins when accept() fails. Back off inside lwip_accept.
+target_link_libraries(${COMPONENT_LIB} INTERFACE "-Wl,--wrap=lwip_accept")

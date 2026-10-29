@@ -42,6 +42,9 @@
 
 #include "sdkconfig.h"
 #include "freertos_chess.h"
+#include "game_events.h"
+#include "game_cmd.h"
+#include "chess_types.h"
 #include "uart_queue_message.h"
 #include "button_task.h"
 #include "driver/gpio.h"
@@ -90,7 +93,6 @@ QueueHandle_t uart_response_queue = NULL;
 
 // Game control queues
 QueueHandle_t game_command_queue = NULL;
-QueueHandle_t game_status_queue = NULL;
 
 // Animation control queues
 QueueHandle_t animation_command_queue = NULL;
@@ -657,18 +659,46 @@ esp_err_t chess_create_queues(void) {
   ESP_LOGI(TAG, "✅ UART queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
 
-  // Game control queues
+  // Game control queues (static storage — no heap per boot queue)
+  _Static_assert(sizeof(game_cmd_t) <= 256, "game_cmd_t size");
+  _Static_assert(sizeof(game_response_t) == 72, "game_response_t size");
+  _Static_assert(sizeof(game_event_msg_t) <= 16, "game_event_msg_t size");
+  ESP_LOGI(TAG, "sizes: cmd=%zu event_msg=%zu response=%zu",
+           sizeof(game_cmd_t), sizeof(game_event_msg_t),
+           sizeof(game_response_t));
+
   ESP_LOGI(TAG, "🔄 Creating Game queues...");
   ESP_LOGI(TAG, "  - Game Command Queue: %d items × %zu bytes", GAME_QUEUE_SIZE,
-           sizeof(chess_move_command_t));
-  SAFE_CREATE_QUEUE(game_command_queue, GAME_QUEUE_SIZE,
-                    sizeof(chess_move_command_t), "Game Command Queue");
-  ESP_LOGI(TAG, "  - Game Status Queue: %d items × %zu bytes", GAME_QUEUE_SIZE,
-           sizeof(uint8_t));
-  SAFE_CREATE_QUEUE(game_status_queue, GAME_QUEUE_SIZE, sizeof(uint8_t),
-                    "Game Status Queue");
+           sizeof(game_cmd_t));
+  {
+    static StaticQueue_t s_game_cmd_q;
+    static uint8_t s_game_cmd_store[GAME_QUEUE_SIZE * sizeof(game_cmd_t)];
+    game_command_queue = xQueueCreateStatic(
+        GAME_QUEUE_SIZE, sizeof(game_cmd_t), s_game_cmd_store, &s_game_cmd_q);
+    if (game_command_queue == NULL) {
+      ESP_LOGE(TAG, "Failed to create queue: Game Command Queue");
+      return ESP_ERR_NO_MEM;
+    }
+    ESP_LOGI(TAG, "✓ Static queue: Game Command Queue");
+  }
   ESP_LOGI(TAG, "✅ Game queues created. Free heap: %" PRIu32 " bytes",
            esp_get_free_heap_size());
+
+  ESP_LOGI(TAG, "  - Game Event Queue: %d items × %zu bytes",
+           GAME_EVENT_QUEUE_DEPTH, sizeof(game_event_msg_t));
+  {
+    static StaticQueue_t s_game_event_q;
+    static uint8_t s_game_event_store[GAME_EVENT_QUEUE_DEPTH *
+                                      sizeof(game_event_msg_t)];
+    game_event_queue = xQueueCreateStatic(GAME_EVENT_QUEUE_DEPTH,
+                                          sizeof(game_event_msg_t),
+                                          s_game_event_store, &s_game_event_q);
+    if (game_event_queue == NULL) {
+      ESP_LOGE(TAG, "Failed to create queue: Game Event Queue");
+      return ESP_ERR_NO_MEM;
+    }
+    ESP_LOGI(TAG, "✓ Static queue: Game Event Queue");
+  }
 
   // Animation control queues
   ESP_LOGI(TAG, "🔄 Creating Animation queues...");
@@ -746,7 +776,7 @@ esp_err_t chess_create_queues(void) {
   bool queues_ok =
       squares_event_queue && squares_command_queue && squares_response_queue &&
       button_event_queue && button_command_queue && uart_command_queue &&
-      uart_response_queue && game_command_queue && game_status_queue &&
+      uart_response_queue && game_command_queue &&
       animation_command_queue && animation_status_queue &&
       screen_saver_command_queue && screen_saver_status_queue &&
       web_command_queue && web_server_command_queue && web_server_status_queue;

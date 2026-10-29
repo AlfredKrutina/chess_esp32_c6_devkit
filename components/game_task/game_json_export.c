@@ -3,9 +3,14 @@
  * @brief JSON serialization of game state for web server and UART APIs.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
-#include "chess_gameplay_policy.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_snapshot.h"
+#include "position.h"
+#include "game_policy.h"
 #include "freertos_chess.h"
 
 #include "../squares_task/include/squares_task.h"
@@ -23,6 +28,33 @@
 
 static const char *TAG = "GAME_JSON";
 
+static StaticSemaphore_t s_export_lock_buf;
+static SemaphoreHandle_t s_export_lock;
+static portMUX_TYPE s_export_init_mux = portMUX_INITIALIZER_UNLOCKED;
+
+static esp_err_t export_snap_take(void) {
+  if (s_export_lock == NULL) {
+    taskENTER_CRITICAL(&s_export_init_mux);
+    if (s_export_lock == NULL) {
+      s_export_lock = xSemaphoreCreateMutexStatic(&s_export_lock_buf);
+    }
+    taskEXIT_CRITICAL(&s_export_init_mux);
+  }
+  if (s_export_lock == NULL) {
+    return ESP_ERR_NO_MEM;
+  }
+  if (xSemaphoreTake(s_export_lock, pdMS_TO_TICKS(2000)) != pdTRUE) {
+    return ESP_ERR_TIMEOUT;
+  }
+  return ESP_OK;
+}
+
+static void export_snap_give(void) {
+  if (s_export_lock != NULL) {
+    xSemaphoreGive(s_export_lock);
+  }
+}
+
 #ifndef NDEBUG
 #define STAGING_LOGI(tag, fmt, ...) ESP_LOGI(tag, "[STAGING] " fmt, ##__VA_ARGS__)
 #else
@@ -38,22 +70,24 @@ esp_err_t game_get_board_json(char *buffer, size_t size) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  // Thread-safe access to board
-  if (game_mutex != NULL) {
-    if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(1000)) != pdTRUE) {
-      return ESP_ERR_TIMEOUT;
-    }
+  esp_err_t lock_ret = export_snap_take();
+  if (lock_ret != ESP_OK) {
+    return lock_ret;
+  }
+  const game_session_snap_t *snap = game_session_snap_acquire();
+  if (snap == NULL) {
+    export_snap_give();
+    return ESP_ERR_TIMEOUT;
   }
 
-  // Build JSON string manually (more efficient than cJSON)
   int offset = 0;
-
   offset += snprintf(buffer + offset, size - offset, "{\"board\":[");
 
   for (int row = 0; row < 8; row++) {
     offset += snprintf(buffer + offset, size - offset, "[");
     for (int col = 0; col < 8; col++) {
-      char piece_char = piece_to_char(board[row][col]);
+      char piece_char =
+          piece_to_char((piece_t)snap->pos.board[row][col]);
       offset += snprintf(buffer + offset, size - offset, "\"%c\"", piece_char);
       if (col < 7) {
         offset += snprintf(buffer + offset, size - offset, ",");
@@ -69,10 +103,8 @@ esp_err_t game_get_board_json(char *buffer, size_t size) {
   offset += snprintf(buffer + offset, size - offset, "],\"timestamp\":%llu}",
                      timestamp);
 
-  if (game_mutex != NULL) {
-    xSemaphoreGive(game_mutex);
-  }
-
+  game_session_snap_release();
+  export_snap_give();
   return ESP_OK;
 }
 
@@ -142,6 +174,8 @@ static void game_json_escape(char *dst, size_t dst_len, const char *src) {
         ESP_OK) {                                                              \
       if (game_mutex != NULL)                                                  \
         xSemaphoreGive(game_mutex);                                            \
+      game_session_snap_release();                                             \
+      export_snap_give();                                                      \
       return ESP_ERR_NO_MEM;                                                   \
     }                                                                          \
   } while (0)
@@ -151,19 +185,33 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  // Thread-safe access to game state
+  position_status_t pstat;
+  game_state_t snap_state;
+
+  esp_err_t lock_ret = export_snap_take();
+  if (lock_ret != ESP_OK) {
+    return lock_ret;
+  }
+  const game_session_snap_t *snap = game_session_snap_acquire();
+  if (snap == NULL) {
+    export_snap_give();
+    return ESP_ERR_TIMEOUT;
+  }
+  pstat = snap->pos_status;
+  snap_state = (game_state_t)snap->game_state;
+
   if (game_mutex != NULL) {
     if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(1000)) != pdTRUE) {
+      game_session_snap_release();
+      export_snap_give();
       return ESP_ERR_TIMEOUT;
     }
   }
 
-  // Build JSON string
   size_t offset = 0;
 
-  // Game state string
   const char *game_state_str = "idle";
-  switch (current_game_state) {
+  switch (snap_state) {
   case GAME_STATE_ACTIVE:
     game_state_str = "active";
     break;
@@ -187,23 +235,9 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
     break;
   }
 
-  // Check detection
-  bool in_check = game_is_king_in_check(current_player);
-
-  // Checkmate detection (simplified - king in check and no legal moves)
-  bool checkmate = false;
-  if (in_check) {
-    // Try to generate legal moves - if none, it's checkmate
-    uint32_t legal_moves = game_generate_legal_moves(current_player);
-    checkmate = (legal_moves == 0);
-  }
-
-  // Stalemate detection (simplified - not in check but no legal moves)
-  bool stalemate = false;
-  if (!in_check) {
-    uint32_t legal_moves = game_generate_legal_moves(current_player);
-    stalemate = (legal_moves == 0);
-  }
+  bool in_check = pstat.in_check;
+  bool checkmate = pstat.checkmate;
+  bool stalemate = pstat.stalemate;
 
   GAME_STATUS_JSON_APPEND("{\"game_state\":\"%s\","
                           "\"current_player\":\"%s\","
@@ -214,16 +248,17 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                           "\"checkmate\":%s,"
                           "\"stalemate\":%s",
                           game_state_str,
-                          (current_player == PLAYER_WHITE) ? "White" : "Black",
-                          move_count, white_time_total, black_time_total,
-                          in_check ? "true" : "false", checkmate ? "true" : "false",
+                          (snap->pos.side == PLAYER_WHITE) ? "White" : "Black",
+                          snap->move_count, snap->white_time_total,
+                          snap->black_time_total, in_check ? "true" : "false",
+                          checkmate ? "true" : "false",
                           stalemate ? "true" : "false");
 
   // Piece lifted info
   if (piece_lifted) {
     char piece_char = piece_to_char(lifted_piece);
     char notation[4] = {0};
-    convert_coords_to_notation(lifted_piece_row, lifted_piece_col, notation);
+    game_coords_to_notation(lifted_piece_row, lifted_piece_col, notation);
     GAME_STATUS_JSON_APPEND(",\"piece_lifted\":{\"lifted\":true,\"row\":%d,"
                             "\"col\":%d,"
                             "\"piece\":\"%c\",\"notation\":\"%s\"}",
@@ -238,9 +273,9 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
   /* Casting for 2 turns: the web must know to wait for the rook's turn (the board is an intermediate state). */
   if (castling_state.in_progress) {
     char cf[4] = {0}, ct[4] = {0};
-    convert_coords_to_notation(castling_state.rook_from_row,
+    game_coords_to_notation(castling_state.rook_from_row,
                               castling_state.rook_from_col, cf);
-    convert_coords_to_notation(castling_state.rook_to_row,
+    game_coords_to_notation(castling_state.rook_to_row,
                               castling_state.rook_to_col, ct);
     GAME_STATUS_JSON_APPEND(",\"castling_in_progress\":true,"
                             "\"castling_from\":\"%s\","
@@ -250,18 +285,18 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
     GAME_STATUS_JSON_APPEND(",\"castling_in_progress\":false");
   }
 
-  // Game end information - use current_endgame_reason for exact
+  // Game end information - use (*game_state_current_endgame_reason()) for exact
   // distinction
-  if (current_game_state == GAME_STATE_FINISHED) {
+  if (snap_state == GAME_STATE_FINISHED) {
     const char *end_reason = "Unknown";
     const char *winner = "None";
     const char *loser = "None";
 
     // First determine the winner
-    if (current_result_type == RESULT_WHITE_WINS) {
+    if ((*game_state_current_result_type()) == RESULT_WHITE_WINS) {
       winner = "White";
       loser = "Black";
-    } else if (current_result_type == RESULT_BLACK_WINS) {
+    } else if ((*game_state_current_result_type()) == RESULT_BLACK_WINS) {
       winner = "Black";
       loser = "White";
     } else {
@@ -269,8 +304,8 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
       loser = "Draw";
     }
 
-    // Then determine the reason by current_endgame_reason
-    switch (current_endgame_reason) {
+    // Then determine the reason by (*game_state_current_endgame_reason())
+    switch ((*game_state_current_endgame_reason())) {
     case ENDGAME_REASON_CHECKMATE:
       end_reason = "Checkmate";
       break;
@@ -318,14 +353,14 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
   }
 
   // Error recovery state for visual indication on the website
-  if (error_recovery_state.waiting_for_move_correction) {
+  if ((*game_state_error_recovery_state()).waiting_for_move_correction) {
     char invalid_notation[4] = {0};
     char original_notation[4] = {0};
-    convert_coords_to_notation(error_recovery_state.invalid_row,
-                               error_recovery_state.invalid_col,
+    game_coords_to_notation((*game_state_error_recovery_state()).invalid_row,
+                               (*game_state_error_recovery_state()).invalid_col,
                                invalid_notation);
-    convert_coords_to_notation(error_recovery_state.original_valid_row,
-                               error_recovery_state.original_valid_col,
+    game_coords_to_notation((*game_state_error_recovery_state()).original_valid_row,
+                               (*game_state_error_recovery_state()).original_valid_col,
                                original_notation);
 
     GAME_STATUS_JSON_APPEND(",\"error_state\":{\"active\":true,"
@@ -333,7 +368,7 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
                             "\"original_pos\":\"%s\","
                             "\"error_count\":%d}",
                             invalid_notation, original_notation,
-                            error_recovery_state.error_count);
+                            (*game_state_error_recovery_state()).error_count);
   } else {
     /* Close error_state object — previously missing } was breaking JSON (restore_state
      * nested in error_state). */
@@ -341,7 +376,7 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
   }
 
   GAME_STATUS_JSON_APPEND(",\"gameplay_profile\":\"%s\"",
-                          chess_policy_profile_name());
+                          game_policy_profile_name());
 
   GAME_STATUS_JSON_APPEND(
       ",\"restore_state\":{\"snapshot_loaded\":%s,\"snapshot_fallback_used\":%s,"
@@ -356,19 +391,19 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
       game_was_boot_new_game_triggered() ? "true" : "false");
 
   GAME_STATUS_JSON_APPEND(",\"board_setup_tutorial\":%s",
-                            board_setup_tutorial_active ? "true" : "false");
+                            (*game_state_board_setup_tutorial_active()) ? "true" : "false");
 
   const game_puzzle_definition_t *pd_play =
-      game_get_puzzle_definition(puzzle_active_id);
+      game_get_puzzle_definition((*game_state_puzzle_active_id()));
   const game_puzzle_definition_t *pd_setup =
-      game_get_puzzle_definition(puzzle_setup_id);
+      game_get_puzzle_definition((*game_state_puzzle_setup_id()));
   const game_puzzle_definition_t *pd =
-      puzzle_active ? pd_play : (puzzle_setup_active ? pd_setup : NULL);
+      (*game_state_puzzle_active()) ? pd_play : ((*game_state_puzzle_setup_active()) ? pd_setup : NULL);
   bool puzzle_phys_match = game_puzzle_status_physical_match();
   const char *puzzle_fen_src = "";
-  if ((puzzle_setup_active || puzzle_active) && pd != NULL && pd->fen != NULL) {
+  if (((*game_state_puzzle_setup_active()) || (*game_state_puzzle_active())) && pd != NULL && pd->fen != NULL) {
     puzzle_fen_src = pd->fen;
-  } else if (puzzle_setup_active || puzzle_active) {
+  } else if ((*game_state_puzzle_setup_active()) || (*game_state_puzzle_active())) {
     puzzle_fen_src = game_puzzle_staged_fen();
   }
   const char *puzzle_title_src =
@@ -394,11 +429,11 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
       "\"expected_from\":\"%s\",\"expected_to\":\"%s\","
       "\"awaiting_opponent\":%s,\"last_uci\":\"%s\",\"session\":%u,"
       "\"solved\":%s,\"sync_hold\":%s}",
-      puzzle_active ? "true" : "false",
-      puzzle_setup_active ? "true" : "false", (unsigned)puzzle_setup_id,
+      (*game_state_puzzle_active()) ? "true" : "false",
+      (*game_state_puzzle_setup_active()) ? "true" : "false", (unsigned)(*game_state_puzzle_setup_id()),
       puzzle_phys_match ? "true" : "false", puzzle_fen_esc,
-      (unsigned)(puzzle_active ? puzzle_active_id
-                               : (puzzle_setup_active ? puzzle_setup_id : 0)),
+      (unsigned)((*game_state_puzzle_active()) ? (*game_state_puzzle_active_id())
+                               : ((*game_state_puzzle_setup_active()) ? (*game_state_puzzle_setup_id()) : 0)),
       (unsigned)(pd ? pd->difficulty : 0U), puzzle_title_esc, puzzle_teaser_esc,
       game_puzzle_feedback_key(), puzzle_msg_esc,
       (unsigned)game_puzzle_ply(), (unsigned)game_puzzle_ply_total(),
@@ -410,7 +445,7 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
 
   game_opening_export_status_json(buffer, size, &offset);
 
-  if (board_setup_tutorial_active || puzzle_setup_active || puzzle_active ||
+  if ((*game_state_board_setup_tutorial_active()) || (*game_state_puzzle_setup_active()) || (*game_state_puzzle_active()) ||
       game_opening_status_needs_squares()) {
     uint8_t occ[64];
     squares_get_state(occ);
@@ -432,6 +467,8 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
     if (game_mutex != NULL) {
       xSemaphoreGive(game_mutex);
     }
+    game_session_snap_release();
+    export_snap_give();
     return ESP_FAIL;
   }
 
@@ -442,6 +479,8 @@ esp_err_t game_get_status_json(char *buffer, size_t size) {
   if (game_mutex != NULL) {
     xSemaphoreGive(game_mutex);
   }
+  game_session_snap_release();
+  export_snap_give();
 
   return ESP_OK;
 }
@@ -451,43 +490,43 @@ esp_err_t game_get_history_json(char *buffer, size_t size) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  // Thread-safe access to move history
-  if (game_mutex != NULL) {
-    if (xSemaphoreTake(game_mutex, pdMS_TO_TICKS(1000)) != pdTRUE) {
-      return ESP_ERR_TIMEOUT;
-    }
+  esp_err_t lock_ret = export_snap_take();
+  if (lock_ret != ESP_OK) {
+    return lock_ret;
+  }
+  const game_session_snap_t *snap = game_session_snap_acquire();
+  if (snap == NULL) {
+    export_snap_give();
+    return ESP_ERR_TIMEOUT;
   }
 
-  // Build JSON string
   int offset = 0;
   offset += snprintf(buffer + offset, size - offset, "{\"moves\":[");
 
-  for (uint32_t i = 0; i < history_index && i < GAME_TASK_MAX_MOVES_HISTORY; i++) {
+  for (uint32_t i = 0; i < snap->history_len && i < POSITION_HIST_CAP; i++) {
     char from_notation[4] = {0};
     char to_notation[4] = {0};
-    convert_coords_to_notation(move_history[i].from_row,
-                               move_history[i].from_col, from_notation);
-    convert_coords_to_notation(move_history[i].to_row, move_history[i].to_col,
-                               to_notation);
-    char piece_char = piece_to_char(move_history[i].piece);
+    game_coords_to_notation(snap->history_moves[i].from_row,
+                               snap->history_moves[i].from_col, from_notation);
+    game_coords_to_notation(snap->history_moves[i].to_row,
+                               snap->history_moves[i].to_col, to_notation);
+    char piece_char = piece_to_char(snap->history_moves[i].piece);
 
     offset += snprintf(buffer + offset, size - offset,
                        "{\"from\":\"%s\",\"to\":\"%s\",\"piece\":\"%c\","
                        "\"timestamp\":%" PRIu32 "}",
                        from_notation, to_notation, piece_char,
-                       move_history[i].timestamp);
+                       snap->history_moves[i].timestamp);
 
-    if (i < history_index - 1 && i < GAME_TASK_MAX_MOVES_HISTORY - 1) {
+    if (i + 1 < snap->history_len) {
       offset += snprintf(buffer + offset, size - offset, ",");
     }
   }
 
   offset += snprintf(buffer + offset, size - offset, "]}");
 
-  if (game_mutex != NULL) {
-    xSemaphoreGive(game_mutex);
-  }
-
+  game_session_snap_release();
+  export_snap_give();
   return ESP_OK;
 }
 
@@ -508,10 +547,10 @@ esp_err_t game_get_captured_json(char *buffer, size_t size) {
   offset += snprintf(buffer + offset, size - offset, "{\"white_captured\":[");
 
   // Add white captured pieces
-  for (uint32_t i = 0; i < white_captured_count; i++) {
-    char piece_char = piece_to_char(white_captured_pieces[i]);
+  for (uint32_t i = 0; i < (*game_state_white_captured_count()); i++) {
+    char piece_char = piece_to_char((game_state_white_captured_pieces())[i]);
     offset += snprintf(buffer + offset, size - offset, "\"%c\"", piece_char);
-    if (i < white_captured_count - 1) {
+    if (i < (*game_state_white_captured_count()) - 1) {
       offset += snprintf(buffer + offset, size - offset, ",");
     }
   }
@@ -519,10 +558,10 @@ esp_err_t game_get_captured_json(char *buffer, size_t size) {
   offset += snprintf(buffer + offset, size - offset, "],\"black_captured\":[");
 
   // Add black captured pieces
-  for (uint32_t i = 0; i < black_captured_count; i++) {
-    char piece_char = piece_to_char(black_captured_pieces[i]);
+  for (uint32_t i = 0; i < (*game_state_black_captured_count()); i++) {
+    char piece_char = piece_to_char((game_state_black_captured_pieces())[i]);
     offset += snprintf(buffer + offset, size - offset, "\"%c\"", piece_char);
-    if (i < black_captured_count - 1) {
+    if (i < (*game_state_black_captured_count()) - 1) {
       offset += snprintf(buffer + offset, size - offset, ",");
     }
   }
@@ -554,36 +593,36 @@ esp_err_t game_get_advantage_json(char *buffer, size_t size) {
     }
   }
 
-  // Build JSON: {"history":[0,1,2,-1,0,...], "count":42, "white_checks":5,
-  // "black_checks":3, ...}
+  // Build JSON: {"history":[0,1,2,-1,0,...], "count":42, "(*game_state_white_checks())":5,
+  // "(*game_state_black_checks())":3, ...}
   int offset = 0;
   offset += snprintf(buffer + offset, size - offset, "{\"history\":[");
 
   // Add advantage values
-  for (uint32_t i = 0; i < advantage_history_count; i++) {
+  for (uint32_t i = 0; i < (*game_state_advantage_history_count()); i++) {
     offset += snprintf(buffer + offset, size - offset, "%d",
-                       material_advantage_history[i]);
-    if (i < advantage_history_count - 1) {
+                       (game_state_material_advantage_history())[i]);
+    if (i < (*game_state_advantage_history_count()) - 1) {
       offset += snprintf(buffer + offset, size - offset, ",");
     }
   }
 
   offset += snprintf(buffer + offset, size - offset, "],\"count\":%" PRIu32,
-                     advantage_history_count);
+                     (*game_state_advantage_history_count()));
 
   // Add more statistics
   offset += snprintf(buffer + offset, size - offset,
-                     ",\"white_checks\":%" PRIu32 ",\"black_checks\":%" PRIu32,
-                     white_checks, black_checks);
+                     ",\"(*game_state_white_checks())\":%" PRIu32 ",\"(*game_state_black_checks())\":%" PRIu32,
+                     (*game_state_white_checks()), (*game_state_black_checks()));
   offset +=
       snprintf(buffer + offset, size - offset,
-               ",\"white_castles\":%" PRIu32 ",\"black_castles\":%" PRIu32,
-               white_castles, black_castles);
+               ",\"(*game_state_white_castles())\":%" PRIu32 ",\"(*game_state_black_castles())\":%" PRIu32,
+               (*game_state_white_castles()), (*game_state_black_castles()));
 
   // Average time per move
   uint32_t current_time = esp_timer_get_time() / 1000;
   uint32_t game_duration =
-      (game_start_time > 0) ? (current_time - game_start_time) : 0;
+      ((*game_state_game_start_time()) > 0) ? (current_time - (*game_state_game_start_time())) : 0;
   uint32_t avg_time_per_move =
       (move_count > 0) ? (game_duration / move_count) : 0;
   offset += snprintf(buffer + offset, size - offset,

@@ -4,8 +4,13 @@
  */
 
 #include "sdkconfig.h"
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "game_snapshot.h"
 
 #include "../button_task/include/button_task.h"
@@ -21,6 +26,19 @@
 #include <stdio.h>
 
 static const char *TAG = "GAME_RESIGN";
+/* King-hold resignation timer. */
+static king_resignation_state_t s_resignation_state = {.active = false,
+                                                     .player = PLAYER_WHITE,
+                                                     .king_row = 0,
+                                                     .king_col = 0,
+                                                     .main_timer = NULL,
+                                                     .animation_timer = NULL,
+                                                     .start_time_ms = 0,
+                                                     .last_countdown_sec = 10};
+
+king_resignation_state_t *game_state_resignation_state(void) { return &s_resignation_state; }
+#define resignation_state (*game_state_resignation_state())
+
 
 // KING RESIGNATION IMPLEMENTATION
 // ============================================================================
@@ -86,15 +104,15 @@ static void resignation_end_game(player_t loser) {
 
   // End the game
   current_game_state = GAME_STATE_FINISHED;
-  game_result = GAME_STATE_FINISHED;
-  current_result_type =
+  (*game_state_game_result()) = GAME_STATE_FINISHED;
+  (*game_state_current_result_type()) =
       (loser == PLAYER_WHITE) ? RESULT_BLACK_WINS : RESULT_WHITE_WINS;
-  current_endgame_reason = ENDGAME_REASON_RESIGNATION;
+  (*game_state_current_endgame_reason()) = ENDGAME_REASON_RESIGNATION;
   game_active = false;
 
   // Print report later in game_task (stack-safe)
-  game_update_endgame_statistics(current_result_type);
-  endgame_report_requested = true;
+  game_update_endgame_statistics((*game_state_current_result_type()));
+  (*game_state_endgame_report_requested()) = true;
 
   timer_pause();
 
@@ -120,7 +138,7 @@ void game_resign_from_king_hold(player_t loser) {
   char msg[24];
   const char *who = (loser == PLAYER_WHITE) ? "White" : "Black";
   snprintf(msg, sizeof(msg), "%s resigns.", who);
-  game_send_response_to_uart(msg, false, NULL);
+  game_cmd_reply(msg, false, NULL);
   resignation_end_game(loser);
 }
 
@@ -130,12 +148,12 @@ bool game_agree_draw(void) {
   }
   ESP_LOGI(TAG, "Agreed draw");
   current_game_state = GAME_STATE_FINISHED;
-  game_result = GAME_STATE_FINISHED;
-  current_result_type = RESULT_DRAW_AGREEMENT;
-  current_endgame_reason = ENDGAME_REASON_AGREEMENT;
+  (*game_state_game_result()) = GAME_STATE_FINISHED;
+  (*game_state_current_result_type()) = RESULT_DRAW_AGREEMENT;
+  (*game_state_current_endgame_reason()) = ENDGAME_REASON_AGREEMENT;
   game_active = false;
-  game_update_endgame_statistics(current_result_type);
-  endgame_report_requested = true;
+  game_update_endgame_statistics((*game_state_current_result_type()));
+  (*game_state_endgame_report_requested()) = true;
   timer_pause();
   game_trigger_victory_animation(current_player);
   if (resignation_state.active) {
@@ -247,14 +265,12 @@ void resignation_start(player_t player, uint8_t row, uint8_t col) {
   resignation_state.start_time_ms = esp_timer_get_time() / 1000;
   resignation_state.last_countdown_sec = 10;
 
-  // Remove the king from the board (like a normal pickup)
-  // Otherwise, the drop code expects an empty field and drops
-  board[row][col] = PIECE_EMPTY;
-  ESP_LOGI(TAG, "✅ King removed from board[%d][%d] for resignation", row, col);
+  ESP_LOGI(TAG, "✅ King lift tracked for resignation at [%d][%d] (legal board unchanged)",
+           row, col);
 
   // Combination of red (warning) and yellow (source square)
   // Orange-red mix instead of just red
-  led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 128, 0);
+  game_led_frame_sq(row, col, 255, 128, 0);
 
   // Buttons turn orange only after 4s (in resignation_update_button_leds)
   // – the first 4 seconds remain in the original color
@@ -284,31 +300,13 @@ void resignation_stop(bool finalize) {
              "🔄 [STAGING] Resignation finalized (cleanup, no cancel msgs)");
   }
 
-  // Only when canceled by the user: return the king to its original position
   if (!finalize) {
-    piece_t king_piece = (resignation_state.player == PLAYER_WHITE)
-                             ? PIECE_WHITE_KING
-                             : PIECE_BLACK_KING;
+    ESP_LOGI(TAG,
+             "✅ Resignation cancelled at [%d][%d] (legal board unchanged)",
+             resignation_state.king_row, resignation_state.king_col);
 
-    if (board[resignation_state.king_row][resignation_state.king_col] ==
-        PIECE_EMPTY) {
-      board[resignation_state.king_row][resignation_state.king_col] =
-          king_piece;
-      ESP_LOGI(TAG,
-               "✅ King returned to original position [%d][%d] (resignation "
-               "cancelled)",
-               resignation_state.king_row, resignation_state.king_col);
-    } else {
-      ESP_LOGW(
-          TAG,
-          "⚠️ Original king position [%d][%d] is occupied - drop processing "
-          "will handle it",
-          resignation_state.king_row, resignation_state.king_col);
-    }
-
-    led_set_pixel_safe(chess_pos_to_led_index(resignation_state.king_row,
-                                              resignation_state.king_col),
-                       0, 0, 0);
+    game_led_frame_sq(resignation_state.king_row,
+                                              resignation_state.king_col, 0, 0, 0);
   }
 
   // Zastavit a smazat timery

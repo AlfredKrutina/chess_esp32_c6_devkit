@@ -517,17 +517,15 @@ void initialize_chess_game(void) {
   } else {
     ESP_LOGI(TAG, "🎯 Starting new chess game...");
 
-    if (game_command_queue != NULL) {
-      chess_move_command_t cmd = {0};
-      cmd.type = GAME_CMD_NEW_GAME;
+    {
+      game_cmd_t cmd = {0};
+      cmd.kind = GCMD_NEW_GAME;
 
-      if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-        ESP_LOGE(TAG, "❌ Failed to send GAME_CMD_NEW_GAME");
+      if (!game_submit(&cmd)) {
+        ESP_LOGE(TAG, "❌ Failed to send new game");
       } else {
         ESP_LOGI(TAG, "✅ New game command sent");
       }
-    } else {
-      ESP_LOGE(TAG, "❌ Game command queue not available");
     }
   }
 
@@ -652,20 +650,17 @@ void execute_demo_move(void) {
 
   // Use PICKUP/DROP commands for realistic demo (like up/dn)
   if (strlen(move) == 4 && game_command_queue != NULL) {
-    chess_move_command_t cmd = {0};
+    game_cmd_t cmd = {0};
 
-    // Step 1: PICKUP command (lift piece from source square)
-    cmd.type = GAME_CMD_PICKUP;
-    cmd.is_demo_mode = true;             // Skip resignation timer in demo mode.
-    strncpy(cmd.from_notation, move, 2); // e.g. "e2"
+    cmd.kind = GCMD_BOARD_LIFT;
+    cmd.is_demo = 1;
+    strncpy(cmd.u.lift.square, move, 2);
 
     ESP_LOGI(TAG, "  ⬆️  Lifting piece from %c%c...", move[0], move[1]);
-
-    // Set response queue for feedback
     cmd.response_queue = uart_response_queue;
 
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGE(TAG, "❌ Failed to send GAME_CMD_PICKUP");
+    if (!game_submit(&cmd)) {
+      ESP_LOGE(TAG, "❌ Failed to send pickup");
       return;
     }
 
@@ -674,17 +669,17 @@ void execute_demo_move(void) {
     chess_task_wdt_reset_safe(TAG);      // Reset after delay.
 
     // Step 2: DROP command (place piece on destination square)
-    cmd.type = GAME_CMD_DROP;
-    cmd.is_demo_mode = true;               // Skip error recovery in demo mode.
-    strncpy(cmd.to_notation, move + 2, 2); // e.g. "e4"
+    cmd.kind = GCMD_BOARD_DROP;
+    cmd.is_demo = 1;
+    cmd.u.drop.has_from = 1;
+    strncpy(cmd.u.drop.from, move, 2);
+    strncpy(cmd.u.drop.to, move + 2, 2);
 
     ESP_LOGI(TAG, "  ⬇️  Placing piece on %c%c...", move[2], move[3]);
-
-    // Set response queue for feedback
     cmd.response_queue = uart_response_queue;
 
-    if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGE(TAG, "❌ Failed to send GAME_CMD_DROP");
+    if (!game_submit(&cmd)) {
+      ESP_LOGE(TAG, "❌ Failed to send drop");
       return;
     }
 
@@ -724,21 +719,21 @@ void execute_demo_move(void) {
 
       // Rook Pickup
       memset(&cmd, 0, sizeof(cmd));
-      cmd.type = GAME_CMD_PICKUP;
-      cmd.is_demo_mode = true; // Skip resignation timer for rook.
-      strncpy(cmd.from_notation, rook_from, 2);
-      cmd.response_queue = uart_response_queue; // Add feedback.
-      xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+      cmd.kind = GCMD_BOARD_LIFT;
+      cmd.is_demo = 1;
+      strncpy(cmd.u.lift.square, rook_from, 2);
+      cmd.response_queue = uart_response_queue;
+      game_submit(&cmd);
       vTaskDelay(pdMS_TO_TICKS(1000));
       chess_task_wdt_reset_safe(TAG); // Reset after rook pickup delay.
 
       // Rook Drop
       memset(&cmd, 0, sizeof(cmd));
-      cmd.type = GAME_CMD_DROP;
-      cmd.is_demo_mode = true; // Skip error recovery for rook.
-      strncpy(cmd.to_notation, rook_to, 2);
-      cmd.response_queue = uart_response_queue; // Add feedback.
-      xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+      cmd.kind = GCMD_BOARD_DROP;
+      cmd.is_demo = 1;
+      strncpy(cmd.u.drop.to, rook_to, sizeof(cmd.u.drop.to) - 1);
+      cmd.response_queue = uart_response_queue;
+      game_submit(&cmd);
       vTaskDelay(pdMS_TO_TICKS(800));
       chess_task_wdt_reset_safe(TAG); // Reset after rook drop delay.
     }
@@ -769,15 +764,11 @@ void execute_demo_move(void) {
              DEMO_GAME_NAMES[current_demo_game], demo_moves_count);
 
     // Send reset command to start fresh game
-    if (game_command_queue != NULL) {
-      chess_move_command_t cmd = {.type = GAME_CMD_NEW_GAME};
-      cmd.player = (demo_move_index % 2 == 0) ? PLAYER_WHITE : PLAYER_BLACK;
-
-      // Set response queue so game_task sends confirmation (like UART
-      // commands).
+    {
+      game_cmd_t cmd = {0};
+      cmd.kind = GCMD_NEW_GAME;
       cmd.response_queue = uart_response_queue;
-
-      xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+      game_submit(&cmd);
 
       // Wait for the game reset to complete before starting the first move.
       ESP_LOGI(TAG, "⏱️  Waiting 1 second for game reset to complete...");
@@ -1125,17 +1116,11 @@ void show_boot_animation_and_board(void) {
   // Show game guide after board
   printf("\n");
   printf("═══════════════════════════════════════════════════════════════\n");
-  printf("📋 CHESS GAME GUIDE - Type commands to play:\n");
+  printf("UART service console. Type HELP for details.\n");
+  printf("  HELP   STATUS   RESET   CLEAR\n");
+  printf("  LEDTEST   ANIM   DEMO\n");
+  printf("  HALL   STOP   MAG   STM32   LOG\n");
   printf("═══════════════════════════════════════════════════════════════\n");
-  printf("📋 Basic Commands:\n");
-  printf("  • move e2e4    - Move piece from e2 to e4\n");
-  printf("  • help         - Show all available commands\n");
-  printf("  • board        - Display current board\n");
-  printf("  • status       - Show game status\n");
-  printf("  • reset        - Start new game\n");
-  printf("\n");
-  printf("🎯 Quick Start: Type 'move e2e4' to make your first move!\n");
-  printf("═══════════════════════════════════════════════════════════\n");
 
   ESP_LOGI(TAG, "✅ Boot animation and board display completed");
 }

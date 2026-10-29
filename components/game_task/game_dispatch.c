@@ -3,16 +3,19 @@
  * @brief Command queue dispatch, undo, and UART board streaming.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "game_gesture.h"
 #include "game_physical_undo.h"
 #include "game_squares_guard.h"
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
 #include "game_snapshot.h"
 #include "freertos_chess.h"
+#include "game_led_direct.h"
 
-#include "../led_task/include/led_task.h"
 #include "../button_task/include/button_task.h"
 #include "../button_task/include/button_gesture.h"
 #include "../ha_light_task/include/ha_light_task.h"
@@ -75,7 +78,7 @@ static void game_send_board_to_uart(QueueHandle_t response_queue) {
     stream_printf("%d |", row + 1);
 
     for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
       const char *symbol;
 
       switch (piece) {
@@ -147,9 +150,8 @@ static void game_send_board_to_uart(QueueHandle_t response_queue) {
   // Send completion message to response queue
   game_response_t completion_response = {
       .type = GAME_RESPONSE_SUCCESS,
-      .command_type = GAME_CMD_SHOW_BOARD,
+      .command_type = 0,
       .error_code = 0,
-      .message = "Board display streaming completed successfully",
       .timestamp = esp_timer_get_time() / 1000};
   strcpy(completion_response.data, "streaming completed");
 
@@ -164,375 +166,213 @@ static void game_send_board_to_uart(QueueHandle_t response_queue) {
   game_task_wdt_reset_safe();
 }
 
-void game_process_commands(void) {
-  game_physical_undo_tick();
+bool game_submit(const game_cmd_t *cmd) {
+  if (cmd == NULL || game_command_queue == NULL) {
+    return false;
+  }
+  return xQueueSend(game_command_queue, cmd, pdMS_TO_TICKS(100)) == pdTRUE;
+}
 
-  // Update resignation visuals + timeout (safe task context)
+/*
+ * Command queue carries game_cmd_t. Only game_submit() calls xQueueSend.
+ *
+ * kind | sender | receiver
+ * GCMD_NEW_GAME          main.c initialize_chess_game (skip if snapshot or boot
+ *                        already started), execute_demo_move; game_task.c auto
+ *                        start; web/BLE new | game_start_new_game
+ * GCMD_NEW_GAME_FEN      web/BLE new + fen | game_start_new_game_from_fen
+ * GCMD_UNDO              BLE cmd undo (no HTTP undo route) | game_undo_rewind_last_move
+ * GCMD_MOVE              web_game_enqueue_move; BLE move | game_process_chess_move
+ * GCMD_BOARD_LIFT        squares pickup; virtual pickup; demo | game_process_pickup_command
+ * GCMD_BOARD_DROP        reed drop (from and to); Hall place (empty from);
+ *                        virtual drop; demo | game_process_drop_command
+ * GCMD_BOARD_GUARD       squares_send_guard_command (four masks and action) |
+ *                        game_squares_guard_handle_command
+ * GCMD_RESIGN            web_resign_dispatch | game_resign_from_app
+ * GCMD_AGREE_DRAW        web_resign_dispatch draw | game_agree_draw
+ * GCMD_TIMER_SET         HTTP/BLE timer config | game_process_timer_command
+ * GCMD_TIMER_PAUSE       HTTP/BLE timer pause | game_process_timer_command
+ * GCMD_TIMER_RESUME      HTTP/BLE timer resume | game_process_timer_command
+ * GCMD_TIMER_RESET       HTTP/BLE timer reset | game_process_timer_command
+ * GCMD_MODE_PUZZLE       web puzzle parser (210/211 -> apply/start staged) | puzzle acts
+ * GCMD_MODE_OPENING      web_opening_dispatch cancel/start | opening acts
+ * GCMD_MODE_TUTORIAL     tutorial start/cancel/finish | tutorial functions
+ * GCMD_PROMOTION_CHOICE  virtual promote HTTP/BLE | game_process_promotion_command
+ *
+ * Not this queue:
+ * - button_event_queue in this function: id 0-3 -> game_process_promotion_button;
+ *   id 8 -> game_reset_game
+ * - timer expiry: game_update_timer_display in the game_task loop
+ * - uart_task does not enqueue; BLE calls web_server_ble_command_dispatch
+ * - status, board, history: game_get_*_json
+ */
+void game_process_commands(void) {
+  game_led_flush();
+  game_physical_undo_tick();
   resignation_tick();
 
-  // STABILITY FIX: Process ALL commands in queue (not just one) with limit
-  // to prevent watchdog timeout
   if (game_command_queue != NULL) {
-    chess_move_command_t chess_cmd;
+    game_cmd_t cmd;
     uint32_t commands_processed = 0;
-    const uint32_t MAX_COMMANDS_PER_CYCLE =
-        15; // Limit to prevent watchdog timeout
-
-    // Process all commands in queue (up to limit)
+    const uint32_t MAX_COMMANDS_PER_CYCLE = 15;
     TickType_t wait = pdMS_TO_TICKS(25);
-    while (xQueueReceive(game_command_queue, &chess_cmd, wait) == pdTRUE) {
+
+    while (xQueueReceive(game_command_queue, &cmd, wait) == pdTRUE) {
       wait = 0;
       commands_processed++;
-      ESP_LOGI(TAG, "📥 Received command type: %d (processed: %lu/%lu)",
-               chess_cmd.type, commands_processed, MAX_COMMANDS_PER_CYCLE);
+      ESP_LOGI(TAG, "Received command kind: %d (processed: %lu/%lu)",
+               (int)cmd.kind, commands_processed, MAX_COMMANDS_PER_CYCLE);
+      ha_light_report_activity("command");
 
-      // Report activity to HA light task (except read-only commands)
-      bool is_readonly = (chess_cmd.type == GAME_CMD_GET_STATUS ||
-                          chess_cmd.type == GAME_CMD_GET_BOARD ||
-                          chess_cmd.type == GAME_CMD_GET_VALID_MOVES);
-      if (!is_readonly) {
-        ha_light_report_activity("command");
-      }
-
-      switch (chess_cmd.type) {
-      case GAME_CMD_NEW_GAME: // 0
-        ESP_LOGI(TAG, "Processing NEW GAME command from UART");
+      switch (cmd.kind) {
+      case GCMD_NEW_GAME:
+        ESP_LOGI(TAG, "Processing NEW GAME");
         game_start_new_game();
         if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
-          game_send_response_to_uart("Waiting for pieces on start squares",
-                                     false,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("Waiting for pieces on start squares",
+                                     false, cmd.response_queue);
         } else {
-          game_send_response_to_uart("New game started, white to move", false,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("New game started, white to move", false,
+                                     cmd.response_queue);
         }
         break;
 
-      case GAME_CMD_NEW_GAME_FROM_FEN:
-        ESP_LOGI(TAG, "Processing NEW_GAME_FROM_FEN");
-        if (!game_start_new_game_from_fen(
-                chess_cmd.timer_data.fen_new_game.fen)) {
-          game_send_response_to_uart("FEN rejected", true,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+      case GCMD_NEW_GAME_FEN:
+        ESP_LOGI(TAG, "Processing NEW_GAME_FEN");
+        if (!game_start_new_game_from_fen(cmd.u.fen.fen)) {
+          game_cmd_reply("FEN rejected", true, cmd.response_queue);
         } else if (current_player == PLAYER_BLACK) {
-          game_send_response_to_uart("New game from FEN, black to move", false,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("New game from FEN, black to move", false,
+                                     cmd.response_queue);
         } else {
-          game_send_response_to_uart("New game from FEN, white to move", false,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("New game from FEN, white to move", false,
+                                     cmd.response_queue);
         }
         break;
 
-      case GAME_CMD_RESET_GAME: // 1
-        ESP_LOGI(TAG, "Processing RESET GAME command from UART");
-        game_reset_game();
-        game_send_response_to_uart("Game reset to starting position!", false,
-                                   (QueueHandle_t)chess_cmd.response_queue);
-        break;
-
-      case GAME_CMD_MAKE_MOVE: // 2
-        ESP_LOGI(TAG, "Processing MAKE MOVE command from UART: %s -> %s",
-                 chess_cmd.from_notation, chess_cmd.to_notation);
-        game_process_chess_move(&chess_cmd);
-        break;
-
-      case GAME_CMD_UNDO_MOVE: // 3
-        ESP_LOGI(TAG, "Processing UNDO MOVE command from UART");
+      case GCMD_UNDO:
+        ESP_LOGI(TAG, "Processing UNDO");
         if (game_undo_rewind_last_move()) {
-          game_send_response_to_uart("Last move undone", false,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("Last move undone", false,
+                                     cmd.response_queue);
         } else {
-          game_send_response_to_uart("Nothing to undo", true,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("Nothing to undo", true, cmd.response_queue);
         }
         break;
 
-      case GAME_CMD_GET_STATUS: // 4
-        ESP_LOGI(TAG, "Processing GET STATUS command from UART");
-        game_print_status();
+      case GCMD_MOVE:
+        ESP_LOGI(TAG, "Processing MOVE: %s -> %s", game_cmd_from(&cmd),
+                 game_cmd_to(&cmd));
+        game_process_chess_move(&cmd);
         break;
 
-      case GAME_CMD_GET_BOARD: // 5
-        ESP_LOGI(TAG, "Processing GET BOARD command from UART");
-        game_send_board_to_uart((QueueHandle_t)chess_cmd.response_queue);
+      case GCMD_BOARD_LIFT:
+        ESP_LOGI(TAG, "Processing BOARD_LIFT: %s", game_cmd_from(&cmd));
+        game_process_pickup_command(&cmd);
         break;
 
-      case GAME_CMD_GET_VALID_MOVES: // 6
-        /* Nothing enqueues this. UART MOVES calls game_get_available_moves
-         * directly. Do not start a second generator here. */
-        ESP_LOGW(TAG,
-                 "GET_VALID_MOVES has no sender; refused. "
-                 "UART MOVES already calls game_get_available_moves.");
-        game_send_response_to_uart(
-            "GET_VALID_MOVES is not available. Use UART MOVES.",
-            true, (QueueHandle_t)chess_cmd.response_queue);
+      case GCMD_BOARD_DROP:
+        ESP_LOGI(TAG, "Processing BOARD_DROP: %s", game_cmd_to(&cmd));
+        game_process_drop_command(&cmd);
         break;
 
-      case 7: // GAME_CMD_PICKUP_PIECE
-        ESP_LOGI(TAG, "Processing PICKUP PIECE command from UART: %s",
-                 chess_cmd.from_notation);
-        game_process_pickup_command(&chess_cmd);
+      case GCMD_BOARD_GUARD:
+        ESP_LOGW(TAG, "Processing BOARD_GUARD");
+        game_squares_guard_handle_command(&cmd);
         break;
 
-      case 8: // GAME_CMD_DROP_PIECE
-        ESP_LOGI(TAG, "Processing DROP PIECE command from UART: %s",
-                 chess_cmd.to_notation);
-        game_process_drop_command(&chess_cmd);
-        break;
-
-      case 9: // GAME_CMD_PROMOTION
-        ESP_LOGI(TAG, "Processing PROMOTION command from UART");
-        game_process_promotion_command(&chess_cmd);
-        break;
-
-      case 10: // GAME_CMD_MOVE
-        ESP_LOGI(TAG, "Processing MOVE command from UART: %s -> %s",
-                 chess_cmd.from_notation, chess_cmd.to_notation);
-        game_process_chess_move(&chess_cmd);
-        break;
-
-      case 11: // GAME_CMD_SHOW_BOARD
-        ESP_LOGI(TAG, "Processing SHOW BOARD command from UART");
-        game_send_board_to_uart((QueueHandle_t)chess_cmd.response_queue);
-        break;
-
-      case 12: // GAME_CMD_PICKUP
-        ESP_LOGI(TAG, "Processing PICKUP command from UART: %s",
-                 chess_cmd.from_notation);
-        game_process_pickup_command(&chess_cmd);
-        break;
-
-      case 13: // GAME_CMD_DROP
-        ESP_LOGI(TAG, "Processing DROP command from UART: %s",
-                 chess_cmd.to_notation);
-        game_process_drop_command(&chess_cmd);
-        break;
-
-      case 17: // GAME_CMD_EVALUATE
-        ESP_LOGI(TAG, "Processing EVALUATE command from UART");
-        game_process_evaluate_command(&chess_cmd);
-        break;
-
-      case 18: // GAME_CMD_SAVE
-        ESP_LOGI(TAG, "Processing SAVE command from UART: %s",
-                 chess_cmd.from_notation);
-        game_process_save_command(&chess_cmd);
-        break;
-
-      case 19: // GAME_CMD_LOAD
-        ESP_LOGI(TAG, "Processing LOAD command from UART: %s",
-                 chess_cmd.from_notation);
-        game_process_load_command(&chess_cmd);
-        break;
-
-      case 20: // GAME_CMD_RESERVED_SLOT_20
-      case 29: // GAME_CMD_RESERVED_SLOT_29
-      case 30: // GAME_CMD_RESERVED_SLOT_30
-      case 31: // GAME_CMD_RESERVED_SLOT_31
-      case 32: // GAME_CMD_RESERVED_SLOT_32
-      case 38: // GAME_CMD_RESERVED_SLOT_38
-        ESP_LOGW(TAG, "Ignored legacy puzzle command: %d", chess_cmd.type);
-        game_send_response_to_uart("❌ Puzzle system is not available", true,
-                                   (QueueHandle_t)chess_cmd.response_queue);
-        break;
-
-      case 21: // GAME_CMD_CASTLE
-        ESP_LOGI(TAG, "Processing CASTLE command from UART: %s",
-                 chess_cmd.to_notation);
-        game_process_castle_command(&chess_cmd);
-        break;
-
-      case 22: // GAME_CMD_PROMOTE
-        ESP_LOGI(TAG, "Processing PROMOTE command from UART: %s=%s",
-                 chess_cmd.from_notation, chess_cmd.to_notation);
-        game_process_promote_command(&chess_cmd);
-        break;
-
-      case 23: // GAME_CMD_COMPONENT_OFF
-        ESP_LOGI(TAG, "Processing COMPONENT_OFF command from UART");
-        game_process_component_off_command(&chess_cmd);
-        break;
-
-      case 24: // GAME_CMD_COMPONENT_ON
-        ESP_LOGI(TAG, "Processing COMPONENT_ON command from UART");
-        game_process_component_on_command(&chess_cmd);
-        break;
-
-      case 25: // GAME_CMD_ENDGAME_WHITE
-        ESP_LOGI(TAG, "Processing ENDGAME_WHITE command from UART");
-        game_process_endgame_white_command(&chess_cmd);
-        break;
-
-      case 26: // GAME_CMD_ENDGAME_BLACK
-        ESP_LOGI(TAG, "Processing ENDGAME_BLACK command from UART");
-        game_process_endgame_black_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_RESIGN: // 50
-        ESP_LOGI(TAG, "Processing RESIGN command (side=%u)",
-                 (unsigned)chess_cmd.promotion_choice);
-        if (!game_resign_from_app(chess_cmd.promotion_choice)) {
-          game_send_response_to_uart("Resign refused", true,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+      case GCMD_RESIGN:
+        ESP_LOGI(TAG, "Processing RESIGN (side=%u)",
+                 (unsigned)cmd.u.resign.side);
+        if (!game_resign_from_app(cmd.u.resign.side)) {
+          game_cmd_reply("Resign refused", true, cmd.response_queue);
         }
         break;
 
-      case GAME_CMD_DRAW: // 51
-        ESP_LOGI(TAG, "Processing DRAW command");
+      case GCMD_AGREE_DRAW:
+        ESP_LOGI(TAG, "Processing DRAW");
         if (!game_agree_draw()) {
-          game_send_response_to_uart("Draw refused", true,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("Draw refused", true, cmd.response_queue);
         } else {
-          game_send_response_to_uart("Draw agreed", false,
-                                     (QueueHandle_t)chess_cmd.response_queue);
+          game_cmd_reply("Draw agreed", false, cmd.response_queue);
         }
         break;
 
-      case 27: // GAME_CMD_LIST_GAMES
-        ESP_LOGI(TAG, "Processing LIST_GAMES command from UART");
-        game_process_list_games_command(&chess_cmd);
+      case GCMD_TIMER_SET:
+      case GCMD_TIMER_PAUSE:
+      case GCMD_TIMER_RESUME:
+      case GCMD_TIMER_RESET:
+        ESP_LOGI(TAG, "Processing timer kind %d", (int)cmd.kind);
+        game_process_timer_command(&cmd);
         break;
 
-      case 28: // GAME_CMD_DELETE_GAME
-        ESP_LOGI(TAG, "Processing DELETE_GAME command from UART: %s",
-                 chess_cmd.from_notation);
-        game_process_delete_game_command(&chess_cmd);
-        break;
-
-      case 33: // GAME_CMD_TEST_MOVE_ANIM
-        ESP_LOGI(TAG, "Processing TEST_MOVE_ANIM command from UART");
-        game_test_move_animation();
-        break;
-
-      case 34: // GAME_CMD_TEST_PLAYER_ANIM
-        ESP_LOGW(TAG, "Player-change animation removed");
-        break;
-
-      case 35: // GAME_CMD_TEST_CASTLE_ANIM
-        ESP_LOGI(TAG, "Processing TEST_CASTLE_ANIM command from UART");
-        game_test_castle_animation();
-        break;
-
-      case 36: // GAME_CMD_TEST_PROMOTE_ANIM
-        ESP_LOGI(TAG, "Processing TEST_PROMOTE_ANIM command from UART");
-        game_test_promote_animation();
-        break;
-
-      case 37: // GAME_CMD_TEST_ENDGAME_ANIM
-        ESP_LOGI(TAG, "Processing TEST_ENDGAME_ANIM command from UART");
-        game_test_endgame_animation();
-        break;
-
-      // Timer System Commands
-      case GAME_CMD_SET_TIME_CONTROL: // 39
-        ESP_LOGI(TAG, "Processing SET_TIME_CONTROL command");
-        game_process_timer_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_PAUSE_TIMER: // 40
-        ESP_LOGI(TAG, "Processing PAUSE_TIMER command");
-        game_process_timer_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_RESUME_TIMER: // 41
-        ESP_LOGI(TAG, "Processing RESUME_TIMER command");
-        game_process_timer_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_RESET_TIMER: // 42
-        ESP_LOGI(TAG, "Processing RESET_TIMER command");
-        game_process_timer_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_GET_TIMER_STATE: // 43
-        ESP_LOGI(TAG, "Processing GET_TIMER_STATE command");
-        game_process_timer_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_TIMER_TIMEOUT: // 44
-        ESP_LOGI(TAG, "Processing TIMER_TIMEOUT command");
-        game_process_timer_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_SQUARES_GUARD: // 45
-        ESP_LOGW(TAG, "Processing MATRIX_GUARD command");
-        game_squares_guard_handle_command(&chess_cmd);
-        break;
-
-      case GAME_CMD_BOARD_SETUP_TUTORIAL: // 46
-        ESP_LOGI(TAG, "BOARD_SETUP_TUTORIAL action=%u",
-                 (unsigned)chess_cmd.promotion_choice);
-        switch (chess_cmd.promotion_choice) {
-        case 0:
+      case GCMD_MODE_TUTORIAL:
+        ESP_LOGI(TAG, "TUTORIAL act=%u", (unsigned)cmd.u.mode.act);
+        switch (cmd.u.mode.act) {
+        case TUTORIAL_ACT_START:
           game_enter_board_setup_tutorial();
           break;
-        case 1:
+        case TUTORIAL_ACT_CANCEL:
           game_exit_board_setup_tutorial(false);
           break;
-        case 2:
+        case TUTORIAL_ACT_FINISH:
           if (!game_finish_board_setup_tutorial_from_web()) {
-            game_send_response_to_uart(
-                "Tutorial finish refused", true,
-                (QueueHandle_t)chess_cmd.response_queue);
+            game_cmd_reply("Tutorial finish refused", true,
+                                       cmd.response_queue);
           } else {
-            game_send_response_to_uart(
-                "New game started", false,
-                (QueueHandle_t)chess_cmd.response_queue);
+            game_cmd_reply("New game started", false,
+                                       cmd.response_queue);
           }
           break;
         default:
-          ESP_LOGW(TAG, "BOARD_SETUP_TUTORIAL unknown action");
+          ESP_LOGW(TAG, "TUTORIAL unknown action");
           break;
         }
         break;
 
-      case GAME_CMD_PUZZLE: // 47
-        ESP_LOGI(TAG, "PUZZLE action/id=%u", (unsigned)chess_cmd.promotion_choice);
-        if (chess_cmd.promotion_choice == 0U) {
+      case GCMD_MODE_PUZZLE: {
+        uint8_t act = cmd.u.mode.act;
+        uint8_t id = cmd.u.mode.builtin_id;
+        ESP_LOGI(TAG, "PUZZLE act=%u id=%u", (unsigned)act, (unsigned)id);
+        if (act == PUZZLE_ACT_CANCEL) {
           game_puzzle_cancel();
-        } else if (chess_cmd.promotion_choice == 210U) {
+        } else if (act == PUZZLE_ACT_APPLY_SETUP) {
           if (!game_puzzle_apply_staged_setup()) {
             ESP_LOGW(TAG, "PUZZLE apply setup failed (no staged line)");
           }
-        } else if (chess_cmd.promotion_choice == 211U) {
+        } else if (act == PUZZLE_ACT_START_STAGED) {
           if (!game_puzzle_try_start_staged()) {
             ESP_LOGW(TAG, "PUZZLE staged start refused");
           }
-        } else if (chess_cmd.promotion_choice >= 101U &&
-                   chess_cmd.promotion_choice <= 105U) {
-          uint8_t prep_id =
-              (uint8_t)(chess_cmd.promotion_choice - 100U);
-          if (!game_puzzle_enter_setup(prep_id)) {
-            ESP_LOGW(TAG, "PUZZLE prepare failed id=%u", (unsigned)prep_id);
+        } else if (act == PUZZLE_ACT_PREPARE) {
+          if (!game_puzzle_enter_setup(id)) {
+            ESP_LOGW(TAG, "PUZZLE prepare failed id=%u", (unsigned)id);
           }
-        } else if (chess_cmd.promotion_choice >= 1U &&
-                   chess_cmd.promotion_choice <= 5U) {
-          if (!game_puzzle_start(chess_cmd.promotion_choice)) {
-            ESP_LOGW(TAG, "PUZZLE start failed for id=%u",
-                     (unsigned)chess_cmd.promotion_choice);
+        } else if (act == PUZZLE_ACT_START) {
+          if (!game_puzzle_start(id)) {
+            ESP_LOGW(TAG, "PUZZLE start failed for id=%u", (unsigned)id);
           }
         } else {
-          ESP_LOGW(TAG, "PUZZLE unknown promotion_choice=%u",
-                   (unsigned)chess_cmd.promotion_choice);
+          ESP_LOGW(TAG, "PUZZLE unknown act=%u", (unsigned)act);
         }
         break;
+      }
 
-      case GAME_CMD_OPENING_TRAINER: // 49
-        ESP_LOGI(TAG, "OPENING_TRAINER action=%u",
-                 (unsigned)chess_cmd.promotion_choice);
-        switch (chess_cmd.promotion_choice) {
-        case 0:
+      case GCMD_MODE_OPENING:
+        ESP_LOGI(TAG, "OPENING act=%u", (unsigned)cmd.u.mode.act);
+        switch (cmd.u.mode.act) {
+        case OPENING_ACT_CANCEL:
           game_opening_cancel();
           break;
-        case 1:
+        case OPENING_ACT_START:
           if (!game_opening_start()) {
             ESP_LOGW(TAG, "OPENING start failed");
           }
           break;
-        case 2:
+        case OPENING_ACT_HINT:
           game_opening_hint();
           break;
-        case 3:
+        case OPENING_ACT_CHECKPOINT:
           if (!game_opening_checkpoint_ack()) {
             ESP_LOGW(TAG, "OPENING checkpoint_ack failed");
           }
@@ -543,67 +383,61 @@ void game_process_commands(void) {
         }
         break;
 
+      case GCMD_PROMOTION_CHOICE:
+        ESP_LOGI(TAG, "Processing PROMOTION_CHOICE");
+        game_process_promotion_command(&cmd);
+        break;
+
+      case GCMD_WEB_HINT:
+        game_process_web_hint(&cmd);
+        break;
+
       default:
-        ESP_LOGW(TAG, "Unknown game command: %d", chess_cmd.type);
+        ESP_LOGW(TAG, "Unknown game command kind: %d", (int)cmd.kind);
         break;
       }
 
-      // STABILITY FIX: Check limit to prevent watchdog timeout
+      game_session_snap_refresh();
+
       if (commands_processed >= MAX_COMMANDS_PER_CYCLE) {
         ESP_LOGW(TAG,
                  "Reached max commands per cycle (%lu), processing rest in "
                  "next cycle",
                  MAX_COMMANDS_PER_CYCLE);
-        break; // Process remaining commands in next cycle
+        break;
       }
     }
 
-    // Log if we processed multiple commands
     if (commands_processed > 1) {
-      ESP_LOGI(TAG, "✅ Processed %lu commands in this cycle",
-               commands_processed);
+      ESP_LOGI(TAG, "Processed %lu commands in this cycle", commands_processed);
     }
   } else {
-    vTaskDelay(pdMS_TO_TICKS(25));
+    game_led_flush();
+    game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
   }
+  game_led_flush();
 
-  // ============================================================================
-  // BUTTON EVENT PROCESSING - Physical button support
-  // ============================================================================
-
-  // Process button events from button_task
   if (button_event_queue != NULL) {
     button_event_t button_event;
     while (xQueueReceive(button_event_queue, &button_event, 0) == pdTRUE) {
-
-      // Only process PRESS events (ignore release, long press, double press)
       if (button_event.type == BUTTON_EVENT_PRESS) {
-
-        ESP_LOGI(TAG, "🎮 Button pressed: ID=%d", button_event.button_id);
-
-        // Reset button (ID 8)
+        ESP_LOGI(TAG, "Button pressed: ID=%d", button_event.button_id);
         if (button_event.button_id == 8) {
-          ESP_LOGI(TAG, "🔄 Reset button pressed - resetting game");
+          ESP_LOGI(TAG, "Reset button pressed - resetting game");
           game_reset_game();
-          game_check_promotion_needed(); // Update LED indications
+          game_check_promotion_needed();
           continue;
         }
-
-        // Promotion buttons (ID 0-3) - physical buttons
         if (button_event.button_id <= 3) {
-          ESP_LOGI(TAG, "👑 Promotion button %d pressed",
-                   button_event.button_id);
+          ESP_LOGI(TAG, "Promotion button %d pressed", button_event.button_id);
           game_process_promotion_button(button_event.button_id);
           continue;
         }
-
-        // Unknown button
-        ESP_LOGW(TAG, "⚠️  Unknown button ID: %d", button_event.button_id);
+        ESP_LOGW(TAG, "Unknown button ID: %d", button_event.button_id);
       }
     }
   }
 
-  // Keep promo square visually anchored (does not clear board)
   game_update_promotion_anchor_led();
   game_gesture_poll();
 }

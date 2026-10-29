@@ -50,7 +50,7 @@
  * =============================================================================
  *
  * QUEUE - We send detected moves:
- * - game_command_queue -> Send a move of type GAME_CMD_MOVE_DETECTED
+ * - game_submit() -> lift, drop, and guard commands
  *
  * NO MUTEX - Task is read-only (only read GPIO)
  *
@@ -82,7 +82,7 @@
  *
  * 3. NEVER send a move directly to game_execute_move!
  * ❌ game_execute_move(&move);  // Access from another task!
- * ✅ xQueueSend(game_command_queue, &cmd, ...);  // Pass the queue
+ * Send lifts and drops through game_submit().
  *
  * 4. ALWAYS check queue overflow!
  * If game_task is busy, the queue may fill up
@@ -124,7 +124,7 @@
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_restore_guide.h"
 #endif
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "chess_types.h"
 #include "driver/gpio.h"
@@ -524,9 +524,6 @@ void squares_scan_all(void) {
  * @param square Square index (0-63)
  */
 static void squares_send_pickup_command(uint8_t square) {
-  if (ha_pattern_is_active()) {
-    return;
-  }
   extern QueueHandle_t game_command_queue;
 
   if (game_command_queue == NULL) {
@@ -538,58 +535,17 @@ static void squares_send_pickup_command(uint8_t square) {
   char notation[4];
   squares_square_to_notation(square, notation);
 
-  chess_move_command_t cmd = {
-      .type = GAME_CMD_PICKUP,
-      .player = 0,           // Will be determined by game task
-      .response_queue = NULL // Matrix events don't have response queue
-  };
-  strncpy(cmd.from_notation, notation, sizeof(cmd.from_notation) - 1);
-  cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
-  strcpy(cmd.to_notation, "");
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_BOARD_LIFT;
+  strncpy(cmd.u.lift.square, notation, sizeof(cmd.u.lift.square) - 1);
   cmd.event_ms = (uint32_t)(esp_timer_get_time() / 1000);
 
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+  if (game_submit(&cmd)) {
     ESP_LOGI(TAG, "PICKUP command sent to game_command_queue: %s", notation);
   } else {
     ESP_LOGW(TAG, "Failed to send PICKUP command to game_command_queue");
   }
 }
-
-/**
- * @brief Helper function to send DROP command to game_command_queue
- * @param square Square index (0-63)
- */
-/*
-static void squares_send_drop_command(uint8_t square) {
-  extern QueueHandle_t game_command_queue;
-
-  if (game_command_queue == NULL) {
-    ESP_LOGW(TAG,
-             "game_command_queue not available - cannot send DROP command");
-    return;
-  }
-
-  char notation[4];
-  squares_square_to_notation(square, notation);
-
-  chess_move_command_t cmd = {
-      .type = GAME_CMD_DROP,
-      .player = 0,           // Will be determined by game task
-      .response_queue = NULL // Matrix events don't have response queue
-  };
-  strncpy(cmd.to_notation, notation, sizeof(cmd.to_notation) - 1);
-  cmd.to_notation[sizeof(cmd.to_notation) - 1] = '\0';
-  strcpy(cmd.from_notation, "");
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-    ESP_LOGI(TAG, "DROP command sent to game_command_queue: %s", notation);
-    // Report activity to HA light task
-    ha_light_report_activity("drop");
-  } else {
-    ESP_LOGW(TAG, "Failed to send DROP command to game_command_queue");
-  }
-}
-*/
 
 /**
  * @brief Helper function to send DROP command with from/to notation to
@@ -599,12 +555,6 @@ static void squares_send_drop_command(uint8_t square) {
  */
 static void squares_send_drop_command_with_from(uint8_t from_square,
                                                uint8_t to_square) {
-  if (ha_pattern_is_active()) {
-    (void)from_square;
-    (void)ha_pattern_request(HA_PAT_STAMP, to_square, 0, 0, 0, 0, 0, 0, 0, 0,
-                             0);
-    return;
-  }
   extern QueueHandle_t game_command_queue;
 
   if (game_command_queue == NULL) {
@@ -617,17 +567,13 @@ static void squares_send_drop_command_with_from(uint8_t from_square,
   squares_square_to_notation(from_square, from_notation);
   squares_square_to_notation(to_square, to_notation);
 
-  chess_move_command_t cmd = {
-      .type = GAME_CMD_DROP,
-      .player = 0,           // Will be determined by game task
-      .response_queue = NULL // Matrix events don't have response queue
-  };
-  strncpy(cmd.from_notation, from_notation, sizeof(cmd.from_notation) - 1);
-  cmd.from_notation[sizeof(cmd.from_notation) - 1] = '\0';
-  strncpy(cmd.to_notation, to_notation, sizeof(cmd.to_notation) - 1);
-  cmd.to_notation[sizeof(cmd.to_notation) - 1] = '\0';
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_BOARD_DROP;
+  cmd.u.drop.has_from = 1;
+  strncpy(cmd.u.drop.from, from_notation, sizeof(cmd.u.drop.from) - 1);
+  strncpy(cmd.u.drop.to, to_notation, sizeof(cmd.u.drop.to) - 1);
 
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+  if (game_submit(&cmd)) {
     ESP_LOGI(TAG, "DROP command with from sent to game_command_queue: %s -> %s",
              from_notation, to_notation);
     if (from_square != to_square) {
@@ -646,7 +592,7 @@ static void squares_send_guard_command(uint32_t lifted_mask_low,
                                       uint8_t action) {
   extern QueueHandle_t game_command_queue;
 
-  if (action != 0 && !chess_policy_squares_guard_enabled()) {
+  if (action != 0 && !game_policy_squares_guard_enabled()) {
     ESP_LOGD(TAG, "Matrix guard detection disabled — skipping activate");
     return;
   }
@@ -656,20 +602,15 @@ static void squares_send_guard_command(uint32_t lifted_mask_low,
     return;
   }
 
-  chess_move_command_t cmd = {
-      .type = GAME_CMD_SQUARES_GUARD,
-      .player = 0,
-      .response_queue = NULL,
-  };
-  cmd.timer_data.squares_guard.lifted_mask_low = lifted_mask_low;
-  cmd.timer_data.squares_guard.lifted_mask_high = lifted_mask_high;
-  cmd.timer_data.squares_guard.dropped_mask_low = dropped_mask_low;
-  cmd.timer_data.squares_guard.dropped_mask_high = dropped_mask_high;
-  cmd.timer_data.squares_guard.action = action;
-  cmd.from_notation[0] = '\0';
-  cmd.to_notation[0] = '\0';
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_BOARD_GUARD;
+  cmd.u.guard.lifted_low = lifted_mask_low;
+  cmd.u.guard.lifted_high = lifted_mask_high;
+  cmd.u.guard.dropped_low = dropped_mask_low;
+  cmd.u.guard.dropped_high = dropped_mask_high;
+  cmd.u.guard.action = action;
 
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
+  if (game_submit(&cmd)) {
     ESP_LOGW(TAG,
              "MATRIX GUARD command sent: action=%u lifted=%08" PRIx32
              ":%08" PRIx32 " dropped=%08" PRIx32 ":%08" PRIx32,
@@ -682,25 +623,18 @@ static void squares_send_guard_command(uint32_t lifted_mask_low,
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 static void squares_send_hall_place(uint8_t square) {
-  if (ha_pattern_is_active()) {
-    return;
-  }
   extern QueueHandle_t game_command_queue;
   if (game_command_queue == NULL) {
     return;
   }
   char notation[4];
   squares_square_to_notation(square, notation);
-  chess_move_command_t cmd = {
-      .type = GAME_CMD_DROP,
-      .player = 0,
-      .response_queue = NULL,
-  };
-  strncpy(cmd.to_notation, notation, sizeof(cmd.to_notation) - 1);
-  cmd.to_notation[sizeof(cmd.to_notation) - 1] = '\0';
-  cmd.from_notation[0] = '\0';
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_BOARD_DROP;
+  cmd.u.drop.has_from = 0;
+  strncpy(cmd.u.drop.to, notation, sizeof(cmd.u.drop.to) - 1);
   cmd.event_ms = (uint32_t)(esp_timer_get_time() / 1000);
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+  if (!game_submit(&cmd)) {
     ESP_LOGW(TAG, "Failed to send Hall place command");
   }
 }
@@ -805,13 +739,13 @@ void squares_detect_moves(void) {
 
   if (ambiguous_state) {
     if (!squares_guard_mode_active) {
-      if (!chess_policy_squares_guard_enabled()) {
+      if (!game_policy_squares_guard_enabled()) {
         ESP_LOGW(TAG,
                  "Ambiguous matrix state ignored (matrix guard disabled)");
         return;
       }
       // Snapshot expected board occupancy before anomaly; game_task realigns to
-      // board[] when handling GAME_CMD_SQUARES_GUARD.
+      // board[] when handling a board-guard command.
       memcpy(squares_guard_expected_state, squares_previous,
              sizeof(squares_guard_expected_state));
       squares_guard_mode_active = true;
@@ -860,7 +794,7 @@ void squares_detect_moves(void) {
     ESP_LOGI(TAG, "Piece lifted from square %d (%c%d)", piece_lifted,
              'a' + from_col, from_row + 1);
 
-    // UNIFIED FLOW: Send PICKUP command to game_command_queue (same as UART)
+    // Send PICKUP through game_submit (same path as web, BLE, and main)
     squares_send_pickup_command(piece_lifted);
   }
 
@@ -903,8 +837,8 @@ void squares_detect_complete_move(uint8_t from_square, uint8_t to_square) {
   ESP_LOGI(TAG, "Complete move detected: %d -> %d (%s -> %s)", from_square,
            to_square, from_notation, to_notation);
 
-  // UNIFIED FLOW: Send complete move as DROP with from/to to
-  // game_command_queue (same as UART)
+  // Send complete move as DROP with from/to through game_submit
+  // (same path as web, BLE, and main)
   squares_send_drop_command_with_from(from_square, to_square);
 }
 

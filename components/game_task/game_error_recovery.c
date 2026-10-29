@@ -3,10 +3,15 @@
  * @brief Invalid move recovery, move command processing, and LED animations.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "game_move_validate.h"
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
 
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -23,6 +28,12 @@
 #include <string.h>
 
 static const char *TAG = "GAME_ERROR";
+/* Invalid-move recovery shared with pickup and drop. */
+static game_task_error_recovery_t s_error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0};
+
+game_task_error_recovery_t *game_state_error_recovery_state(void) { return &s_error_recovery_state; }
+#define error_recovery_state (*game_state_error_recovery_state())
+
 
 // ============================================================================
 // ENHANCED SMART ERROR HANDLING SYSTEM
@@ -42,7 +53,7 @@ void game_highlight_invalid_target_area(uint8_t row, uint8_t col) {
 
       if (new_row >= 0 && new_row < 8 && new_col >= 0 && new_col < 8) {
         uint8_t led_index = chess_pos_to_led_index(new_row, new_col);
-        led_set_pixel_safe(led_index, 255, 50, 50); // Light red
+        game_led_paint_led(led_index, 255, 50, 50); // Light red
       }
     }
   }
@@ -54,7 +65,7 @@ void game_highlight_invalid_target_area(uint8_t row, uint8_t col) {
  * @param col Column of the piece
  */
 void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col) {
-  piece_t piece = board[row][col];
+  piece_t piece = game_get_piece(row, col);
   if (piece == PIECE_EMPTY)
     return;
 
@@ -66,11 +77,11 @@ void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col) {
                                 .to_row = to_row,
                                 .to_col = to_col,
                                 .piece = piece,
-                                .captured_piece = board[to_row][to_col]};
+                                .captured_piece = game_get_piece(to_row, to_col)};
 
       if (game_is_valid_move(&test_move) == MOVE_ERROR_NONE) {
         uint8_t led_index = chess_pos_to_led_index(to_row, to_col);
-        led_set_pixel_safe(led_index, 0, 0, 255); // Blue - valid moves
+        game_led_paint_led(led_index, 0, 0, 255); // Blue - valid moves
       }
     }
   }
@@ -82,7 +93,7 @@ void game_highlight_valid_moves_for_piece(uint8_t row, uint8_t col) {
 void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   ESP_LOGI(TAG, "🚨 ENTERING game_handle_invalid_move - error: %d", error);
 
-  if (!chess_policy_error_recovery_enabled()) {
+  if (!game_policy_error_recovery_enabled()) {
     ESP_LOGW(TAG, "Invalid move ignored (error recovery disabled)");
     return;
   }
@@ -108,7 +119,7 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   // physically to it" copies board[from] to board[to]; when from is empty,
   // the figure on the target is deleted (logically it "disappears"). HW recovery in this case
   // it doesn't make sense — don't change the board.
-  piece_t src_piece = board[move->from_row][move->from_col];
+  piece_t src_piece = game_get_piece(move->from_row, move->from_col);
   if (src_piece == PIECE_EMPTY) {
     ESP_LOGW(TAG,
              "[STAGING] game_handle_invalid_move: empty source square — "
@@ -123,38 +134,34 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   error_recovery_state.has_invalid_piece = true;
   error_recovery_state.invalid_row = move->to_row;
   error_recovery_state.invalid_col = move->to_col;
-  error_recovery_state.piece_type = board[move->from_row][move->from_col];
+  error_recovery_state.piece_type = game_get_piece(move->from_row, move->from_col);
 
   // 2. Remember the original valid position (from where the move came from)
   error_recovery_state.original_valid_row = move->from_row;
   error_recovery_state.original_valid_col = move->from_col;
 
-  // 3. Move figure to invalid position (HW reality simulation)
-  if (chess_policy_error_recovery_should_mutate_board()) {
-    board[move->to_row][move->to_col] = board[move->from_row][move->from_col];
-    board[move->from_row][move->from_col] = PIECE_EMPTY;
-  }
+  // 3. Legal board[] unchanged; recovery tracks invalid square in state.
 
   // 4. CLEAR VISUAL ALERT - red field + flashing for attention
   // pozornosti
-  if (chess_policy_error_recovery_led_red_blink() ||
-      chess_policy_error_recovery_led_red_persist()) {
-    led_clear_all_safe();
+  if (game_policy_error_recovery_led_red_blink() ||
+      game_policy_error_recovery_led_red_persist()) {
+    game_event_post_led_ctrl(GAME_EVT_CTRL_CLEAR_ALL, 0, 0, 0, 0);
     uint8_t invalid_led = chess_pos_to_led_index(move->to_row, move->to_col);
 
     ESP_LOGI(TAG, "🚨 STARTING ERROR ANIMATION - RED BLINKING");
 
-    if (chess_policy_error_recovery_led_red_blink()) {
+    if (game_policy_error_recovery_led_red_blink()) {
       for (int blink = 0; blink < 4; blink++) {
-        led_set_pixel_safe(invalid_led, 255, 0, 0);
-        vTaskDelay(pdMS_TO_TICKS(150));
-        led_set_pixel_safe(invalid_led, 0, 0, 0);
-        vTaskDelay(pdMS_TO_TICKS(150));
+        game_led_paint_led(invalid_led, 255, 0, 0);
+        game_led_flush(); vTaskDelay(pdMS_TO_TICKS(150));
+        game_led_paint_led(invalid_led, 0, 0, 0);
+        game_led_flush(); vTaskDelay(pdMS_TO_TICKS(150));
       }
     }
 
-    if (chess_policy_error_recovery_led_red_persist()) {
-      led_set_pixel_safe(invalid_led, 255, 0, 0);
+    if (game_policy_error_recovery_led_red_persist()) {
+      game_led_paint_led(invalid_led, 255, 0, 0);
     }
   }
 
@@ -174,11 +181,12 @@ void game_handle_invalid_move(move_error_t error, const chess_move_t *move) {
   ESP_LOGI(TAG, "💡 Error recovery active - red square will stay lit until "
                 "piece is lifted");
 
-  chess_policy_error_recovery_enter_lock();
+  game_policy_error_recovery_enter_lock();
+  game_show_invalid_move_error_with_blink(move->to_row, move->to_col);
 }
 
 /**
- * @brief Process move command from UART
+ * @brief Process move command from game_submit
  * @param move_cmd Move command structure with coordinates
  */
 void game_process_move_command(const void *move_cmd_ptr) {
@@ -203,8 +211,8 @@ void game_process_move_command(const void *move_cmd_ptr) {
   }
 
   // Get pieces at source and destination
-  piece_t from_piece = board[move_cmd->from_row][move_cmd->from_col];
-  piece_t to_piece = board[move_cmd->to_row][move_cmd->to_col];
+  piece_t from_piece = game_get_piece(move_cmd->from_row, move_cmd->from_col);
+  piece_t to_piece = game_get_piece(move_cmd->to_row, move_cmd->to_col);
 
   // Check if source square has a piece
   if (from_piece == PIECE_EMPTY) {
@@ -283,16 +291,8 @@ void game_process_move_command(const void *move_cmd_ptr) {
   uint8_t from_led =
       chess_pos_to_led_index(move_cmd->from_row, move_cmd->from_col);
   uint8_t to_led = chess_pos_to_led_index(move_cmd->to_row, move_cmd->to_col);
-  led_command_t move_path_cmd = {
-      .type = LED_CMD_ANIM_MOVE_PATH,
-      .led_index = from_led,
-      .red = 255,
-      .green = 255,
-      .blue = 0, // Yellow
-      .duration_ms = 1000,
-      .data = &to_led // Target position in data
-  };
-  led_execute_command_new(&move_path_cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_MOVE_PATH, from_led, to_led);
 
   // STABILITY FIX: Animation runs asynchronously, we don't block processing
   // Animations are started in led_task and run independently
@@ -310,7 +310,7 @@ void game_process_move_command(const void *move_cmd_ptr) {
         previous_player;   // The winner is the previous player (the one who made the move)
     uint8_t king_pos = 28; // default e4
     for (int i = 0; i < 64; i++) {
-      piece_t piece = board[i / 8][i % 8];
+      piece_t piece = game_get_piece(i / 8, i % 8);
       if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
           (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
         king_pos = i;
@@ -324,14 +324,8 @@ void game_process_move_command(const void *move_cmd_ptr) {
              king_pos);
 
     // Start the endgame animation (wave from king winner)
-    led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
-                                 .led_index = king_pos,
-                                 .red = 255,
-                                 .green = 255,
-                                 .blue = 0,        // Yellow
-                                 .duration_ms = 0, // Endless
-                                 .data = NULL};
-    led_execute_command_new(&endgame_cmd);
+    game_led_flush();
+  game_event_post_game_end(king_pos, 0);
 
     ESP_LOGI(TAG,
              "✅ Endgame animation started - player change animation SKIPPED");
@@ -344,7 +338,7 @@ void game_process_move_command(const void *move_cmd_ptr) {
                                                             : PIECE_BLACK_KING;
       for (int row = 0; row < 8; row++) {
         for (int col = 0; col < 8; col++) {
-          if (board[row][col] == king_piece) {
+          if (game_get_piece(row, col) == king_piece) {
             king_row = row;
             king_col = col;
             break;
@@ -358,15 +352,8 @@ void game_process_move_command(const void *move_cmd_ptr) {
         if (game_led_guidance_show_check_anim()) {
           uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
           // Start the check animation - pink lighting on the king
-          led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                     .led_index = king_led_index,
-                                     .red = 0,
-                                     .green = 0,
-                                     .blue = 0,
-                                     .duration_ms =
-                                         0, // Permanent until next turn
-                                     .data = NULL};
-          led_execute_command_new(&check_cmd);
+          game_led_flush();
+  game_event_post_check(king_led_index);
           ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                    current_player == PLAYER_WHITE ? "White" : "Black");
         }
@@ -381,15 +368,15 @@ void game_process_move_command(const void *move_cmd_ptr) {
   if (to_piece != PIECE_EMPTY) {
     if (current_player == PLAYER_WHITE) {
       // Black piece was captured by white
-      if (black_captured_index < 16) {
-        black_captured_pieces[black_captured_index++] = to_piece;
-        black_captured_count++;
+      if ((*game_state_black_captured_index()) < 16) {
+        (game_state_black_captured_pieces())[(*game_state_black_captured_index())++] = to_piece;
+        (*game_state_black_captured_count())++;
       }
     } else {
       // White piece was captured by black
-      if (white_captured_index < 16) {
-        white_captured_pieces[white_captured_index++] = to_piece;
-        white_captured_count++;
+      if ((*game_state_white_captured_index()) < 16) {
+        (game_state_white_captured_pieces())[(*game_state_white_captured_index())++] = to_piece;
+        (*game_state_white_captured_count())++;
       }
     }
     moves_without_capture = 0; // Reset counter on capture
@@ -402,16 +389,16 @@ void game_process_move_command(const void *move_cmd_ptr) {
 
   // Update time statistics
   uint32_t current_time = esp_timer_get_time() / 1000;
-  uint32_t move_time = current_time - last_move_time;
+  uint32_t move_time = current_time - (*game_state_last_move_time());
 
   if (current_player == PLAYER_WHITE) {
     // Black just moved
-    black_time_total += move_time;
-    black_moves_count++;
+    (*game_state_black_time_total()) += move_time;
+    (*game_state_black_moves_count())++;
   } else {
     // White just moved
-    white_time_total += move_time;
-    white_moves_count++;
+    (*game_state_white_time_total()) += move_time;
+    (*game_state_white_moves_count())++;
   }
 
   // Update position history for draw detection
@@ -423,16 +410,16 @@ void game_process_move_command(const void *move_cmd_ptr) {
   // Check if king is in check
   if (game_is_king_in_check(current_player)) {
     if (current_player == PLAYER_WHITE) {
-      white_checks++;
+      (*game_state_white_checks())++;
     } else {
-      black_checks++;
+      (*game_state_black_checks())++;
     }
     ESP_LOGI(TAG, "⚠️  CHECK! %s king is under attack!",
              (current_player == PLAYER_WHITE) ? "White" : "Black");
   }
 
   // Update last move time for next move
-  last_move_time = current_time;
+  (*game_state_last_move_time()) = current_time;
 
   // Display updated board (check auto-display setting)
   // Note: Auto-display control is in UART task, board is always shown for now
@@ -460,7 +447,7 @@ void game_show_move_animation(uint8_t from_row, uint8_t from_col,
   game_coords_to_square(to_row, to_col, to_square);
 
   // Get piece symbol and name
-  const char *piece_symbol = piece_symbols[piece];
+  const char *piece_symbol = (game_state_piece_symbols())[piece];
   const char *piece_name = game_get_piece_name(piece);
 
   ESP_LOGI(TAG, "╭─────────────────────────────────╮");
@@ -470,7 +457,7 @@ void game_show_move_animation(uint8_t from_row, uint8_t from_col,
            from_square, to_square);
 
   if (captured != PIECE_EMPTY) {
-    const char *captured_symbol = piece_symbols[captured];
+    const char *captured_symbol = (game_state_piece_symbols())[captured];
     const char *captured_name = game_get_piece_name(captured);
     ESP_LOGI(TAG, "│  Captures: %s %s                │", captured_symbol,
              captured_name);
@@ -494,156 +481,3 @@ void game_show_move_animation(uint8_t from_row, uint8_t from_col,
   ESP_LOGI(TAG, "✅ Move completed!");
 }
 
-/**
- * @brief Test move animation
- */
-void game_test_move_animation(void) {
-  ESP_LOGI(TAG, "🎬 Testing move animation...");
-
-  // Test move from e2 to e4
-  // uint8_t to_led = chess_pos_to_led_index(3, 4);   // e4 - removed unused
-  // variable
-
-  // Progressive color animation from green to blue - ZRYCHLENO
-  for (int step = 0; step < 6; step++) { // SPEED UP: from 10 to 6 steps
-    float progress = (float)step / 5.0f;
-
-    // Calculate intermediate position
-    int inter_row = 1 + (3 - 1) * progress;
-    int inter_col = 4;
-    uint8_t inter_led = chess_pos_to_led_index(inter_row, inter_col);
-
-    // Calculate color transition (green -> blue)
-    uint8_t red = 0;
-    uint8_t green = 255 - (255 * progress); // 255 -> 0
-    uint8_t blue = 0 + (255 * progress);    // 0 -> 255
-
-    led_clear_board_only();
-    led_set_pixel_safe(inter_led, red, green, blue);
-    vTaskDelay(pdMS_TO_TICKS(50)); // ZRYCHLENO: z 100ms na 50ms
-  }
-
-  // Removed blue flashing at the end - animation ends smoothly
-}
-
-/**
- * @brief Test castling animation
- */
-void game_test_castle_animation(void) {
-  ESP_LOGI(TAG, "🎬 Testing castling animation...");
-
-  // Test white kingside castling
-  uint8_t king_from_led = chess_pos_to_led_index(0, 4); // e1
-  uint8_t king_to_led = chess_pos_to_led_index(0, 6);   // g1
-  uint8_t rook_from_led = chess_pos_to_led_index(0, 7); // h1
-  uint8_t rook_to_led = chess_pos_to_led_index(0, 5);   // f1
-
-  // 1. Highlight king and rook positions (gold)
-  led_set_pixel_safe(king_from_led, 255, 215, 0); // Gold
-  led_set_pixel_safe(rook_from_led, 255, 215, 0); // Gold
-  vTaskDelay(pdMS_TO_TICKS(500));
-
-  // 2. Show castling animation
-  led_command_t castle_cmd = {.type = LED_CMD_ANIM_CASTLE,
-                              .led_index = king_from_led,
-                              .red = 255,
-                              .green = 215,
-                              .blue = 0, // Gold
-                              .duration_ms = 1500,
-                              .data = &king_to_led};
-  led_execute_command_new(&castle_cmd);
-  vTaskDelay(pdMS_TO_TICKS(1000));
-
-  // 3. Highlight final positions (green)
-  led_set_pixel_safe(king_to_led, 0, 255, 0); // Green
-  led_set_pixel_safe(rook_to_led, 0, 255, 0); // Green
-  vTaskDelay(pdMS_TO_TICKS(500));
-
-  // 4. Clear highlights
-  led_clear_board_only();
-}
-
-/**
- * @brief Test promotion animation
- */
-void game_test_promote_animation(void) {
-  ESP_LOGI(TAG, "🎬 Testing promotion animation...");
-
-  // Test promotion on a8
-  uint8_t promotion_led = chess_pos_to_led_index(7, 0); // a8
-
-  // Show enhanced promotion animation
-  led_command_t promote_cmd = {.type = LED_CMD_ANIM_PROMOTE,
-                               .led_index = promotion_led,
-                               .red = 255,
-                               .green = 215,
-                               .blue = 0, // Gold
-                               .duration_ms = 2000,
-                               .data = NULL};
-  led_execute_command_new(&promote_cmd);
-  vTaskDelay(pdMS_TO_TICKS(1000)); // Faster animation
-
-  // Clear highlights
-  led_clear_board_only();
-}
-
-/**
- * @brief Test endgame animation
- */
-void game_test_endgame_animation(void) {
-  ESP_LOGI(TAG, "🎬 Testing endgame animation...");
-
-  // Test endgame animation using direct LED command
-  uint8_t king_pos = 27; // d4 square
-
-  led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
-                               .led_index = king_pos,
-                               .red = 255,
-                               .green = 215,
-                               .blue = 0, // Gold
-                               .duration_ms = 3000,
-                               .data = NULL};
-  led_execute_command_new(&endgame_cmd);
-  vTaskDelay(pdMS_TO_TICKS(1500)); // Faster animation
-
-  // Clear board
-  led_clear_board_only();
-}
-
-/**
- * @brief Check for check/checkmate conditions
- */
-void game_check_game_conditions(void) {
-  // TODO: Implement check detection
-  // For now, just log the current state
-
-  ESP_LOGI(TAG, "🔍 Checking game conditions...");
-
-  // Check if king is in check (simplified)
-  bool white_king_found = false;
-  bool black_king_found = false;
-
-  for (int row = 0; row < 8; row++) {
-    for (int col = 0; col < 8; col++) {
-      if (board[row][col] == PIECE_WHITE_KING) {
-        white_king_found = true;
-      } else if (board[row][col] == PIECE_BLACK_KING) {
-        black_king_found = true;
-      }
-    }
-  }
-
-  if (!white_king_found) {
-    ESP_LOGW(TAG, "⚠️  WHITE KING MISSING - Black wins!");
-    current_game_state = GAME_STATE_FINISHED;
-  } else if (!black_king_found) {
-    ESP_LOGW(TAG, "⚠️  BLACK KING MISSING - White wins!");
-    current_game_state = GAME_STATE_FINISHED;
-  }
-
-  ESP_LOGI(TAG, "Game state: %s",
-           (current_game_state == GAME_STATE_ACTIVE)   ? "Active"
-           : (current_game_state == GAME_STATE_IDLE)   ? "Idle"
-           : (current_game_state == GAME_STATE_PAUSED) ? "Paused"
-                                                       : "Finished");
-}

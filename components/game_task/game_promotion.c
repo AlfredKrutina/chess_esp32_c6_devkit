@@ -4,11 +4,18 @@
  */
 
 #include "sdkconfig.h"
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_board_transition.h"
 #include "game_snapshot.h"
 #include "game_physical_undo.h"
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
+#include "game_required_step.h"
 #include "game_hall_match.h"
 #include "game_squares_guard.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
@@ -29,13 +36,48 @@
 #include <stdio.h>
 
 static const char *TAG = "GAME_PROMOTION";
+/* Promotion pending state shared with the physical flow. */
+static game_task_promotion_state_t s_promotion_state = {false, 0, 0, PLAYER_WHITE};
+
+game_task_promotion_state_t *game_state_promotion_state(void) { return &s_promotion_state; }
+#define promotion_state (*game_state_promotion_state())
+static SemaphoreHandle_t s_promotion_mutex = NULL;
+
+SemaphoreHandle_t *game_state_promotion_mutex(void) { return &s_promotion_mutex; }
+#define promotion_mutex (*game_state_promotion_mutex())
+static bool s_uart_move_immediate_promotion;
+
+bool *game_state_s_uart_move_immediate_promotion(void) { return &s_uart_move_immediate_promotion; }
+#define s_uart_move_immediate_promotion (*game_state_s_uart_move_immediate_promotion())
+static promotion_choice_t s_uart_move_immediate_promotion_piece;
+
+promotion_choice_t *game_state_s_uart_move_immediate_promotion_piece(void) { return &s_uart_move_immediate_promotion_piece; }
+#define s_uart_move_immediate_promotion_piece (*game_state_s_uart_move_immediate_promotion_piece())
+
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-static bool s_promo_hall_swap_blink;
 static piece_t s_promo_hall_seen = PIECE_EMPTY;
 static int64_t s_promo_hall_since_us;
 
 #define PROMO_HALL_STABLE_US (2000000LL)
+
+static char game_promotion_piece_char(piece_t piece) {
+  switch (piece) {
+  case PIECE_WHITE_ROOK:
+  case PIECE_BLACK_ROOK:
+    return 'r';
+  case PIECE_WHITE_BISHOP:
+  case PIECE_BLACK_BISHOP:
+    return 'b';
+  case PIECE_WHITE_KNIGHT:
+  case PIECE_BLACK_KNIGHT:
+    return 'n';
+  case PIECE_WHITE_QUEEN:
+  case PIECE_BLACK_QUEEN:
+  default:
+    return 'q';
+  }
+}
 
 static bool game_promotion_is_final_piece(piece_t piece) {
   return piece == PIECE_WHITE_QUEEN || piece == PIECE_WHITE_ROOK ||
@@ -48,9 +90,11 @@ static bool game_promotion_is_final_piece(piece_t piece) {
 void game_promotion_finish_turn(void) {
   current_game_state = GAME_STATE_ACTIVE;
 
-  player_t previous_player = current_player;
+  player_t previous_player = (*game_state_promotion_state()).player;
   current_player =
-      (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+      (previous_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+  game_logic_position()->side = (uint8_t)current_player;
+  game_session_snap_refresh();
 
   piece_lifted = false;
   lifted_piece_row = 0;
@@ -72,7 +116,7 @@ void game_promotion_finish_turn(void) {
         (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
     uint8_t king_pos = 28;
     for (int i = 0; i < 64; i++) {
-      piece_t piece = board[i / 8][i % 8];
+      piece_t piece = game_get_piece(i / 8, i % 8);
       if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
           (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
         king_pos = (uint8_t)i;
@@ -80,18 +124,12 @@ void game_promotion_finish_turn(void) {
       }
     }
 
-    led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
-                                 .led_index = king_pos,
-                                 .red = 255,
-                                 .green = 255,
-                                 .blue = 0,
-                                 .duration_ms = 0,
-                                 .data = NULL};
-    led_execute_command_new(&endgame_cmd);
+    game_led_flush();
+  game_event_post_game_end(king_pos, 0);
   } else {
     game_check_promotion_needed();
-    chess_policy_highlight_movable_if_enabled();
-    led_force_immediate_update();
+    game_policy_refresh_idle_board_leds();
+    game_event_post_led_ctrl(GAME_EVT_CTRL_FORCE_UPDATE, 0, 0, 0, 0);
   }
 
   bool in_check = game_is_king_in_check(current_player);
@@ -101,7 +139,7 @@ void game_promotion_finish_turn(void) {
                                                           : PIECE_BLACK_KING;
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
-        if (board[row][col] == king_piece) {
+        if (game_get_piece(row, col) == king_piece) {
           king_row = row;
           king_col = col;
           break;
@@ -116,14 +154,8 @@ void game_promotion_finish_turn(void) {
         game_led_guidance_show_check_anim()) {
       uint8_t king_led_index = chess_pos_to_led_index((uint8_t)king_row,
                                                       (uint8_t)king_col);
-      led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                 .led_index = king_led_index,
-                                 .red = 0,
-                                 .green = 0,
-                                 .blue = 0,
-                                 .duration_ms = 0,
-                                 .data = NULL};
-      led_execute_command_new(&check_cmd);
+      game_led_flush();
+  game_event_post_check(king_led_index);
     }
   }
   game_snapshot_persist_after_valid_move();
@@ -132,7 +164,6 @@ void game_promotion_finish_turn(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 void game_promotion_sync_hall_if_pending(void) {
   if (!promotion_state.pending) {
-    s_promo_hall_swap_blink = false;
     s_promo_hall_seen = PIECE_EMPTY;
     s_promo_hall_since_us = 0;
     return;
@@ -154,10 +185,7 @@ void game_promotion_sync_hall_if_pending(void) {
   if (phys[sq] == 0 || ht == HALL_PIECE_TYPE_NONE) {
     s_promo_hall_seen = PIECE_EMPTY;
     s_promo_hall_since_us = 0;
-    if (s_promo_hall_swap_blink) {
-      game_stop_error_blink();
-      s_promo_hall_swap_blink = false;
-    }
+    game_update_promotion_anchor_led();
     xSemaphoreGiveRecursive(promotion_mutex);
     return;
   }
@@ -167,10 +195,7 @@ void game_promotion_sync_hall_if_pending(void) {
                                             &mapped)) {
     s_promo_hall_seen = PIECE_EMPTY;
     s_promo_hall_since_us = 0;
-    if (!s_promo_hall_swap_blink) {
-      game_show_invalid_move_error_with_blink(row, col);
-      s_promo_hall_swap_blink = true;
-    }
+    game_update_promotion_anchor_led();
     xSemaphoreGiveRecursive(promotion_mutex);
     return;
   }
@@ -178,10 +203,6 @@ void game_promotion_sync_hall_if_pending(void) {
   if (!game_promotion_is_final_piece(mapped)) {
     s_promo_hall_seen = PIECE_EMPTY;
     s_promo_hall_since_us = 0;
-    if (s_promo_hall_swap_blink) {
-      game_stop_error_blink();
-      s_promo_hall_swap_blink = false;
-    }
     game_update_promotion_anchor_led();
     xSemaphoreGiveRecursive(promotion_mutex);
     return;
@@ -203,25 +224,24 @@ void game_promotion_sync_hall_if_pending(void) {
     return;
   }
 
-  if (s_promo_hall_swap_blink) {
-    game_stop_error_blink();
-    s_promo_hall_swap_blink = false;
+  if (!game_board_apply_promotion_piece(game_promotion_piece_char(mapped))) {
+    xSemaphoreGiveRecursive(promotion_mutex);
+    return;
   }
-
-  board[row][col] = mapped;
   game_update_promotion_anchor_led();
   game_squares_guard_try_clear_from_matrix();
 
-  if (game_promotion_is_final_piece(mapped)) {
-    ESP_LOGI(TAG,
-             "👑 Hall-stable promotion piece on %c%d — completing without extra "
-             "button press",
-             'a' + col, row + 1);
-    promotion_state.pending = false;
-    game_move_undo_meta_on_promotion_completed(mapped);
-    game_promotion_finish_turn();
-    game_hall_snapshot_last_valid();
-  }
+  ESP_LOGI(TAG,
+           "👑 Hall-stable promotion piece on %c%d — completing without extra "
+           "button press",
+           'a' + col, row + 1);
+  promotion_state.pending = false;
+  game_move_undo_meta_on_promotion_completed(mapped);
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_snapshot_last_valid();
+  game_hall_position_arm_idle_handover();
+#endif
+  game_promotion_finish_turn();
 
   xSemaphoreGiveRecursive(promotion_mutex);
 }
@@ -263,7 +283,9 @@ void game_update_promotion_anchor_led(void) {
   uint8_t g = (uint8_t)(pg * (1.0f - mix) + gg * mix);
   uint8_t b = (uint8_t)(pb * (1.0f - mix) + gb * mix);
 
-  led_set_pixel_safe(led_index, r, g, b);
+  game_led_paint_led(led_index, r, g, b);
+  game_led_flush();
+  game_required_step_refresh();
 }
 
 /**
@@ -294,7 +316,7 @@ void game_check_promotion_needed(void) {
   // Check for pawns on promotion squares
   for (int col = 0; col < 8; col++) {
     // White pawn on rank 8 (row 7)
-    if (board[7][col] == PIECE_WHITE_PAWN) {
+    if (game_get_piece(7, col) == PIECE_WHITE_PAWN) {
       promotion_state.pending = true;
       promotion_state.square_row = 7;
       promotion_state.square_col = col;
@@ -349,7 +371,7 @@ void game_check_promotion_needed(void) {
     }
 
     // Black pawn on rank 1 (row 0)
-    if (board[0][col] == PIECE_BLACK_PAWN) {
+    if (game_get_piece(0, col) == PIECE_BLACK_PAWN) {
       promotion_state.pending = true;
       promotion_state.square_row = 0;
       promotion_state.square_col = col;
@@ -412,35 +434,35 @@ void game_check_promotion_needed(void) {
     if (promotion_state.player == PLAYER_WHITE) {
       // White promotion buttons (64-67): GREEN
       for (int i = 64; i <= 67; i++) {
-        led_set_pixel_safe(i, 0, 255, 0); // Green
+        game_led_paint_led(i, 0, 255, 0); // Green
       }
       // Black promotion buttons (68-71): BLUE
-      if (chess_policy_move_hints_promotion_blue()) {
+      if (game_policy_move_hints_promotion_blue()) {
         for (int i = 68; i <= 71; i++) {
-          led_set_pixel_safe(i, 0, 0, 255);
+          game_led_paint_led(i, 0, 0, 255);
         }
       }
     } else {
       // White promotion buttons (64-67): BLUE
-      if (chess_policy_move_hints_promotion_blue()) {
+      if (game_policy_move_hints_promotion_blue()) {
         for (int i = 64; i <= 67; i++) {
-          led_set_pixel_safe(i, 0, 0, 255);
+          game_led_paint_led(i, 0, 0, 255);
         }
       }
       // Black promotion buttons (68-71): GREEN
       for (int i = 68; i <= 71; i++) {
-        led_set_pixel_safe(i, 0, 255, 0); // Green
+        game_led_paint_led(i, 0, 255, 0); // Green
       }
     }
-  } else if (chess_policy_move_hints_promotion_blue()) {
+  } else if (game_policy_move_hints_promotion_blue()) {
     // No promotion pending - all promotion buttons BLUE
     for (int i = 64; i <= 71; i++) {
-      led_set_pixel_safe(i, 0, 0, 255);
+      game_led_paint_led(i, 0, 0, 255);
     }
   }
 
   // Reset button (LED 72): Always GREEN (always active)
-  led_set_pixel_safe(72, 0, 255, 0); // Green
+  game_led_paint_led(72, 0, 255, 0); // Green
 }
 
 /**
@@ -532,6 +554,12 @@ void game_process_promotion_button(uint8_t button_id) {
            "\n");
     printf("\r\n");
 
+    game_move_undo_meta_on_promotion_completed(
+        game_get_piece(promotion_state.square_row, promotion_state.square_col));
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    game_hall_snapshot_last_valid();
+    game_hall_position_arm_idle_handover();
+#endif
     game_promotion_finish_turn();
     ESP_LOGI(TAG, "✅ Promotion completed successfully");
   } else {

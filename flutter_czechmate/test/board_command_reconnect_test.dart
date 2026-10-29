@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:czechmate/core/protocol/board_command_ack.dart';
 import 'package:czechmate/core/protocol/board_command_payload.dart';
 import 'package:czechmate/core/protocol/saved_board_reconnect.dart';
 import 'package:czechmate/core/services/board_api_client.dart';
@@ -76,7 +77,7 @@ void main() {
       BoardCommandPayload.bleTimerConfig(type: 6)['cmd'],
       'timer_config',
     );
-    expect(BoardCommandPayload.httpBrightness(40)['brightness'], 40);
+    expect(BoardCommandPayload.httpBrightness(40)['percent'], 40);
     expect(BoardCommandPayload.bleBrightness(40)['percent'], 40);
     expect(BoardCommandPayload.autoLampTimeout(3)['seconds'], 5);
     expect(
@@ -164,6 +165,47 @@ void main() {
       urlLooksLikePrivateLan: (_) => false,
     );
     expect(plan.isEmpty, isTrue);
+  });
+
+  test('HTTP and BLE share one command id and brightness key', () {
+    final http = BoardCommandPayload.stamp(
+      BoardCommandPayload.httpMove(from: 'e2', to: 'e4'),
+      id: 7,
+      epoch: 2,
+    );
+    final ble = BoardCommandPayload.stamp(
+      BoardCommandPayload.bleMove(from: 'e2', to: 'e4'),
+      id: 7,
+      epoch: 2,
+    );
+    expect(http['id'], 7);
+    expect(http['req'], ble['req']);
+    expect(ble['id'], 7);
+    expect(http['epoch'], ble['epoch']);
+    expect(BoardCommandPayload.httpBrightness(40)['percent'], 40);
+    expect(BoardCommandPayload.bleBrightness(40)['percent'], 40);
+    final puzzle = BoardCommandPayload.stamp(
+      BoardCommandPayload.puzzle(action: 'start', id: 3),
+      id: 9,
+    );
+    expect(puzzle['id'], 3);
+    expect(puzzle['req'], 9);
+  });
+
+  test('ack matcher drops a foreign id', () {
+    expect(
+      BoardCommandAck.matches(<String, dynamic>{'id': 4, 'ok': true}, 4),
+      isTrue,
+    );
+    expect(
+      BoardCommandAck.matches(<String, dynamic>{'id': 9, 'ok': true}, 4),
+      isFalse,
+    );
+    expect(BoardCommandAck.matches(<String, dynamic>{'ok': true}, 4), isFalse);
+    expect(
+      BoardCommandAck.matches(<String, dynamic>{'id': 0, 'ok': true}, 4),
+      isFalse,
+    );
   });
 
   test('mdns host is only the firmware form', () {

@@ -6,44 +6,23 @@
 #ifndef LED_BOARD_RESTORE_GUIDE_H
 #define LED_BOARD_RESTORE_GUIDE_H
 
+#include "game_events.h"
 #include <stdbool.h>
 #include <stdint.h>
 
-#define LED_RESTORE_GUIDE_MAX_PATHS 3
-#define LED_RESTORE_GUIDE_MAX_PATH_LEN 16
-#define LED_RESTORE_GUIDE_MAX_MISSING 32
-#define LED_RESTORE_GUIDE_MAX_EXTRA 16
-#define LED_RESTORE_GUIDE_MAX_MARKS 80
+#define LED_RESTORE_GUIDE_MAX_PATHS GAME_EVT_RESTORE_MAX_PATHS
+#define LED_RESTORE_GUIDE_MAX_PATH_LEN GAME_EVT_RESTORE_MAX_PATH_LEN
+#define LED_RESTORE_GUIDE_MAX_MISSING GAME_EVT_RESTORE_MAX_MISSING
+#define LED_RESTORE_GUIDE_MAX_EXTRA GAME_EVT_RESTORE_MAX_EXTRA
+#define LED_RESTORE_GUIDE_MAX_MARKS GAME_EVT_RESTORE_MAX_MARKS
 
-#define LED_RESTORE_MARK_HOME 0
-#define LED_RESTORE_MARK_SITTING 1
-#define LED_RESTORE_MARK_EXTRA 2
+#define LED_RESTORE_MARK_HOME GAME_EVT_RESTORE_MARK_HOME
+#define LED_RESTORE_MARK_SITTING GAME_EVT_RESTORE_MARK_SITTING
+#define LED_RESTORE_MARK_EXTRA GAME_EVT_RESTORE_MARK_EXTRA
 
-typedef struct {
-  uint8_t squares[LED_RESTORE_GUIDE_MAX_PATH_LEN];
-  uint8_t len;
-  /** Unused by the setup glow. Kept so path picking still compiles. */
-  bool pulse_corridor;
-} led_restore_guide_path_t;
-
-typedef struct {
-  uint8_t square;
-  uint8_t type;
-  uint8_t color;
-  uint8_t role;
-} led_restore_guide_mark_t;
-
-typedef struct {
-  bool active;
-  uint8_t path_count;
-  led_restore_guide_path_t paths[LED_RESTORE_GUIDE_MAX_PATHS];
-  uint8_t missing_homes[LED_RESTORE_GUIDE_MAX_MISSING];
-  uint8_t missing_count;
-  uint8_t extra_squares[LED_RESTORE_GUIDE_MAX_EXTRA];
-  uint8_t extra_count;
-  uint8_t mark_count;
-  led_restore_guide_mark_t marks[LED_RESTORE_GUIDE_MAX_MARKS];
-} led_restore_guide_plan_t;
+typedef game_restore_path_t led_restore_guide_path_t;
+typedef game_restore_mark_t led_restore_guide_mark_t;
+typedef game_restore_plan_t led_restore_guide_plan_t;
 
 void led_board_restore_guide_apply(const led_restore_guide_plan_t *plan);
 void led_board_restore_guide_clear(void);

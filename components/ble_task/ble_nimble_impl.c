@@ -2,6 +2,7 @@
  * @file ble_nimble_impl.c
  * @brief NimBLE GATT — only compiles when CONFIG_BT_ENABLED.
  */
+#include <inttypes.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -222,17 +223,30 @@ void ble_task_notify_command_result(esp_err_t err, const char *json_body) {
     code = "internal_error";
     msg = "Internal error while processing command.";
     break;
+  case ESP_ERR_TIMEOUT:
+    code = "busy";
+    msg = "Command queue is full.";
+    break;
+  case ESP_ERR_INVALID_VERSION:
+    code = "stale";
+    msg = "Session epoch does not match the board owner.";
+    break;
   default:
     code = "error";
     msg = "Error while processing command.";
     break;
   }
 
-  char out[256];
+  uint32_t ack_id = 0;
+  if (json_body != NULL) {
+    (void)cmd_wire_correlation_id(json_body, &ack_id);
+  }
+
+  char out[320];
   int n = snprintf(out, sizeof(out),
                    "{\"channel\":\"cmd_ack\",\"ok\":%s,\"code\":\"%s\","
-                   "\"cmd\":\"%s\",\"message\":\"%s\",\"esp\":%d}",
-                   ok_str, code, cmd_safe, msg, (int)err);
+                   "\"cmd\":\"%s\",\"message\":\"%s\",\"esp\":%d,\"id\":%" PRIu32 "}",
+                   ok_str, code, cmd_safe, msg, (int)err, ack_id);
   if (n < 0 || (size_t)n >= sizeof(out)) {
     ESP_LOGW(TAG, "cmd_ack JSON truncate");
   }
@@ -398,9 +412,14 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
       s_ble_cmd_copy[om_len] = '\0';
       if (s_admit_unknown && !s_new_pair_done) {
         ESP_LOGW(TAG, "[STAGING] CMD rejected: pairing not finished");
-        ble_task_notify_cmd_ack_json(
-            "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"not_pairing\","
-            "\"message\":\"Board is not in pairing mode.\"}");
+        {
+          uint32_t pair_id = 0;
+          bool pair_has = cmd_wire_correlation_id(s_ble_cmd_copy, &pair_id);
+          cmd_wire_notify_with_id(
+              "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"not_pairing\","
+              "\"message\":\"Board is not in pairing mode.\"}",
+              pair_id, pair_has);
+        }
         return BLE_ATT_ERR_INSUFFICIENT_AUTHEN;
       }
       if (strstr(s_ble_cmd_copy, "\"pair_token\"") != NULL) {
@@ -420,18 +439,26 @@ static int czechmate_gatt_access(uint16_t conn_handle, uint16_t attr_handle,
                    "{\"channel\":\"cmd_ack\",\"ok\":true,\"code\":\"paired\","
                    "\"api_token\":\"%s\"}",
                    hex);
-          ble_task_notify_cmd_ack_json(body);
+          {
+            uint32_t pair_id = 0;
+            bool pair_has = cmd_wire_correlation_id(s_ble_cmd_copy, &pair_id);
+            cmd_wire_notify_with_id(body, pair_id, pair_has);
+          }
           sent = true;
         }
         if (!sent) {
-          ble_task_notify_cmd_ack_json(
+          uint32_t pair_id = 0;
+          bool pair_has = cmd_wire_correlation_id(s_ble_cmd_copy, &pair_id);
+          cmd_wire_notify_with_id(
               "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"not_pairing\","
-              "\"message\":\"Board is not in pairing mode.\"}");
+              "\"message\":\"Board is not in pairing mode.\"}",
+              pair_id, pair_has);
         }
         return 0;
       }
       esp_err_t derr =
           web_server_ble_command_dispatch(s_ble_cmd_copy, om_len);
+      cmd_wire_note_dispatch_result(derr);
       if (!web_server_ble_dispatch_custom_ack_was_sent()) {
         ble_task_notify_command_result(derr, s_ble_cmd_copy);
       }
@@ -1101,7 +1128,9 @@ static int czechmate_gap_event(struct ble_gap_event *event, void *arg) {
     s_net_notify_enabled = false;
     s_cmd_ack_notify_enabled = false;
     ESP_LOGI(TAG, "disconnect reason=%d", event->disconnect.reason);
+    web_game_on_client_drop();
     transport_policy_on_ble_disconnect();
+    cmd_wire_on_ble_disconnect();
 #if CONFIG_ESP_COEX_ENABLED
     {
       esp_err_t ce = esp_coex_preference_set(ESP_COEX_PREFER_WIFI);

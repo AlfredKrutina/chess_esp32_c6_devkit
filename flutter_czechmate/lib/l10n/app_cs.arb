@@ -790,6 +790,18 @@
   "settingsCoachAzureFoundryKeyHint": "Vlož klíč Azure AI Foundry / Azure OpenAI",
   "settingsCoachAzureFoundryDeploymentHint": "nazev-nasazeni",
   "settingsCoachAzureFoundryDeploymentLabel": "Nasazení / název modelu",
+  "settingsCoachAzureFoundryModelsLoading": "Načítám modely z Foundry…",
+  "settingsCoachAzureFoundryModelsEmpty": "Pro tenhle klíč a URL se nenašly žádné modely. Napiš název nasazení.",
+  "settingsCoachAzureFoundryModelsFailed": "Modely se nepodařilo načíst ({error}). Název nasazení můžeš pořád napsat ručně.",
+  "@settingsCoachAzureFoundryModelsFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCoachAzureFoundryModelsRefresh": "Znovu načíst modely",
+  "settingsCoachAzureFoundryModelsPickHint": "Vyber model",
   "settingsCoachAzureFoundryApiVersionLabel": "Verze API (volitelné)",
   "settingsCoachAzureFoundryApiVersionHint": "U /openai/v1 nechte prázdné; u legacy deployments např. 2024-06-01",
   "settingsCoachAzureFoundryDocsButton": "Dokumentace Azure AI Foundry",

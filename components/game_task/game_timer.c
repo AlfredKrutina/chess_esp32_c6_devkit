@@ -3,8 +3,11 @@
  * @brief Timer system integration wrappers and timeout handling.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "game_snapshot.h"
 #include "freertos_chess.h"
 
@@ -127,7 +130,7 @@ esp_err_t game_init_timer_system(void) {
   return ret;
 }
 
-esp_err_t game_process_timer_command(const chess_move_command_t *cmd) {
+esp_err_t game_process_timer_command(const game_cmd_t *cmd) {
   if (cmd == NULL) {
     ESP_LOGE(TAG, "Invalid command parameter");
     return ESP_ERR_INVALID_ARG;
@@ -135,19 +138,16 @@ esp_err_t game_process_timer_command(const chess_move_command_t *cmd) {
 
   esp_err_t ret = ESP_OK;
 
-  switch (cmd->type) {
-  case GAME_CMD_SET_TIME_CONTROL: {
+  switch (cmd->kind) {
+  case GCMD_TIMER_SET: {
     time_control_config_t config;
     time_control_type_t type =
-        (time_control_type_t)cmd->timer_data.timer_config.time_control_type;
+        (time_control_type_t)cmd->u.timer.time_control_type;
 
     if (type == TIME_CONTROL_CUSTOM) {
-      // Custom time control
-      ret = timer_set_custom_time_control(
-          cmd->timer_data.timer_config.custom_minutes,
-          cmd->timer_data.timer_config.custom_increment);
+      ret = timer_set_custom_time_control(cmd->u.timer.custom_minutes,
+                                          cmd->u.timer.custom_increment);
     } else {
-      // Predefined time control
       ret = timer_get_config_by_type(type, &config);
       if (ret == ESP_OK) {
         ret = timer_set_time_control(&config);
@@ -161,29 +161,20 @@ esp_err_t game_process_timer_command(const chess_move_command_t *cmd) {
     }
   } break;
 
-  case GAME_CMD_PAUSE_TIMER:
+  case GCMD_TIMER_PAUSE:
     ret = game_pause_timer();
     break;
 
-  case GAME_CMD_RESUME_TIMER:
+  case GCMD_TIMER_RESUME:
     ret = game_resume_timer();
     break;
 
-  case GAME_CMD_RESET_TIMER:
+  case GCMD_TIMER_RESET:
     ret = game_reset_timer();
     break;
 
-  case GAME_CMD_GET_TIMER_STATE:
-    // Timer state is retrieved via JSON API
-    ret = ESP_OK;
-    break;
-
-  case GAME_CMD_TIMER_TIMEOUT:
-    ret = game_handle_time_expiration();
-    break;
-
   default:
-    ESP_LOGW(TAG, "Unknown timer command: %d", cmd->type);
+    ESP_LOGW(TAG, "Unknown timer command: %d", (int)cmd->kind);
     ret = ESP_ERR_INVALID_ARG;
     break;
   }
@@ -212,21 +203,21 @@ esp_err_t game_handle_time_expiration(void) {
 
   // End the game
   current_game_state = GAME_STATE_FINISHED;
-  game_result = GAME_STATE_FINISHED;
-  current_result_type =
+  (*game_state_game_result()) = GAME_STATE_FINISHED;
+  (*game_state_current_result_type()) =
       (winner == PLAYER_WHITE) ? RESULT_WHITE_WINS : RESULT_BLACK_WINS;
-  current_endgame_reason = ENDGAME_REASON_TIMEOUT; // Mark as timeout
+  (*game_state_current_endgame_reason()) = ENDGAME_REASON_TIMEOUT; // Mark as timeout
 
   // Endgame report request (same fix as resignation)
-  game_update_endgame_statistics(current_result_type);
-  endgame_report_requested = true;
+  game_update_endgame_statistics((*game_state_current_result_type()));
+  (*game_state_endgame_report_requested()) = true;
 
   // UNIFIED VICTORY ANIMATION
   // Timeout = Winner determined above
   game_trigger_victory_animation(winner);
 
   // Display result on LED (use existing LED functions)
-  // led_show_game_result(game_result); // The function does not exist
+  // led_show_game_result((*game_state_game_result())); // The function does not exist
 
   // Pozastavit timer
   timer_pause();

@@ -97,6 +97,7 @@
  */
 
 #include "web_server_task.h"
+#include "cmd_wire.h"
 #include "sdkconfig.h"
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
 #include "web_routes.h"
@@ -137,7 +138,9 @@
 #include "freertos/semphr.h"
 #include "freertos/task.h"
 #include <ctype.h>
+#include <errno.h>
 #include <inttypes.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -305,7 +308,7 @@ static esp_err_t start_http_server(void);
 static void stop_http_server(void);
 #endif
 
-// static esp_err_t http_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
+// static esp_err_t web_post_move_handler(httpd_req_t *req);  // VYPNUTO - web
 // je 100% READ-ONLY
 
 // Handler for Moves
@@ -511,6 +514,7 @@ esp_err_t wifi_connect_sta(void) {
   ret = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to set WiFi STA config: %s", esp_err_to_name(ret));
+    sta_connecting = false;
     return ret;
   }
 
@@ -518,6 +522,7 @@ esp_err_t wifi_connect_sta(void) {
   ret = esp_wifi_connect();
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "Failed to start WiFi connection: %s", esp_err_to_name(ret));
+    sta_connecting = false;
     return ret;
   }
 
@@ -546,8 +551,17 @@ esp_err_t wifi_connect_sta(void) {
   }
 
   ESP_LOGE(TAG, "WiFi connection timeout after %d seconds", max_retries);
-  esp_wifi_disconnect();
-  sta_connecting = false; // Resetovat flag pri timeout
+  /* STA_DISCONNECTED arms sta_reconnect_timer while this flag is false and
+   * that keeps the driver's scan list. Hold reconnect off until the next
+   * explicit connect (this function, or the AP toggle path). */
+  sta_manual_disconnect = true;
+  sta_reconnect_delay_ms = STA_RECONNECT_DELAY_MIN_MS;
+  if (sta_reconnect_timer != NULL) {
+    (void)esp_timer_stop(sta_reconnect_timer);
+  }
+  (void)esp_wifi_disconnect();
+  (void)esp_wifi_clear_ap_list();
+  sta_connecting = false;
 
   // Vratit specificky error code podle disconnection reason
   // WIFI_REASON_NO_AP_FOUND = 201
@@ -781,9 +795,18 @@ static void wifi_ble_prov_task(void *arg) {
   vTaskDelete(NULL);
 }
 
+typedef struct {
+  uint32_t id;
+  bool has_id;
+} survey_ack_meta_t;
+
 /** BLE wifi_survey: active scan of the surroundings, result via cmd_ack JSON (encrypted link). */
 static void wifi_ble_survey_task(void *arg) {
-  (void)arg;
+  survey_ack_meta_t meta = {0};
+  if (arg != NULL) {
+    meta = *(survey_ack_meta_t *)arg;
+    free(arg);
+  }
 
   typedef struct {
     char ssid[33];
@@ -800,9 +823,10 @@ static void wifi_ble_survey_task(void *arg) {
   wifi_ap_record_t *records =
       (wifi_ap_record_t *)get_shared_buffer(rec_bytes);
   if (records == NULL) {
-    ble_task_notify_cmd_ack_json(
+    cmd_wire_notify_with_id(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"pool_busy\","
-        "\"cmd\":\"wifi_survey\",\"message\":\"buffer_pool\"}");
+        "\"cmd\":\"wifi_survey\",\"message\":\"buffer_pool\"}",
+        meta.id, meta.has_id);
     vTaskDelete(NULL);
     return;
   }
@@ -821,7 +845,7 @@ static void wifi_ble_survey_task(void *arg) {
              "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"scan_failed\","
              "\"cmd\":\"wifi_survey\",\"message\":\"scan_start\",\"esp\":%d}",
              (int)err);
-    ble_task_notify_cmd_ack_json(buf);
+    cmd_wire_notify_with_id(buf, meta.id, meta.has_id);
     (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
@@ -834,7 +858,7 @@ static void wifi_ble_survey_task(void *arg) {
              "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"scan_failed\","
              "\"cmd\":\"wifi_survey\",\"message\":\"get_ap_records\",\"esp\":%d}",
              (int)err);
-    ble_task_notify_cmd_ack_json(buf);
+    cmd_wire_notify_with_id(buf, meta.id, meta.has_id);
     (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
@@ -886,9 +910,10 @@ static void wifi_ble_survey_task(void *arg) {
 
   cJSON *root = cJSON_CreateObject();
   if (root == NULL) {
-    ble_task_notify_cmd_ack_json(
+    cmd_wire_notify_with_id(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"json\","
-        "\"cmd\":\"wifi_survey\",\"message\":\"root\",\"esp\":-1}");
+        "\"cmd\":\"wifi_survey\",\"message\":\"root\",\"esp\":-1}",
+        meta.id, meta.has_id);
     (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
@@ -900,9 +925,10 @@ static void wifi_ble_survey_task(void *arg) {
   cJSON *arr = cJSON_CreateArray();
   if (arr == NULL) {
     cJSON_Delete(root);
-    ble_task_notify_cmd_ack_json(
+    cmd_wire_notify_with_id(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"json\","
-        "\"cmd\":\"wifi_survey\",\"message\":\"array\",\"esp\":-1}");
+        "\"cmd\":\"wifi_survey\",\"message\":\"array\",\"esp\":-1}",
+        meta.id, meta.has_id);
     (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
@@ -921,14 +947,15 @@ static void wifi_ble_survey_task(void *arg) {
   char *printed = cJSON_PrintUnformatted(root);
   cJSON_Delete(root);
   if (printed == NULL) {
-    ble_task_notify_cmd_ack_json(
+    cmd_wire_notify_with_id(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"json\","
-        "\"cmd\":\"wifi_survey\",\"message\":\"print\",\"esp\":-1}");
+        "\"cmd\":\"wifi_survey\",\"message\":\"print\",\"esp\":-1}",
+        meta.id, meta.has_id);
     (void)release_shared_buffer((char *)records);
     vTaskDelete(NULL);
     return;
   }
-  ble_task_notify_cmd_ack_json(printed);
+  cmd_wire_notify_with_id(printed, meta.id, meta.has_id);
   cJSON_free(printed);
   (void)release_shared_buffer((char *)records);
   vTaskDelete(NULL);
@@ -1550,6 +1577,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     if (client_count > 0) {
       client_count--;
     }
+    web_game_on_client_drop();
   }
   // STA events - connected to a WiFi network
   else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_START) {
@@ -1753,11 +1781,58 @@ esp_err_t wifi_get_sta_status_json(char *buffer, size_t buffer_size) {
  * - Captured figures (/captured)
  */
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
+/* newlib: ECONNABORTED is 113. lwIP's private table is not used
+ * (port includes <errno.h>, LWIP_PROVIDE_ERRNO is off). */
+static vprintf_like_t s_prev_log_vprintf;
+static TickType_t s_accept_abort_log_tick;
+
+static int web_accept_log_vprintf(const char *fmt, va_list ap) {
+  bool abort_line = fmt != NULL && strstr(fmt, "error in accept") != NULL;
+  bool follow_line =
+      fmt != NULL && strstr(fmt, "error accepting new connection") != NULL;
+  if (abort_line) {
+    char line[160];
+    char needle[8];
+    va_list cp;
+    va_copy(cp, ap);
+    vsnprintf(line, sizeof(line), fmt, cp);
+    va_end(cp);
+    snprintf(needle, sizeof(needle), "(%d)", ECONNABORTED);
+    if (strstr(line, needle) != NULL) {
+      TickType_t now = xTaskGetTickCount();
+      if (s_accept_abort_log_tick != 0 &&
+          (now - s_accept_abort_log_tick) < pdMS_TO_TICKS(3000)) {
+        return 0;
+      }
+      s_accept_abort_log_tick = now;
+    }
+  } else if (follow_line && s_accept_abort_log_tick != 0 &&
+             (xTaskGetTickCount() - s_accept_abort_log_tick) <
+                 pdMS_TO_TICKS(3000)) {
+    return 0;
+  }
+  if (s_prev_log_vprintf != NULL) {
+    return s_prev_log_vprintf(fmt, ap);
+  }
+  return vprintf(fmt, ap);
+}
+
+static void web_accept_log_limit_install(void) {
+  static bool installed;
+  if (installed) {
+    return;
+  }
+  s_prev_log_vprintf = esp_log_set_vprintf(web_accept_log_vprintf);
+  installed = true;
+}
+
 static esp_err_t start_http_server(void) {
   if (httpd_handle != NULL) {
     ESP_LOGW(TAG, "HTTP server already running");
     return ESP_OK;
   }
+
+  web_accept_log_limit_install();
 
   ESP_LOGI(TAG, "Starting HTTP server...");
 
@@ -1830,6 +1905,110 @@ static void stop_http_server(void) {
 // ============================================================================
 
 
+bool web_json_body_complete(const char *body, int received, int content_len) {
+  const char *p;
+  int depth = 0;
+  bool in_str = false;
+  bool esc = false;
+  bool seen = false;
+  if (body == NULL || received <= 0 || body[0] == '\0') {
+    return false;
+  }
+  if (content_len > received) {
+    return false;
+  }
+  for (p = body; *p != '\0'; p++) {
+    unsigned char c = (unsigned char)*p;
+    if (in_str) {
+      if (esc) {
+        esc = false;
+        continue;
+      }
+      if (c == '\\') {
+        esc = true;
+        continue;
+      }
+      if (c == '"') {
+        in_str = false;
+      }
+      continue;
+    }
+    if (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
+      continue;
+    }
+    if (c == '"') {
+      in_str = true;
+      continue;
+    }
+    if (c == '{') {
+      depth++;
+      seen = true;
+      continue;
+    }
+    if (c == '}') {
+      if (depth <= 0) {
+        return false;
+      }
+      depth--;
+      if (depth == 0) {
+        p++;
+        while (*p == ' ' || *p == '\t' || *p == '\r' || *p == '\n') {
+          p++;
+        }
+        return *p == '\0';
+      }
+      continue;
+    }
+    if (!seen) {
+      return false;
+    }
+  }
+  return false;
+}
+
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+bool web_recv_json_body(httpd_req_t *req, char *buf, size_t cap) {
+  int total = 0;
+  int timeouts = 0;
+  int want;
+  if (req == NULL || buf == NULL || cap < 2) {
+    return false;
+  }
+  if (req->content_len > 0 && req->content_len >= cap) {
+    return false;
+  }
+  want = (int)cap - 1;
+  while (total < want) {
+    int r = httpd_req_recv(req, buf + total, (size_t)(want - total));
+    if (r == HTTPD_SOCK_ERR_TIMEOUT) {
+      if (++timeouts > 3) {
+        return false;
+      }
+      continue;
+    }
+    if (r <= 0) {
+      break;
+    }
+    timeouts = 0;
+    total += r;
+    if (req->content_len > 0 && (size_t)total >= req->content_len) {
+      break;
+    }
+    if (req->content_len == 0) {
+      break;
+    }
+  }
+  if (total <= 0) {
+    return false;
+  }
+  buf[total] = '\0';
+  return web_json_body_complete(buf, total,
+                                req->content_len > 0x7fffffffU
+                                    ? 0x7fffffff
+                                    : (int)req->content_len);
+}
+#endif
+
 static bool json_extract_cmd_string(const char *buf, char *cmd_out, size_t cmd_sz) {
   const char *p = strstr(buf, "\"cmd\"");
   if (!p) {
@@ -1880,12 +2059,12 @@ static void ble_dispatch_ack_needs_encryption(const char *cmd_literal) {
                "\"esp\":%d}",
                cmd_literal, (int)ESP_ERR_INVALID_STATE);
   if (n < 0 || (size_t)n >= sizeof(out)) {
-    ble_task_notify_cmd_ack_json(
+    cmd_wire_notify_with_current(
         "{\"channel\":\"cmd_ack\",\"ok\":false,\"code\":\"needs_encryption\","
         "\"cmd\":\"unknown\",\"message\":\"Encrypted BLE connection required.\","
         "\"esp\":259}");
   } else {
-    ble_task_notify_cmd_ack_json(out);
+    cmd_wire_notify_with_current(out);
   }
   s_ble_dispatch_custom_ack_sent = true;
 }
@@ -1899,11 +2078,21 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
   size_t n = json_len < sizeof(buf) - 1 ? json_len : sizeof(buf) - 1;
   memcpy(buf, json, n);
   buf[n] = '\0';
+  if (!web_json_body_complete(buf, (int)n,
+                              json_len > 0x7fffffffU ? 0x7fffffff
+                                                     : (int)json_len)) {
+    ESP_LOGW(TAG, "BLE JSON: incomplete, dropped");
+    return ESP_ERR_INVALID_ARG;
+  }
 
   char cmd[40];
+  esp_err_t gate_err = ESP_OK;
   if (!json_extract_cmd_string(buf, cmd, sizeof(cmd))) {
     ESP_LOGW(TAG, "BLE JSON: missing cmd");
     return ESP_ERR_NOT_FOUND;
+  }
+  if (cmd_wire_gate(cmd, buf, &gate_err) != CMD_WIRE_PROCEED) {
+    return gate_err;
   }
 
   if (strcmp(cmd, "ping") == 0) {
@@ -1992,7 +2181,7 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     if (er != ESP_OK) {
       return er;
     }
-    ble_task_notify_cmd_ack_json(status_ack);
+    cmd_wire_notify_with_current(status_ack);
     s_ble_dispatch_custom_ack_sent = true;
     return ESP_OK;
   }
@@ -2015,9 +2204,15 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
       ble_dispatch_ack_needs_encryption("wifi_survey");
       return ESP_ERR_INVALID_STATE;
     }
+    survey_ack_meta_t *meta = malloc(sizeof(*meta));
+    if (meta == NULL) {
+      return ESP_ERR_NO_MEM;
+    }
+    cmd_wire_copy_request_id(&meta->id, &meta->has_id);
     BaseType_t ok =
-        xTaskCreate(wifi_ble_survey_task, "wifi_survey", 8192, NULL, 5, NULL);
+        xTaskCreate(wifi_ble_survey_task, "wifi_survey", 8192, meta, 5, NULL);
     if (ok != pdPASS) {
+      free(meta);
       ESP_LOGE(TAG, "BLE wifi_survey: xTaskCreate failed");
       return ESP_FAIL;
     }
@@ -2148,9 +2343,9 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     return web_server_apply_hint_highlight_json_body(buf);
   }
   if (strcmp(cmd, "hint_clear") == 0) {
-    led_command_t c = {0};
-    c.type = LED_CMD_CLEAR_HIGHLIGHTS;
-    led_execute_command_new(&c);
+    if (!web_game_submit_hint_clear()) {
+      return ESP_FAIL;
+    }
     ESP_LOGD(TAG, "BLE cmd: hint_clear");
     return ESP_OK;
   }
@@ -2264,762 +2459,16 @@ esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len) {
     ESP_LOGI(TAG, "BLE light_game_mode");
     return ESP_OK;
   }
-  if (strcmp(cmd, "light_pattern") == 0) {
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      return ESP_FAIL;
-    }
-    bool on = false;
-    bool clear_map = false;
-    int pen = 0, ar = 255, ag = 255, ab = 255, br = 40, bg = 90, bb = 255;
-    cJSON *jon = cJSON_GetObjectItemCaseSensitive(root, "on");
-    cJSON *jclear = cJSON_GetObjectItemCaseSensitive(root, "clear");
-    if (cJSON_IsBool(jon) && cJSON_IsTrue(jon)) {
-      on = true;
-    }
-    if (cJSON_IsBool(jclear) && cJSON_IsTrue(jclear)) {
-      clear_map = true;
-    }
-    cJSON *jp = cJSON_GetObjectItemCaseSensitive(root, "pen");
-    if (cJSON_IsNumber(jp)) {
-      pen = (int)cJSON_GetNumberValue(jp) ? 1 : 0;
-    }
-    cJSON *jar = cJSON_GetObjectItemCaseSensitive(root, "ar");
-    cJSON *jag = cJSON_GetObjectItemCaseSensitive(root, "ag");
-    cJSON *jab = cJSON_GetObjectItemCaseSensitive(root, "ab");
-    cJSON *jbr = cJSON_GetObjectItemCaseSensitive(root, "br");
-    cJSON *jbg = cJSON_GetObjectItemCaseSensitive(root, "bg");
-    cJSON *jbb = cJSON_GetObjectItemCaseSensitive(root, "bb");
-    if (cJSON_IsNumber(jar)) ar = (int)cJSON_GetNumberValue(jar);
-    if (cJSON_IsNumber(jag)) ag = (int)cJSON_GetNumberValue(jag);
-    if (cJSON_IsNumber(jab)) ab = (int)cJSON_GetNumberValue(jab);
-    if (cJSON_IsNumber(jbr)) br = (int)cJSON_GetNumberValue(jbr);
-    if (cJSON_IsNumber(jbg)) bg = (int)cJSON_GetNumberValue(jbg);
-    if (cJSON_IsNumber(jbb)) bb = (int)cJSON_GetNumberValue(jbb);
-    cJSON_Delete(root);
-    uint8_t action = on ? HA_PAT_ON : (clear_map ? HA_PAT_CLEAR : HA_PAT_COLORS);
-    if (!ha_pattern_request(action, 0, (uint8_t)pen, (uint8_t)ar, (uint8_t)ag,
-                            (uint8_t)ab, (uint8_t)br, (uint8_t)bg, (uint8_t)bb,
-                            1, clear_map ? 1 : 0)) {
-      return ESP_ERR_INVALID_STATE;
-    }
-    return ESP_OK;
+
+  esp_err_t game_ble = web_server_ble_game_command_dispatch(cmd, buf);
+  if (game_ble != ESP_ERR_NOT_FOUND) {
+    return game_ble;
   }
 
-  /* ============================================
-   * NEW BLE COMMANDS - Beginning
-   * ============================================ */
-  if (strcmp(cmd, "move") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] move blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    // BLE move command: {"cmd": "move", "from": "e2", "to": "e4", "promotion": "q"}
-    char from[8] = {0};
-    char to[8] = {0};
-    char promotion[8] = {0};
-
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      ESP_LOGE(TAG, "Invalid JSON in move command");
-      return ESP_FAIL;
-    }
-
-    cJSON *from_obj = cJSON_GetObjectItemCaseSensitive(root, "from");
-    cJSON *to_obj = cJSON_GetObjectItemCaseSensitive(root, "to");
-    cJSON *promo_obj = cJSON_GetObjectItemCaseSensitive(root, "promotion");
-
-    if (cJSON_IsString(from_obj) && cJSON_IsString(to_obj)) {
-      strncpy(from, from_obj->valuestring, sizeof(from) - 1);
-      strncpy(to, to_obj->valuestring, sizeof(to) - 1);
-      from[sizeof(from) - 1] = '\0';
-      to[sizeof(to) - 1] = '\0';
-      if (cJSON_IsString(promo_obj)) {
-        strncpy(promotion, promo_obj->valuestring, sizeof(promotion) - 1);
-      }
-
-      /* Same field (double tap in app) — don't send to game_task (MOVE_ERROR_DESTINATION_OCCUPIED). */
-      if (strcmp(from, to) == 0) {
-        ESP_LOGW(TAG, "[BLE] move: ignored (from==to)");
-        cJSON_Delete(root);
-        return ESP_OK;
-      }
-
-      if (game_command_queue != NULL) {
-        chess_move_command_t move_cmd = {0};
-        move_cmd.type = GAME_CMD_MOVE;
-        strncpy(move_cmd.from_notation, from, sizeof(move_cmd.from_notation) - 1);
-        strncpy(move_cmd.to_notation, to, sizeof(move_cmd.to_notation) - 1);
-
-        /* Stejne jako promotion_choice_t (0=Q,1=R,2=B,3=N) — viz
-         * game_process_promotion_command */
-        if (strlen(promotion) > 0) {
-          switch (promotion[0]) {
-          case 'q':
-          case 'Q':
-            move_cmd.promotion_choice = PROMOTION_QUEEN;
-            break;
-          case 'r':
-          case 'R':
-            move_cmd.promotion_choice = PROMOTION_ROOK;
-            break;
-          case 'b':
-          case 'B':
-            move_cmd.promotion_choice = PROMOTION_BISHOP;
-            break;
-          case 'n':
-          case 'N':
-            move_cmd.promotion_choice = PROMOTION_KNIGHT;
-            break;
-          default:
-            move_cmd.promotion_choice = PROMOTION_QUEEN;
-            break;
-          }
-        }
-        move_cmd.promotion_from_remote = (strlen(promotion) > 0) ? 1U : 0U;
-
-        if (xQueueSend(game_command_queue, &move_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-          ESP_LOGI(TAG, "[BLE] move: %s -> %s (promo: %s)", from, to,
-                   strlen(promotion) > 0 ? promotion : "none");
-        } else {
-          ESP_LOGE(TAG, "[BLE] move: failed to send to game queue");
-        }
-      }
-    } else {
-      ESP_LOGW(TAG, "[BLE] move: missing from/to fields");
-      cJSON_Delete(root);
-      return ESP_ERR_INVALID_ARG;
-    }
-    cJSON_Delete(root);
-    return ESP_OK;
+  esp_err_t sys_ble = web_server_ble_system_command_dispatch(cmd, buf);
+  if (sys_ble != ESP_ERR_NOT_FOUND) {
+    return sys_ble;
   }
-
-  if (strcmp(cmd, "new_game") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] new_game blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    if (game_command_queue == NULL) {
-      return ESP_FAIL;
-    }
-    chess_move_command_t new_cmd = {0};
-    new_cmd.type = GAME_CMD_NEW_GAME;
-    cJSON *root = cJSON_Parse(buf);
-    if (root != NULL) {
-      cJSON *fj = cJSON_GetObjectItemCaseSensitive(root, "fen");
-      if (cJSON_IsString(fj) && fj->valuestring != NULL &&
-          fj->valuestring[0] != '\0') {
-        new_cmd.type = GAME_CMD_NEW_GAME_FROM_FEN;
-        strncpy(new_cmd.timer_data.fen_new_game.fen, fj->valuestring,
-                sizeof(new_cmd.timer_data.fen_new_game.fen) - 1);
-        new_cmd.timer_data.fen_new_game.fen[sizeof(new_cmd.timer_data.fen_new_game.fen) - 1] = '\0';
-      }
-      cJSON_Delete(root);
-    }
-    if (new_cmd.type == GAME_CMD_NEW_GAME_FROM_FEN) {
-      game_fen_position_t parsed;
-      if (!game_parse_fen(new_cmd.timer_data.fen_new_game.fen, &parsed)) {
-        ESP_LOGW(TAG, "[BLE] new_game: FEN rejected");
-        return ESP_ERR_INVALID_ARG;
-      }
-    }
-    if (xQueueSend(game_command_queue, &new_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-      ESP_LOGI(TAG, "[BLE] new_game: type=%d", (int)new_cmd.type);
-    } else {
-      ESP_LOGE(TAG, "[BLE] new_game: failed to send to game queue");
-      return ESP_FAIL;
-    }
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "resign") == 0) {
-    const char *rerr = NULL;
-    esp_err_t rr = web_server_resign_dispatch_body(buf, &rerr);
-    if (rr == ESP_OK) {
-      ESP_LOGI(TAG, "[BLE] resign: command sent");
-    } else {
-      ESP_LOGW(TAG, "[BLE] resign refused: %s", rerr != NULL ? rerr : "?");
-    }
-    return rr;
-  }
-
-  if (strcmp(cmd, "draw") == 0) {
-    const char *derr = NULL;
-    esp_err_t dr = web_server_draw_dispatch(&derr);
-    if (dr == ESP_OK) {
-      ESP_LOGI(TAG, "[BLE] draw: command sent");
-    } else {
-      ESP_LOGW(TAG, "[BLE] draw refused: %s", derr != NULL ? derr : "?");
-    }
-    return dr;
-  }
-
-  if (strcmp(cmd, "undo") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] undo blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    if (game_move_history_count() == 0) {
-      ESP_LOGW(TAG, "[BLE] undo: nothing to undo");
-      return ESP_ERR_INVALID_STATE;
-    }
-    if (game_command_queue != NULL) {
-      chess_move_command_t undo_cmd = {0};
-      undo_cmd.type = GAME_CMD_UNDO_MOVE;
-      if (xQueueSend(game_command_queue, &undo_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-        ESP_LOGI(TAG, "[BLE] undo: command sent");
-      } else {
-        ESP_LOGE(TAG, "[BLE] undo: failed to send to game queue");
-      }
-    }
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "promotion") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] promotion blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      ESP_LOGE(TAG, "Invalid JSON in promotion command");
-      return ESP_FAIL;
-    }
-    cJSON *choice_obj = cJSON_GetObjectItemCaseSensitive(root, "choice");
-    if (cJSON_IsString(choice_obj) && game_command_queue != NULL) {
-      chess_move_command_t promo_cmd = {0};
-      promo_cmd.type = GAME_CMD_PROMOTION;
-      switch (choice_obj->valuestring[0]) {
-      case 'q':
-      case 'Q':
-        promo_cmd.promotion_choice = PROMOTION_QUEEN;
-        break;
-      case 'r':
-      case 'R':
-        promo_cmd.promotion_choice = PROMOTION_ROOK;
-        break;
-      case 'b':
-      case 'B':
-        promo_cmd.promotion_choice = PROMOTION_BISHOP;
-        break;
-      case 'n':
-      case 'N':
-        promo_cmd.promotion_choice = PROMOTION_KNIGHT;
-        break;
-      default:
-        promo_cmd.promotion_choice = PROMOTION_QUEEN;
-        break;
-      }
-      if (xQueueSend(game_command_queue, &promo_cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
-        ESP_LOGI(TAG, "[BLE] promotion: choice %s", choice_obj->valuestring);
-      } else {
-        ESP_LOGE(TAG, "[BLE] promotion: failed to send to game queue");
-      }
-    }
-    cJSON_Delete(root);
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "timer_config") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] timer_config blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    chess_move_command_t tcmd = {0};
-    tcmd.type = GAME_CMD_SET_TIME_CONTROL;
-
-    char *type_str = strstr(buf, "\"type\":");
-    if (type_str == NULL) {
-      ESP_LOGW(TAG, "[BLE] timer_config: missing type");
-      return ESP_ERR_INVALID_ARG;
-    }
-    int type_value;
-    if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
-      ESP_LOGW(TAG, "[BLE] timer_config: invalid type");
-      return ESP_ERR_INVALID_ARG;
-    }
-    if (type_value < 0 || type_value > 14) {
-      ESP_LOGW(TAG, "[BLE] timer_config: type out of range");
-      return ESP_ERR_INVALID_ARG;
-    }
-    tcmd.timer_data.timer_config.time_control_type = (uint8_t)type_value;
-
-    if (type_value == 14) {
-      char *minutes_str = strstr(buf, "\"custom_minutes\":");
-      char *increment_str = strstr(buf, "\"custom_increment\":");
-      if (minutes_str) {
-        int minutes;
-        if (sscanf(minutes_str, "\"custom_minutes\":%d", &minutes) == 1) {
-          if (minutes >= 1 && minutes <= 180) {
-            tcmd.timer_data.timer_config.custom_minutes = (uint32_t)minutes;
-          } else {
-            ESP_LOGW(TAG, "[BLE] timer_config: minutes out of range");
-            return ESP_ERR_INVALID_ARG;
-          }
-        }
-      }
-      if (increment_str) {
-        int increment;
-        if (sscanf(increment_str, "\"custom_increment\":%d", &increment) ==
-            1) {
-          if (increment >= 0 && increment <= 60) {
-            tcmd.timer_data.timer_config.custom_increment =
-                (uint32_t)increment;
-          } else {
-            ESP_LOGW(TAG, "[BLE] timer_config: increment out of range");
-            return ESP_ERR_INVALID_ARG;
-          }
-        }
-      }
-      if (minutes_str == NULL || increment_str == NULL) {
-        ESP_LOGW(TAG, "[BLE] timer_config: custom needs minutes+increment");
-        return ESP_ERR_INVALID_ARG;
-      }
-    }
-
-    if (game_command_queue == NULL ||
-        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGE(TAG, "[BLE] timer_config: queue send failed");
-      return ESP_FAIL;
-    }
-    ESP_LOGI(TAG, "[BLE] timer_config: type=%d", type_value);
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "timer_pause") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] timer_pause blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    chess_move_command_t tcmd = {0};
-    tcmd.type = GAME_CMD_PAUSE_TIMER;
-    if (game_command_queue == NULL ||
-        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      return ESP_FAIL;
-    }
-    ESP_LOGI(TAG, "[BLE] timer_pause");
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "timer_resume") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] timer_resume blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    chess_move_command_t tcmd = {0};
-    tcmd.type = GAME_CMD_RESUME_TIMER;
-    if (game_command_queue == NULL ||
-        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      return ESP_FAIL;
-    }
-    ESP_LOGI(TAG, "[BLE] timer_resume");
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "timer_reset") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] timer_reset blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    chess_move_command_t tcmd = {0};
-    tcmd.type = GAME_CMD_RESET_TIMER;
-    if (game_command_queue == NULL ||
-        xQueueSend(game_command_queue, &tcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      return ESP_FAIL;
-    }
-    ESP_LOGI(TAG, "[BLE] timer_reset");
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "virtual_action") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] virtual_action blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    char action[16] = {0};
-    char square[8] = {0};
-    char choice[8] = {0};
-
-    const char *action_start = strstr(buf, "\"action\"");
-    if (action_start != NULL) {
-      action_start = strchr(action_start, ':');
-      if (action_start != NULL) {
-        action_start++;
-        while (*action_start == ' ' || *action_start == '\"') {
-          action_start++;
-        }
-        const char *action_end = strchr(action_start, '\"');
-        if (action_end != NULL && action_end > action_start) {
-          size_t len = (size_t)(action_end - action_start);
-          if (len < sizeof(action)) {
-            strncpy(action, action_start, len);
-          }
-        }
-      }
-    }
-
-    const char *square_start = strstr(buf, "\"square\"");
-    if (square_start != NULL) {
-      square_start = strchr(square_start, ':');
-      if (square_start != NULL) {
-        square_start++;
-        while (*square_start == ' ' || *square_start == '\"') {
-          square_start++;
-        }
-        const char *square_end = strchr(square_start, '\"');
-        if (square_end != NULL && square_end > square_start) {
-          size_t len = (size_t)(square_end - square_start);
-          if (len < sizeof(square)) {
-            strncpy(square, square_start, len);
-          }
-        }
-      }
-    }
-
-    const char *choice_start = strstr(buf, "\"choice\"");
-    if (choice_start != NULL) {
-      choice_start = strchr(choice_start, ':');
-      if (choice_start != NULL) {
-        choice_start++;
-        while (*choice_start == ' ' || *choice_start == '\"') {
-          choice_start++;
-        }
-        const char *choice_end = strchr(choice_start, '\"');
-        if (choice_end != NULL && choice_end > choice_start) {
-          size_t len = (size_t)(choice_end - choice_start);
-          if (len < sizeof(choice)) {
-            strncpy(choice, choice_start, len);
-          }
-        }
-      }
-    }
-
-    if (strlen(action) == 0) {
-      ESP_LOGW(TAG, "[BLE] virtual_action: missing action");
-      return ESP_ERR_INVALID_ARG;
-    }
-
-    chess_move_command_t vacmd = {0};
-    if (strcmp(action, "pickup") == 0) {
-      vacmd.type = GAME_CMD_PICKUP;
-    } else if (strcmp(action, "drop") == 0) {
-      vacmd.type = GAME_CMD_DROP;
-    } else if (strcmp(action, "promote") == 0) {
-      vacmd.type = GAME_CMD_PROMOTION;
-    } else {
-      ESP_LOGW(TAG, "[BLE] virtual_action: invalid action");
-      return ESP_ERR_INVALID_ARG;
-    }
-
-    if (strcmp(action, "pickup") == 0) {
-      if (strlen(square) == 0) {
-        ESP_LOGW(TAG, "[BLE] virtual_action: pickup needs square");
-        return ESP_ERR_INVALID_ARG;
-      }
-      strncpy(vacmd.from_notation, square, sizeof(vacmd.from_notation) - 1);
-    } else if (strcmp(action, "drop") == 0) {
-      if (strlen(square) == 0) {
-        ESP_LOGW(TAG, "[BLE] virtual_action: drop needs square");
-        return ESP_ERR_INVALID_ARG;
-      }
-      strncpy(vacmd.to_notation, square, sizeof(vacmd.to_notation) - 1);
-    } else if (strcmp(action, "promote") == 0) {
-      if (strlen(choice) == 0) {
-        strcpy(choice, "Q");
-      }
-      if (strcasecmp(choice, "Q") == 0) {
-        vacmd.promotion_choice = PROMOTION_QUEEN;
-      } else if (strcasecmp(choice, "R") == 0) {
-        vacmd.promotion_choice = PROMOTION_ROOK;
-      } else if (strcasecmp(choice, "B") == 0) {
-        vacmd.promotion_choice = PROMOTION_BISHOP;
-      } else if (strcasecmp(choice, "N") == 0) {
-        vacmd.promotion_choice = PROMOTION_KNIGHT;
-      } else {
-        vacmd.promotion_choice = PROMOTION_QUEEN;
-      }
-      if (strlen(square) > 0) {
-        strncpy(vacmd.to_notation, square, sizeof(vacmd.to_notation) - 1);
-      }
-    }
-
-    if (game_command_queue == NULL ||
-        xQueueSend(game_command_queue, &vacmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGE(TAG, "[BLE] virtual_action: queue send failed");
-      return ESP_FAIL;
-    }
-    ESP_LOGI(TAG, "[BLE] virtual_action: %s", action);
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "demo_config") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] demo_config blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      return ESP_FAIL;
-    }
-    bool enabled = false;
-    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
-    if (cJSON_IsBool(en)) {
-      enabled = cJSON_IsTrue(en);
-    }
-    cJSON *sp = cJSON_GetObjectItemCaseSensitive(root, "speed_ms");
-    if (cJSON_IsNumber(sp)) {
-      double v = cJSON_GetNumberValue(sp);
-      if (v >= 0 && v <= 600000) {
-        set_demo_speed_ms((uint32_t)v);
-      }
-    }
-    cJSON_Delete(root);
-    toggle_demo_mode(enabled);
-    ESP_LOGI(TAG, "[BLE] demo_config enabled=%d", (int)enabled);
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "demo_start") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] demo_start blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    toggle_demo_mode(true);
-    ESP_LOGI(TAG, "[BLE] demo_start");
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "settings_auto_lamp_timeout") == 0) {
-    if (web_is_locked()) {
-      return ESP_ERR_INVALID_STATE;
-    }
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      return ESP_FAIL;
-    }
-    cJSON *sec = cJSON_GetObjectItemCaseSensitive(root, "seconds");
-    int seconds_val = -1;
-    if (cJSON_IsNumber(sec)) {
-      seconds_val = (int)cJSON_GetNumberValue(sec);
-    }
-    cJSON_Delete(root);
-    if (seconds_val < 5) {
-      seconds_val = 5;
-    }
-    if (seconds_val > 7200) {
-      seconds_val = 7200;
-    }
-    if (ha_light_set_activity_timeout_sec((uint32_t)seconds_val) != ESP_OK) {
-      return ESP_ERR_INVALID_ARG;
-    }
-    ESP_LOGI(TAG, "[BLE] settings_auto_lamp_timeout %d", seconds_val);
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "settings_guided_hints") == 0) {
-    if (web_is_locked()) {
-      return ESP_ERR_INVALID_STATE;
-    }
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      return ESP_FAIL;
-    }
-    bool enabled = false;
-    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
-    if (cJSON_IsBool(en)) {
-      enabled = cJSON_IsTrue(en);
-    }
-    cJSON_Delete(root);
-    system_config_t syscfg;
-    if (config_load_from_nvs(&syscfg) != ESP_OK) {
-      return ESP_FAIL;
-    }
-    syscfg.guided_capture_hints_enabled = enabled;
-    syscfg.led_guidance_level = enabled ? (uint8_t)5 : (uint8_t)4;
-    config_save_to_nvs(&syscfg);
-    game_set_led_guidance_level(syscfg.led_guidance_level);
-    ESP_LOGI(TAG, "[BLE] settings_guided_hints enabled=%d", (int)enabled);
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "settings_led_guidance") == 0) {
-    if (web_is_locked()) {
-      return ESP_ERR_INVALID_STATE;
-    }
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      return ESP_FAIL;
-    }
-    cJSON *lv = cJSON_GetObjectItemCaseSensitive(root, "level");
-    int level = -1;
-    if (cJSON_IsNumber(lv)) {
-      level = (int)cJSON_GetNumberValue(lv);
-    }
-    cJSON_Delete(root);
-    if (level < 1 || level > 5) {
-      return ESP_ERR_INVALID_ARG;
-    }
-    system_config_t syscfg;
-    if (config_load_from_nvs(&syscfg) != ESP_OK) {
-      return ESP_FAIL;
-    }
-    syscfg.led_guidance_level = (uint8_t)level;
-    syscfg.guided_capture_hints_enabled = (level >= 5);
-    config_save_to_nvs(&syscfg);
-    game_set_led_guidance_level((uint8_t)level);
-    ESP_LOGI(TAG, "[BLE] settings_led_guidance level=%d", level);
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "mqtt_config") == 0) {
-    if (web_is_locked()) {
-      return ESP_ERR_INVALID_STATE;
-    }
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      return ESP_FAIL;
-    }
-    cJSON *hj = cJSON_GetObjectItemCaseSensitive(root, "host");
-    if (!cJSON_IsString(hj) || hj->valuestring == NULL ||
-        hj->valuestring[0] == '\0' || strlen(hj->valuestring) > 127) {
-      cJSON_Delete(root);
-      return ESP_ERR_INVALID_ARG;
-    }
-    uint16_t port = 1883;
-    cJSON *pj = cJSON_GetObjectItemCaseSensitive(root, "port");
-    if (cJSON_IsNumber(pj)) {
-      double pv = cJSON_GetNumberValue(pj);
-      if (pv > 0 && pv <= 65535) {
-        port = (uint16_t)pv;
-      }
-    }
-    const char *user_str = NULL;
-    cJSON *uj = cJSON_GetObjectItemCaseSensitive(root, "username");
-    if (cJSON_IsString(uj) && uj->valuestring != NULL && uj->valuestring[0]) {
-      user_str = uj->valuestring;
-    }
-    const char *pass_str = NULL;
-    cJSON *pwj = cJSON_GetObjectItemCaseSensitive(root, "password");
-    if (cJSON_IsString(pwj) && pwj->valuestring != NULL && pwj->valuestring[0]) {
-      pass_str = pwj->valuestring;
-    }
-    esp_err_t merr = mqtt_save_config_to_nvs(hj->valuestring, port, user_str,
-                                             pass_str);
-    cJSON_Delete(root);
-    if (merr != ESP_OK) {
-      ESP_LOGW(TAG, "[BLE] mqtt_config save failed: %s",
-               esp_err_to_name(merr));
-      return merr;
-    }
-    if (wifi_is_sta_connected()) {
-      (void)ha_light_reinit_mqtt();
-    }
-    ESP_LOGI(TAG, "[BLE] mqtt_config OK");
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "setup_tutorial") == 0) {
-    if (web_is_locked()) {
-      return ESP_ERR_INVALID_STATE;
-    }
-    cJSON *root = cJSON_Parse(buf);
-    if (root == NULL) {
-      return ESP_FAIL;
-    }
-    cJSON *aj = cJSON_GetObjectItemCaseSensitive(root, "action");
-    const char *act = NULL;
-    if (cJSON_IsString(aj) && aj->valuestring != NULL) {
-      act = aj->valuestring;
-    }
-    bool want_start = (act != NULL && strcmp(act, "start") == 0);
-    bool want_cancel = (act != NULL && strcmp(act, "cancel") == 0);
-    bool want_finish = (act != NULL && strcmp(act, "finish") == 0);
-    int nact = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) +
-               (want_finish ? 1 : 0);
-    cJSON_Delete(root);
-    if (nact != 1) {
-      return ESP_ERR_INVALID_ARG;
-    }
-
-    if (want_start || want_cancel) {
-      setup_tutorial_reset_finish_cooldown();
-    }
-
-    if (want_finish) {
-      if (!game_is_board_setup_tutorial_active()) {
-        return ESP_ERR_INVALID_ARG;
-      }
-      if (setup_tutorial_finish_in_cooldown()) {
-        return ESP_ERR_NOT_FINISHED;
-      }
-      if (!game_is_physical_board_starting_occupancy()) {
-        setup_tutorial_note_finish_conflict();
-        return ESP_ERR_NOT_FINISHED;
-      }
-      setup_tutorial_reset_finish_cooldown();
-    }
-
-    if (game_command_queue == NULL) {
-      ESP_LOGE(TAG, "[BLE] setup_tutorial: game_command_queue NULL");
-      return ESP_FAIL;
-    }
-    chess_move_command_t gcmd = {0};
-    gcmd.type = GAME_CMD_BOARD_SETUP_TUTORIAL;
-    gcmd.promotion_choice = want_start ? 0U : (want_finish ? 2U : 1U);
-    gcmd.response_queue = NULL;
-    if (xQueueSend(game_command_queue, &gcmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-      ESP_LOGE(TAG, "[BLE] setup_tutorial: queue send failed");
-      return ESP_FAIL;
-    }
-    if (want_cancel) {
-      led_command_t lcmd = {0};
-      lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-      led_execute_command_new(&lcmd);
-    }
-    ESP_LOGI(TAG, "[BLE] setup_tutorial action=%s queued",
-             want_start ? "start" : (want_finish ? "finish" : "cancel"));
-    return ESP_OK;
-  }
-
-  if (strcmp(cmd, "puzzle") == 0) {
-    if (web_is_locked()) {
-      ESP_LOGW(TAG, "[BLE] puzzle blocked (web locked)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    esp_err_t perr = web_server_puzzle_dispatch_body(buf, NULL, 0);
-    if (perr == ESP_OK) {
-      ESP_LOGI(TAG, "[BLE] puzzle dispatched");
-      return ESP_OK;
-    }
-    if (perr == ESP_ERR_INVALID_STATE) {
-      ESP_LOGW(TAG, "[BLE] puzzle physical mismatch or hint unavailable");
-      return ESP_ERR_INVALID_STATE;
-    }
-    ESP_LOGW(TAG, "[BLE] puzzle dispatch failed: %s", esp_err_to_name(perr));
-    return perr;
-  }
-
-  if (strcmp(cmd, "opening") == 0) {
-    esp_err_t oerr = web_server_opening_dispatch_body(buf);
-    if (oerr == ESP_OK) {
-      ESP_LOGI(TAG, "[BLE] opening dispatched");
-      return ESP_OK;
-    }
-    if (oerr == ESP_ERR_INVALID_STATE) {
-      ESP_LOGW(TAG, "[BLE] opening blocked (locked or mode conflict)");
-      return ESP_ERR_INVALID_STATE;
-    }
-    if (oerr == ESP_ERR_NOT_ALLOWED) {
-      ESP_LOGW(TAG, "[BLE] opening checkpoint resync incomplete");
-      return ESP_ERR_NOT_ALLOWED;
-    }
-    ESP_LOGW(TAG, "[BLE] opening dispatch failed: %s", esp_err_to_name(oerr));
-    return oerr;
-  }
-
-  /* ============================================
-   * NEW BLE COMMANDS - End
-   * ============================================ */
 
   ESP_LOGW(TAG, "BLE JSON: unknown cmd \"%s\"", cmd);
   return ESP_ERR_NOT_SUPPORTED;
@@ -3122,6 +2571,20 @@ static void czechmate_mdns_ensure_started(void) {
   if (czechmate_mdns_started) {
     return;
   }
+  /* Stack comes from internal RAM. A failed create returns ESP_FAIL and
+   * leaves no task; do not call mdns_init when the block cannot fit. */
+  const size_t mdns_need = (size_t)CONFIG_MDNS_TASK_STACK_SIZE + 512;
+  size_t largest =
+      heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  if (largest < mdns_need) {
+    static bool warned;
+    if (!warned) {
+      warned = true;
+      ESP_LOGW(TAG, "mDNS skipped, largest free block %u B < %u B",
+               (unsigned)largest, (unsigned)mdns_need);
+    }
+    return;
+  }
   esp_err_t e = mdns_init();
   if (e != ESP_OK && e != ESP_ERR_INVALID_STATE) {
     ESP_LOGW(TAG, "mdns_init: %s", esp_err_to_name(e));
@@ -3154,6 +2617,12 @@ static void czechmate_mdns_refresh_sta_txt(void) {}
 static void czechmate_mdns_ensure_started(void) {}
 #endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
 
+
+/** Steady free after HTTP+mDNS is ~19 KiB. Do not reuse the 20 KiB WiFi/MQTT floor. */
+#define WEB_SNAPSHOT_SKIP_FREE_BYTES (12 * 1024)
+/** Accept keeps running above these. A real pause fills the listen backlog. */
+#define WEB_HTTP_BACKOFF_FREE_BYTES (8 * 1024)
+#define WEB_HTTP_BACKOFF_LARGEST_BYTES (2 * 1024)
 
 /** Ping queue from game_task — WS + BLE snapshot in web_server_task (does not block
  * game_task at httpd_ws_send_data / malloc). Must be outside #if WS — BLE always. */
@@ -3190,10 +2659,14 @@ void web_server_process_snapshot_notify_queue(void) {
    * TWDT reset reports web_server_task timeout. */
   (void)web_server_task_wdt_reset_safe();
   size_t fh = esp_get_free_heap_size();
-  if (fh < 16384) {
+  /* Slabs are static (20 KiB + 8 KiB). Publish when both are free.
+   * 12 KiB is the highest skip gate; ~19 KiB steady must still send. */
+  bool slabs = shared_buffer_pair_free(SNAPSHOT_BUFFER_SIZE, JSON_BUFFER_SIZE);
+  if (!slabs || fh < (size_t)WEB_SNAPSHOT_SKIP_FREE_BYTES) {
     if ((now - s_snap_skip_log) >= pdMS_TO_TICKS(5000)) {
       s_snap_skip_log = now;
-      ESP_LOGW(TAG, "snapshot skipped, free heap %zu B", fh);
+      ESP_LOGW(TAG, "snapshot skipped, free heap %zu B, slabs %s", fh,
+               slabs ? "free" : "busy");
     }
     s_snap_last_send = now;
     return;
@@ -3242,7 +2715,7 @@ void czechmate_on_game_state_changed(void) {
 // TIMER API HANDLERS
 // ============================================================================
 
-esp_err_t http_get_timer_handler(httpd_req_t *req) {
+esp_err_t web_get_timer_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/timer");
 
   // Lokalni buffer jen pro timer JSON (~1 KiB); JSON_BUFFER_SIZE na stacku = overflow httpd (8192 B).
@@ -3262,215 +2735,7 @@ esp_err_t http_get_timer_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_post_timer_config_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/timer/config");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "Timer config blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  // Precist JSON data
-  char content[256];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "No data received", -1);
-    return ESP_FAIL;
-  }
-  content[ret] = '\0';
-
-  // Parse the JSON and send the command to the game task
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_SET_TIME_CONTROL;
-
-  // Vylepsene JSON parsovani pouzitim sscanf pro spolehlivejsi parsovani
-  // Nejprve najit pole "type"
-  char *type_str = strstr(content, "\"type\":");
-  if (type_str == NULL) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "Missing 'type' field", -1);
-    return ESP_FAIL;
-  }
-
-  // Parsovat hodnotu type
-  int type_value;
-  if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "Invalid type value", -1);
-    return ESP_FAIL;
-  }
-
-  if (type_value < 0 || type_value > 14) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "Type out of range (0-14)", -1);
-    return ESP_FAIL;
-  }
-
-  cmd.timer_data.timer_config.time_control_type = (uint8_t)type_value;
-
-  // Parse custom time values ​​if type is CUSTOM
-  if (type_value == 14) { // TIME_CONTROL_CUSTOM
-    char *minutes_str = strstr(content, "\"custom_minutes\":");
-    char *increment_str = strstr(content, "\"custom_increment\":");
-
-    if (minutes_str) {
-      int minutes;
-      if (sscanf(minutes_str, "\"custom_minutes\":%d", &minutes) == 1) {
-        if (minutes >= 1 && minutes <= 180) {
-          cmd.timer_data.timer_config.custom_minutes = (uint32_t)minutes;
-        } else {
-          httpd_resp_set_status(req, "400 Bad Request");
-          httpd_resp_send(req, "Minutes must be 1-180", -1);
-          return ESP_FAIL;
-        }
-      }
-    }
-
-    if (increment_str) {
-      int increment;
-      if (sscanf(increment_str, "\"custom_increment\":%d", &increment) == 1) {
-        if (increment >= 0 && increment <= 60) {
-          cmd.timer_data.timer_config.custom_increment = (uint32_t)increment;
-        } else {
-          httpd_resp_set_status(req, "400 Bad Request");
-          httpd_resp_send(req, "Increment must be 0-60", -1);
-          return ESP_FAIL;
-        }
-      }
-    }
-
-    // Verify that custom values ​​have been provided
-    if (minutes_str == NULL || increment_str == NULL) {
-      httpd_resp_set_status(req, "400 Bad Request");
-      httpd_resp_send(req, "Custom time control requires minutes and increment",
-                      -1);
-      return ESP_FAIL;
-    }
-  }
-
-  // Send the command to the game task
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to set time control", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_send(req, "Time control set successfully", -1);
-
-  return ESP_OK;
-}
-
-esp_err_t http_post_timer_pause_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/timer/pause");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "Timer pause blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_PAUSE_TIMER;
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to pause timer", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_send(req, "Timer paused", -1);
-
-  return ESP_OK;
-}
-
-esp_err_t http_post_timer_resume_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/timer/resume");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "Timer resume blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_RESUME_TIMER;
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to resume timer", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_send(req, "Timer resumed", -1);
-
-  return ESP_OK;
-}
-
-esp_err_t http_post_timer_reset_handler(httpd_req_t *req) {
-  ESP_LOGI(TAG, "POST /api/timer/reset");
-
-  // Kontrola web lock
-  if (web_is_locked()) {
-    ESP_LOGW(TAG, "Timer reset blocked: web interface is locked");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_set_status(req, "403 Forbidden");
-    httpd_resp_send(req,
-                    "{\"success\":false,\"message\":\"Web interface is locked. "
-                    "Use UART to unlock.\"}",
-                    -1);
-    return ESP_OK;
-  }
-
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_RESET_TIMER;
-
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to reset timer", -1);
-    return ESP_FAIL;
-  }
-
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_send(req, "Timer reset", -1);
-
-  return ESP_OK;
-}
-
-
-
-// ============================================================================
-// HTTP root & legacy JS paths — app-only product build (no browser dashboard).
-// REST `/api/*`, WebSocket `/ws`, and OTA handlers remain registered below.
-// ====================================================================================
-
-static const char k_http_root_json[] =
-    "{\"service\":\"czechmate\",\"client\":\"mobile_app\","
-    "\"api\":\"/api/\",\"websocket\":\"/ws\"}";
-
-esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
+esp_err_t web_get_chess_js_handler(httpd_req_t *req) {
   httpd_resp_set_status(req, "404 Not Found");
   httpd_resp_set_type(req, "application/json; charset=utf-8");
   return httpd_resp_send(req, "{\"error\":\"browser_ui_removed\"}",
@@ -3478,12 +2743,16 @@ esp_err_t http_get_chess_js_handler(httpd_req_t *req) {
 }
 
 /** GET /favicon.ico — no body; silent 404 in browser log on random request. */
-esp_err_t http_get_favicon_handler(httpd_req_t *req) {
+esp_err_t web_get_favicon_handler(httpd_req_t *req) {
   httpd_resp_set_status(req, "204 No Content");
   return httpd_resp_send(req, "", 0);
 }
 
-esp_err_t http_get_root_handler(httpd_req_t *req) {
+static const char k_http_root_json[] =
+    "{\"service\":\"czechmate\",\"client\":\"mobile_app\","
+    "\"api\":\"/api/\",\"websocket\":\"/ws\"}";
+
+esp_err_t web_get_root_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET / (JSON — CzechMate app-only HTTP surface)");
   httpd_resp_set_type(req, "application/json; charset=utf-8");
   httpd_resp_set_hdr(req, "Cache-Control", "no-store");
@@ -3510,6 +2779,36 @@ void __wrap_esp_log_write(esp_log_level_t level, const char *tag,
   (void)level;
   (void)tag;
   (void)format;
+}
+
+static bool web_http_heap_critical(void) {
+  size_t free_b = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  size_t largest =
+      heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  return free_b < (size_t)WEB_HTTP_BACKOFF_FREE_BYTES ||
+         largest < (size_t)WEB_HTTP_BACKOFF_LARGEST_BYTES;
+}
+
+static void web_http_heap_backoff(void) {
+  if (!web_server_active || !web_http_heap_critical()) {
+    return;
+  }
+  /* Accept stays in the httpd task. Do not mute or stop it: a paused
+   * listen socket fills the backlog and aborted clients come back as 113. */
+  static TickType_t s_log;
+  TickType_t now = xTaskGetTickCount();
+  if (s_log != 0 && (now - s_log) < pdMS_TO_TICKS(3000)) {
+    return;
+  }
+  s_log = now;
+  size_t free_b = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  size_t largest =
+      heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  ESP_LOGW(TAG,
+           "HTTP heap critical, accept continues: free %u B largest %u B "
+           "(gate free %d / largest %d)",
+           (unsigned)free_b, (unsigned)largest, WEB_HTTP_BACKOFF_FREE_BYTES,
+           WEB_HTTP_BACKOFF_LARGEST_BYTES);
 }
 
 // ============================================================================
@@ -3578,48 +2877,62 @@ void web_server_task_start(void *pvParameters) {
     ESP_LOGI(TAG, "No WiFi config in NVS, STA will remain disconnected");
   }
 
-  // Start HTTP server
-  ret = start_http_server();
-  if (ret != ESP_OK) {
-    ESP_LOGE(TAG, "❌ Failed to start HTTP server: %s", esp_err_to_name(ret));
-    ESP_LOGE(TAG,
-             "❌ Web server task will continue but HTTP will not be available");
+  /* BLE notifies snapshots from this task and does not use httpd.
+   * With STA down and the hotspot off, nobody can open a TCP socket.
+   * httpd (8 KiB stack) plus mDNS is what collapsed the heap to ~772 B. */
+  if (sta_connected || wifi_ap_active) {
+    ret = start_http_server();
+    if (ret != ESP_OK) {
+      ESP_LOGE(TAG, "❌ Failed to start HTTP server: %s", esp_err_to_name(ret));
+      ESP_LOGE(TAG,
+               "❌ Web server task will continue but HTTP will not be available");
 
-    // Keep task alive and retry HTTP startup periodically
-    task_running = true;
-    uint32_t retry_counter = 0;
-    while (task_running) {
-      web_server_task_wdt_reset_safe();
-      if ((retry_counter++ % 5) == 0) {
-        ESP_LOGW(TAG, "Retrying HTTP server start...");
-        esp_err_t retry_ret = start_http_server();
-        if (retry_ret == ESP_OK) {
-          web_server_active = true;
-          web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
-          ESP_LOGI(TAG, "HTTP server recovered and started");
-          break;
+      task_running = true;
+      uint32_t retry_counter = 0;
+      while (task_running) {
+        web_server_task_wdt_reset_safe();
+        if ((retry_counter++ % 5) == 0) {
+          ESP_LOGW(TAG, "Retrying HTTP server start...");
+          esp_err_t retry_ret = start_http_server();
+          if (retry_ret == ESP_OK) {
+            web_server_active = true;
+            web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+            ESP_LOGI(TAG, "HTTP server recovered and started");
+            break;
+          }
         }
+        vTaskDelay(pdMS_TO_TICKS(1000));
       }
-      vTaskDelay(pdMS_TO_TICKS(1000));
-    }
 
-    if (web_server_active) {
-      ESP_LOGI(TAG, "Switching to normal web server loop after recovery");
-    } else {
-    esp_task_wdt_delete(NULL); // Unregister before deleting
-    vTaskDelete(NULL);
-    return;
+      if (web_server_active) {
+        ESP_LOGI(TAG, "Switching to normal web server loop after recovery");
+      } else {
+        esp_task_wdt_delete(NULL);
+        vTaskDelete(NULL);
+        return;
+      }
     }
-  }
-  web_server_active = true;
-  web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
-  ESP_LOGI(TAG, "HTTP server started");
-  czechmate_mdns_ensure_started();
-  {
-    size_t free_b = heap_caps_get_free_size(MALLOC_CAP_8BIT);
-    size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
-    ESP_LOGW(TAG, "SRAM after HTTP+mDNS: free=%u B, largest_block=%u B",
-             (unsigned)free_b, (unsigned)largest);
+    web_server_active = true;
+    web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+    ESP_LOGI(TAG, "HTTP server started");
+    czechmate_mdns_ensure_started();
+    {
+      size_t free_b = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+      size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
+      ESP_LOGW(TAG, "SRAM after HTTP+mDNS: free=%u B, largest_block=%u B",
+               (unsigned)free_b, (unsigned)largest);
+    }
+  } else {
+    ESP_LOGW(TAG,
+             "HTTP+mDNS not started: no STA and board hotspot OFF "
+             "(BLE and the game stay up)");
+    {
+      size_t free_b = heap_caps_get_free_size(MALLOC_CAP_8BIT);
+      size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
+      ESP_LOGW(TAG,
+               "SRAM with HTTP+mDNS held: free=%u B, largest_block=%u B",
+               (unsigned)free_b, (unsigned)largest);
+    }
   }
 
   /* Do not restore a stored dim. Status stays at 100% until the user changes it. */
@@ -3653,11 +2966,29 @@ void web_server_task_start(void *pvParameters) {
       // Task not registered with TWDT yet
     }
 
+#if CONFIG_CHESS_ENABLE_WEB_SERVER
+    /* BLE provision or wifi_ap_set can make STA/AP reachable after boot. */
+    if ((loop_count % 50) == 0 && (sta_connected || wifi_ap_active)) {
+      if (!web_server_active) {
+        esp_err_t http_ret = start_http_server();
+        if (http_ret == ESP_OK) {
+          web_server_active = true;
+          web_server_start_time = xTaskGetTickCount() * portTICK_PERIOD_MS;
+          ESP_LOGI(TAG, "HTTP server started (WiFi reachable)");
+        }
+      }
+      if (web_server_active) {
+        czechmate_mdns_ensure_started();
+      }
+    }
+#endif
+
     // Process web server commands from queue
     web_server_process_commands();
 
     /* Snapshot WS/BLE mimo game_task (fronta z czechmate_on_game_state_changed). */
     web_server_process_snapshot_notify_queue();
+    web_http_heap_backoff();
 
     // Update web server state
     web_server_update_state();
@@ -3947,4 +3278,26 @@ void web_server_reset(void) {
   client_count = 0;
 
   ESP_LOGI(TAG, "Web server reset completed");
+}
+
+/* Included last so lwIP socket macros do not rewrite the rest of this file. */
+#include "lwip/sockets.h"
+
+extern int __real_lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen);
+
+int __wrap_lwip_accept(int s, struct sockaddr *addr, socklen_t *addrlen) {
+  int fd = __real_lwip_accept(s, addr, addrlen);
+  /* ~19 KiB steady is healthy. Nap only when lwIP is actually out of RAM,
+   * and only once per 3 s so aborted clients still get drained. */
+  if (fd >= 0 || !web_http_heap_critical()) {
+    return fd;
+  }
+  static TickType_t s_nap;
+  TickType_t now = xTaskGetTickCount();
+  if (s_nap != 0 && (now - s_nap) < pdMS_TO_TICKS(3000)) {
+    return fd;
+  }
+  s_nap = now;
+  vTaskDelay(pdMS_TO_TICKS(200));
+  return fd;
 }

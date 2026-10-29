@@ -67,7 +67,7 @@
  * @param[out] col Output column (0-7)
  * @return true if the conversion is successful, false on error
  */
-bool convert_notation_to_coords(const char *notation, uint8_t *row,
+bool game_notation_to_coords(const char *notation, uint8_t *row,
                                 uint8_t *col);
 
 /**
@@ -78,14 +78,14 @@ bool convert_notation_to_coords(const char *notation, uint8_t *row,
  * @param[out] notation Output buffer for notation (min. 3 characters)
  * @return true if the conversion is successful, false on error
  */
-bool convert_coords_to_notation(uint8_t row, uint8_t col, char *notation);
+bool game_coords_to_notation(uint8_t row, uint8_t col, char *notation);
 
 /**
- * @brief Process sach move from UART command
+ * @brief Process a chess move from game_submit (web, BLE, squares, main)
  *
  * @param cmd Display with stroke
  */
-void game_process_chess_move(const chess_move_command_t *cmd);
+void game_process_chess_move(const game_cmd_t *cmd);
 
 // ============================================================================
 // JSON EXPORT FUNCTION FOR WEB SERVER
@@ -180,6 +180,34 @@ void game_task_start(void *pvParameters);
  */
 void game_initialize_board(void);
 
+typedef struct position position_t;
+
+/** Starting position in position_t, then publish. */
+void game_logic_reset(void);
+
+/** Copy live globals into the session position. History in position_t is cleared. */
+void game_logic_adopt_globals(void);
+/** Sync side, castling bools, and en passant globals from a position_t. */
+void game_logic_sync_globals_from_position(const position_t *p);
+struct position *game_logic_position(void);
+
+/** Shared scratch position for non-reentrant game_task helpers. */
+struct position *game_logic_scratch_position(void);
+
+/** Copy live globals into out. Does not keep move history. */
+void game_logic_copy_globals(struct position *out);
+
+/** Install one session mode, or NULL for ordinary play. */
+struct game_mode;
+void game_mode_set(const struct game_mode *mode);
+
+/**
+ * Apply one move on the session position and publish.
+ * promo is POS_PROMO_*. A castling-rook completion only publishes.
+ */
+bool game_logic_play(uint8_t from_row, uint8_t from_col, uint8_t to_row,
+                     uint8_t to_col, int promo);
+
 /**
  * @brief Reset the game to its initial state
  *
@@ -233,6 +261,9 @@ bool game_is_valid_position(int row, int col);
  * @return The type of the figure at the position
  */
 piece_t game_get_piece(int row, int col);
+void game_set_piece(int row, int col, piece_t piece);
+/** One square from the published session snapshot. Does not read s_logic. */
+piece_t game_session_snap_piece(int row, int col);
 uint8_t game_endgame_reason(void);
 bool game_ep_capture_waiting(void);
 
@@ -399,6 +430,9 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
                                   move_suggestion_t *suggestions,
                                   uint32_t max_suggestions);
 
+/** Scratch move list for game_task hot paths (single-threaded, 64 entries). */
+move_suggestion_t *game_move_suggestions_work(void);
+
 // ============================================================================
 // FUNCTION TO MAKE A MOVE
 // ============================================================================
@@ -432,7 +466,7 @@ game_state_t game_get_state(void);
  */
 player_t game_get_current_player(void);
 
-/** Why GAME_CMD_RESIGN is refused (also used by HTTP/BLE for the reply). */
+/** Why resign is refused (also used by HTTP/BLE for the reply). */
 typedef enum {
   GAME_RESIGN_OK = 0,
   GAME_RESIGN_ERR_NOT_RUNNING = 1, ///< No game in progress (idle / finished)
@@ -650,6 +684,8 @@ const char *game_get_piece_name(piece_t piece);
  *
  * Reads commands from game_command_queue and executes them.
  */
+bool game_submit(const game_cmd_t *cmd);
+
 void game_process_commands(void);
 
 /**
@@ -662,18 +698,6 @@ void game_process_commands(void);
  */
 void game_handle_invalid_move(move_error_t error, const chess_move_t *move);
 
-// ============================================================================
-// TEST FUNCTIONS FOR ANIMATIONS
-// ============================================================================
-
-/** @brief Test the move animation */
-void game_test_move_animation(void);
-/** @brief Test dewdrop animation */
-void game_test_castle_animation(void);
-/** @brief Test graduation animation */
-void game_test_promote_animation(void);
-/** @brief Testuj animaci konce hry */
-void game_test_endgame_animation(void);
 
 // ============================================================================
 // PRIME LED FEATURE (no queues) - USED IN game_led_direct.c
@@ -693,8 +717,6 @@ void game_clear_highlights_direct(void);
 
 /** @brief Display the raised figure directly through the LED */
 void game_show_piece_lift_direct(uint8_t row, uint8_t col);
-/** @brief Display valid moves directly via LED */
-void game_show_valid_moves_direct(uint8_t *valid_positions, uint8_t count);
 
 // ============================================================================
 // ERROR HANDLING LED FUNCTION - USED IN game_led_direct.c
@@ -840,22 +862,22 @@ void game_stop_repeating_rook_animation(void);
  *
  * @param cmd Drop command with position
  */
-void game_process_drop_command(const chess_move_command_t *cmd);
+void game_process_drop_command(const game_cmd_t *cmd);
 
 /**
  * @brief Process the PICKUP display (UP)
  */
-void game_process_pickup_command(const chess_move_command_t *cmd);
+void game_process_pickup_command(const game_cmd_t *cmd);
 
 /**
  * @brief Process the CASTLE statement
  */
-void game_process_castle_command(const chess_move_command_t *cmd);
+void game_process_castle_command(const game_cmd_t *cmd);
 
 /**
  * @brief Process the PROMOTE command
  */
-void game_process_promote_command(const chess_move_command_t *cmd);
+void game_process_promote_command(const game_cmd_t *cmd);
 
 /**
  * @brief Timer callback pro opakovanou animaci veze
@@ -906,6 +928,11 @@ void show_castling_completion_animation();
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row,
                                              uint8_t error_col);
+
+/** Reed-style error lock and red blink without a command reply (Hall path). */
+void game_finish_rejected_drop_no_reply(uint8_t from_row, uint8_t from_col,
+                                        uint8_t to_row, uint8_t to_col,
+                                        piece_t piece);
 
 // ============================================================================
 // INTEGRACE TIMER SYSTEMU
@@ -977,7 +1004,7 @@ esp_err_t game_init_timer_system(void);
  * @param cmd Game command with timer operation
  * @return ESP_OK on success
  */
-esp_err_t game_process_timer_command(const chess_move_command_t *cmd);
+esp_err_t game_process_timer_command(const game_cmd_t *cmd);
 
 /**
  * @brief Handle the timeout
@@ -1025,6 +1052,181 @@ void game_set_starting_position_check(bool enabled);
  * @return true if watchdog is on, false otherwise
  */
 bool game_get_starting_position_check(void);
+
+typedef struct {
+  uint8_t id;
+  uint8_t difficulty;
+  const char *title;
+  const char *teaser;
+  const char *fen;
+  const char *solution_from;
+  const char *solution_to;
+} game_puzzle_definition_t;
+
+uint32_t game_get_fifty_move_counter(void);
+void game_set_fifty_move_counter(uint32_t value);
+char piece_to_char(piece_t piece);
+esp_err_t game_task_wdt_reset_safe(void);
+void game_trigger_victory_animation(player_t winner);
+void game_process_promotion_button(uint8_t button_id);
+bool game_execute_promotion(promotion_choice_t choice);
+void game_promotion_finish_turn(void);
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+void game_promotion_sync_hall_if_pending(void);
+#endif
+void game_ep_capture_arm(uint8_t row, uint8_t col);
+void game_ep_capture_service(void);
+bool game_ep_capture_is_victim(uint8_t row, uint8_t col);
+bool game_ep_capture_victim_square(uint8_t *row, uint8_t *col);
+void game_ep_capture_reset(void);
+void game_add_captured_piece(piece_t piece);
+void game_update_endgame_statistics(game_result_type_t result_type);
+void game_print_endgame_report_uart(game_result_type_t result_type);
+void game_record_material_advantage(void);
+bool game_led_guidance_show_check_anim(void);
+uint32_t game_generate_legal_moves(player_t player);
+bool game_task_squares_guard_mode_conflict_active(void);
+void game_task_squares_guard_freeze_move_flow(void);
+void game_check_promotion_needed(void);
+void game_bump_revision_and_notify(void);
+bool game_is_board_in_starting_position(void);
+void game_show_missing_pieces_led(void);
+void game_apply_empty_logical_board_after_full_reset(void);
+const game_puzzle_definition_t *game_get_puzzle_definition(uint8_t puzzle_id);
+bool game_puzzle_physical_matches_fen(const char *fen);
+const char *game_puzzle_feedback_key(void);
+const char *game_puzzle_feedback_message(void);
+bool game_is_valid_square(int row, int col);
+bool game_is_own_piece(piece_t piece, player_t player);
+void game_stop_error_blink(void);
+void resignation_tick(void);
+void game_process_promotion_command(const game_cmd_t *cmd);
+void game_process_web_hint(const game_cmd_t *cmd);
+void game_update_promotion_anchor_led(void);
+void game_cmd_reply(const char *message, bool is_error,
+                    QueueHandle_t response_queue);
+bool game_cmd_is_squares_origin(const game_cmd_t *cmd);
+bool game_led_guidance_show_destinations(void);
+bool game_led_guidance_show_movable_yellow(void);
+void resignation_start(player_t player, uint8_t row, uint8_t col);
+void resignation_stop(bool finalize);
+void game_reset_guided_capture_state(void);
+void game_show_guided_capture_leds(void);
+bool game_timer_is_enabled(void);
+
+
+/* Session fields are static in the .c file that owns them. Other files call the accessor. */
+#define GAME_TASK_MAX_CAPTURED_PIECES 16
+#define GAME_TASK_MAX_ADVANTAGE_HISTORY 200
+typedef struct {
+  bool pending;
+  uint8_t square_row;
+  uint8_t square_col;
+  player_t player;
+} game_task_promotion_state_t;
+typedef enum {
+  ENDGAME_REASON_CHECKMATE = 0,
+  ENDGAME_REASON_CHECKMATE_EN_PASSANT = 1,
+  ENDGAME_REASON_CHECKMATE_CASTLING = 2,
+  ENDGAME_REASON_CHECKMATE_PROMOTION = 3,
+  ENDGAME_REASON_CHECKMATE_DISCOVERED = 4,
+  ENDGAME_REASON_STALEMATE = 10,
+  ENDGAME_REASON_50_MOVE = 11,
+  ENDGAME_REASON_REPETITION = 12,
+  ENDGAME_REASON_INSUFFICIENT = 13,
+  ENDGAME_REASON_TIMEOUT = 20,
+  ENDGAME_REASON_RESIGNATION = 21,
+  ENDGAME_REASON_AGREEMENT = 22
+} endgame_reason_t;
+typedef enum {
+  LAST_MOVE_NORMAL = 0,
+  LAST_MOVE_EN_PASSANT = 1,
+  LAST_MOVE_CASTLING = 2,
+  LAST_MOVE_PROMOTION = 3,
+  LAST_MOVE_DISCOVERED = 4
+} last_move_type_t;
+typedef struct {
+  bool has_invalid_piece;
+  uint8_t invalid_row;
+  uint8_t invalid_col;
+  uint8_t original_valid_row;
+  uint8_t original_valid_col;
+  piece_t piece_type;
+  bool waiting_for_move_correction;
+  uint8_t error_count;
+} game_task_error_recovery_t;
+typedef struct {
+  bool active;
+  player_t player;
+  uint8_t king_row;
+  uint8_t king_col;
+  TimerHandle_t main_timer;
+  TimerHandle_t animation_timer;
+  uint64_t start_time_ms;
+  uint8_t last_countdown_sec;
+} king_resignation_state_t;
+typedef enum {
+  PUZZLE_FEEDBACK_NONE = 0,
+  PUZZLE_FEEDBACK_WRONG = 1,
+  PUZZLE_FEEDBACK_SOLVED = 2,
+  PUZZLE_FEEDBACK_ILLEGAL = 3,
+  PUZZLE_FEEDBACK_OPPONENT = 4,
+  PUZZLE_FEEDBACK_READY = 5
+} puzzle_feedback_t;
+
+game_task_promotion_state_t *game_state_promotion_state(void);
+SemaphoreHandle_t *game_state_promotion_mutex(void);
+bool *game_state_s_uart_move_immediate_promotion(void);
+promotion_choice_t *game_state_s_uart_move_immediate_promotion_piece(void);
+uint32_t *game_state_total_games(void);
+uint32_t *game_state_white_wins(void);
+uint32_t *game_state_black_wins(void);
+uint32_t *game_state_draws(void);
+bool *game_state_endgame_report_requested(void);
+endgame_reason_t *game_state_current_endgame_reason(void);
+last_move_type_t *game_state_last_move_type(void);
+uint32_t *game_state_game_start_time(void);
+uint32_t *game_state_last_move_time(void);
+uint32_t *game_state_white_time_total(void);
+uint32_t *game_state_black_time_total(void);
+uint32_t *game_state_white_moves_count(void);
+uint32_t *game_state_black_moves_count(void);
+uint32_t *game_state_white_captures(void);
+uint32_t *game_state_black_captures(void);
+uint32_t *game_state_white_checks(void);
+uint32_t *game_state_black_checks(void);
+uint32_t *game_state_white_castles(void);
+uint32_t *game_state_black_castles(void);
+piece_t *game_state_white_captured_pieces(void);
+piece_t *game_state_black_captured_pieces(void);
+uint32_t *game_state_white_captured_count(void);
+uint32_t *game_state_black_captured_count(void);
+uint32_t *game_state_white_captured_index(void);
+uint32_t *game_state_black_captured_index(void);
+int8_t *game_state_material_advantage_history(void);
+uint32_t *game_state_advantage_history_count(void);
+game_state_t *game_state_game_result(void);
+game_result_type_t *game_state_current_result_type(void);
+game_task_error_recovery_t *game_state_error_recovery_state(void);
+king_resignation_state_t *game_state_resignation_state(void);
+bool *game_state_puzzle_active(void);
+bool *game_state_puzzle_setup_active(void);
+uint8_t *game_state_puzzle_setup_id(void);
+uint8_t *game_state_puzzle_active_id(void);
+uint8_t *game_state_puzzle_solution_from_row(void);
+uint8_t *game_state_puzzle_solution_from_col(void);
+uint8_t *game_state_puzzle_solution_to_row(void);
+uint8_t *game_state_puzzle_solution_to_col(void);
+puzzle_feedback_t *game_state_puzzle_feedback(void);
+bool *game_state_board_setup_tutorial_active(void);
+uint32_t *game_state_game_state_revision(void);
+bool *game_state_auto_new_game_blocked_until_move(void);
+bool *game_state_auto_new_game_in_starting_position(void);
+uint32_t *game_state_auto_new_game_timer_start(void);
+bool *game_state_auto_new_game_triggered(void);
+bool *game_state_starting_position_check_enabled(void);
+const char **game_state_piece_symbols(void);
+const int8_t (*game_state_knight_moves(void))[2];
 
 #ifdef __cplusplus
 }

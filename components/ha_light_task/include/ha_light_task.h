@@ -117,13 +117,6 @@ typedef enum {
 #define HA_CMD_MQTT_STATE 4
 /** Game fact for the HA sensor and device triggers. state = fact, r = reason. */
 #define HA_CMD_GAME_FACT 5
-/** One stored drawing. action: off, on, stamp, clear, colors. */
-#define HA_CMD_PATTERN 6
-#define HA_PAT_OFF 0
-#define HA_PAT_ON 1
-#define HA_PAT_STAMP 2
-#define HA_PAT_CLEAR 3
-#define HA_PAT_COLORS 4
 
 /**
  * @brief HA Light command for internal communication
@@ -138,15 +131,6 @@ typedef struct {
       uint8_t brightness;     ///< MQTT brightness 0-255
       uint8_t set_brightness; ///< 1 = write brightness, 0 = keep the last one
     } web_lamp;
-    struct {
-      uint8_t action;
-      uint8_t square;
-      uint8_t pen;
-      uint8_t ar, ag, ab;
-      uint8_t br, bg, bb;
-      uint8_t write_colors;
-      uint8_t clear_map;
-    } pattern;
   } u;
 } ha_light_command_t;
 
@@ -227,18 +211,6 @@ void ha_light_report_activity(const char *activity_type);
  * and published on the next connect. Move events are not replayed.
  */
 void ha_game_report(uint8_t fact, uint8_t reason);
-
-/** True while the single piece-drawing pattern owns the lamp LEDs. */
-bool ha_pattern_is_active(void);
-
-/**
- * Queue a pattern change. Stamp uses square only. Colors are written when
- * write_colors is 1. clear_map wipes the drawing.
- */
-bool ha_pattern_request(uint8_t action, uint8_t square, uint8_t pen,
-                        uint8_t ar, uint8_t ag, uint8_t ab, uint8_t br,
-                        uint8_t bg, uint8_t bb, uint8_t write_colors,
-                        uint8_t clear_map);
 
 /**
  * @brief Save MQTT configuration to NVS

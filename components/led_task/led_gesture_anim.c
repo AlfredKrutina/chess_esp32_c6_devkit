@@ -635,6 +635,10 @@ static void tick_pair_hold(void) {
 
 bool led_gesture_anim_busy(void) { return s_phase != PH_IDLE; }
 
+bool led_gesture_snake_active(void) {
+  return s_phase == PH_SNAKE_FWD || s_phase == PH_SNAKE_REV;
+}
+
 static bool s_hold_lit;
 
 static void hold_step(uint8_t target) {
@@ -863,7 +867,25 @@ bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward,
 }
 
 bool led_gesture_start_snake(void) {
-  return begin_phase(PH_SNAKE_FWD, true);
+  taskENTER_CRITICAL(&s_mux);
+  if (s_phase == PH_SNAKE_FWD || s_phase == PH_SNAKE_REV) {
+    /* One more new-game request replays a single cycle. Keep the saved picture. */
+    s_phase = PH_SNAKE_FWD;
+    s_snake_q8 = 0;
+    s_snake_acc = 0;
+    s_release = false;
+    s_result = LED_GESTURE_RESULT_NONE;
+    taskEXIT_CRITICAL(&s_mux);
+    return true;
+  }
+  taskEXIT_CRITICAL(&s_mux);
+  if (!begin_phase(PH_SNAKE_FWD, true)) {
+    return false;
+  }
+  taskENTER_CRITICAL(&s_mux);
+  s_result = LED_GESTURE_RESULT_NONE;
+  taskEXIT_CRITICAL(&s_mux);
+  return true;
 }
 
 bool led_gesture_start_shutdown(void) {

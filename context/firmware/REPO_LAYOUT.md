@@ -52,26 +52,29 @@ Generated / gitignored: `build/`, `managed_components/`, `doxygen/html/`, `conte
 
 | Group | Components | Note |
 |---------|------------|----------|
-| **Core** | `freertos_chess`, `game_task`, `game_hooks`, `timer_system` | Queues, chess logic, clock |
-| **Inputs** | `matrix_task`, `button_task`, `stm32_i2c_bootloader` | Reed V1 / I²C Hall V2 (differential occupancy; piece-type decoding is not in matrix_task) |
+| **Core** | `freertos_chess`, `chess_core`, `game_task`, `game_hooks`, `timer_system` | Queues, rules (`chess_core`), session, clock |
+| **Inputs** | `squares_task`, `button_task`, `stm32_i2c_bootloader` | Reed V1 / I²C Hall V2 (differential occupancy; piece-type decoding is not in squares_task) |
 | **Outputs** | `led_task`, `led_state_manager`, `unified_animation_manager`, `game_led_animations`, `visual_error_system` | WS2812B, animation, errors |
-| **Connectivity** | `uart_task`, `uart_commands_extended`, `web_server_task`, `ble_task`, `ha_light_task` | Console, HTTP, BLE, MQTT |
+| **Connectivity** | `uart_task`, `web_server_task`, `ble_task`, `ha_light_task`, `transport_policy`, `ota_guard` | Console, HTTP, BLE, MQTT, OTA |
 | **Support** | `config_manager`, `test_task` | NVS/config; tests (menuconfig) |
-| **Legacy / inactive task** | `animation_task`, `enhanced_castling_system`, `promotion_button_task`, `reset_button_task` | Task not created in `main.c` or not linked |
+| **Dead components** | `kos/unused/components/` | `animation_task`, `enhanced_castling_system`, `promotion_button_task`, `reset_button_task` — not linked |
 
 Simplified file tree:
 
 ```
 components/
 ├── freertos_chess/          # Queues, mutexes, LED mapping
-├── game_task/               # Chess logic (largest module)
-├── matrix_task/             # 8×8 reed scan / I2C Hall differential occupancy
+├── chess_core/              # position_t, FEN, movegen (no FreeRTOS)
+├── game_task/               # Chess session (largest module)
+├── squares_task/            # 8×8 reed scan / I2C Hall differential occupancy
 ├── led_task/                # WS2812B + animation pipeline
 ├── button_task/             # Buttons (promotion, reset, …)
 ├── uart_task/               # USB Serial JTAG console
 ├── web_server_task/         # WiFi + HTTP /api + /ws (browser page is in kos/unused/web_ui)
 ├── ble_task/                # NimBLE GATT
 ├── ha_light_task/           # MQTT Home Assistant
+├── transport_policy/
+├── ota_guard/
 ├── unified_animation_manager/
 ├── game_led_animations/
 ├── led_state_manager/
@@ -79,14 +82,11 @@ components/
 ├── timer_system/
 ├── config_manager/
 ├── stm32_i2c_bootloader/
-├── uart_commands_extended/
 ├── game_hooks/
-├── test_task/               # Optional (menuconfig)
-├── animation_task/          # Legacy — task disabled in main.c
-├── enhanced_castling_system/  # Not linked from game_task
-├── promotion_button_task/   # Orphan — logic in button_task
-└── reset_button_task/       # Orphan — logic in button_task
+└── test_task/               # Optional (menuconfig)
 ```
+
+Dead components (not in the live `components/` tree): `kos/unused/components/animation_task`, `enhanced_castling_system`, `promotion_button_task`, `reset_button_task`.
 
 ---
 

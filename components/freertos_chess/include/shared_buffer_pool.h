@@ -135,6 +135,9 @@ esp_err_t release_shared_buffer(char* buffer);
 /** Capacity in bytes of a buffer returned by get_shared_buffer(), or 0 if unknown. */
 size_t shared_buffer_capacity(const char *buffer);
 
+/** True when two distinct free slabs can cover both sizes (order does not matter). */
+bool shared_buffer_pair_free(size_t need_a, size_t need_b);
+
 // ============================================================================
 // UTILITIES AND FUNCTION STATUS
 // ============================================================================

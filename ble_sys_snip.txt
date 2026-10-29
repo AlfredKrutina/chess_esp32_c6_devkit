@@ -1,0 +1,165 @@
+﻿      if (strlen(choice) == 0) {
+        strcpy(choice, "Q");
+      }
+      if (strcasecmp(choice, "Q") == 0) {
+        vacmd.promotion_choice = PROMOTION_QUEEN;
+      } else if (strcasecmp(choice, "R") == 0) {
+        vacmd.promotion_choice = PROMOTION_ROOK;
+      } else if (strcasecmp(choice, "B") == 0) {
+        vacmd.promotion_choice = PROMOTION_BISHOP;
+      } else if (strcasecmp(choice, "N") == 0) {
+        vacmd.promotion_choice = PROMOTION_KNIGHT;
+      } else {
+        vacmd.promotion_choice = PROMOTION_QUEEN;
+      }
+      if (strlen(square) > 0) {
+        strncpy(vacmd.to_notation, square, sizeof(vacmd.to_notation) - 1);
+      }
+    }
+
+    if (game_command_queue == NULL ||
+        xQueueSend(game_command_queue, &vacmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+      ESP_LOGE(TAG, "[BLE] virtual_action: queue send failed");
+      return ESP_FAIL;
+    }
+    ESP_LOGI(TAG, "[BLE] virtual_action: %s", action);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "demo_config") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] demo_config blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    bool enabled = false;
+    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
+    if (cJSON_IsBool(en)) {
+      enabled = cJSON_IsTrue(en);
+    }
+    cJSON *sp = cJSON_GetObjectItemCaseSensitive(root, "speed_ms");
+    if (cJSON_IsNumber(sp)) {
+      double v = cJSON_GetNumberValue(sp);
+      if (v >= 0 && v <= 600000) {
+        set_demo_speed_ms((uint32_t)v);
+      }
+    }
+    cJSON_Delete(root);
+    toggle_demo_mode(enabled);
+    ESP_LOGI(TAG, "[BLE] demo_config enabled=%d", (int)enabled);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "demo_start") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] demo_start blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    toggle_demo_mode(true);
+    ESP_LOGI(TAG, "[BLE] demo_start");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_auto_lamp_timeout") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *sec = cJSON_GetObjectItemCaseSensitive(root, "seconds");
+    int seconds_val = -1;
+    if (cJSON_IsNumber(sec)) {
+      seconds_val = (int)cJSON_GetNumberValue(sec);
+    }
+    cJSON_Delete(root);
+    if (seconds_val < 5) {
+      seconds_val = 5;
+    }
+    if (seconds_val > 7200) {
+      seconds_val = 7200;
+    }
+    if (ha_light_set_activity_timeout_sec((uint32_t)seconds_val) != ESP_OK) {
+      return ESP_ERR_INVALID_ARG;
+    }
+    ESP_LOGI(TAG, "[BLE] settings_auto_lamp_timeout %d", seconds_val);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_guided_hints") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    bool enabled = false;
+    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
+    if (cJSON_IsBool(en)) {
+      enabled = cJSON_IsTrue(en);
+    }
+    cJSON_Delete(root);
+    system_config_t syscfg;
+    if (config_load_from_nvs(&syscfg) != ESP_OK) {
+      return ESP_FAIL;
+    }
+    syscfg.guided_capture_hints_enabled = enabled;
+    syscfg.led_guidance_level = enabled ? (uint8_t)5 : (uint8_t)4;
+    config_save_to_nvs(&syscfg);
+    game_set_led_guidance_level(syscfg.led_guidance_level);
+    ESP_LOGI(TAG, "[BLE] settings_guided_hints enabled=%d", (int)enabled);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_led_guidance") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *lv = cJSON_GetObjectItemCaseSensitive(root, "level");
+    int level = -1;
+    if (cJSON_IsNumber(lv)) {
+      level = (int)cJSON_GetNumberValue(lv);
+    }
+    cJSON_Delete(root);
+    if (level < 1 || level > 5) {
+      return ESP_ERR_INVALID_ARG;
+    }
+    system_config_t syscfg;
+    if (config_load_from_nvs(&syscfg) != ESP_OK) {
+      return ESP_FAIL;
+    }
+    syscfg.led_guidance_level = (uint8_t)level;
+    syscfg.guided_capture_hints_enabled = (level >= 5);
+    config_save_to_nvs(&syscfg);
+    game_set_led_guidance_level((uint8_t)level);
+    ESP_LOGI(TAG, "[BLE] settings_led_guidance level=%d", level);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "mqtt_config") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *hj = cJSON_GetObjectItemCaseSensitive(root, "host");
+    if (!cJSON_IsString(hj) || hj->valuestring == NULL ||
+        hj->valuestring[0] == '\0' || strlen(hj->valuestring) > 127) {
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    uint16_t port = 1883;
+    cJSON *pj = cJSON_GetObjectItemCaseSensitive(root, "port");
+    if (cJSON_IsNumber(pj)) {
+      double pv = cJSON_GetNumberValue(pj);

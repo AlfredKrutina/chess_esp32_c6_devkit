@@ -217,7 +217,7 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 #define BUTTON_QUEUE_SIZE 5
 /** @brief UART: commands/responses (sizeof(game_response_t) ~ 328 B per item). */
 #define UART_QUEUE_SIZE 10
-/** @brief Game: fast moves from web/matrix (24 × chess_move_command_t; previously 50). */
+/** @brief Game: fast moves from web/matrix (24 × game_cmd_t; previously 50). */
 #define GAME_QUEUE_SIZE 24
 /**
  * @brief Test: uint8 commands to test_task (0-5 in test_process_commands).
@@ -250,6 +250,10 @@ static inline bool chess_gpio_pin_is_stm32_nrst_output(int gpio_num) {
 /** @brief UART: input line + game_response_t when forwarding response. */
 #define UART_TASK_STACK_SIZE (5 * 1024)
 #define GAME_TASK_STACK_SIZE (6 * 1024)
+/** Internal heap WiFi mgmt frames and lwIP must keep. MQTT may not spend it. */
+#define CHESS_WIFI_HEAP_FLOOR_BYTES (20 * 1024)
+/** Largest block still required for a WiFi mgmt alloc (assoc req was 252 B). */
+#define CHESS_WIFI_LARGEST_FLOOR_BYTES (4 * 1024)
 /** @brief Velikost stacku Animation tasku (2KB, snizeno z 3KB, jednoduche
  * animace) */
 #define ANIMATION_TASK_STACK_SIZE                                              \
@@ -325,8 +329,8 @@ extern QueueHandle_t uart_command_queue;
 extern QueueHandle_t uart_response_queue;
 /** @brief Queue for game commands (new game, move, status) */
 extern QueueHandle_t game_command_queue;
-/** @brief Queue for game status (game state) */
-extern QueueHandle_t game_status_queue;
+/** @brief Session events for led_task (see game_events.h) */
+extern QueueHandle_t game_event_queue;
 /** @brief Queue for animation commands (start, stop, pause) */
 extern QueueHandle_t animation_command_queue;
 /** @brief Fronta pro animation status (stav animaci) */

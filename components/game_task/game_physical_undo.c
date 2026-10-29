@@ -4,11 +4,17 @@
  */
 
 #include "game_physical_undo.h"
-#include "game_task_internal.h"
+#include "position.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "game_squares_guard.h"
 #include "game_snapshot.h"
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
 #include "game_hall_match.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_restore_guide.h"
@@ -61,23 +67,23 @@ static void undo_pop_last_capture_list(piece_t captured, bool mover_is_white) {
     return;
   }
   if (mover_is_white) {
-    if (white_captured_index > 0) {
-      white_captured_index--;
-      if (white_captured_count > 0) {
-        white_captured_count--;
+    if ((*game_state_white_captured_index()) > 0) {
+      (*game_state_white_captured_index())--;
+      if ((*game_state_white_captured_count()) > 0) {
+        (*game_state_white_captured_count())--;
       }
-      if (white_captures > 0) {
-        white_captures--;
+      if ((*game_state_white_captures()) > 0) {
+        (*game_state_white_captures())--;
       }
     }
   } else {
-    if (black_captured_index > 0) {
-      black_captured_index--;
-      if (black_captured_count > 0) {
-        black_captured_count--;
+    if ((*game_state_black_captured_index()) > 0) {
+      (*game_state_black_captured_index())--;
+      if ((*game_state_black_captured_count()) > 0) {
+        (*game_state_black_captured_count())--;
       }
-      if (black_captures > 0) {
-        black_captures--;
+      if ((*game_state_black_captures()) > 0) {
+        (*game_state_black_captures())--;
       }
     }
   }
@@ -151,11 +157,11 @@ bool game_physical_undo_is_active(void) {
 static bool game_physical_undo_mode_blocks_offer(void) {
   if (castling_state.in_progress || castle_animation_active ||
       guided_capture_state.active ||
-      error_recovery_state.waiting_for_move_correction ||
-      resignation_state.active ||
+      (*game_state_error_recovery_state()).waiting_for_move_correction ||
+      (*game_state_resignation_state()).active ||
       current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP ||
       current_game_state == GAME_STATE_WAITING_FOR_RETURN ||
-      puzzle_active || puzzle_setup_active || board_setup_tutorial_active ||
+      (*game_state_puzzle_active()) || (*game_state_puzzle_setup_active()) || (*game_state_board_setup_tutorial_active()) ||
       game_is_opening_trainer_active()) {
     return true;
   }
@@ -178,12 +184,52 @@ static piece_t game_physical_undo_rook_for_king(piece_t king) {
   return (king == PIECE_WHITE_KING) ? PIECE_WHITE_ROOK : PIECE_BLACK_ROOK;
 }
 
+/* position_undo already stepped the king and rook back. Give that wing back. */
+static void undo_restore_castle_wing(position_t *logic, const chess_move_t *m,
+                                     move_type_t kind) {
+  int rook_col;
+  uint8_t king;
+  uint8_t rook;
+  uint8_t bit;
+  if (logic == NULL || m == NULL || m->from_row > 7) {
+    return;
+  }
+  if (kind != MOVE_TYPE_CASTLE_KING && kind != MOVE_TYPE_CASTLE_QUEEN) {
+    return;
+  }
+  rook_col = (kind == MOVE_TYPE_CASTLE_KING) ? 7 : 0;
+  if (m->from_row == 0) {
+    king = POS_WHITE_KING;
+    rook = POS_WHITE_ROOK;
+    bit = (kind == MOVE_TYPE_CASTLE_KING) ? POS_CASTLE_WK : POS_CASTLE_WQ;
+  } else if (m->from_row == 7) {
+    king = POS_BLACK_KING;
+    rook = POS_BLACK_ROOK;
+    bit = (kind == MOVE_TYPE_CASTLE_KING) ? POS_CASTLE_BK : POS_CASTLE_BQ;
+  } else {
+    return;
+  }
+  if (logic->board[m->from_row][4] == king &&
+      logic->board[m->from_row][rook_col] == rook) {
+    logic->castling |= bit;
+  }
+}
+
+static void undo_sync_piece_moved_flags(void) {
+  piece_moved[0][4] = white_king_moved;
+  piece_moved[0][0] = white_rook_a_moved;
+  piece_moved[0][7] = white_rook_h_moved;
+  piece_moved[7][4] = black_king_moved;
+  piece_moved[7][0] = black_rook_a_moved;
+  piece_moved[7][7] = black_rook_h_moved;
+}
+
 static bool game_physical_undo_lift_matches(const chess_move_t *m,
                                             move_type_t kind,
                                             const move_undo_meta_t *meta,
                                             uint8_t row, uint8_t col,
                                             piece_t piece) {
-  piece_t on_board = board[row][col];
+  piece_t on_board = game_get_piece(row, col);
   if (on_board == PIECE_EMPTY && piece == PIECE_EMPTY) {
     return false;
   }
@@ -198,7 +244,7 @@ static bool game_physical_undo_lift_matches(const chess_move_t *m,
   if ((kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) &&
       row == m->from_row && col == meta->rook_castle_col) {
     piece_t rook = game_physical_undo_rook_for_king(m->piece);
-    return piece == rook && board[row][col] == rook;
+    return piece == rook && game_get_piece(row, col) == rook;
   }
   return false;
 }
@@ -207,7 +253,13 @@ static void game_physical_undo_build_target_board(piece_t target[8][8],
                                                   const chess_move_t *m,
                                                   move_type_t kind,
                                                   const move_undo_meta_t *meta) {
-  memcpy(target, board, sizeof(piece_t) * 64);
+  const position_t *pos = game_logic_position();
+  for (int row = 0; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      target[row][col] =
+          (pos != NULL) ? (piece_t)pos->board[row][col] : PIECE_EMPTY;
+    }
+  }
 
   bool mover_white =
       (m->piece >= PIECE_WHITE_PAWN && m->piece <= PIECE_WHITE_KING);
@@ -291,33 +343,28 @@ static bool game_physical_undo_physical_matches_target(void) {
 }
 
 static void game_physical_undo_show_armed_leds(void) {
-  led_clear_board_only();
-  led_set_pixel_safe(chess_pos_to_led_index(s_undo.lift_row, s_undo.lift_col),
-                     255, 255, 0);
-  if (chess_policy_error_recovery_led_valid_blue()) {
-    led_set_pixel_safe(
-        chess_pos_to_led_index(s_undo.blue_row, s_undo.blue_col), 0, 0, 255);
+  game_led_clear_board();
+  game_led_frame_sq(s_undo.lift_row, s_undo.lift_col, 255, 255, 0);
+  if (game_policy_error_recovery_led_valid_blue()) {
+    game_led_frame_sq(s_undo.blue_row, s_undo.blue_col, 0, 0, 255);
   }
 }
 
 static void game_physical_undo_show_pending_leds(void) {
-  led_clear_board_only();
+  game_led_clear_board();
   const chess_move_t *m = &s_undo.move;
   const move_undo_meta_t *meta = &s_undo.meta;
 
-  if (chess_policy_error_recovery_led_valid_blue()) {
-    led_set_pixel_safe(chess_pos_to_led_index(m->from_row, m->from_col), 0, 0,
-                       255);
+  if (game_policy_error_recovery_led_valid_blue()) {
+    game_led_frame_sq(m->from_row, m->from_col, 0, 0, 255);
   }
 
   if (s_undo.kind == MOVE_TYPE_CASTLE_KING ||
       s_undo.kind == MOVE_TYPE_CASTLE_QUEEN) {
     piece_t rook = game_physical_undo_rook_for_king(m->piece);
-    if (board[m->from_row][meta->rook_castle_col] == rook) {
-      if (chess_policy_error_recovery_led_valid_blue()) {
-        led_set_pixel_safe(
-            chess_pos_to_led_index(m->from_row, meta->rook_home_col), 0, 0,
-            255);
+    if (game_get_piece(m->from_row, meta->rook_castle_col) == rook) {
+      if (game_policy_error_recovery_led_valid_blue()) {
+        game_led_frame_sq(m->from_row, meta->rook_home_col, 0, 0, 255);
       }
     }
   }
@@ -336,11 +383,11 @@ static void game_physical_undo_show_pending_leds(void) {
     bool need_piece = (expect != PIECE_EMPTY);
     ok = (!need_piece && phys[sq] == 0) || (need_piece && phys[sq] != 0);
 #endif
-    if (!ok && chess_policy_error_recovery_led_red_blink()) {
+    if (!ok && game_policy_error_recovery_led_red_blink()) {
       s_undo.pending_blink_phase++;
       bool on = (s_undo.pending_blink_phase / 8U) % 2U == 0U;
       if (on) {
-        led_set_pixel_safe(chess_pos_to_led_index(rr, rc), 255, 0, 0);
+        game_led_frame_sq(rr, rc, 255, 0, 0);
       }
     }
   }
@@ -371,6 +418,28 @@ bool game_undo_rewind_last_move(void) {
   chess_move_t m = move_history[idx];
   move_type_t kind = move_history_kind[idx];
   move_undo_meta_t meta = move_history_meta[idx];
+  position_t *logic = game_logic_position();
+  bool used_core = false;
+
+  if (logic != NULL && logic->hist_len > 0) {
+    if (!position_undo(logic)) {
+      return false;
+    }
+    /* Castle rights come from the undone position, not a stale king_moved meta. */
+    if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
+      undo_restore_castle_wing(logic, &m, kind);
+    }
+    game_logic_sync_globals_from_position(logic);
+    if (kind != MOVE_TYPE_CASTLE_KING && kind != MOVE_TYPE_CASTLE_QUEEN) {
+      white_king_moved = meta.white_king_moved;
+      black_king_moved = meta.black_king_moved;
+    }
+    current_player = meta.side_before;
+    logic->side = (uint8_t)current_player;
+    game_set_fifty_move_counter(logic->halfmove);
+    moves_without_capture = logic->halfmove;
+    used_core = true;
+  }
 
   bool mover_white =
       (m.piece >= PIECE_WHITE_PAWN && m.piece <= PIECE_WHITE_KING);
@@ -379,78 +448,58 @@ bool game_undo_rewind_last_move(void) {
   uint8_t tr = m.to_row;
   uint8_t tc = m.to_col;
 
-  switch (kind) {
-  case MOVE_TYPE_EN_PASSANT:
-    board[tr][tc] = PIECE_EMPTY;
-    board[fr][fc] = m.piece;
-    board[meta.capture_return_row][meta.capture_return_col] =
-        meta.capture_return_piece;
-    break;
-  case MOVE_TYPE_PROMOTION: {
-    if (promotion_state.pending) {
-      if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
-          pdTRUE) {
-        promotion_state.pending = false;
-        promotion_state.square_row = 0;
-        promotion_state.square_col = 0;
-        xSemaphoreGiveRecursive(promotion_mutex);
-      }
+  if (kind == MOVE_TYPE_PROMOTION && (*game_state_promotion_state()).pending) {
+    if (xSemaphoreTakeRecursive((*game_state_promotion_mutex()), pdMS_TO_TICKS(100)) == pdTRUE) {
+      (*game_state_promotion_state()).pending = false;
+      (*game_state_promotion_state()).square_row = 0;
+      (*game_state_promotion_state()).square_col = 0;
+      xSemaphoreGiveRecursive((*game_state_promotion_mutex()));
     }
-    board[tr][tc] = PIECE_EMPTY;
-    board[fr][fc] = m.piece;
-    break;
-  }
-  default:
-    board[tr][tc] = m.captured_piece;
-    board[fr][fc] = m.piece;
-    break;
   }
 
-  if (kind == MOVE_TYPE_CASTLE_KING || kind == MOVE_TYPE_CASTLE_QUEEN) {
-    piece_t rook_piece = game_physical_undo_rook_for_king(m.piece);
-    if (board[fr][meta.rook_castle_col] == rook_piece) {
-      board[fr][meta.rook_castle_col] = PIECE_EMPTY;
-      board[fr][meta.rook_home_col] = rook_piece;
-    }
+  if (!used_core) {
+    white_king_moved = meta.white_king_moved;
+    white_rook_a_moved = meta.white_rook_a_moved;
+    white_rook_h_moved = meta.white_rook_h_moved;
+    black_king_moved = meta.black_king_moved;
+    black_rook_a_moved = meta.black_rook_a_moved;
+    black_rook_h_moved = meta.black_rook_h_moved;
+    en_passant_available = meta.en_passant_available;
+    en_passant_target_row = meta.en_passant_target_row;
+    en_passant_target_col = meta.en_passant_target_col;
+    en_passant_victim_row = meta.en_passant_victim_row;
+    en_passant_victim_col = meta.en_passant_victim_col;
+    current_player = meta.side_before;
   }
 
   if (kind == MOVE_TYPE_CAPTURE) {
     undo_pop_last_capture_list(m.captured_piece, mover_white);
   }
 
-  castling_state.in_progress = false;
-
-  white_king_moved = meta.white_king_moved;
-  white_rook_a_moved = meta.white_rook_a_moved;
-  white_rook_h_moved = meta.white_rook_h_moved;
-  black_king_moved = meta.black_king_moved;
-  black_rook_a_moved = meta.black_rook_a_moved;
-  black_rook_h_moved = meta.black_rook_h_moved;
-  en_passant_available = meta.en_passant_available;
-  en_passant_target_row = meta.en_passant_target_row;
-  en_passant_target_col = meta.en_passant_target_col;
-  en_passant_victim_row = meta.en_passant_victim_row;
-  en_passant_victim_col = meta.en_passant_victim_col;
+  memset(&castling_state, 0, sizeof(castling_state));
+  if (castle_animation_active) {
+    game_stop_repeating_rook_animation();
+    castle_animation_active = false;
+  }
+  undo_sync_piece_moved_flags();
 
   history_index--;
   if (move_count > 0) {
     move_count--;
   }
-  if (advantage_history_count > 0) {
-    advantage_history_count--;
+  if ((*game_state_advantage_history_count()) > 0) {
+    (*game_state_advantage_history_count())--;
   }
 
   if (mover_white) {
-    if (white_moves_count > 0) {
-      white_moves_count--;
+    if ((*game_state_white_moves_count()) > 0) {
+      (*game_state_white_moves_count())--;
     }
   } else {
-    if (black_moves_count > 0) {
-      black_moves_count--;
+    if ((*game_state_black_moves_count()) > 0) {
+      (*game_state_black_moves_count())--;
     }
   }
-
-  current_player = meta.side_before;
 
   if (history_index > 0) {
     chess_move_t *p = &move_history[history_index - 1];
@@ -468,28 +517,31 @@ bool game_undo_rewind_last_move(void) {
     game_active = true;
   }
 
-  piece_lifted = false;
-  lifted_piece_row = 0;
-  lifted_piece_col = 0;
-  lifted_piece = PIECE_EMPTY;
+  game_board_set_piece_lifted(false, 0, 0, PIECE_EMPTY);
 
   game_end_timer_move();
   game_start_timer_move(current_player == PLAYER_WHITE);
 
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_snapshot_last_valid();
+  game_hall_position_arm_idle_handover();
+#endif
   game_squares_guard_check_resync_after_restore();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
   if (!game_is_squares_guard_active()) {
-    led_clear_board_only();
-    chess_policy_highlight_movable_if_enabled();
+    /* patch false: full frame, not the castle-partial path. */
+    game_policy_refresh_idle_board_leds();
   }
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_position_clear_castle_wait();
+#endif
 
+  game_session_snap_refresh();
   game_snapshot_persist_after_valid_move();
   game_bump_revision_and_notify();
 
   ESP_LOGI(TAG, "Undo applied (kind=%d), side to move: %s", (int)kind,
            current_player == PLAYER_WHITE ? "White" : "Black");
-#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-  game_hall_snapshot_last_valid();
-#endif
   return true;
 }
 
@@ -574,7 +626,7 @@ static bool game_physical_undo_drop_is_last_reverse(uint8_t to_row,
   return to_row == m->from_row && to_col == m->from_col;
 }
 
-bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
+bool game_physical_undo_handle_pickup(const game_cmd_t *cmd,
                                       uint8_t from_row, uint8_t from_col,
                                       piece_t piece) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
@@ -628,7 +680,7 @@ bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
 #endif
 }
 
-bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
+bool game_physical_undo_handle_drop(const game_cmd_t *cmd,
                                     uint8_t to_row, uint8_t to_col) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   (void)cmd;
@@ -676,8 +728,8 @@ bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
     lifted_piece = PIECE_EMPTY;
     lifted_piece_row = 0;
     lifted_piece_col = 0;
-    led_clear_board_only();
-    chess_policy_highlight_movable_if_enabled();
+    game_led_clear_board();
+    game_policy_highlight_movable_if_enabled();
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
     game_hall_restore_guide_request_sync();
 #endif
@@ -697,13 +749,13 @@ bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
     lifted_piece_col = 0;
     s_undo.pending_blink_phase = 0;
 
-    if (s_undo.kind == MOVE_TYPE_PROMOTION && promotion_state.pending) {
-      if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
+    if (s_undo.kind == MOVE_TYPE_PROMOTION && (*game_state_promotion_state()).pending) {
+      if (xSemaphoreTakeRecursive((*game_state_promotion_mutex()), pdMS_TO_TICKS(100)) ==
           pdTRUE) {
-        promotion_state.pending = false;
-        promotion_state.square_row = 0;
-        promotion_state.square_col = 0;
-        xSemaphoreGiveRecursive(promotion_mutex);
+        (*game_state_promotion_state()).pending = false;
+        (*game_state_promotion_state()).square_row = 0;
+        (*game_state_promotion_state()).square_col = 0;
+        xSemaphoreGiveRecursive((*game_state_promotion_mutex()));
       }
     }
 
@@ -723,7 +775,7 @@ bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
   lifted_piece_row = 0;
   lifted_piece_col = 0;
   game_physical_undo_show_armed_leds();
-  led_set_pixel_safe(chess_pos_to_led_index(to_row, to_col), 255, 0, 0);
+  game_led_frame_sq(to_row, to_col, 255, 0, 0);
   return true;
 #endif
 }

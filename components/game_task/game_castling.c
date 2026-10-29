@@ -3,10 +3,16 @@
  * @brief Castling detection, rook guidance, legacy animation, LED refresh.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
 #include "game_squares_guard.h"
-#include "chess_gameplay_policy.h"
+#include "game_squares_guard.h"
+#include "game_policy.h"
+#include "game_required_step.h"
 
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
@@ -65,15 +71,17 @@ void game_detect_and_handle_castling(const chess_move_t *move) {
  * @brief Show LED guidance for castling rook move
  */
 void game_show_castling_rook_guidance() {
-  led_clear_board_only();
+  game_led_clear_board();
 
   uint8_t rook_from_led = chess_pos_to_led_index(castling_state.rook_from_row,
                                                  castling_state.rook_from_col);
   uint8_t rook_to_led = chess_pos_to_led_index(castling_state.rook_to_row,
                                                castling_state.rook_to_col);
 
-  led_set_pixel_safe(rook_from_led, 255, 255, 0);
-  led_set_pixel_safe(rook_to_led, 0, 255, 0);
+  game_led_paint_led(rook_from_led, 255, 255, 0);
+  game_led_paint_led(rook_to_led, 0, 255, 0);
+  game_led_flush();
+  game_required_step_refresh();
 
   ESP_LOGI(TAG, "💡 Move rook from %c%d to %c%d to complete castling",
            'a' + castling_state.rook_from_col, castling_state.rook_from_row + 1,
@@ -98,9 +106,9 @@ bool game_check_castling_completion(const chess_move_t *move) {
     ESP_LOGI(TAG, "✅ CASTLING COMPLETED! Rook moved correctly");
 
     // We will move the tower in the board[][]
-    board[move->to_row][move->to_col] = move->piece;
-    board[castling_state.rook_from_row][castling_state.rook_from_col] =
-        PIECE_EMPTY;
+    game_set_piece(move->to_row, move->to_col, move->piece);
+    game_set_piece(castling_state.rook_from_row, castling_state.rook_from_col,
+                   PIECE_EMPTY);
 
     // Update flags for king and rook
     if (castling_state.player == PLAYER_WHITE) {
@@ -144,7 +152,7 @@ bool game_check_castling_completion(const chess_move_t *move) {
           (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
       uint8_t king_pos = 28; // default e4
       for (int i = 0; i < 64; i++) {
-        piece_t piece = board[i / 8][i % 8];
+        piece_t piece = game_get_piece(i / 8, i % 8);
         if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
             (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
           king_pos = i;
@@ -158,14 +166,8 @@ bool game_check_castling_completion(const chess_move_t *move) {
                king_pos);
 
       // Start the endgame animation (wave from king winner)
-      led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
-                                   .led_index = king_pos,
-                                   .red = 255,
-                                   .green = 255,
-                                   .blue = 0,        // Yellow
-                                   .duration_ms = 0, // Endless
-                                   .data = NULL};
-      led_execute_command_new(&endgame_cmd);
+      game_led_flush();
+  game_event_post_game_end(king_pos, 0);
 
       ESP_LOGI(
           TAG,
@@ -174,8 +176,8 @@ bool game_check_castling_completion(const chess_move_t *move) {
       memset(&castling_state, 0, sizeof(castling_state));
 
       // Show moveable figures for new player
-      led_clear_board_only();
-      chess_policy_highlight_movable_if_enabled();
+      game_led_clear_board();
+      game_policy_highlight_movable_if_enabled();
 
       ESP_LOGI(TAG, "🏰 Castling completed! %s to move",
                (current_player == PLAYER_WHITE) ? "White" : "Black");
@@ -190,7 +192,7 @@ bool game_check_castling_completion(const chess_move_t *move) {
                                  : PIECE_BLACK_KING;
         for (int row = 0; row < 8; row++) {
           for (int col = 0; col < 8; col++) {
-            if (board[row][col] == king_piece) {
+            if (game_get_piece(row, col) == king_piece) {
               king_row = row;
               king_col = col;
               break;
@@ -204,15 +206,8 @@ bool game_check_castling_completion(const chess_move_t *move) {
           if (game_led_guidance_show_check_anim()) {
             uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
             // Start the check animation - pink lighting on the king
-            led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                       .led_index = king_led_index,
-                                       .red = 0,
-                                       .green = 0,
-                                       .blue = 0,
-                                       .duration_ms =
-                                           0, // Permanent until next turn
-                                       .data = NULL};
-            led_execute_command_new(&check_cmd);
+            game_led_flush();
+  game_event_post_check(king_led_index);
             ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                      current_player == PLAYER_WHITE ? "White" : "Black");
           }
@@ -268,7 +263,7 @@ void game_start_castle_animation(const chess_move_extended_t *move) {
   castle_animation_active = true;
 
   // Clear board and start repeating rook move animation
-  led_clear_board_only();
+  game_led_clear_board();
 
   // Start a repeating tower movement animation
   game_start_repeating_rook_animation();
@@ -276,8 +271,8 @@ void game_start_castle_animation(const chess_move_extended_t *move) {
   // Show initial animation immediately
   uint8_t from_led = chess_pos_to_led_index(rook_from_row, rook_from_col);
   uint8_t to_led = chess_pos_to_led_index(rook_to_row, rook_to_col);
-  led_set_pixel_safe(from_led, 255, 255, 0); // Yellow for rook position
-  led_set_pixel_safe(to_led, 0, 255, 0);     // Green for destination
+  game_led_paint_led(from_led, 255, 255, 0); // Yellow for rook position
+  game_led_paint_led(to_led, 0, 255, 0);     // Green for destination
 
   ESP_LOGI(TAG, "🏰 Rook at %c%d needs to move to %c%d", 'a' + rook_from_col,
            rook_from_row + 1, 'a' + rook_to_col, rook_to_row + 1);
@@ -297,7 +292,7 @@ void rook_animation_timer_callback(TimerHandle_t xTimer) {
   uint8_t to_led = chess_pos_to_led_index(rook_to_row, rook_to_col);
 
   // Clear board first
-  led_clear_board_only();
+  game_led_clear_board();
 
   // Show rook position in yellow (pulsing)
   static bool pulse_state = false;
@@ -305,14 +300,14 @@ void rook_animation_timer_callback(TimerHandle_t xTimer) {
 
   if (pulse_state) {
     // Bright yellow for rook position
-    led_set_pixel_safe(from_led, 255, 255, 0);
+    game_led_paint_led(from_led, 255, 255, 0);
     // Bright green for destination
-    led_set_pixel_safe(to_led, 0, 255, 0);
+    game_led_paint_led(to_led, 0, 255, 0);
   } else {
     // Dim yellow for rook position
-    led_set_pixel_safe(from_led, 128, 128, 0);
+    game_led_paint_led(from_led, 128, 128, 0);
     // Dim green for destination
-    led_set_pixel_safe(to_led, 0, 128, 0);
+    game_led_paint_led(to_led, 0, 128, 0);
   }
 
   ESP_LOGI(TAG, "🏰 Rook animation: %c%d -> %c%d (%s)", 'a' + rook_from_col,
@@ -405,9 +400,9 @@ bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col,
     ESP_LOGI(TAG, "✅ Castle animation completed! Rook moved correctly.");
 
     // Only move the tower when the player makes the correct move
-    piece_t rook_piece = board[rook_from_row][rook_from_col];
-    board[rook_from_row][rook_from_col] = PIECE_EMPTY;
-    board[rook_to_row][rook_to_col] = rook_piece;
+    piece_t rook_piece = game_get_piece(rook_from_row, rook_from_col);
+    game_set_piece(rook_from_row, rook_from_col, PIECE_EMPTY);
+    game_set_piece(rook_to_row, rook_to_col, rook_piece);
 
     // Stop repeating rook animation
     game_stop_repeating_rook_animation();
@@ -420,8 +415,8 @@ bool game_complete_castle_animation(uint8_t from_row, uint8_t from_col,
         (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
 
     // Clear board and show movable pieces for new player
-    led_clear_board_only();
-    chess_policy_highlight_movable_if_enabled();
+    game_led_clear_board();
+    game_policy_highlight_movable_if_enabled();
 
     ESP_LOGI(TAG, "🏰 Castling completed! %s to move",
              (current_player == PLAYER_WHITE) ? "White" : "Black");
@@ -452,12 +447,12 @@ void game_refresh_leds(void) {
   // If game is not active, just show the board pattern
   if (!game_active && current_game_state != GAME_STATE_PROMOTION) {
     // If we are in "setup" or "idle" mode
-    led_show_chess_board();
+    game_event_post_led_ctrl(GAME_EVT_CTRL_SHOW_BOARD, 0, 0, 0, 0);
     return;
   }
 
   // Clear board first (to remove HA colors)
-  led_clear_board_only();
+  game_led_clear_board();
 
   if (game_is_squares_guard_active()) {
     ESP_LOGI(TAG, "  - Restoring MATRIX GUARD LEDs (physical vs logic)");
@@ -467,18 +462,16 @@ void game_refresh_leds(void) {
   }
 
   // 1. Check for Error Recovery State
-  if (error_recovery_state.waiting_for_move_correction) {
+  if ((*game_state_error_recovery_state()).waiting_for_move_correction) {
     ESP_LOGI(TAG, "  - Restoring ERROR state LEDs");
     // Show validation error
-    game_show_invalid_move_error_with_blink(error_recovery_state.invalid_row,
-                                            error_recovery_state.invalid_col);
+    game_show_invalid_move_error_with_blink((*game_state_error_recovery_state()).invalid_row,
+                                            (*game_state_error_recovery_state()).invalid_col);
 
     // Also highlight the original valid position (Blue)
-    if (chess_policy_error_recovery_led_valid_blue()) {
-      led_set_pixel_safe(
-          chess_pos_to_led_index(error_recovery_state.original_valid_row,
-                                 error_recovery_state.original_valid_col),
-          0, 0, 255);
+    if (game_policy_error_recovery_led_valid_blue()) {
+      game_led_frame_sq((*game_state_error_recovery_state()).original_valid_row,
+                                 (*game_state_error_recovery_state()).original_valid_col, 0, 0, 255);
     }
 
     return;
@@ -490,12 +483,10 @@ void game_refresh_leds(void) {
              'a' + lifted_piece_col, lifted_piece_row + 1);
 
     // Highlight source square (Yellow)
-    led_set_pixel_safe(
-        chess_pos_to_led_index(lifted_piece_row, lifted_piece_col), 255, 255,
-        0);
+    game_led_frame_sq(lifted_piece_row, lifted_piece_col, 255, 255, 0);
 
     // Show valid moves for this piece
-    move_suggestion_t suggestions[64];
+    move_suggestion_t *suggestions = game_move_suggestions_work();
     uint32_t valid_moves = game_get_available_moves(
         lifted_piece_row, lifted_piece_col, suggestions, 64);
 
@@ -506,7 +497,7 @@ void game_refresh_leds(void) {
         uint8_t led_index = chess_pos_to_led_index(dest_row, dest_col);
 
         // Check if destination has opponent's piece
-        piece_t dest_piece = board[dest_row][dest_col];
+        piece_t dest_piece = game_get_piece(dest_row, dest_col);
         bool is_opponent_piece =
             (current_player == PLAYER_WHITE && dest_piece >= PIECE_BLACK_PAWN &&
              dest_piece <= PIECE_BLACK_KING) ||
@@ -514,9 +505,9 @@ void game_refresh_leds(void) {
              dest_piece <= PIECE_WHITE_KING);
 
         if (is_opponent_piece) {
-          led_set_pixel_safe(led_index, 255, 165, 0); // Orange for capture
+          game_led_paint_led(led_index, 255, 165, 0); // Orange for capture
         } else {
-          led_set_pixel_safe(led_index, 0, 255, 0); // Green for move
+          game_led_paint_led(led_index, 0, 255, 0); // Green for move
         }
       }
     }
@@ -531,7 +522,7 @@ void game_refresh_leds(void) {
         (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
     for (int row = 0; row < 8; row++) {
       for (int col = 0; col < 8; col++) {
-        if (board[row][col] == king_piece) {
+        if (game_get_piece(row, col) == king_piece) {
           king_row = row;
           king_col = col;
           break;
@@ -545,21 +536,15 @@ void game_refresh_leds(void) {
       if (game_led_guidance_show_check_anim()) {
         ESP_LOGI(TAG, "  - Restoring CHECK state LEDs");
         uint8_t king_led_index = chess_pos_to_led_index(king_row, king_col);
-        led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                   .led_index = king_led_index,
-                                   .red = 0,
-                                   .green = 0,
-                                   .blue = 0,
-                                   .duration_ms = 0,
-                                   .data = NULL};
-        led_execute_command_new(&check_cmd);
+        game_led_flush();
+  game_event_post_check(king_led_index);
       }
     }
   }
 
   // 4. Default Active State - Highlight movable pieces
   ESP_LOGI(TAG, "  - Restoring ACTIVE state LEDs (movable pieces)");
-  chess_policy_highlight_movable_if_enabled();
+  game_policy_highlight_movable_if_enabled();
 
   // Update button LEDs (64-71) to match current game state (promotion green/blue)
   // so they are correct after switching back to game mode (e.g. from HA).

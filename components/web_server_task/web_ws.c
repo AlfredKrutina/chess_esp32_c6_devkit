@@ -13,12 +13,17 @@
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
+#include "freertos/semphr.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static const char *TAG = "WEB_WS";
+
+#define WS_MOVE_FRAME_MAX 256
+static uint8_t s_ws_move_frame[WS_MOVE_FRAME_MAX];
+static SemaphoreHandle_t s_ws_move_frame_mutex;
 
 #if CONFIG_HTTPD_WS_SUPPORT
 static esp_timer_handle_t ws_broadcast_timer = NULL;
@@ -170,7 +175,7 @@ static void ws_forget_token(int fd) {
   }
 }
 
-esp_err_t http_ws_handler(httpd_req_t *req) {
+esp_err_t web_ws_handler(httpd_req_t *req) {
   if (req->method == HTTP_GET) {
     /* Snapshot clients stay anonymous. A command client may pass ?token=
      * on this same socket; the token is remembered for later command frames.
@@ -202,27 +207,34 @@ esp_err_t http_ws_handler(httpd_req_t *req) {
     int fd = httpd_req_to_sockfd(req);
     ws_forget_token(fd);
     board_pair_ws_release_fd(fd);
+    web_game_on_client_drop();
     return ESP_OK;
   }
   if (ws_pkt.len == 0) {
     return ESP_OK;
   }
-  uint8_t *buf = calloc(1, ws_pkt.len + 1);
-  if (buf == NULL) {
+  if (ws_pkt.len + 1U > WS_MOVE_FRAME_MAX) {
+    return ESP_ERR_INVALID_SIZE;
+  }
+  if (s_ws_move_frame_mutex == NULL) {
+    s_ws_move_frame_mutex = xSemaphoreCreateMutex();
+  }
+  if (s_ws_move_frame_mutex == NULL ||
+      xSemaphoreTake(s_ws_move_frame_mutex, pdMS_TO_TICKS(500)) != pdTRUE) {
     return ESP_ERR_NO_MEM;
   }
-  ws_pkt.payload = buf;
+  ws_pkt.payload = s_ws_move_frame;
   ret = httpd_ws_recv_frame(req, &ws_pkt, ws_pkt.len);
   if (ret != ESP_OK) {
-    free(buf);
+    xSemaphoreGive(s_ws_move_frame_mutex);
     ESP_LOGD(TAG, "ws recv payload: %s", esp_err_to_name(ret));
     return ret;
   }
-  buf[ws_pkt.len] = '\0';
-  const char *text = (const char *)buf;
+  s_ws_move_frame[ws_pkt.len] = '\0';
+  const char *text = (const char *)s_ws_move_frame;
   bool command = strstr(text, "\"from\"") != NULL || strstr(text, "\"cmd\"") != NULL;
   if (!command) {
-    free(buf);
+    xSemaphoreGive(s_ws_move_frame_mutex);
     return ESP_OK;
   }
   uint8_t token[BOARD_PAIR_TOKEN_LEN];
@@ -234,21 +246,21 @@ esp_err_t http_ws_handler(httpd_req_t *req) {
     ws_send_text(req,
                  "{\"success\":false,\"error\":\"api_token_required\","
                  "\"message\":\"Board command token required.\"}");
-    free(buf);
+    xSemaphoreGive(s_ws_move_frame_mutex);
     return ESP_OK;
   }
   if (verdict == BOARD_PAIR_CMD_BUSY) {
     ws_send_text(req,
                  "{\"success\":false,\"error\":\"board_busy\","
                  "\"message\":\"Board is connected to another device.\"}");
-    free(buf);
+    xSemaphoreGive(s_ws_move_frame_mutex);
     return ESP_OK;
   }
   if (web_is_locked()) {
     ws_send_text(req,
                  "{\"success\":false,\"error\":\"web_locked\","
                  "\"message\":\"Web interface is locked.\"}");
-    free(buf);
+    xSemaphoreGive(s_ws_move_frame_mutex);
     return ESP_OK;
   }
   char from[8];
@@ -261,7 +273,7 @@ esp_err_t http_ws_handler(httpd_req_t *req) {
     ws_send_text(req,
                  "{\"success\":false,\"error\":\"unknown_command\","
                  "\"message\":\"This socket accepts move commands.\"}");
-    free(buf);
+    xSemaphoreGive(s_ws_move_frame_mutex);
     return ESP_OK;
   }
   (void)json_string_field(text, "promotion", promo, sizeof(promo));
@@ -282,7 +294,7 @@ esp_err_t http_ws_handler(httpd_req_t *req) {
   } else {
     ws_send_text(req, "{\"success\":false,\"error\":\"queue\"}");
   }
-  free(buf);
+  xSemaphoreGive(s_ws_move_frame_mutex);
   return ESP_OK;
 }
 

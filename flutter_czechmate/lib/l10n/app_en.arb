@@ -790,6 +790,18 @@
   "settingsCoachAzureFoundryKeyHint": "Paste Azure AI Foundry / Azure OpenAI key",
   "settingsCoachAzureFoundryDeploymentHint": "your-deployment-name",
   "settingsCoachAzureFoundryDeploymentLabel": "Deployment / model name",
+  "settingsCoachAzureFoundryModelsLoading": "Loading models from Foundry…",
+  "settingsCoachAzureFoundryModelsEmpty": "No models found for this key and URL. Type the deployment name.",
+  "settingsCoachAzureFoundryModelsFailed": "Could not load models ({error}). You can still type a deployment name.",
+  "@settingsCoachAzureFoundryModelsFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsCoachAzureFoundryModelsRefresh": "Reload models",
+  "settingsCoachAzureFoundryModelsPickHint": "Select a model",
   "settingsCoachAzureFoundryApiVersionLabel": "API version (optional)",
   "settingsCoachAzureFoundryApiVersionHint": "Leave empty for /openai/v1; e.g. 2024-06-01 for legacy deployments",
   "settingsCoachAzureFoundryDocsButton": "Azure AI Foundry docs",

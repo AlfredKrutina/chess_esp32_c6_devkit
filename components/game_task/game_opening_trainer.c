@@ -3,9 +3,17 @@
  * @brief Interactive opening line trainer — multi-ply UCI validation + virtual opponent.
  */
 
-#include "game_task_internal.h"
 #include "game_board_core.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_mode.h"
+#include "game_board_transition.h"
+#include "game_board_machine.h"
 
 #include "../led_task/include/led_task.h"
 #include "../squares_task/include/squares_task.h"
@@ -18,6 +26,9 @@
 #include <string.h>
 
 static const char *TAG = "GAME_OPENING";
+
+static void opening_mode_bind(void);
+static void opening_mode_unbind(void);
 
 #ifndef NDEBUG
 #define STAGING_LOGI(tag, fmt, ...) ESP_LOGI(tag, "[STAGING] " fmt, ##__VA_ARGS__)
@@ -119,22 +130,14 @@ static bool opening_parse_uci(const char *uci, char *from, char *to) {
 
 static void opening_play_move_led(const char *from_sq, const char *to_sq) {
   uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
-  if (!convert_notation_to_coords(from_sq, &from_row, &from_col) ||
-      !convert_notation_to_coords(to_sq, &to_row, &to_col)) {
+  if (!game_notation_to_coords(from_sq, &from_row, &from_col) ||
+      !game_notation_to_coords(to_sq, &to_row, &to_col)) {
     return;
   }
   uint8_t from_led = chess_pos_to_led_index(from_row, from_col);
   uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
-  led_command_t move_path_cmd = {
-      .type = LED_CMD_ANIM_MOVE_PATH,
-      .led_index = from_led,
-      .red = 0,
-      .green = 120,
-      .blue = 255,
-      .duration_ms = 800,
-      .data = &to_led,
-  };
-  led_execute_command_new(&move_path_cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_MOVE_PATH, from_led, to_led);
 }
 
 static void opening_show_opponent_physical_led(bool piece_lifted) {
@@ -145,21 +148,17 @@ static void opening_show_opponent_physical_led(bool piece_lifted) {
     return;
   }
   uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
-  if (!convert_notation_to_coords(opening_state.expected_to, &to_row, &to_col)) {
+  if (!game_notation_to_coords(opening_state.expected_to, &to_row, &to_col)) {
     return;
   }
   uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
   uint8_t from_led = 64;
   if (!piece_lifted &&
-      convert_notation_to_coords(opening_state.expected_from, &from_row, &from_col)) {
+      game_notation_to_coords(opening_state.expected_from, &from_row, &from_col)) {
     from_led = chess_pos_to_led_index(from_row, from_col);
   }
-  led_command_t hint_cmd = {
-      .type = LED_CMD_HIGHLIGHT_HINT,
-      .led_index = from_led,
-      .data = &to_led,
-  };
-  led_execute_command_new(&hint_cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_HINT_PAIR, from_led, to_led);
 }
 
 static void opening_show_hint_led(void) {
@@ -175,7 +174,7 @@ static void opening_show_hint_led(void) {
     return;
   }
   uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
-  if (!convert_notation_to_coords(opening_state.expected_to, &to_row, &to_col)) {
+  if (!game_notation_to_coords(opening_state.expected_to, &to_row, &to_col)) {
     return;
   }
   uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
@@ -183,15 +182,11 @@ static void opening_show_hint_led(void) {
                   opening_state.mode == OPENING_MODE_TIMED || guidance == 1);
   uint8_t from_led = 64;
   if (!to_only && guidance >= 2 &&
-      convert_notation_to_coords(opening_state.expected_from, &from_row, &from_col)) {
+      game_notation_to_coords(opening_state.expected_from, &from_row, &from_col)) {
     from_led = chess_pos_to_led_index(from_row, from_col);
   }
-  led_command_t hint_cmd = {
-      .type = LED_CMD_HIGHLIGHT_HINT,
-      .led_index = from_led,
-      .data = &to_led,
-  };
-  led_execute_command_new(&hint_cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_HINT_PAIR, from_led, to_led);
 }
 
 static void opening_update_expected_move(void) {
@@ -226,11 +221,11 @@ bool game_opening_apply_uci(const char *uci) {
     return false;
   }
   uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
-  if (!convert_notation_to_coords(from, &from_row, &from_col) ||
-      !convert_notation_to_coords(to, &to_row, &to_col)) {
+  if (!game_notation_to_coords(from, &from_row, &from_col) ||
+      !game_notation_to_coords(to, &to_row, &to_col)) {
     return false;
   }
-  piece_t piece = board[from_row][from_col];
+  piece_t piece = game_get_piece(from_row, from_col);
   if (piece == PIECE_EMPTY) {
     return false;
   }
@@ -240,7 +235,7 @@ bool game_opening_apply_uci(const char *uci) {
       .to_row = to_row,
       .to_col = to_col,
       .piece = piece,
-      .captured_piece = board[to_row][to_col],
+      .captured_piece = game_get_piece(to_row, to_col),
       .timestamp = esp_timer_get_time() / 1000,
   };
   if (game_is_valid_move(&move) != MOVE_ERROR_NONE) {
@@ -316,13 +311,14 @@ static void opening_run_until_player_turn(void) {
   if (opening_state.ply_index >= opening_state.line_uci_count) {
     opening_state.active = false;
     opening_state.feedback = OPENING_FEEDBACK_COMPLETE;
-    led_command_t end_cmd = {.type = LED_CMD_ANIM_ENDGAME, .duration_ms = 1500};
-    led_execute_command_new(&end_cmd);
+    game_led_flush();
+  game_event_post_game_end(0, 0);
     STAGING_LOGI(TAG, "line complete id=%s", opening_state.line_id);
   }
 }
 
 void game_opening_cancel(void) {
+  opening_mode_unbind();
   bool was = opening_state.active || opening_state.setup_phase;
   memset(&opening_state, 0, sizeof(opening_state));
   if (was) {
@@ -373,7 +369,7 @@ bool game_opening_validate_checkpoint_physical(void) {
   for (uint8_t i = 0; i < 64; i++) {
     uint8_t row = i / 8;
     uint8_t col = i % 8;
-    uint8_t expected = (board[row][col] == PIECE_EMPTY) ? 0 : 1;
+    uint8_t expected = (game_get_piece(row, col) == PIECE_EMPTY) ? 0 : 1;
     if (matrix[i] != expected) {
       return false;
     }
@@ -483,11 +479,12 @@ bool game_opening_start(void) {
   opening_state.last_wrong_uci[0] = '\0';
   opening_state.last_wrong_uci[0] = '\0';
   opening_state.wrong_move_count = 0;
-  led_clear_board_only();
+  game_led_clear_board();
 
   opening_run_until_player_turn();
   STAGING_LOGI(TAG, "started line=%s ply=%u", opening_state.line_id,
                (unsigned)opening_state.ply_index);
+  opening_mode_bind();
   return true;
 }
 
@@ -529,8 +526,8 @@ bool game_opening_validate_expected_move(uint8_t from_row, uint8_t from_col,
   }
   char from_notation[4] = {0};
   char to_notation[4] = {0};
-  if (!convert_coords_to_notation(from_row, from_col, from_notation) ||
-      !convert_coords_to_notation(to_row, to_col, to_notation)) {
+  if (!game_coords_to_notation(from_row, from_col, from_notation) ||
+      !game_coords_to_notation(to_row, to_col, to_notation)) {
     return false;
   }
   if (opening_state.awaiting_opponent_physical) {
@@ -549,7 +546,7 @@ bool game_opening_validate_opponent_pickup(uint8_t from_row, uint8_t from_col) {
     return false;
   }
   char from_notation[4] = {0};
-  if (!convert_coords_to_notation(from_row, from_col, from_notation)) {
+  if (!game_coords_to_notation(from_row, from_col, from_notation)) {
     return false;
   }
   return strcmp(from_notation, opening_state.expected_from) == 0;
@@ -566,8 +563,8 @@ void game_opening_advance_after_opponent_physical(void) {
   if (opening_state.ply_index >= opening_state.line_uci_count) {
     opening_state.active = false;
     opening_state.feedback = OPENING_FEEDBACK_COMPLETE;
-    led_command_t end_cmd = {.type = LED_CMD_ANIM_ENDGAME, .duration_ms = 1500};
-    led_execute_command_new(&end_cmd);
+    game_led_flush();
+  game_event_post_game_end(0, 0);
     STAGING_LOGI(TAG, "line complete id=%s", opening_state.line_id);
     return;
   }
@@ -585,8 +582,8 @@ void game_opening_advance_after_correct(void) {
   if (opening_state.ply_index >= opening_state.line_uci_count) {
     opening_state.active = false;
     opening_state.feedback = OPENING_FEEDBACK_COMPLETE;
-    led_command_t end_cmd = {.type = LED_CMD_ANIM_ENDGAME, .duration_ms = 1500};
-    led_execute_command_new(&end_cmd);
+    game_led_flush();
+  game_event_post_game_end(0, 0);
     STAGING_LOGI(TAG, "line complete id=%s", opening_state.line_id);
     return;
   }
@@ -599,8 +596,8 @@ void game_opening_advance_after_correct(void) {
   if (opening_state.ply_index >= opening_state.line_uci_count) {
     opening_state.active = false;
     opening_state.feedback = OPENING_FEEDBACK_COMPLETE;
-    led_command_t end_cmd = {.type = LED_CMD_ANIM_ENDGAME, .duration_ms = 1500};
-    led_execute_command_new(&end_cmd);
+    game_led_flush();
+  game_event_post_game_end(0, 0);
   } else if (!opening_state.awaiting_checkpoint_ack &&
              !opening_state.awaiting_opponent_physical) {
     opening_state.feedback = OPENING_FEEDBACK_NONE;
@@ -637,8 +634,8 @@ void game_opening_record_wrong_uci(uint8_t from_row, uint8_t from_col,
                                      uint8_t to_row, uint8_t to_col) {
   char from_sq[4] = {0};
   char to_sq[4] = {0};
-  if (!convert_coords_to_notation(from_row, from_col, from_sq) ||
-      !convert_coords_to_notation(to_row, to_col, to_sq)) {
+  if (!game_coords_to_notation(from_row, from_col, from_sq) ||
+      !game_coords_to_notation(to_row, to_col, to_sq)) {
     opening_state.last_wrong_uci[0] = '\0';
     return;
   }
@@ -666,6 +663,74 @@ bool game_opening_on_illegal_player_move(void) {
   }
   return true;
 }
+
+static void opening_on_lift(const position_t *pos, uint8_t square) {
+  (void)pos;
+  (void)square;
+  game_opening_on_opponent_piece_lifted();
+}
+
+static void opening_on_drop(const position_t *pos, uint8_t from, uint8_t to,
+                            bool has_from) {
+  uint8_t fr = from / 8u;
+  uint8_t fc = from % 8u;
+  uint8_t tr = to / 8u;
+  uint8_t tc = to % 8u;
+  position_move_t mv;
+  (void)has_from;
+  if (!opening_state.active) {
+    return;
+  }
+  if (game_opening_validate_expected_move(fr, fc, tr, tc)) {
+    return;
+  }
+  game_opening_record_wrong_uci(fr, fc, tr, tc);
+  mv.from = from;
+  mv.to = to;
+  mv.promo = POS_PROMO_NONE;
+  if (pos != NULL && position_legal(pos, mv)) {
+    game_opening_on_wrong_player_move();
+  } else {
+    game_opening_on_illegal_player_move();
+  }
+  game_mode_reject_drop();
+}
+
+static void opening_on_move_applied(const position_t *pos, position_move_t mv);
+
+static void opening_on_leds(const position_t *pos) {
+  (void)pos;
+}
+
+static const game_mode_t s_opening_mode = {
+    opening_on_lift,
+    opening_on_drop,
+    opening_on_move_applied,
+    opening_on_leds,
+};
+
+static void opening_on_move_applied(const position_t *pos, position_move_t mv) {
+  (void)pos;
+  (void)mv;
+  if (!opening_state.active || (*game_state_promotion_state()).pending) {
+    return;
+  }
+  if (opening_state.awaiting_opponent_physical) {
+    game_opening_advance_after_opponent_physical();
+  } else {
+    game_opening_advance_after_correct();
+  }
+  if ((*game_state_error_recovery_state()).waiting_for_move_correction) {
+    game_reset_error_recovery_state();
+  }
+  if (!opening_state.active) {
+    opening_mode_unbind();
+  }
+}
+
+static void opening_mode_bind(void) { game_mode_set(&s_opening_mode); }
+
+static void opening_mode_unbind(void) { game_mode_clear(&s_opening_mode); }
 
 const char *game_opening_feedback_key(void) {
   switch (opening_state.feedback) {
@@ -719,7 +784,7 @@ static void opening_fill_expected_occupied(uint8_t out[64]) {
   for (uint8_t i = 0; i < 64; i++) {
     uint8_t row = i / 8;
     uint8_t col = i % 8;
-    out[i] = (board[row][col] == PIECE_EMPTY) ? 0 : 1;
+    out[i] = (game_get_piece(row, col) == PIECE_EMPTY) ? 0 : 1;
   }
 }
 
@@ -818,8 +883,8 @@ void game_opening_service_hall_move(void) {
     s_armed = false;
     return;
   }
-  if (!convert_notation_to_coords(opening_state.expected_from, &fr, &fc) ||
-      !convert_notation_to_coords(opening_state.expected_to, &tr, &tc)) {
+  if (!game_notation_to_coords(opening_state.expected_from, &fr, &fc) ||
+      !game_notation_to_coords(opening_state.expected_to, &tr, &tc)) {
     s_armed = false;
     return;
   }
@@ -827,7 +892,7 @@ void game_opening_service_hall_move(void) {
     s_armed = false;
     return;
   }
-  mover = board[fr][fc];
+  mover = game_get_piece(fr, fc);
   if (mover == PIECE_EMPTY) {
     s_armed = false;
     return;
@@ -843,7 +908,7 @@ void game_opening_service_hall_move(void) {
   }
   squares_get_state(occ);
   for (sq = 0; sq < 64; sq++) {
-    bool want = board[sq / 8][sq % 8] != PIECE_EMPTY;
+    bool want = game_get_piece(sq / 8, sq % 8) != PIECE_EMPTY;
     if (sq == (uint8_t)(fr * 8 + fc)) {
       want = false;
     }
@@ -881,15 +946,17 @@ void game_opening_service_hall_move(void) {
   move.to_row = tr;
   move.to_col = tc;
   move.piece = mover;
-  move.captured_piece = board[tr][tc];
-  if (!game_execute_move(&move)) {
-    return;
+  move.captured_piece = game_get_piece(tr, tc);
+  {
+    board_machine_out_t bout = game_board_on_drop_squares(fr, fc, tr, tc, true);
+    if ((bout.kind != BM_OUT_MOVE && bout.kind != BM_OUT_NEED_PROMO) ||
+        !game_board_apply_machine_move(&bout, &move)) {
+      return;
+    }
   }
-  if (opening_state.awaiting_opponent_physical) {
-    game_opening_advance_after_opponent_physical();
-  } else {
-    game_opening_advance_after_correct();
+  if (castle) {
+    board_machine_reset(game_board_machine());
   }
-  game_send_response_to_uart("Opening move accepted.", false, NULL);
+  game_cmd_reply("Opening move accepted.", false, NULL);
 #endif
 }

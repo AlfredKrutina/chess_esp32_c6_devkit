@@ -291,6 +291,40 @@ size_t shared_buffer_capacity(const char *buffer)
     return 0;
 }
 
+bool shared_buffer_pair_free(size_t need_a, size_t need_b)
+{
+    if (!pool_initialized || buffer_pool_mutex == NULL) {
+        return false;
+    }
+    if (xSemaphoreTake(buffer_pool_mutex, 0) != pdTRUE) {
+        return false;
+    }
+
+    size_t big = need_a >= need_b ? need_a : need_b;
+    size_t small = need_a >= need_b ? need_b : need_a;
+    int ibig = -1;
+    int ismall = -1;
+    for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
+        if (buffer_pool[i].in_use || buffer_pool[i].capacity < big) {
+            continue;
+        }
+        ibig = i;
+        break;
+    }
+    if (ibig >= 0) {
+        for (int i = 0; i < BUFFER_POOL_SIZE; i++) {
+            if (i == ibig || buffer_pool[i].in_use ||
+                buffer_pool[i].capacity < small) {
+                continue;
+            }
+            ismall = i;
+            break;
+        }
+    }
+    xSemaphoreGive(buffer_pool_mutex);
+    return ibig >= 0 && ismall >= 0;
+}
+
 // ============================================================================
 // UTILITY AND STATUS FUNCTIONS
 // ============================================================================

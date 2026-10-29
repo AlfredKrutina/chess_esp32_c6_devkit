@@ -17,11 +17,19 @@
 #include "game_squares_guard.h"
 #include "game_physical_undo.h"
 #include "game_task.h"
-#include "game_task_internal.h"
-#include "chess_gameplay_policy.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "position.h"
+#include "game_board_transition.h"
+#include "game_policy.h"
 
 #include "hall_i2c_squares.h"
 #include "squares_task.h"
+#include "game_events.h"
 #include "led_mapping.h"
 #include "led_task.h"
 
@@ -57,7 +65,6 @@ static uint32_t s_eq_contra_ms;
 static uint8_t s_prev_contra;
 static chess_move_t s_pending_move;
 static bool s_pending_valid;
-static uint64_t s_attn_logged;
 static bool s_takeback_off_said;
 static bool s_resign_ring;
 static bool s_resign_latched;
@@ -440,7 +447,7 @@ static bool try_one_legal(const hall_diff_t *diff, const uint8_t occ[64],
   if (move_is_castle(&move) || game_is_en_passant_possible(&move)) {
     return false;
   }
-  if (board[move.from_row][move.from_col] != mover) {
+  if (game_get_piece(move.from_row, move.from_col) != mover) {
     return false;
   }
   if (game_is_valid_move(&move) != MOVE_ERROR_NONE) {
@@ -519,6 +526,10 @@ static bool try_castle_partial(const uint8_t occ[64]) {
       uint8_t used[4];
       bool king_home, king_dest, rook_home, rook_dest;
       if (!castle_wing_legal(side, wing, &kh, &kt, &rh, &rt)) {
+        continue;
+      }
+      /* Opponent's king must not lock the scan into a castle guide. */
+      if (!hall_side_owns(side == 0 ? PIECE_WHITE_KING : PIECE_BLACK_KING)) {
         continue;
       }
       king_home = occ[kh] != 0;
@@ -618,13 +629,11 @@ static bool try_ep_partial(const uint8_t occ[64]) {
   pawn_home = occ[from] != 0;
   pawn_dest = occ[to] != 0;
   victim_here = occ[victim] != 0;
-  if (!pawn_home && pawn_dest && !victim_here) {
+  /* Only the landed partial: capturer on the empty square, victim still there. */
+  if (pawn_home || !pawn_dest || !victim_here) {
     return false;
   }
-  if (pawn_home && !pawn_dest && victim_here) {
-    return false;
-  }
-  if (pawn_home && pawn_dest) {
+  if (!landing_accepts(s_last_valid[from / 8][from % 8], to)) {
     return false;
   }
   used[0] = from;
@@ -770,7 +779,7 @@ static bool arm_capture(uint8_t from, uint8_t to, chess_move_t *out) {
   move.to_col = (uint8_t)(to % 8);
   move.piece = mover;
   move.captured_piece = s_last_valid[to / 8][to % 8];
-  if (board[move.from_row][move.from_col] != mover) {
+  if (game_get_piece(move.from_row, move.from_col) != mover) {
     return false;
   }
   note_hint_vs_mover(mover, to);
@@ -875,12 +884,27 @@ static bool conv_squares_only(const uint8_t occ[64]) {
   return true;
 }
 
+static void clear_rook_convert(void) {
+  s_conv_armed = false;
+  s_conv_commit = false;
+  s_castle_paint = false;
+}
+
+void game_hall_position_clear_castle_wait(void) { clear_rook_convert(); }
+
 /* King of the side that just slid the rook is travelling to its castle square. */
 static bool try_rook_convert(const uint8_t occ[64], chess_move_t *legal) {
   uint8_t kh;
   uint8_t kt;
+  uint8_t rhome;
   piece_t king;
   if (!s_conv_armed) {
+    return false;
+  }
+  /* Rook back on its home square is not a rook-first castle. */
+  rhome = (uint8_t)(s_conv_row * 8 + s_conv_rfrom);
+  if (rhome < 64 && occ[rhome] != 0) {
+    clear_rook_convert();
     return false;
   }
   if (!conv_squares_only(occ)) {
@@ -928,7 +952,7 @@ static bool rook_move_can_become_castle(const chess_move_t *move) {
     return false;
   }
   king = (move->piece == PIECE_WHITE_ROOK) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
-  if (board[move->from_row][4] != king) {
+  if (game_get_piece(move->from_row, 4) != king) {
     return false;
   }
   memset(&castle, 0, sizeof(castle));
@@ -993,6 +1017,7 @@ static game_hall_pos_class_t classify(const uint8_t occ[64], chess_move_t *legal
   s_cap_paint = false;
   if (occ_now && id_now) {
     s_eq_contra_ms = 0;
+    clear_rook_convert();
     return GAME_HALL_POS_EQUAL;
   }
   if (occ_now) {
@@ -1003,7 +1028,6 @@ static game_hall_pos_class_t classify(const uint8_t occ[64], chess_move_t *legal
     if ((uint32_t)(now_ms - s_eq_contra_ms) < HALL_CONTRA_MS) {
       return GAME_HALL_POS_EQUAL;
     }
-    s_attention = true;
     return GAME_HALL_POS_RESTORE;
   }
   s_eq_contra_ms = 0;
@@ -1014,13 +1038,14 @@ static game_hall_pos_class_t classify(const uint8_t occ[64], chess_move_t *legal
     if (!game_physical_undo_enabled()) {
       if (!s_takeback_off_said) {
         s_takeback_off_said = true;
-        game_send_response_to_uart("Takeback is off", false, NULL);
+        game_cmd_reply("Takeback is off", false, NULL);
       }
       return GAME_HALL_POS_RESTORE;
     }
     s_takeback_off_said = false;
     if (identity_clear(previous, occ)) {
       s_prev_contra = 0;
+      clear_rook_convert();
       fill_cyan(occ);
       return GAME_HALL_POS_PREVIOUS;
     }
@@ -1028,6 +1053,7 @@ static game_hall_pos_class_t classify(const uint8_t occ[64], chess_move_t *legal
       s_prev_contra++;
     }
     if (s_prev_contra < HALL_CONTRA_SCANS) {
+      clear_rook_convert();
       fill_cyan(occ);
       return GAME_HALL_POS_PREVIOUS;
     }
@@ -1076,7 +1102,7 @@ static game_hall_pos_class_t classify(const uint8_t occ[64], chess_move_t *legal
 }
 
 static bool special_mode_holds(void) {
-  if (game_demo_show_active() || promotion_state.pending ||
+  if (game_demo_show_active() || (*game_state_promotion_state()).pending ||
       game_ep_capture_waiting() || game_is_opening_trainer_active() ||
       game_is_puzzle_active()) {
     return true;
@@ -1115,6 +1141,17 @@ static void hold_timer(void) {
   }
 }
 
+static void clear_partial_and_lift_state(void) {
+  s_hint_n = 0;
+  s_lift_sq = 255;
+  s_lift_shown = false;
+  s_castle_paint = false;
+  s_ep_paint = false;
+  s_cap_paint = false;
+  s_pending_valid = false;
+  game_board_set_piece_lifted(false, 0, 0, PIECE_EMPTY);
+}
+
 static void exit_chaos_restore(void) {
   s_chaos_restore = false;
   s_chaos_match = false;
@@ -1127,22 +1164,26 @@ static void exit_chaos_restore(void) {
   (void)game_squares_guard_release_hall_hold();
   game_hall_restore_guide_release();
   release_timer();
-  chess_policy_refresh_idle_board_leds();
+  game_policy_refresh_idle_board_leds();
   ESP_LOGI(TAG, "Board restored");
 }
 
 static bool commit_legal(const chess_move_t *move) {
-  if (current_game_state == GAME_STATE_FINISHED || promotion_state.pending) {
+  if (current_game_state == GAME_STATE_FINISHED || (*game_state_promotion_state()).pending) {
     return false;
   }
   release_timer();
-  return game_execute_move(move);
+  board_machine_out_t bout = game_board_on_drop_squares(
+      move->from_row, move->from_col, move->to_row, move->to_col, true);
+  chess_move_t applied = *move;
+  if (bout.kind == BM_OUT_MOVE || bout.kind == BM_OUT_NEED_PROMO) {
+    return game_board_apply_machine_move(&bout, &applied);
+  }
+  return false;
 }
 
 static void show_own_lift(uint8_t sq) {
   static uint8_t painted = 255;
-  uint8_t row = (uint8_t)(sq / 8);
-  uint8_t col = (uint8_t)(sq % 8);
   if (!s_lift_shown) {
     painted = 255;
   }
@@ -1153,50 +1194,15 @@ static void show_own_lift(uint8_t sq) {
   s_lift_shown = true;
   s_lift_sq = sq;
   /* Hold the previous frame across move generation, then snap the full overlay. */
-  led_move_trail_cancel();
-  led_target_begin();
   game_hall_restore_guide_stop_leds();
   {
-    move_suggestion_t suggestions[64];
-    uint32_t valid_moves = 0;
-    led_target_set(chess_pos_to_led_index(row, col), 255, 255, 0, LED_VIS_SNAP);
-    if (game_led_guidance_show_destinations()) {
-      valid_moves = game_get_available_moves(row, col, suggestions, 64);
-    }
-    for (uint32_t i = 0; i < valid_moves; i++) {
-      uint8_t led_index =
-          chess_pos_to_led_index(suggestions[i].to_row, suggestions[i].to_col);
-      if (suggestions[i].is_castling) {
-        if (chess_policy_move_hints_castling_blue()) {
-          led_target_set(led_index, 0, 0, 255, LED_VIS_SNAP);
-        }
-        continue;
-      }
-      piece_t dest_piece = board[suggestions[i].to_row][suggestions[i].to_col];
-      bool opponent = (current_player == PLAYER_WHITE &&
-                       dest_piece >= PIECE_BLACK_PAWN &&
-                       dest_piece <= PIECE_BLACK_KING) ||
-                      (current_player == PLAYER_BLACK &&
-                       dest_piece >= PIECE_WHITE_PAWN &&
-                       dest_piece <= PIECE_WHITE_KING);
-      if (suggestions[i].is_check) {
-        led_target_set(led_index, 255, 255, 255, LED_VIS_SNAP);
-      } else if (opponent) {
-        led_target_set(led_index, 255, 165, 0, LED_VIS_SNAP);
-      } else {
-        led_target_set(led_index, 0, 255, 0, LED_VIS_SNAP);
-      }
-      if (en_passant_available &&
-          suggestions[i].to_row == en_passant_target_row &&
-          suggestions[i].to_col == en_passant_target_col) {
-        led_target_set(chess_pos_to_led_index(en_passant_victim_row,
-                                              en_passant_victim_col),
-                       255, 80, 0, LED_VIS_SNAP);
-      }
-    }
+    uint8_t row = (uint8_t)(sq / 8);
+    uint8_t col = (uint8_t)(sq % 8);
+    piece_t piece = s_last_valid[row][col];
+    game_board_on_lift_square(row, col);
+    game_board_set_piece_lifted(true, row, col, piece);
   }
-  led_target_end();
-  led_move_collapse_capture();
+  game_event_publish_lift_hints(sq);
 }
 
 static void show_castle_partial(const uint8_t occ[64]) {
@@ -1218,102 +1224,68 @@ static void show_castle_partial(const uint8_t occ[64]) {
   if (occ[s_castle_kt] != 0 && occ[s_castle_rt] != 0) {
     return;
   }
-  led_target_begin_fade(HINT_FADE_MS);
+  game_led_frame_begin(GAME_EVT_HINT_FADE_MS, false);
   game_hall_restore_guide_release();
   if (occ[s_castle_rt] == 0) {
-    led_target_set_breathe_sq(
-        chess_pos_to_led_index(s_castle_rh / 8, s_castle_rh % 8), 255, 255, 0,
-        48, 0, 0, HINT_FADE_MS);
-    led_target_set(chess_pos_to_led_index(s_castle_rt / 8, s_castle_rt % 8), 0,
-                   255, 0, LED_VIS_SNAP);
+    game_led_frame_breathe((uint8_t)(s_castle_rh / 8), (uint8_t)(s_castle_rh % 8),
+                           255, 255, 0, GAME_EVT_BREATHE_SQ, 48, 0, 0);
+    game_led_frame_sq((uint8_t)(s_castle_rt / 8), (uint8_t)(s_castle_rt % 8), 0,
+                      255, 0);
   }
   if (occ[s_castle_kt] == 0) {
-    led_target_set_breathe_sq(
-        chess_pos_to_led_index(s_castle_kh / 8, s_castle_kh % 8), 255, 255, 0,
-        48, 0, 0, HINT_FADE_MS);
-    if (chess_policy_move_hints_castling_blue()) {
-      led_target_set(chess_pos_to_led_index(s_castle_kt / 8, s_castle_kt % 8),
-                     0, 0, 255, LED_VIS_SNAP);
+    game_led_frame_breathe((uint8_t)(s_castle_kh / 8), (uint8_t)(s_castle_kh % 8),
+                           255, 255, 0, GAME_EVT_BREATHE_SQ, 48, 0, 0);
+    if (game_policy_move_hints_castling_blue()) {
+      game_led_frame_sq((uint8_t)(s_castle_kt / 8), (uint8_t)(s_castle_kt % 8),
+                        0, 0, 255);
     } else {
-      led_target_set(chess_pos_to_led_index(s_castle_kt / 8, s_castle_kt % 8),
-                     0, 255, 0, LED_VIS_SNAP);
+      game_led_frame_sq((uint8_t)(s_castle_kt / 8), (uint8_t)(s_castle_kt % 8),
+                        0, 255, 0);
     }
   }
-  led_target_end();
+  game_led_frame_end();
 }
 
 static void show_ep_partial(const uint8_t occ[64]) {
-  static uint8_t sig = 0xFF;
-  uint8_t now = (uint8_t)((occ[s_ep_from] ? 1U : 0U) | (occ[s_ep_to] ? 2U : 0U) |
-                          (occ[s_ep_victim] ? 4U : 0U));
-  if (!s_lift_shown) {
-    sig = 0xFF;
-  }
-  if (s_lift_shown && sig == now) {
-    return;
-  }
-  sig = now;
-  s_lift_shown = true;
-  led_target_begin();
-  game_hall_restore_guide_stop_leds();
-  if (occ[s_ep_from] == 0) {
-    led_target_set(chess_pos_to_led_index(s_ep_from / 8, s_ep_from % 8), 255,
-                   255, 0, LED_VIS_SNAP);
-  }
-  if (occ[s_ep_to] == 0 && game_led_guidance_show_destinations()) {
-    led_target_set(chess_pos_to_led_index(s_ep_to / 8, s_ep_to % 8), 0, 255, 0,
-                   LED_VIS_SNAP);
-  }
-  if (occ[s_ep_victim] != 0) {
-    led_target_set(chess_pos_to_led_index(s_ep_victim / 8, s_ep_victim % 8),
-                   255, 80, 0, LED_VIS_SNAP);
-  }
-  led_target_end();
-}
-
-static void show_capture_partial(void) {
-  uint8_t sq;
-  if (s_cap_from < 64) {
-    show_own_lift(s_cap_from);
-    return;
-  }
+  (void)occ;
   if (s_lift_shown) {
     return;
   }
   s_lift_shown = true;
-  led_target_begin();
+  /* Full frame: only the pawn that must leave the board. */
+  game_led_frame_begin(0, false);
   game_hall_restore_guide_stop_leds();
-  led_target_set(chess_pos_to_led_index(s_cap_victim / 8, s_cap_victim % 8),
-                 255, 165, 0, LED_VIS_SNAP);
+  game_led_frame_sq((uint8_t)(s_ep_victim / 8), (uint8_t)(s_ep_victim % 8), 255,
+                    80, 0);
+  game_led_frame_end();
+}
+
+static void show_capture_partial(void) {
+  uint8_t sq;
+  static uint8_t painted_victim = 255;
+  if (s_cap_from < 64) {
+    show_own_lift(s_cap_from);
+    return;
+  }
+  if (!s_lift_shown) {
+    painted_victim = 255;
+  }
+  if (s_lift_shown && painted_victim == s_cap_victim) {
+    return;
+  }
+  painted_victim = s_cap_victim;
+  s_lift_shown = true;
+  game_led_frame_begin(0, false);
+  game_hall_restore_guide_stop_leds();
+  game_led_frame_sq((uint8_t)(s_cap_victim / 8), (uint8_t)(s_cap_victim % 8),
+                    255, 165, 0);
   for (sq = 0; sq < 64; sq++) {
     if (!legal_capture(sq, s_cap_victim)) {
       continue;
     }
-    led_target_set(chess_pos_to_led_index(sq / 8, sq % 8), 255, 255, 0,
-                   LED_VIS_SNAP);
+    game_led_frame_sq((uint8_t)(sq / 8), (uint8_t)(sq % 8), 255, 255, 0);
   }
-  led_target_end();
-}
-
-static void show_attention(const uint8_t occ[64]) {
-  led_move_trail_cancel();
-  led_target_begin();
-  game_hall_restore_guide_stop_leds();
-  for (uint8_t sq = 0; sq < 64; sq++) {
-    piece_t expect = s_last_valid[sq / 8][sq % 8];
-    if (square_tolerant(sq, expect, occ[sq])) {
-      s_attn_logged &= ~((uint64_t)1 << sq);
-      continue;
-    }
-    led_target_set(chess_pos_to_led_index(sq / 8, sq % 8), 255, 40, 0,
-                   LED_VIS_SNAP);
-    if ((s_attn_logged & ((uint64_t)1 << sq)) == 0) {
-      s_attn_logged |= (uint64_t)1 << sq;
-      ESP_LOGW(TAG, "sq %u Hall identity disagrees, engine piece %d kept",
-               (unsigned)sq, (int)expect);
-    }
-  }
-  led_target_end();
+  game_led_frame_end();
 }
 
 static void note_class(game_hall_pos_class_t kind) {
@@ -1324,10 +1296,10 @@ static void note_class(game_hall_pos_class_t kind) {
   if (prev == GAME_HALL_POS_MOVE_PARTIAL && s_resign_ring) {
     s_resign_ring = false;
     s_resign_latched = false;
-    led_resign_ring_cancel();
+    game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_CANCEL, 0, 0, 0, 0);
   }
   if (prev == GAME_HALL_POS_PREVIOUS) {
-    led_takeback_clear();
+    game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
   }
   s_class = kind;
   s_class_since_ms = (uint32_t)(esp_timer_get_time() / 1000);
@@ -1335,11 +1307,16 @@ static void note_class(game_hall_pos_class_t kind) {
   s_guide_drawn = false;
   s_lift_shown = false;
   s_pending_valid = false;
+  if (prev == GAME_HALL_POS_EP_PARTIAL &&
+      (kind == GAME_HALL_POS_ONE_LEGAL || kind == GAME_HALL_POS_RESTORE)) {
+    game_led_frame_begin(0, false);
+    game_led_frame_end();
+  }
   if (kind == GAME_HALL_POS_PREVIOUS) {
-    game_send_response_to_uart(
-        "Previous position — takeback if it stays still.", false, NULL);
+    game_cmd_reply(
+        "Previous position � takeback if it stays still.", false, NULL);
   } else if (kind == GAME_HALL_POS_RESTORE && !s_attention) {
-    game_send_response_to_uart(
+    game_cmd_reply(
         "Put the pieces back. The last legal position is unchanged.", false,
         NULL);
   }
@@ -1349,6 +1326,10 @@ void game_hall_position_enter_chaos_restore(void) {
   if (s_chaos_restore || !chaos_context_ok()) {
     return;
   }
+  if ((*game_state_error_recovery_state()).waiting_for_move_correction) {
+    game_stop_error_blink();
+    game_reset_error_recovery_state();
+  }
   s_chaos_restore = true;
   s_chaos_match = false;
   s_attention = false;
@@ -1357,10 +1338,10 @@ void game_hall_position_enter_chaos_restore(void) {
   s_attention = false;
   s_resign_ring = false;
   s_resign_latched = false;
-  led_resign_ring_stop();
-  led_takeback_clear();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_STOP, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
   s_lift_shown = false;
-  ESP_LOGI(TAG, "Board scrambled — restore guide for last valid position");
+  ESP_LOGI(TAG, "Board scrambled � restore guide for last valid position");
   (void)game_hall_restore_guide_show_play();
 }
 
@@ -1395,11 +1376,6 @@ static void paint_for_class(const uint8_t occ[64]) {
     }
     return;
   }
-  if (s_class == GAME_HALL_POS_RESTORE && s_attention) {
-    hold_timer();
-    show_attention(occ);
-    s_guide_drawn = true;
-  }
 }
 
 static void service_unchanged(uint32_t now_ms) {
@@ -1415,18 +1391,19 @@ static void service_unchanged(uint32_t now_ms) {
         if (!s_resign_latched) {
           s_resign_latched = true;
           s_resign_ring = false;
-          led_resign_ring_stop();
+          game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_STOP, 0, 0, 0, 0);
           game_resign_from_king_hold(current_player);
         }
         return;
       }
       if (held >= 4000U && !s_resign_ring) {
         s_resign_ring = true;
-        led_target_begin();
-        led_target_end();
-        led_resign_ring_start((uint8_t)(s_lift_sq / 8), (uint8_t)(s_lift_sq % 8),
-                              current_player == PLAYER_WHITE);
-        game_send_response_to_uart("Hold the king to resign.", false, NULL);
+        game_led_clear_board();
+        game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_START,
+                                 (uint8_t)(s_lift_sq / 8),
+                                 (uint8_t)(s_lift_sq % 8),
+                                 current_player == PLAYER_WHITE, 0);
+        game_cmd_reply("Hold the king to resign.", false, NULL);
       }
     }
   }
@@ -1440,20 +1417,34 @@ static void service_unchanged(uint32_t now_ms) {
     }
     memcpy(flash_sq, s_cyan_sq, flash_n);
     release_timer();
-    led_takeback_clear();
-    if (game_undo_rewind_last_move()) {
-      s_class = GAME_HALL_POS_EQUAL;
-      s_pending_valid = false;
-      s_attention = false;
-      game_send_response_to_uart("Takeback complete.", false, NULL);
-      chess_policy_refresh_idle_board_leds();
-      for (fi = 0; fi < flash_n; fi++) {
-        led_target_pulse(chess_pos_to_led_index(flash_sq[fi] / 8, flash_sq[fi] % 8),
-                         0, 255, 255);
+    game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
+    {
+      bool castle_undo = false;
+      if (history_index > 0) {
+        move_type_t uk = move_history_kind[history_index - 1];
+        castle_undo = (uk == MOVE_TYPE_CASTLE_KING || uk == MOVE_TYPE_CASTLE_QUEEN);
       }
-    } else {
-      note_class(GAME_HALL_POS_RESTORE);
-      hold_timer();
+      if (game_undo_rewind_last_move()) {
+        s_class = GAME_HALL_POS_EQUAL;
+        s_pending_valid = false;
+        s_attention = false;
+        clear_rook_convert();
+        game_cmd_reply("Takeback complete.", false, NULL);
+        /* Full idle frame. Do not pulse the empty squares between king and rook. */
+        game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
+        game_policy_refresh_idle_board_leds();
+        if (!castle_undo) {
+          for (fi = 0; fi < flash_n; fi++) {
+            game_event_post_led_ctrl(
+                GAME_EVT_CTRL_PULSE,
+                chess_pos_to_led_index(flash_sq[fi] / 8, flash_sq[fi] % 8), 0,
+                255, 255);
+          }
+        }
+      } else {
+        note_class(GAME_HALL_POS_RESTORE);
+        hold_timer();
+      }
     }
     return;
   }
@@ -1476,29 +1467,42 @@ static void service_unchanged(uint32_t now_ms) {
       s_class = GAME_HALL_POS_EQUAL;
       s_attention = false;
       s_conv_commit = false;
-      s_conv_armed = convert ? false : arm_rook;
-      if (!promotion_state.pending) {
+      /* Snapshot cleared convert. A castle must not arm it again. */
+      s_conv_armed = (convert || move_is_castle(&move)) ? false : arm_rook;
+      s_castle_paint = false;
+      game_board_set_piece_lifted(false, 0, 0, PIECE_EMPTY);
+      if (!(*game_state_promotion_state()).pending) {
         if (convert) {
           /* Undo clears the captured trail. Fade straight to the next hints. */
-          led_move_trail_cancel();
-          chess_policy_refresh_idle_board_leds();
+          game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
+          game_policy_refresh_idle_board_leds();
         } else {
-          led_move_collapse_capture();
-          chess_policy_refresh_idle_board_leds();
-          led_move_trail_start(move.from_row, move.from_col, move.to_row,
-                               move.to_col);
+          game_event_post_led_ctrl(GAME_EVT_CTRL_COLLAPSE, 0, 0, 0, 0);
+          game_policy_refresh_idle_board_leds();
+          game_led_flush();
+          game_event_post_board_anim(
+              GAME_EVT_ANIM_MOVE_PATH,
+              chess_pos_to_led_index(move.from_row, move.from_col),
+              chess_pos_to_led_index(move.to_row, move.to_col));
         }
       } else {
-        led_move_trail_cancel();
+        game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
       }
     }
     s_in_service = false;
     return;
   }
-  if (!s_chaos_restore && s_class == GAME_HALL_POS_RESTORE && !s_attention &&
+  if (!s_chaos_restore && s_class == GAME_HALL_POS_RESTORE &&
       held >= HALL_POS_STABLE_MS) {
     hold_timer();
-    if (chaos_context_ok() && game_hall_position_mismatch_count() > 4) {
+    if (!chaos_context_ok()) {
+      return;
+    }
+    if ((*game_state_error_recovery_state()).waiting_for_move_correction) {
+      game_stop_error_blink();
+      game_reset_error_recovery_state();
+    }
+    if (game_hall_position_mismatch_count() > 4) {
       game_hall_position_enter_chaos_restore();
       return;
     }
@@ -1516,7 +1520,13 @@ static void arm_legal(const chess_move_t *legal) {
 }
 
 void game_hall_snapshot_last_valid(void) {
-  memcpy(s_last_valid, board, sizeof(s_last_valid));
+  const position_t *pos = game_logic_position();
+  for (int row = 0; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      s_last_valid[row][col] =
+          (pos != NULL) ? (piece_t)pos->board[row][col] : PIECE_EMPTY;
+    }
+  }
   if (s_chaos_restore) {
     s_chaos_restore = false;
     s_chaos_match = false;
@@ -1529,23 +1539,21 @@ void game_hall_snapshot_last_valid(void) {
   s_resign_ring = false;
   s_resign_latched = false;
   s_takeback_off_said = false;
-  led_resign_ring_stop();
-  led_takeback_clear();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_STOP, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
   s_guide_drawn = false;
   s_cyan_shown = false;
   s_lift_shown = false;
   s_pending_valid = false;
   s_attention = false;
-  s_conv_armed = false;
-  s_conv_commit = false;
+  clear_rook_convert();
   s_eq_contra_ms = 0;
   s_prev_contra = 0;
   s_hint_n = 0;
-  s_attn_logged = 0;
-  piece_lifted = false;
-  lifted_piece = PIECE_EMPTY;
+  game_board_set_piece_lifted(false, 0, 0, PIECE_EMPTY);
   capture_in_progress = false;
   memset(s_hint, 0, sizeof(s_hint));
+  game_snapshot_publish_hall_empty();
 }
 
 bool game_hall_positions_equal(const piece_t expected[8][8]) {
@@ -1555,6 +1563,10 @@ bool game_hall_positions_equal(const piece_t expected[8][8]) {
   }
   squares_get_state(occ);
   return occupancy_equal(expected, occ) && identity_clear(expected, occ);
+}
+
+bool game_hall_sensors_match_last_valid(void) {
+  return game_hall_positions_equal(s_last_valid);
 }
 
 int game_hall_position_mismatch_count(void) {
@@ -1576,21 +1588,21 @@ int game_hall_position_mismatch_count(void) {
   return n;
 }
 
-void game_hall_position_on_matrix_event(const chess_move_command_t *cmd) {
+void game_hall_position_on_matrix_event(const game_cmd_t *cmd) {
   uint8_t row = 0;
   uint8_t col = 0;
   const char *notation = NULL;
   if (cmd == NULL) {
     return;
   }
-  if (cmd->type == GAME_CMD_PICKUP) {
-    notation = cmd->from_notation;
-  } else if (cmd->type == GAME_CMD_DROP) {
-    notation = cmd->to_notation;
+  if (cmd->kind == GCMD_BOARD_LIFT) {
+    notation = game_cmd_from(cmd);
+  } else if (cmd->kind == GCMD_BOARD_DROP) {
+    notation = game_cmd_to(cmd);
   }
-  if (notation != NULL && convert_notation_to_coords(notation, &row, &col)) {
+  if (notation != NULL && game_notation_to_coords(notation, &row, &col)) {
     uint8_t sq = (uint8_t)(row * 8 + col);
-    if (cmd->type == GAME_CMD_PICKUP) {
+    if (cmd->kind == GCMD_BOARD_LIFT) {
       hint_push(sq, s_last_valid[row][col], true);
     } else {
       hint_push(sq, PIECE_EMPTY, false);
@@ -1655,7 +1667,7 @@ void game_hall_position_service(void) {
   }
   /* First lift or place after the result: drop the wave and open a new game
    * the same way boot does. The clock and white's hints wait for the start
-   * position. Occupancy only — a brief identity glitch must not end the wave. */
+   * position. Occupancy only � a brief identity glitch must not end the wave. */
   if (current_game_state == GAME_STATE_FINISHED) {
     uint8_t end_occ[64];
     if (!hall_i2c_squares_readings_usable()) {
@@ -1665,7 +1677,7 @@ void game_hall_position_service(void) {
     if (occupancy_equal(s_last_valid, end_occ)) {
       return;
     }
-    ESP_LOGI(TAG, "End position changed — opening setup");
+    ESP_LOGI(TAG, "End position changed � opening setup");
     game_start_new_game();
     return;
   }
@@ -1707,11 +1719,13 @@ void game_hall_position_service(void) {
       paint_for_class(occ);
       if (kind == GAME_HALL_POS_EQUAL && !was_equal) {
         release_timer();
-        led_move_trail_cancel();
+        game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
         if (game_hall_restore_guide_is_active()) {
           game_hall_restore_guide_release();
         }
-        chess_policy_refresh_idle_board_leds();
+        clear_partial_and_lift_state();
+        game_hall_position_arm_idle_handover();
+        game_policy_refresh_idle_board_leds();
       }
       return;
     }
@@ -1731,19 +1745,21 @@ void game_hall_position_service(void) {
     }
     if (kind == GAME_HALL_POS_EQUAL) {
       release_timer();
-      led_move_trail_cancel();
+      game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
       bool guide_was = game_hall_restore_guide_is_active();
       if (guide_was) {
         game_hall_restore_guide_release();
       }
+      clear_partial_and_lift_state();
       if (guide_was || prev_class != GAME_HALL_POS_EQUAL) {
-        chess_policy_refresh_idle_board_leds();
+        game_hall_position_arm_idle_handover();
+        game_policy_refresh_idle_board_leds();
       }
       return;
     }
   }
   paint_for_class(occ);
-  if (s_class == GAME_HALL_POS_RESTORE && !s_attention) {
+  if (s_class == GAME_HALL_POS_RESTORE) {
     hold_timer();
   }
 }

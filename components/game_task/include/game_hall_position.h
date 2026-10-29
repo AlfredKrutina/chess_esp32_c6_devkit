@@ -29,12 +29,18 @@ typedef enum {
 /** Copy board[][] into the last-legal snapshot. Call after a real position change. */
 void game_hall_snapshot_last_valid(void);
 
+/** Drop rook-first convert and the castle-partial guide. */
+void game_hall_position_clear_castle_wait(void);
+
 /**
  * True when occupancy matches and no settled reading contradicts expected.
  * Empty type, unsettled readings, and the shared king/queen band do not fail.
  * No I2C. False when readings are not usable or expected is NULL.
  */
 bool game_hall_positions_equal(const piece_t expected[8][8]);
+
+/** True when live Hall sensors match the last legal snapshot. */
+bool game_hall_sensors_match_last_valid(void);
 
 /** Squares that differ from the snapshot, capped so callers can stop early. */
 int game_hall_position_mismatch_count(void);
@@ -50,7 +56,7 @@ void game_hall_position_service(void);
  * Matrix pickup/drop woke the game task. Record an identity hint and
  * classify now so a single lift can light destinations in this command.
  */
-void game_hall_position_on_matrix_event(const chess_move_command_t *cmd);
+void game_hall_position_on_matrix_event(const game_cmd_t *cmd);
 
 /** True while lift or restore LEDs own the board. Idle redraw must wait. */
 bool game_hall_position_blocks_idle_leds(void);

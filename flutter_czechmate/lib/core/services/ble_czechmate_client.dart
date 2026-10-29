@@ -9,6 +9,7 @@ import '../constants/app_environment.dart';
 import '../debug/connection_debug_log.dart';
 import '../models/board_firmware_models.dart';
 import '../models/game_snapshot.dart';
+import '../protocol/board_command_ack.dart';
 import '../protocol/board_command_payload.dart';
 import '../protocol/board_pairing.dart';
 import '../utils/game_snapshot_codec.dart';
@@ -103,6 +104,12 @@ class BleCzechmateClient {
   /// One GATT write queue — less "prepare queue full" and less congestion on fast hints.
   Future<void> _cmdWriteTail = Future<void>.value();
 
+  final Map<int, Completer<Map<String, dynamic>>> _ackWaiters = {};
+
+  /// Called when a command ack does not arrive. The caller should read a
+  /// snapshot and must not send the same move again.
+  void Function()? onAckTimeout;
+
   static const Duration _kMinGapBetweenBleCmdWrites =
       Duration(milliseconds: 100);
 
@@ -112,6 +119,12 @@ class BleCzechmateClient {
     final prev = _device?.remoteId.str;
     connDebugLog('BLE stack disconnect()', prev ?? '(no device)');
     _onDisconnectError = null;
+    for (final waiter in _ackWaiters.values) {
+      if (!waiter.isCompleted) {
+        waiter.completeError(StateError('BLE disconnected'));
+      }
+    }
+    _ackWaiters.clear();
     await _valueSub?.cancel();
     await _ackSub?.cancel();
     await _netSub?.cancel();
@@ -287,6 +300,14 @@ class BleCzechmateClient {
             onCommandToken?.call(token);
             return;
           }
+          final ack = BoardCommandAck.tryParse(raw);
+          final ackId = ack == null ? null : BoardCommandAck.idOf(ack);
+          if (ack != null && ackId != null) {
+            final waiter = _ackWaiters.remove(ackId);
+            if (waiter != null && !waiter.isCompleted) {
+              waiter.complete(ack);
+            }
+          }
           if (AppEnvironment.staging) {
             final text = utf8.decode(raw, allowMalformed: true);
             if (text.contains('not_pairing') || text.contains('board_busy')) {
@@ -461,26 +482,62 @@ class BleCzechmateClient {
   Future<void> _pokePairToken() async {
     await Future<void>.delayed(const Duration(seconds: 4));
     try {
-      await _writeCmd(const {'cmd': 'pair_token'});
+      await _writeCmd(const {'cmd': 'pair_token'}, waitForAck: false);
       connDebugLog('pairing', 'requested pair_token');
     } catch (e) {
       connDebugLog('pairing', 'pair_token write failed: $e');
     }
   }
 
-  Future<void> _writeCmd(Map<String, dynamic> cmd) async {
+  Future<void> _writeCmd(
+    Map<String, dynamic> cmd, {
+    bool waitForAck = true,
+  }) async {
     if (_cmdChar == null) throw StateError('Not connected or missing cmdChar');
-    final bytes = utf8.encode(jsonEncode(cmd));
+    final stamped = BoardCommandPayload.stamp(cmd);
+    final id = (stamped['req'] as num?)?.toInt();
+    final bytes = utf8.encode(jsonEncode(stamped));
     final prev = _cmdWriteTail;
     final done = Completer<void>();
     _cmdWriteTail = done.future;
     await prev.catchError((_) {});
+    Completer<Map<String, dynamic>>? pending;
+    if (waitForAck && id != null && id != 0) {
+      pending = Completer<Map<String, dynamic>>();
+      _ackWaiters[id] = pending;
+    }
     try {
       await Future<void>.delayed(_kMinGapBetweenBleCmdWrites);
       await _writeCmdBytesWithRetries(bytes);
+      if (pending != null && id != null) {
+        try {
+          final ack = await pending.future.timeout(
+            const Duration(milliseconds: 900),
+          );
+          if (ack['ok'] != true) {
+            throw BoardCommandRejected(ack['code']?.toString() ?? 'error');
+          }
+        } on TimeoutException {
+          _ackWaiters.remove(id);
+          onAckTimeout?.call();
+          throw BoardCommandAckTimeout(id);
+        }
+      }
     } finally {
+      if (id != null) _ackWaiters.remove(id);
       if (!done.isCompleted) done.complete();
     }
+  }
+
+  Future<void> postSessionClaim({
+    required int epoch,
+    required String transport,
+  }) {
+    return _writeCmd(<String, dynamic>{
+      'cmd': 'session_claim',
+      'epoch': epoch,
+      'transport': transport,
+    });
   }
 
   Future<void> _writeCmdBytesWithRetries(List<int> bytes) async {
@@ -692,7 +749,7 @@ class BleCzechmateClient {
       },
     );
     try {
-      await _writeCmd({'cmd': 'ota_ble_status'});
+      await _writeCmd({'cmd': 'ota_ble_status'}, waitForAck: false);
       return await completer.future.timeout(
         responseTimeout,
         onTimeout: () => null,
@@ -966,7 +1023,7 @@ class BleCzechmateClient {
       }
     });
 
-    await _writeCmd({'cmd': 'wifi_survey'});
+    await _writeCmd({'cmd': 'wifi_survey'}, waitForAck: false);
     try {
       return await completer.future;
     } finally {

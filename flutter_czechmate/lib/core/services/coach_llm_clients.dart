@@ -97,6 +97,68 @@ abstract final class CoachOpenAiClient {
     }
   }
 
+  /// GET a models or deployments list. `null` means HTTP 404 (try another URL).
+  ///
+  /// Does not close [client].
+  static Future<List<String>?> listModelIds({
+    required Uri uri,
+    required String apiKey,
+    required http.Client client,
+    CoachOpenAiAuthStyle authStyle = CoachOpenAiAuthStyle.azureApiKey,
+  }) async {
+    final headers = <String, String>{'Accept': 'application/json'};
+    final k = apiKey.trim();
+    if (k.isNotEmpty) {
+      switch (authStyle) {
+        case CoachOpenAiAuthStyle.bearer:
+          headers['Authorization'] = 'Bearer $k';
+        case CoachOpenAiAuthStyle.azureApiKey:
+          headers['api-key'] = k;
+      }
+    }
+    final res = await client.get(uri, headers: headers).timeout(const Duration(seconds: 25));
+    if (res.statusCode == 404) return null;
+    if (res.statusCode != 200) {
+      throw CoachLlmException(_truncateBody(res.body), statusCode: res.statusCode);
+    }
+    try {
+      return parseModelIds(utf8.decode(res.bodyBytes));
+    } on CoachLlmException {
+      rethrow;
+    } on FormatException catch (e) {
+      throw CoachLlmException('OpenAI-compatible: invalid JSON ($e)');
+    }
+  }
+
+  /// Ids from an OpenAI `{data:[{id}]}` list or an Azure deployments payload.
+  static List<String> parseModelIds(String body) {
+    final decoded = jsonDecode(body);
+    final List<dynamic> raw;
+    if (decoded is Map) {
+      final data = decoded['data'] ?? decoded['value'] ?? decoded['models'];
+      if (data is! List) return const [];
+      raw = data;
+    } else if (decoded is List) {
+      raw = decoded;
+    } else {
+      throw CoachLlmException('OpenAI-compatible: expected a model list');
+    }
+    final ids = <String>[];
+    final seen = <String>{};
+    for (final item in raw) {
+      if (item is String) {
+        _addModelId(ids, seen, item);
+        continue;
+      }
+      if (item is! Map) continue;
+      if (!_usableListedModel(item)) continue;
+      final id = _listedModelId(item);
+      if (id != null) _addModelId(ids, seen, id);
+    }
+    ids.sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    return _preferChatModelIds(ids);
+  }
+
   static Future<String> chatCompletion({
     required String apiKey,
     required String systemPrompt,
@@ -260,6 +322,52 @@ abstract final class CoachGoogleGenerativeClient {
     if (err is Map && err['message'] is String) return err['message'] as String;
     return null;
   }
+}
+
+void _addModelId(List<String> ids, Set<String> seen, String raw) {
+  final id = raw.trim();
+  if (id.isEmpty || !seen.add(id)) return;
+  ids.add(id);
+}
+
+String? _listedModelId(Map item) {
+  for (final key in ['id', 'name']) {
+    final v = item[key];
+    if (v is String && v.trim().isNotEmpty) return v.trim();
+  }
+  final model = item['model'];
+  if (model is String && model.trim().isNotEmpty) return model.trim();
+  if (model is Map) {
+    final name = model['name'] ?? model['id'];
+    if (name is String && name.trim().isNotEmpty) return name.trim();
+  }
+  return null;
+}
+
+bool _usableListedModel(Map item) {
+  const dead = {'failed', 'canceled', 'cancelled', 'deleting', 'disabled'};
+  final status = '${item['status'] ?? ''}'.trim().toLowerCase();
+  if (dead.contains(status)) return false;
+  final props = item['properties'];
+  if (props is Map) {
+    final provisioning = '${props['provisioningState'] ?? ''}'.trim().toLowerCase();
+    if (dead.contains(provisioning)) return false;
+  }
+  final caps = item['capabilities'];
+  if (caps is Map && caps['chat_completion'] == false && caps['completion'] == false) {
+    return false;
+  }
+  return true;
+}
+
+final _nonChatModelId = RegExp(
+  r'embed|whisper|tts|dall-e|gpt-image|image-generation',
+  caseSensitive: false,
+);
+
+List<String> _preferChatModelIds(List<String> ids) {
+  final chat = ids.where((id) => !_nonChatModelId.hasMatch(id)).toList();
+  return chat.isEmpty ? ids : chat;
 }
 
 String _truncateBody(String s, [int max = 400]) {

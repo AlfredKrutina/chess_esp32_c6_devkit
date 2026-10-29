@@ -51,12 +51,12 @@
  * =============================================================================
  *
  * QUEUES - Receiving commands:
- * - game_command_queue -> Commands from UART/Web (move, reset, status...)
+ * - game_command_queue -> Commands from game_submit() (web, BLE, squares, main)
  * - squares_event_queue -> UP/DN events from physical board
  *
  * QUEUES - Sending responses:
  * - response_queue -> Replies to commands (status, board...)
- * - LEDs are controlled by direct calls (queue was removed)
+ * - game_event_queue -> LED scenes for led_task (game_task does not write the strip)
  *
  * MUTEXES - Protecting shared resources:
  * - game_mutex -> Protects game state (board, current_player, move_count...)
@@ -116,7 +116,7 @@
  * - squares_task: Receive UP/DN event from physical board
  * - led_task: LED control (highlight, animation)
  * - timer_system: Timer for the game
- * - uart_task: Commands from the terminal
+ * - uart_task: diagnostics console only (no chess commands)
  * - web_server_task: Commands from the web
  * - unified_animation_manager: Move animation
  *
@@ -157,6 +157,13 @@
 
 #include "game_gesture.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_mode.h"
 #include "game_board_core.h"
 #include "game_squares_guard.h"
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
@@ -164,9 +171,10 @@
 #include "game_hall_position.h"
 #endif
 #include "game_snapshot.h"
-#include "game_task_internal.h"
+#include "position.h"
 #include "game_physical_undo.h"
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
+#include "game_required_step.h"
 #include "../button_task/include/button_task.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
@@ -174,6 +182,7 @@
 #include "../squares_task/include/squares_task.h"
 #include "../unified_animation_manager/include/unified_animation_manager.h"
 #include "freertos_chess.h"
+#include "game_events.h"
 #include "task_wdt.h"
 #include "game_led_animations.h"
 #include "led_mapping.h"
@@ -239,72 +248,125 @@ esp_err_t game_task_wdt_reset_safe(void) {
 // LOCAL VARIABLES AND CONSTANTS
 // ============================================================================
 
-// Direction vectors for piece movement (knight_moves in game_move_gen.c)
+// Direction vectors for piece movement ((game_state_knight_moves()) in game_move_gen.c)
 
 // Game configuration
-#define MAX_MOVES_HISTORY 200 // Maximum moves to remember
 // #define GAME_TIMEOUT_MS 300000 // 5 minutes per move timeout   not used in
 // this version
 #define MOVE_VALIDATION_MS 100 // Move validation timeout
 
 // Game state
-game_state_t current_game_state = GAME_STATE_IDLE;
-player_t current_player = PLAYER_WHITE;
-uint32_t move_count = 0;
-bool resync_required_after_restore = false;
 /** Monotonic version of state for clients (ETag / If-None-Match, delta). */
-uint32_t game_state_revision = 0;
-// New logic: Block auto-new game until at least one move is made
-bool auto_new_game_blocked_until_move = false;
+static uint32_t s_game_state_revision = 0;
 
-// Simplified castling state (type in game_task_internal.h)
-castling_state_t castling_state = {0};
+uint32_t *game_state_game_state_revision(void) { return &s_game_state_revision; }
+#define game_state_revision (*game_state_game_state_revision())
+// New logic: Block auto-new game until at least one move is made
+static bool s_auto_new_game_blocked_until_move = false;
+
+bool *game_state_auto_new_game_blocked_until_move(void) { return &s_auto_new_game_blocked_until_move; }
+#define auto_new_game_blocked_until_move (*game_state_auto_new_game_blocked_until_move())
+
 
 // Active castling state (simplified implementation)
-bool castle_animation_active = false;
 
 // Rook animation state
-uint8_t rook_from_row, rook_from_col, rook_to_row, rook_to_col;
 
-// Board representation (8x8)
-piece_t board[8][8] = {0};
-bool piece_moved[8][8] = {false};
 
 // Global variables for tracking lifted piece (UP/DN commands)
-bool piece_lifted = false;
-uint8_t lifted_piece_row = 0;
-uint8_t lifted_piece_col = 0;
-piece_t lifted_piece = PIECE_EMPTY;
+
+static const game_mode_t *s_active_mode;
+static const game_mode_t *s_suspended_mode;
+static bool s_drop_reject;
+
+void game_mode_set(const game_mode_t *mode) {
+  s_active_mode = mode;
+  s_suspended_mode = NULL;
+  s_drop_reject = false;
+}
+
+const game_mode_t *game_mode_current(void) { return s_active_mode; }
+
+void game_mode_clear(const game_mode_t *mode) {
+  if (mode == NULL) {
+    return;
+  }
+  if (s_active_mode == mode) {
+    s_active_mode = NULL;
+  }
+  if (s_suspended_mode == mode) {
+    s_suspended_mode = NULL;
+  }
+}
+
+void game_mode_suspend_for(const game_mode_t *mode) {
+  if (mode == NULL || s_active_mode == mode) {
+    return;
+  }
+  s_suspended_mode = s_active_mode;
+  s_active_mode = mode;
+}
+
+void game_mode_resume(const game_mode_t *mode) {
+  if (s_active_mode != mode) {
+    return;
+  }
+  s_active_mode = s_suspended_mode;
+  s_suspended_mode = NULL;
+}
+
+void game_mode_reject_drop(void) { s_drop_reject = true; }
+
+bool game_mode_take_drop_reject(void) {
+  bool rejected = s_drop_reject;
+  s_drop_reject = false;
+  return rejected;
+}
+
+void game_mode_call_lift(const position_t *pos, uint8_t square) {
+  if (s_active_mode != NULL && s_active_mode->on_lift != NULL) {
+    s_active_mode->on_lift(pos, square);
+  }
+}
+
+void game_mode_call_drop(const position_t *pos, uint8_t from, uint8_t to,
+                         bool has_from) {
+  s_drop_reject = false;
+  if (s_active_mode != NULL && s_active_mode->on_drop != NULL) {
+    s_active_mode->on_drop(pos, from, to, has_from);
+  }
+}
+
+void game_mode_call_move_applied(const position_t *pos, position_move_t mv) {
+  if (s_active_mode != NULL && s_active_mode->on_move_applied != NULL) {
+    s_active_mode->on_move_applied(pos, mv);
+  }
+}
+
+void game_mode_call_leds(const position_t *pos) {
+  if (s_active_mode != NULL && s_active_mode->leds != NULL) {
+    s_active_mode->leds(pos);
+  }
+}
 
 // 3-step capture flow state.
-bool capture_in_progress = false; // Is capture in progress?
-uint8_t capture_target_row = 0;   // Where to place your own figure
-uint8_t capture_target_col = 0;
-piece_t capture_removed_piece = PIECE_EMPTY; // What figure was taken
 
-guided_capture_state_t guided_capture_state = {0};
 static bool guided_capture_hints_enabled = true;
 /** 1 = lift source only … 5 = full help incl. guided capture on LED */
 static uint8_t led_guidance_level = 5;
 
 bool game_led_guidance_show_destinations(void) {
-  return chess_policy_move_hints_legal_blue() && led_guidance_level >= 2;
+  return game_policy_move_hints_legal_blue() && led_guidance_level >= 2;
 }
 
 bool game_led_guidance_show_movable_yellow(void) {
-  return chess_policy_move_hints_movable_yellow() && led_guidance_level >= 3;
+  return game_policy_move_hints_movable_yellow() && led_guidance_level >= 3;
 }
 
 bool game_led_guidance_show_check_anim(void) {
   return led_guidance_level >= 4;
 }
 
-bool opponent_piece_moved = false;
-piece_t opponent_piece_type = PIECE_EMPTY;
-uint8_t opponent_original_row = 0;
-uint8_t opponent_original_col = 0;
-uint8_t opponent_current_row = 0;
-uint8_t opponent_current_col = 0;
 
 // ============================================================================
 // AUTO NEW GAME DETECTION
@@ -316,9 +378,18 @@ uint8_t opponent_current_col = 0;
  * Detects when all pieces are in the starting position for 2 seconds
  * and automatically start a new game. Prevents infinite reset.
  */
-bool auto_new_game_in_starting_position = false;
-uint32_t auto_new_game_timer_start = 0;
-bool auto_new_game_triggered = false; // Flag aby se neopakoval reset
+static bool s_auto_new_game_in_starting_position = false;
+
+bool *game_state_auto_new_game_in_starting_position(void) { return &s_auto_new_game_in_starting_position; }
+#define auto_new_game_in_starting_position (*game_state_auto_new_game_in_starting_position())
+static uint32_t s_auto_new_game_timer_start = 0;
+
+uint32_t *game_state_auto_new_game_timer_start(void) { return &s_auto_new_game_timer_start; }
+#define auto_new_game_timer_start (*game_state_auto_new_game_timer_start())
+static bool s_auto_new_game_triggered = false; // Flag aby se neopakoval reset
+
+bool *game_state_auto_new_game_triggered(void) { return &s_auto_new_game_triggered; }
+#define auto_new_game_triggered (*game_state_auto_new_game_triggered())
 
 #define AUTO_NEW_GAME_CONFIRMATION_TIME_MS 2000 // 2 sekundy
 
@@ -334,34 +405,17 @@ bool auto_new_game_triggered = false; // Flag aby se neopakoval reset
  */
 
 // Castling flags
-bool white_king_moved = false;
-bool white_rook_a_moved = false; // a1 rook
-bool white_rook_h_moved = false; // h1 rook
-bool black_king_moved = false;
-bool black_rook_a_moved = false; // a8 rook
-bool black_rook_h_moved = false; // h8 rook
 
 // En passant state
-bool en_passant_available = false;
-uint8_t en_passant_target_row = 0;
-uint8_t en_passant_target_col = 0;
-uint8_t en_passant_victim_row = 0;
-uint8_t en_passant_victim_col = 0;
 
 // Move history
-chess_move_t move_history[MAX_MOVES_HISTORY];
-move_type_t move_history_kind[MAX_MOVES_HISTORY];
-uint32_t history_index = 0;
 
 // Task state
 static bool task_running = false;
-bool game_active = false;
 
 //  Error handling - remembering the last valid field
 // Enhanced error recovery state for smart error handling
-game_task_error_recovery_t error_recovery_state = {false, 0, 0, 0, 0, PIECE_EMPTY, false, 0};
 
-static uint8_t s_error_led = 255;
 
 // ============================================================================
 // STARTING POSITION CHECK SETTINGS
@@ -373,7 +427,10 @@ static uint8_t s_error_led = 255;
  * If it is turned on, the system monitors whether the figures are placed correctly
  * before the start of the game. Disabled by default (false).
  */
-bool starting_position_check_enabled = false;
+static bool s_starting_position_check_enabled = false;
+
+bool *game_state_starting_position_check_enabled(void) { return &s_starting_position_check_enabled; }
+#define starting_position_check_enabled (*game_state_starting_position_check_enabled())
 
 /**
  * @brief Sets the initial position watch
@@ -403,222 +460,56 @@ bool game_get_starting_position_check(void) {
  * Monitors whether graduation is possible and where the graduation dog is located.
  * It is used for controlling the LED indication of the buttons and processing the button event.
  */
-game_task_promotion_state_t promotion_state = {false, 0, 0, PLAYER_WHITE};
 
-// Mutex to protect promotion_state from race conditions.
+// Mutex to protect (*game_state_promotion_state()) from race conditions.
 // Prevents concurrent access from web, UART, button, and matrix tasks
-SemaphoreHandle_t promotion_mutex = NULL;
 
 /** Set in game_process_chess_move before game_execute_move; is consumed on
  * start of game_execute_move (immediate promotion from API instead of promotion pending). */
-bool s_uart_move_immediate_promotion;
-promotion_choice_t s_uart_move_immediate_promotion_piece;
 
 // ============================================================================
 // KING RESIGNATION SYSTEM
 // ============================================================================
 
-king_resignation_state_t resignation_state = {.active = false,
-                                                     .player = PLAYER_WHITE,
-                                                     .king_row = 0,
-                                                     .king_col = 0,
-                                                     .main_timer = NULL,
-                                                     .animation_timer = NULL,
-                                                     .start_time_ms = 0,
-                                                     .last_countdown_sec = 10};
+
 
 // Forward declarations pro resignation (implementations in game_resignation.c)
-bool game_cmd_is_squares_origin(const chess_move_command_t *cmd);
+bool game_cmd_is_squares_origin(const game_cmd_t *cmd);
 
 // Game statistics
-uint32_t total_games = 0;
-uint32_t white_wins = 0;
-uint32_t black_wins = 0;
-uint32_t draws = 0;
 
 // Flag for endgame report request (instead of calling from a timer callback)
-bool endgame_report_requested = false;
 
-endgame_reason_t current_endgame_reason = ENDGAME_REASON_CHECKMATE;
 
-uint8_t game_endgame_reason(void) { return (uint8_t)current_endgame_reason; }
 
-last_move_type_t last_move_type = LAST_MOVE_NORMAL;
 
 // Extended game statistics
-uint32_t game_start_time = 0;
-uint32_t last_move_time = 0;
-uint32_t white_time_total = 0;
-uint32_t black_time_total = 0;
-uint32_t white_moves_count = 0;
-uint32_t black_moves_count = 0;
-uint32_t white_captures = 0;
-uint32_t black_captures = 0;
-uint32_t white_checks = 0;
-uint32_t black_checks = 0;
-uint32_t white_castles = 0;
-uint32_t black_castles = 0;
 
 // Captured pieces tracking
-piece_t white_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
-piece_t black_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
-uint32_t white_captured_count = 0;
-uint32_t black_captured_count = 0;
-uint32_t white_captured_index = 0;
-uint32_t black_captured_index = 0;
 
 // Material advantage tracking (for in-game advantage chart)
-int8_t material_advantage_history[GAME_TASK_MAX_ADVANTAGE_HISTORY];
-uint32_t advantage_history_count = 0;
 
 /**
  * @brief Convert piece_t to character representation
  */
-char piece_to_char(piece_t piece) {
-  switch (piece) {
-  case PIECE_EMPTY:
-    return ' ';
-  case PIECE_WHITE_PAWN:
-    return 'P';
-  case PIECE_WHITE_KNIGHT:
-    return 'N';
-  case PIECE_WHITE_BISHOP:
-    return 'B';
-  case PIECE_WHITE_ROOK:
-    return 'R';
-  case PIECE_WHITE_QUEEN:
-    return 'Q';
-  case PIECE_WHITE_KING:
-    return 'K';
-  case PIECE_BLACK_PAWN:
-    return 'p';
-  case PIECE_BLACK_KNIGHT:
-    return 'n';
-  case PIECE_BLACK_BISHOP:
-    return 'b';
-  case PIECE_BLACK_ROOK:
-    return 'r';
-  case PIECE_BLACK_QUEEN:
-    return 'q';
-  case PIECE_BLACK_KING:
-    return 'k';
-  default:
-    return ' ';
-  }
-}
 
 /**
  * @brief Calculate the current material yield on the board
  * @return Material's advantage (positive = White leads, negative = Black leads)
  */
-static int8_t game_calculate_material_advantage(void) {
-  int white_material = 0;
-  int black_material = 0;
-
-  // Figure values
-  const int pawn_value = 1;
-  const int knight_value = 3;
-  const int bishop_value = 3;
-  const int rook_value = 5;
-  const int queen_value = 9;
-
-  // Spocitat material na boardu
-  for (int row = 0; row < 8; row++) {
-    for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
-      switch (piece) {
-      case PIECE_WHITE_PAWN:
-        white_material += pawn_value;
-        break;
-      case PIECE_WHITE_KNIGHT:
-        white_material += knight_value;
-        break;
-      case PIECE_WHITE_BISHOP:
-        white_material += bishop_value;
-        break;
-      case PIECE_WHITE_ROOK:
-        white_material += rook_value;
-        break;
-      case PIECE_WHITE_QUEEN:
-        white_material += queen_value;
-        break;
-      case PIECE_BLACK_PAWN:
-        black_material += pawn_value;
-        break;
-      case PIECE_BLACK_KNIGHT:
-        black_material += knight_value;
-        break;
-      case PIECE_BLACK_BISHOP:
-        black_material += bishop_value;
-        break;
-      case PIECE_BLACK_ROOK:
-        black_material += rook_value;
-        break;
-      case PIECE_BLACK_QUEEN:
-        black_material += queen_value;
-        break;
-      default:
-        break;
-      }
-    }
-  }
-
-  int advantage = white_material - black_material;
-  // Omezit na int8_t rozsah
-  if (advantage > 127)
-    advantage = 127;
-  if (advantage < -127)
-    advantage = -127;
-
-  return (int8_t)advantage;
-}
 
 /**
  * @brief Save the current material output to history
  */
-void game_record_material_advantage(void) {
-  if (advantage_history_count >= GAME_TASK_MAX_ADVANTAGE_HISTORY) {
-    return; // Historie plna
-  }
-
-  int8_t advantage = game_calculate_material_advantage();
-  material_advantage_history[advantage_history_count++] = advantage;
-}
 
 /**
  * @brief Add captured piece to tracking
  */
-void game_add_captured_piece(piece_t piece) {
-  // Determine which array to use based on piece color
-  if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
-    // White piece captured by black
-    if (black_captured_index < GAME_TASK_MAX_CAPTURED_PIECES) {
-      black_captured_pieces[black_captured_index++] = piece;
-      black_captured_count++;
-      black_captures++;
-    }
-  } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
-    // Black piece captured by white
-    if (white_captured_index < GAME_TASK_MAX_CAPTURED_PIECES) {
-      white_captured_pieces[white_captured_index++] = piece;
-      white_captured_count++;
-      white_captures++;
-    }
-  }
-}
 
-uint32_t moves_without_capture = 0;
-uint32_t max_moves_without_capture = 0;
 static uint32_t position_history[100];
-uint32_t position_history_count = 0;
 
 // Game state flags
 static bool timer_enabled = true;
-bool game_saved = false;
-char saved_game_name[32] = "";
-game_state_t game_result = GAME_STATE_IDLE;
-game_result_type_t current_result_type =
-    RESULT_WHITE_WINS; // Current end game type
 
 // Castling flags and en passant state
 // (declared later in the file)
@@ -648,7 +539,7 @@ uint32_t game_calculate_position_hash(void) {
   // Hash board pieces
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
       if (piece != PIECE_EMPTY) {
         // Combine piece type, position, and color
         uint32_t piece_hash = (piece << 16) | (row << 8) | col;
@@ -730,21 +621,7 @@ void game_add_position_to_history(void) {
 // ============================================================================
 
 // Standard piece values
-static const int piece_values[] = {
-    0, // PIECE_EMPTY
-    1, // PIECE_WHITE_PAWN
-    3, // PIECE_WHITE_KNIGHT
-    3, // PIECE_WHITE_BISHOP
-    5, // PIECE_WHITE_ROOK
-    9, // PIECE_WHITE_QUEEN
-    0, // PIECE_WHITE_KING (infinite value)
-    1, // PIECE_BLACK_PAWN
-    3, // PIECE_BLACK_KNIGHT
-    3, // PIECE_BLACK_BISHOP
-    5, // PIECE_BLACK_ROOK
-    9, // PIECE_BLACK_QUEEN
-    0  // PIECE_BLACK_KING (infinite value)
-};
+;
 
 /**
  * @brief Calculate material balance
@@ -753,134 +630,19 @@ static const int piece_values[] = {
  * @return Material difference (positive = white advantage, negative = black
  * advantage)
  */
-int game_calculate_material_balance(int *white_material, int *black_material) {
-  int white_total = 0;
-  int black_total = 0;
-
-  for (int row = 0; row < 8; row++) {
-    for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
-      if (piece != PIECE_EMPTY) {
-        if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_QUEEN) {
-          white_total += piece_values[piece];
-        } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_QUEEN) {
-          black_total +=
-              piece_values[piece - 6]; // Adjust index for black pieces
-        }
-      }
-    }
-  }
-
-  if (white_material)
-    *white_material = white_total;
-  if (black_material)
-    *black_material = black_total;
-
-  return white_total - black_total;
-}
 
 /**
  * @brief Get material balance as string
  * @param buffer Output buffer
  * @param buffer_size Buffer size
  */
-void game_get_material_string(char *buffer, size_t buffer_size) {
-  int white_material, black_material;
-  int balance =
-      game_calculate_material_balance(&white_material, &black_material);
-
-  if (balance > 0) {
-    snprintf(buffer, buffer_size, "White +%d", balance);
-  } else if (balance < 0) {
-    snprintf(buffer, buffer_size, "Black +%d", -balance);
-  } else {
-    snprintf(buffer, buffer_size, "Even (+0)");
-  }
-}
 
 
 /**
  * @brief Print comprehensive game statistics
  */
-void game_print_game_stats(void) {
-  uint32_t current_time = esp_timer_get_time() / 1000;
-  uint32_t game_duration = current_time - game_start_time;
-  uint32_t minutes = game_duration / 60;
-  uint32_t seconds = game_duration % 60;
-
-  // Calculate average time per move
-  uint32_t white_avg_time =
-      (white_moves_count > 0) ? white_time_total / white_moves_count : 0;
-  uint32_t black_avg_time =
-      (black_moves_count > 0) ? black_time_total / black_moves_count : 0;
-
-  // Get material balance
-  char material_str[32];
-  game_get_material_string(material_str, sizeof(material_str));
-
-  // Print atmospheric header
-  ESP_LOGI(TAG, "╔═══════════════════════════════╗");
-  ESP_LOGI(TAG, "║ ESP32 CHESS v2.4 ║");
-  ESP_LOGI(TAG, "║ Move %" PRIu32 " - %s to play ║", move_count,
-           (current_player == PLAYER_WHITE) ? "White" : "Black");
-  ESP_LOGI(TAG, "║ Material: %s ║", material_str);
-  ESP_LOGI(TAG, "╚═══════════════════════════════╝");
-
-  // Game duration and move info
-  ESP_LOGI(TAG,
-           "Game duration: %02" PRIu32 ":%02" PRIu32 ", Move %" PRIu32
-           " (%s to play)",
-           minutes, seconds, move_count,
-           (current_player == PLAYER_WHITE) ? "White" : "Black");
-
-  // Capture statistics
-  ESP_LOGI(TAG, "Captures: White %" PRIu32 " pieces, Black %" PRIu32 " pieces",
-           white_captures, black_captures);
-
-  // Check and castle statistics
-  ESP_LOGI(TAG,
-           "Checks: White %" PRIu32 ", Black %" PRIu32
-           " | Castles: White %" PRIu32 ", Black %" PRIu32 "",
-           white_checks, black_checks, white_castles, black_castles);
-
-  // Material breakdown
-  int white_material, black_material;
-  game_calculate_material_balance(&white_material, &black_material);
-  ESP_LOGI(TAG, "Material: White %d points, Black %d points (%s)",
-           white_material, black_material, material_str);
-
-  // Time statistics
-  if (timer_enabled) {
-    ESP_LOGI(TAG,
-             "Time per move: White avg %" PRIu32 "s, Black avg %" PRIu32 "s",
-             white_avg_time, black_avg_time);
-  }
-
-  // Draw detection info
-  if (moves_without_capture > 30) {
-    ESP_LOGI(TAG,
-             "⚠️  %" PRIu32 " moves without capture (50-move rule approaching)",
-             moves_without_capture);
-  }
-
-  if (game_is_position_repeated()) {
-    ESP_LOGI(TAG, "⚠️  Position repeated (potential draw by repetition)");
-  }
-
-  // Game save status
-  if (game_saved) {
-    ESP_LOGI(TAG, "💾 Game saved as: %s", saved_game_name);
-  }
-
-  ESP_LOGI(TAG, "═══════════════════════════════");
-}
 
 // Last move tracking for board display
-uint8_t last_move_from_row = 0;
-uint8_t last_move_from_col = 0;
-uint8_t last_move_to_row = 0;
-uint8_t last_move_to_col = 0;
-bool has_last_move = false;
 
 // Captured pieces counter (removed - already declared above with char arrays)
 
@@ -892,7 +654,6 @@ bool has_last_move = false;
 static bool tutorial_mode_active = false;
 static bool show_hints = true;
 /** "baseline" web: empty logic, matrix guard suppressed. */
-bool board_setup_tutorial_active = false;
 // Game analysis flags (for future use)
 // static bool show_warnings = true;
 // static bool show_analysis = true;
@@ -903,7 +664,7 @@ bool board_setup_tutorial_active = false;
 // static uint32_t last_analysis_time = 0;
 
 // Piece symbols for display (ASCII) - FIXED INDEXES
-const char *piece_symbols[] = {
+static const char * s_piece_symbols[] = {
     " ", // 0: PIECE_EMPTY
     "p", // 1: PIECE_WHITE_PAWN
     "n", // 2: PIECE_WHITE_KNIGHT
@@ -918,6 +679,9 @@ const char *piece_symbols[] = {
     "Q", // 11: PIECE_BLACK_QUEEN
     "K"  // 12: PIECE_BLACK_KING
 };
+
+const char **game_state_piece_symbols(void) { return s_piece_symbols; }
+#define piece_symbols (game_state_piece_symbols())
 
 
 // ============================================================================
@@ -936,7 +700,7 @@ const char *piece_symbols[] = {
  * Dumps a variadic function with printf-style arguments.
  */
 static void print_error_detail(const char *label, const char *fmt, ...) {
-  if (!chess_policy_uart_error_detail_enabled()) {
+  if (!game_policy_uart_error_detail_enabled()) {
     return;
   }
   va_list args;
@@ -984,8 +748,8 @@ void game_display_move_error(move_error_t error, const chess_move_t *move) {
   const char *piece_name = game_get_piece_name(move->piece);
   const char *player_name =
       (current_player == PLAYER_WHITE) ? "White" : "Black";
-  piece_t source_piece = board[move->from_row][move->from_col];
-  piece_t dest_piece = board[move->to_row][move->to_col];
+  piece_t source_piece = game_get_piece(move->from_row, move->from_col);
+  piece_t dest_piece = game_get_piece(move->to_row, move->to_col);
 
   // Enhanced error messages with colors and detailed reasoning
   printf("\r\n");
@@ -1059,7 +823,7 @@ void game_display_move_error(move_error_t error, const chess_move_t *move) {
         (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
     for (int r = 0; r < 8; r++) {
       for (int c = 0; c < 8; c++) {
-        if (board[r][c] == king_piece) {
+        if (game_get_piece(r, c) == king_piece) {
           char king_sq[3];
           game_coords_to_square(r, c, king_sq);
           printf("%s would be under attack\r\n", king_sq);
@@ -1209,16 +973,87 @@ static int append_square(char *buffer, size_t size, int pos,
  * @param row Row coordinate
  * @param col Column coordinate
  */
+static move_suggestion_t s_move_suggestions[64];
+static game_evt_hint_pixel_t s_lift_hint_pixels[GAME_EVT_HINT_MAX];
+
+move_suggestion_t *game_move_suggestions_work(void) {
+  return s_move_suggestions;
+}
+
+void game_event_publish_lift_hints(uint8_t lift_sq) {
+  uint8_t row = (uint8_t)(lift_sq / 8);
+  uint8_t col = (uint8_t)(lift_sq % 8);
+  uint32_t valid_moves = 0;
+  uint8_t n = 0;
+
+  if (lift_sq >= 64) {
+    return;
+  }
+  if (game_led_guidance_show_destinations()) {
+    valid_moves =
+        game_get_available_moves(row, col, s_move_suggestions, 64);
+  }
+  for (uint32_t i = 0; i < valid_moves && n < GAME_EVT_HINT_MAX; i++) {
+    uint8_t dest_sq = (uint8_t)(s_move_suggestions[i].to_row * 8u +
+                                s_move_suggestions[i].to_col);
+    game_evt_hint_pixel_t *h = &s_lift_hint_pixels[n];
+    h->square = dest_sq;
+      if (s_move_suggestions[i].is_castling) {
+      if (!game_policy_move_hints_castling_blue()) {
+        continue;
+      }
+      h->r = 0;
+      h->g = 0;
+      h->b = 255;
+    } else {
+      piece_t dest_piece = game_get_piece(s_move_suggestions[i].to_row,
+                                          s_move_suggestions[i].to_col);
+      bool opponent =
+          (current_player == PLAYER_WHITE && dest_piece >= PIECE_BLACK_PAWN &&
+           dest_piece <= PIECE_BLACK_KING) ||
+          (current_player == PLAYER_BLACK && dest_piece >= PIECE_WHITE_PAWN &&
+           dest_piece <= PIECE_WHITE_KING);
+      if (s_move_suggestions[i].is_check) {
+        h->r = 255;
+        h->g = 255;
+        h->b = 255;
+      } else if (opponent) {
+        h->r = 255;
+        h->g = 165;
+        h->b = 0;
+      } else {
+        h->r = 0;
+        h->g = 255;
+        h->b = 0;
+      }
+    }
+    n++;
+    if (en_passant_available &&
+        s_move_suggestions[i].to_row == en_passant_target_row &&
+        s_move_suggestions[i].to_col == en_passant_target_col &&
+        n < GAME_EVT_HINT_MAX) {
+      game_evt_hint_pixel_t *ep = &s_lift_hint_pixels[n++];
+      ep->square =
+          (uint8_t)(en_passant_victim_row * 8u + en_passant_victim_col);
+      /* Reed remove cue. Must not replace the empty landing square. */
+      ep->r = 255;
+      ep->g = 80;
+      ep->b = 0;
+    }
+  }
+  game_event_post_pixels(s_lift_hint_pixels, n, NULL, 0, 0, false, lift_sq);
+}
+
 void game_show_move_suggestions(uint8_t row, uint8_t col) {
-  piece_t piece = board[row][col];
+  piece_t piece = game_get_piece(row, col);
   if (piece == PIECE_EMPTY) {
     ESP_LOGI(TAG, "💡 Hint: No piece at this position");
     return;
   }
 
   // Get available moves for this piece
-  move_suggestion_t suggestions[50];
-  uint32_t count = game_get_available_moves(row, col, suggestions, 50);
+  uint32_t count =
+      game_get_available_moves(row, col, s_move_suggestions, 50);
 
   if (count == 0) {
     char from_square[3];
@@ -1243,13 +1078,14 @@ void game_show_move_suggestions(uint8_t row, uint8_t col) {
   for (uint32_t i = 0; i < count && i < 20;
        i++) { // Limit to 20 moves for display
     char to_square[3];
-    game_coords_to_square(suggestions[i].to_row, suggestions[i].to_col,
-                          to_square);
+    game_coords_to_square(s_move_suggestions[i].to_row,
+                          s_move_suggestions[i].to_col, to_square);
 
-    if (suggestions[i].is_capture) {
+    if (s_move_suggestions[i].is_capture) {
       capture_pos = append_square(capture_moves, sizeof(capture_moves),
                                   capture_pos, to_square);
-    } else if (suggestions[i].is_castling || suggestions[i].is_en_passant) {
+    } else if (s_move_suggestions[i].is_castling ||
+               s_move_suggestions[i].is_en_passant) {
       special_pos = append_square(special_moves, sizeof(special_moves),
                                   special_pos, to_square);
     } else {
@@ -1271,19 +1107,34 @@ void game_show_move_suggestions(uint8_t row, uint8_t col) {
   if (count > 20) {
     ESP_LOGI(TAG, "   ... and %" PRIu32 " more moves", count - 20);
   }
+
+  if (game_led_guidance_show_destinations()) {
+    game_event_publish_lift_hints((uint8_t)(row * 8u + col));
+  }
 }
 
 static bool suggestion_gives_check(uint8_t from_row, uint8_t from_col,
                                    uint8_t to_row, uint8_t to_col,
                                    piece_t piece) {
-  piece_t captured = board[to_row][to_col];
-  board[to_row][to_col] = piece;
-  board[from_row][from_col] = PIECE_EMPTY;
-  bool white = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
-  bool check = game_is_king_in_check(white ? PLAYER_BLACK : PLAYER_WHITE);
-  board[from_row][from_col] = piece;
-  board[to_row][to_col] = captured;
-  return check;
+  position_move_t mv;
+  position_status_t st;
+  bool white;
+
+  position_t *scratch = game_logic_scratch_position();
+  if (game_logic_position() == NULL || scratch == NULL) {
+    return false;
+  }
+  *scratch = *game_logic_position();
+  mv.from = (uint8_t)(from_row * 8u + from_col);
+  mv.to = (uint8_t)(to_row * 8u + to_col);
+  mv.promo = POS_PROMO_NONE;
+  if (!position_apply(scratch, mv)) {
+    return false;
+  }
+  white = (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING);
+  st = position_status(scratch);
+  (void)white;
+  return st.in_check;
 }
 
 /**
@@ -1301,16 +1152,16 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
     return 0;
   }
 
-  piece_t piece = board[row][col];
+  piece_t piece = game_get_piece(row, col);
 
   // If the piece is empty and the resignation timer is active for that position,
-  // use saved king position from resignation_state
+  // use saved king position from (*game_state_resignation_state())
   if (piece == PIECE_EMPTY) {
-    if (resignation_state.active && resignation_state.king_row == row &&
-        resignation_state.king_col == col) {
+    if ((*game_state_resignation_state()).active && (*game_state_resignation_state()).king_row == row &&
+        (*game_state_resignation_state()).king_col == col) {
       // King is raised during resignation timer - use king type z
-      // resignation_state.player
-      piece = (resignation_state.player == PLAYER_WHITE) ? PIECE_WHITE_KING
+      // (*game_state_resignation_state()).player
+      piece = ((*game_state_resignation_state()).player == PLAYER_WHITE) ? PIECE_WHITE_KING
                                                          : PIECE_BLACK_KING;
       ESP_LOGI(TAG,
                "🏰 game_get_available_moves: Using stored king piece (%d) "
@@ -1383,13 +1234,13 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
   case PIECE_BLACK_KNIGHT:
     // Knight moves in L-shape: 8 possible positions
     for (int i = 0; i < 8 && count < max_suggestions; i++) {
-      int to_row = row + knight_moves[i][0];
-      int to_col = col + knight_moves[i][1];
+      int to_row = row + (game_state_knight_moves())[i][0];
+      int to_col = col + (game_state_knight_moves())[i][1];
 
       if (!game_is_valid_square(to_row, to_col))
         continue;
 
-      piece_t target = board[to_row][to_col];
+      piece_t target = game_get_piece(to_row, to_col);
       player_t player =
           (piece == PIECE_WHITE_KNIGHT) ? PLAYER_WHITE : PLAYER_BLACK;
 
@@ -1440,7 +1291,7 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
                                   .to_row = to_row,
                                   .to_col = to_col,
                                   .piece = piece,
-                                  .captured_piece = board[to_row][to_col],
+                                  .captured_piece = game_get_piece(to_row, to_col),
                                   .timestamp = 0};
 
         // Check if move is valid
@@ -1453,7 +1304,7 @@ uint32_t game_get_available_moves(uint8_t row, uint8_t col,
           suggestions[count].to_col = to_col;
           suggestions[count].piece = piece;
           suggestions[count].is_capture =
-              (board[to_row][to_col] != PIECE_EMPTY);
+              (game_get_piece(to_row, to_col) != PIECE_EMPTY);
           suggestions[count].is_check = suggestion_gives_check(
               row, col, (uint8_t)to_row, (uint8_t)to_col, piece);
 
@@ -1516,9 +1367,9 @@ bool game_squares_allow_second_sequential_lift(void) {
   if (guided_capture_state.active) {
     return true;
   }
-  if (resignation_state.active || promotion_state.pending ||
+  if ((*game_state_resignation_state()).active || (*game_state_promotion_state()).pending ||
       castling_state.in_progress || game_is_castle_animation_active() ||
-      error_recovery_state.waiting_for_move_correction ||
+      (*game_state_error_recovery_state()).waiting_for_move_correction ||
       capture_in_progress) {
     return false;
   }
@@ -1530,7 +1381,7 @@ bool game_squares_allow_second_sequential_lift(void) {
     /* Race: matrix queued PICKUP before game_task set piece_lifted. */
     uint8_t pending_sq = squares_get_pending_lift_square();
     if (pending_sq != 255) {
-      pending_piece = board[pending_sq / 8][pending_sq % 8];
+      pending_piece = game_get_piece(pending_sq / 8, pending_sq % 8);
     }
   }
 
@@ -1594,7 +1445,7 @@ void game_print_board(void) {
 
     // Print pieces in this row
     for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
 
       // Check if this square is part of the last move
       bool is_last_move =
@@ -1688,21 +1539,21 @@ void game_print_board(void) {
   printf("\r\n");
 
   // Print captured pieces
-  if (white_captured_count > 0 || black_captured_count > 0) {
+  if ((*game_state_white_captured_count()) > 0 || (*game_state_black_captured_count()) > 0) {
     ESP_LOGI(TAG, "Captured pieces:");
-    if (white_captured_count > 0) {
+    if ((*game_state_white_captured_count()) > 0) {
       printf("  White captured: ");
-      for (uint32_t i = 0; i < white_captured_index; i++) {
-        printf("%s ", piece_symbols[(int)white_captured_pieces[i]]);
+      for (uint32_t i = 0; i < (*game_state_white_captured_index()); i++) {
+        printf("%s ", piece_symbols[(int)(game_state_white_captured_pieces())[i]]);
       }
-      printf("(%lu total)\n", (unsigned long)white_captured_count);
+      printf("(%lu total)\n", (unsigned long)(*game_state_white_captured_count()));
     }
-    if (black_captured_count > 0) {
+    if ((*game_state_black_captured_count()) > 0) {
       printf("  Black captured: ");
-      for (uint32_t i = 0; i < black_captured_index; i++) {
-        printf("%s ", piece_symbols[(int)black_captured_pieces[i]]);
+      for (uint32_t i = 0; i < (*game_state_black_captured_index()); i++) {
+        printf("%s ", piece_symbols[(int)(game_state_black_captured_pieces())[i]]);
       }
-      printf("(%lu total)\n", (unsigned long)black_captured_count);
+      printf("(%lu total)\n", (unsigned long)(*game_state_black_captured_count()));
     }
   }
 
@@ -1757,10 +1608,9 @@ void game_print_move_history(void) {
 /**
  * @brief Send response to UART task via queue
  */
-void game_send_response_to_uart(const char *message, bool is_error,
-                                       QueueHandle_t response_queue) {
+void game_cmd_reply(const char *message, bool is_error,
+                    QueueHandle_t response_queue) {
   if (response_queue == NULL) {
-    // Fallback to logging if no response queue
     if (is_error) {
       ESP_LOGE(TAG, "GAME_ERROR: %s", message ? message : "Unknown error");
     } else {
@@ -1769,23 +1619,17 @@ void game_send_response_to_uart(const char *message, bool is_error,
     return;
   }
 
-  // Create simple response message
-  char response_message[256];
-  if (message) {
-    strncpy(response_message, message, sizeof(response_message) - 1);
-    response_message[sizeof(response_message) - 1] = '\0';
-  } else {
-    strcpy(response_message, is_error ? "Unknown error" : "Success");
-  }
-
-  // Send response to UART task as game_response_t
   game_response_t response = {
       .type = is_error ? GAME_RESPONSE_ERROR : GAME_RESPONSE_SUCCESS,
-      .command_type = 0, // Will be set by caller if needed
+      .command_type = 0,
       .error_code = is_error ? 1 : 0,
-      .message = "",
       .timestamp = esp_timer_get_time() / 1000};
-  strcpy(response.data, response_message);
+  if (message != NULL) {
+    strncpy(response.data, message, sizeof(response.data) - 1);
+    response.data[sizeof(response.data) - 1] = '\0';
+  } else {
+    response.data[0] = '\0';
+  }
 
   /* Without game_mutex: send to queue just copies the prepared string; the mutex would
    * could deadlock (game_task × HTTP GET holding mutex for JSON) or duplicate
@@ -1799,21 +1643,20 @@ void game_send_response_to_uart(const char *message, bool is_error,
   }
 }
 
-bool game_cmd_is_squares_origin(const chess_move_command_t *cmd) {
+bool game_cmd_is_squares_origin(const game_cmd_t *cmd) {
   if (cmd == NULL) {
     return false;
   }
   return (cmd->response_queue == NULL &&
-          (cmd->type == GAME_CMD_PICKUP || cmd->type == GAME_CMD_DROP));
+          (cmd->kind == GCMD_BOARD_LIFT || cmd->kind == GCMD_BOARD_DROP));
 }
 
 bool game_task_squares_guard_mode_conflict_active(void) {
-  return (board_setup_tutorial_active || puzzle_setup_active || puzzle_active ||
+  return ((*game_state_board_setup_tutorial_active()) || (*game_state_puzzle_setup_active()) || (*game_state_puzzle_active()) ||
           game_is_opening_trainer_active() ||
-          game_is_opening_trainer_setup_active() || promotion_state.pending ||
+          game_is_opening_trainer_setup_active() || (*game_state_promotion_state()).pending ||
           castling_state.in_progress || castle_animation_active ||
-          resignation_state.active || guided_capture_state.active ||
-          error_recovery_state.waiting_for_move_correction ||
+          (*game_state_resignation_state()).active || guided_capture_state.active ||
           game_physical_undo_is_active());
 }
 
@@ -1832,39 +1675,27 @@ void game_task_squares_guard_freeze_move_flow(void) {
  */
 void game_show_invalid_move_error_with_blink(uint8_t error_row,
                                              uint8_t error_col) {
-  uint8_t led;
-  if (!chess_policy_error_recovery_enabled() ||
-      (!chess_policy_error_recovery_led_red_blink() &&
-       !chess_policy_error_recovery_led_red_persist())) {
+  bool locked = (*game_state_error_recovery_state()).waiting_for_move_correction;
+  bool blink = game_policy_error_recovery_led_red_blink();
+  bool persist = game_policy_error_recovery_led_red_persist();
+  /* A lock without a red square is forbidden, even if blink/persist are off. */
+  if (!locked &&
+      (!game_policy_error_recovery_enabled() || (!blink && !persist))) {
     return;
   }
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   game_hall_restore_guide_stop_leds();
 #endif
-  led = chess_pos_to_led_index(error_row, error_col);
-  if (s_error_led < 64U && s_error_led != led) {
-    uint8_t prev = s_error_led;
-    s_error_led = 255U;
-    led_target_pulse_cancel(prev);
-    led_target_set(prev, 0, 0, 0, LED_VIS_SNAP);
+  if (locked && !blink && !persist) {
+    persist = true;
   }
-  s_error_led = led;
-  if (chess_policy_error_recovery_led_red_persist()) {
-    led_target_set(led, 255, 0, 0, LED_VIS_SNAP);
-  }
-  led_target_pulse(led, 255, 0, 0);
+  game_event_post_move_rejected((uint8_t)(error_row * 8u + error_col), persist);
   ESP_LOGI(TAG, "Error pulse at %c%d", 'a' + error_col, error_row + 1);
 }
 
 void game_stop_error_blink(void) {
-  uint8_t led;
-  if (s_error_led >= 64U) {
-    return;
-  }
-  led = s_error_led;
-  s_error_led = 255U;
-  led_target_pulse_cancel(led);
-  led_target_set(led, 0, 0, 0, LED_VIS_SNAP);
+  /* Pulse only. waiting_for_move_correction stays until a real fix or reset. */
+  game_event_post_move_rejected_clear();
   ESP_LOGI(TAG, "Error pulse stopped");
 }
 
@@ -1888,7 +1719,7 @@ void game_trigger_victory_animation(player_t winner) {
   for (int i = 0; i < 64; i++) {
     int r = i / 8;
     int c = i % 8;
-    if (board[r][c] == winning_king) {
+    if (game_get_piece(r, c) == winning_king) {
       king_pos = i;
       break;
     }
@@ -1897,32 +1728,21 @@ void game_trigger_victory_animation(player_t winner) {
   ESP_LOGI(TAG, "🏆 Triggering Victory Animation for %s (King at %d)",
            (winner == PLAYER_WHITE) ? "White" : "Black", king_pos);
 
-  // Use LED_CMD_ANIM_ENDGAME instead of start_endgame_animation()
-  // This calls led_anim_endgame() in led_task.c which has the correct colors
-  // (green for winner, red for loser, blue for empty fields)
-  led_command_t endgame_cmd = {
-      .type = LED_CMD_ANIM_ENDGAME,
-      .led_index = king_pos,
-      .red = 0, // Colors are not used - the animation determines them by itself
-      .green = 0,
-      .blue = 0,
-      .duration_ms = 0, // Endless
-      .data = NULL};
-  led_execute_command_new(&endgame_cmd);
+  game_event_post_game_end(king_pos, (uint8_t)(*game_state_current_result_type()));
 }
 
 /**
  * @brief Reset error recovery state completely
  */
 void game_reset_error_recovery_state(void) {
-  error_recovery_state.has_invalid_piece = false;
-  error_recovery_state.waiting_for_move_correction = false;
-  error_recovery_state.error_count = 0;
-  error_recovery_state.invalid_row = 0;
-  error_recovery_state.invalid_col = 0;
-  error_recovery_state.original_valid_row = 0;
-  error_recovery_state.original_valid_col = 0;
-  error_recovery_state.piece_type = PIECE_EMPTY;
+  (*game_state_error_recovery_state()).has_invalid_piece = false;
+  (*game_state_error_recovery_state()).waiting_for_move_correction = false;
+  (*game_state_error_recovery_state()).error_count = 0;
+  (*game_state_error_recovery_state()).invalid_row = 0;
+  (*game_state_error_recovery_state()).invalid_col = 0;
+  (*game_state_error_recovery_state()).original_valid_row = 0;
+  (*game_state_error_recovery_state()).original_valid_col = 0;
+  (*game_state_error_recovery_state()).piece_type = PIECE_EMPTY;
 
   ESP_LOGI(TAG, "✅ Error recovery state reset");
 }
@@ -1942,7 +1762,7 @@ void game_reset_error_recovery_state(void) {
  * @param col Output column coordinate (0-7)
  * @return true if conversion successful, false otherwise
  */
-bool convert_notation_to_coords(const char *notation, uint8_t *row,
+bool game_notation_to_coords(const char *notation, uint8_t *row,
                                 uint8_t *col) {
   if (!notation || !row || !col || strlen(notation) != 2) {
     return false;
@@ -1970,7 +1790,7 @@ bool convert_notation_to_coords(const char *notation, uint8_t *row,
  * @param notation Output notation buffer (must be at least 3 chars)
  * @return true if conversion successful, false otherwise
  */
-bool convert_coords_to_notation(uint8_t row, uint8_t col, char *notation) {
+bool game_coords_to_notation(uint8_t row, uint8_t col, char *notation) {
   if (!notation || row > 7 || col > 7) {
     return false;
   }
@@ -1995,6 +1815,7 @@ void game_toggle_timer(bool enabled) {
   timer_enabled = enabled;
   ESP_LOGI(TAG, "Game timer %s", enabled ? "enabled" : "disabled");
 }
+bool game_timer_is_enabled(void) { return timer_enabled; }
 
 /**
  * @brief Named save is not a product path.
@@ -2030,61 +1851,6 @@ void game_load_game(const char *game_name) {
  * @param pgn_buffer Output buffer for PGN string
  * @param buffer_size Size of output buffer
  */
-void game_export_pgn(char *pgn_buffer, size_t buffer_size) {
-  if (pgn_buffer == NULL || buffer_size == 0) {
-    ESP_LOGE(TAG, "Invalid PGN buffer");
-    return;
-  }
-
-  // Start PGN with metadata
-  int pos = snprintf(pgn_buffer, buffer_size,
-                     "[Event \"ESP32 Chess Game\"]\n"
-                     "[Site \"ESP32-C6\"]\n"
-                     "[Date \"%s\"]\n"
-                     "[Round \"1\"]\n"
-                     "[White \"Player 1\"]\n"
-                     "[Black \"Player 2\"]\n"
-                     "[Result \"*\"]\n\n",
-                     "2025-01-01"); // TODO: Get actual date
-
-  // Add moves
-  for (uint32_t i = 0; i < history_index && pos < buffer_size - 50; i++) {
-    const chess_move_t *move = &move_history[i];
-    char from_square[4], to_square[4];
-    game_coords_to_square(move->from_row, move->from_col, from_square);
-    game_coords_to_square(move->to_row, move->to_col, to_square);
-
-    if (i % 2 == 0) {
-      // White move
-      pos += snprintf(pgn_buffer + pos, buffer_size - pos, "%" PRIu32 ". %s%s",
-                      (i / 2) + 1, from_square, to_square);
-    } else {
-      // Black move
-      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " %s%s ",
-                      from_square, to_square);
-    }
-
-    // Add newline every 10 moves
-    if ((i + 1) % 20 == 0) {
-      pos += snprintf(pgn_buffer + pos, buffer_size - pos, "\n");
-    }
-  }
-
-  // Add result
-  if (game_result == GAME_STATE_FINISHED) {
-    if (strstr(saved_game_name, "CHECKMATE")) {
-      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " 1-0");
-    } else if (strstr(saved_game_name, "STALEMATE")) {
-      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " 1/2-1/2");
-    } else {
-      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " 1/2-1/2");
-    }
-  } else {
-    pos += snprintf(pgn_buffer + pos, buffer_size - pos, " *");
-  }
-
-  ESP_LOGI(TAG, "📄 PGN export completed (%d characters)", pos);
-}
 
 /**
  * @brief Convert board coordinates to chess square notation
@@ -2112,10 +1878,10 @@ void game_print_status(void) {
            (current_player == PLAYER_WHITE) ? "White" : "Black");
   ESP_LOGI(TAG, "  Move count: %lu", move_count);
   ESP_LOGI(TAG, "  Game active: %s", game_active ? "Yes" : "No");
-  ESP_LOGI(TAG, "  Total games: %lu", total_games);
-  ESP_LOGI(TAG, "  White wins: %lu", white_wins);
-  ESP_LOGI(TAG, "  Black wins: %lu", black_wins);
-  ESP_LOGI(TAG, "  Draws: %lu", draws);
+  ESP_LOGI(TAG, "  Total games: %lu", (*game_state_total_games()));
+  ESP_LOGI(TAG, "  White wins: %lu", (*game_state_white_wins()));
+  ESP_LOGI(TAG, "  Black wins: %lu", (*game_state_black_wins()));
+  ESP_LOGI(TAG, "  Draws: %lu", (*game_state_draws()));
 }
 
 // ============================================================================
@@ -2124,7 +1890,7 @@ void game_print_status(void) {
 
 void game_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "Game task started successfully");
-  chess_policy_log_boot();
+  game_policy_log_boot();
 
   // CRITICAL: Register with TWDT from within task
   esp_err_t wdt_ret = esp_task_wdt_add(NULL);
@@ -2140,7 +1906,7 @@ void game_task_start(void *pvParameters) {
   ESP_LOGI(TAG, "  • Move validation");
   ESP_LOGI(TAG, "Game task initialized - ready to start game");
   ESP_LOGI(TAG, "  • Board initialized with starting position");
-  ESP_LOGI(TAG, "  • Command queue ready for UART/Web/Button inputs");
+  ESP_LOGI(TAG, "  • Command queue ready for web, BLE, squares, and main");
   ESP_LOGI(TAG, "  • LED animations ready");
   ESP_LOGI(TAG, "  • 1 second game loop cycle");
 
@@ -2148,8 +1914,8 @@ void game_task_start(void *pvParameters) {
   // Use a recursive mutex because game_execute_move() can be called
   // reentrantly (eg from a capture flow that calls game_execute_move() which
   // can detect promotion)
-  promotion_mutex = xSemaphoreCreateRecursiveMutex();
-  if (promotion_mutex == NULL) {
+  (*game_state_promotion_mutex()) = xSemaphoreCreateRecursiveMutex();
+  if ((*game_state_promotion_mutex()) == NULL) {
     ESP_LOGE(TAG, "❌ CRITICAL: Failed to create promotion mutex!");
   } else {
     ESP_LOGI(TAG, "✅ Promotion recursive mutex initialized");
@@ -2168,7 +1934,10 @@ void game_task_start(void *pvParameters) {
   system_config_t config;
   esp_err_t config_ret = config_load_from_nvs(&config);
   if (config_ret == ESP_OK) {
-    starting_position_check_enabled = config.starting_position_check_enabled;
+#undef starting_position_check_enabled
+    (*game_state_starting_position_check_enabled()) =
+        config.starting_position_check_enabled;
+#define starting_position_check_enabled (*game_state_starting_position_check_enabled())
     ESP_LOGI(TAG, "Configuration loaded: starting_position_check=%s",
              starting_position_check_enabled ? "ON" : "OFF");
   } else {
@@ -2197,11 +1966,11 @@ void game_task_start(void *pvParameters) {
     // If the boot animation (controlled from main.c) is running, the game task MUST NOT do ANYTHING!
     // Auto new game detection, LED operation, anything could interrupt
     // animaci.
-    if (led_is_booting()) {
+    if (game_led_boot_active()) {
       game_task_wdt_reset_safe();
       /* Hall v2 SW1 (GPIO23). The rest of the game loop stays paused. */
       game_gesture_poll();
-      vTaskDelay(pdMS_TO_TICKS(10));
+      game_led_flush(); vTaskDelay(pdMS_TO_TICKS(10));
       continue;
     }
     game_snapshot_service_after_boot();
@@ -2218,7 +1987,7 @@ void game_task_start(void *pvParameters) {
     game_process_commands();
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-    if (promotion_state.pending) {
+    if ((*game_state_promotion_state()).pending) {
       game_promotion_sync_hall_if_pending();
     }
     game_ep_capture_service();
@@ -2228,12 +1997,7 @@ void game_task_start(void *pvParameters) {
         current_game_state == GAME_STATE_FINISHED ||
         current_game_state == GAME_STATE_WAITING_FOR_RETURN) {
       static uint32_t s_last_hall_restore_sync_ms = 0;
-      static bool s_boot_guide_done = false;
       uint32_t hall_now_ms = (uint32_t)(esp_timer_get_time() / 1000);
-      if (!s_boot_guide_done) {
-        s_boot_guide_done = true;
-        game_hall_restore_guide_force_resync();
-      }
       if (game_hall_restore_guide_take_sync_request()) {
         game_hall_restore_guide_sync();
       } else if (hall_now_ms - s_last_hall_restore_sync_ms >= 400U) {
@@ -2245,6 +2009,7 @@ void game_task_start(void *pvParameters) {
     game_puzzle_service_hall_move();
     game_opening_service_hall_move();
 #endif
+    game_required_step_service();
 
     // BUG FIX 1: Automatic transition from WAITING_FOR_BOARD_SETUP to ACTIVE
     if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
@@ -2260,17 +2025,17 @@ void game_task_start(void *pvParameters) {
         // The board is ready (or guarding is off) - activate the game
         current_game_state = GAME_STATE_ACTIVE;
         game_active = true;
-        game_start_time = esp_timer_get_time() / 1000;
-        last_move_time = game_start_time;
+        (*game_state_game_start_time()) = esp_timer_get_time() / 1000;
+        (*game_state_last_move_time()) = (*game_state_game_start_time());
         ha_game_report(HA_GAME_NEW, HA_REASON_NONE);
         
         // Stop any running animations
         unified_animation_stop_all();
-        led_stop_endgame_animation();
+        game_event_post_led_ctrl(GAME_EVT_CTRL_STOP_ENDGAME, 0, 0, 0, 0);
         stop_endgame_animation();
         
         // Clear the LED
-        led_clear_board_only();
+        game_led_clear_board();
         
         // Update the promotion LED indication
         game_check_promotion_needed();
@@ -2285,7 +2050,7 @@ void game_task_start(void *pvParameters) {
 #endif
         
         // Highlight moving figures
-        chess_policy_highlight_movable_if_enabled();
+        game_policy_highlight_movable_if_enabled();
         
         // Notify web
         game_bump_revision_and_notify();
@@ -2321,7 +2086,11 @@ void game_task_start(void *pvParameters) {
       uint32_t puzzle_now_ms = (uint32_t)(esp_timer_get_time() / 1000);
       if (puzzle_now_ms - puzzle_led_ms >= 400U) {
         puzzle_led_ms = puzzle_now_ms;
-        game_puzzle_service_leds();
+        if (game_mode_current() != NULL) {
+          game_mode_call_leds(game_logic_position());
+        } else {
+          game_puzzle_service_leds();
+        }
       }
     }
 
@@ -2329,9 +2098,9 @@ void game_task_start(void *pvParameters) {
     game_update_timer_display();
 
     // Process endgame report request (with enough stack 10KB)
-    if (endgame_report_requested) {
-      endgame_report_requested = false; // Reset flag
-      game_print_endgame_report_uart(current_result_type);
+    if ((*game_state_endgame_report_requested())) {
+      (*game_state_endgame_report_requested()) = false; // Reset flag
+      game_print_endgame_report_uart((*game_state_current_result_type()));
     }
 
     // Auto new game detection (when pieces are in initial position 2s)
@@ -2340,7 +2109,7 @@ void game_task_start(void *pvParameters) {
     // BUG FIX 2: Auto-new game only when starting position watch is on
     bool in_start_pos =
         starting_position_check_enabled &&
-        !board_setup_tutorial_active &&
+        !(*game_state_board_setup_tutorial_active()) &&
         !game_puzzle_blocks_new_game() &&
         current_game_state != GAME_STATE_WAITING_FOR_BOARD_SETUP &&
         game_is_board_in_starting_position();
@@ -2357,10 +2126,10 @@ void game_task_start(void *pvParameters) {
         ESP_LOGI(
             TAG,
             "Auto new game: Position confirmed for 2s - triggering new game");
-        chess_move_command_t cmd = {
-            .type = GAME_CMD_NEW_GAME, .player = 0, .response_queue = NULL};
-        if (game_command_queue != NULL) {
-          xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100));
+        game_cmd_t cmd = {0};
+        cmd.kind = GCMD_NEW_GAME;
+        if (!game_submit(&cmd)) {
+          ESP_LOGW(TAG, "Auto new game submit failed");
         }
         auto_new_game_triggered = true;
         // Block auto-new game detection until at least one move

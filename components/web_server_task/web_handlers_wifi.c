@@ -32,7 +32,7 @@ static const char *TAG = "WEB_WIFI";
  * Expects JSON: {"ssid": "...", "password": "..."}
  * Returns JSON: {"success": true/false, "message": "..."}
  */
-esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
+esp_err_t web_post_wifi_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/config");
 
   if (board_api_auth_admin_http_denied(req)) {
@@ -168,7 +168,7 @@ esp_err_t http_post_wifi_config_handler(httpd_req_t *req) {
  * @details
  * Returns JSON: {"success": true/false, "message": "..."}
  */
-esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
+esp_err_t web_post_wifi_connect_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/connect");
 
   if (board_api_auth_admin_http_denied(req)) {
@@ -242,7 +242,7 @@ esp_err_t http_post_wifi_connect_handler(httpd_req_t *req) {
  * @details
  * Returns JSON: {"success": true/false, "message": "..."}
  */
-esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
+esp_err_t web_post_wifi_disconnect_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/disconnect");
 
   if (board_api_auth_admin_http_denied(req)) {
@@ -280,7 +280,7 @@ esp_err_t http_post_wifi_disconnect_handler(httpd_req_t *req) {
  * @details
  * Returns JSON: {"success": true/false, "message": "..."}
  */
-esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
+esp_err_t web_post_wifi_clear_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/wifi/clear");
 
   if (board_api_auth_admin_http_denied(req)) {
@@ -323,7 +323,7 @@ esp_err_t http_post_wifi_clear_handler(httpd_req_t *req) {
  * @details
  * Returns JSON with AP and STA status information.
  */
-esp_err_t http_get_wifi_status_handler(httpd_req_t *req) {
+esp_err_t web_get_wifi_status_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/wifi/status");
 
   char local_json[WIFI_STATUS_JSON_MAX];

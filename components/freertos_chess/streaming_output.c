@@ -331,9 +331,8 @@ static esp_err_t stream_write_queue(const char* data, size_t len)
     // Create a proper game_response_t message for the queue
     game_response_t response = {
         .type = GAME_RESPONSE_SUCCESS,
-        .command_type = GAME_CMD_SHOW_BOARD,  // Default command type
+        .command_type = 0,  // Default command type
         .error_code = 0,
-        .message = "Streaming data chunk",
         .timestamp = esp_timer_get_time() / 1000
     };
     

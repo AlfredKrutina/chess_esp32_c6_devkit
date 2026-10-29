@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 /**
- * @brief Handle GAME_CMD_SQUARES_GUARD.
+ * @brief Handle a board-guard command.
  *
  * Action 0 clears the pause and notifies clients. Any other action copies
  * the lifted and dropped masks and enters the pause, unless the guard is
@@ -22,7 +22,7 @@
  * do not stay paused). NULL or a different command type is ignored.
  * @param cmd Command from the game queue.
  */
-void game_squares_guard_handle_command(const chess_move_command_t *cmd);
+void game_squares_guard_handle_command(const game_cmd_t *cmd);
 
 /**
  * @brief Drop both pause masks and the resync-required flag.
@@ -68,5 +68,7 @@ void game_squares_guard_enter_pause_from_hall_guide(void);
 
 /** Drop a Hall-guide hold whose lifted and dropped masks are all zero. */
 bool game_squares_guard_release_hall_hold(void);
+
+extern bool resync_required_after_restore;
 
 #endif /* GAME_SQUARES_GUARD_H */

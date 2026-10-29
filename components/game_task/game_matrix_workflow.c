@@ -3,12 +3,21 @@
  * @brief Matrix-driven LED workflow, promotion command, movable highlights.
  */
 
-#include "game_task_internal.h"
+#include "game_board_transition.h"
 #include "game_physical_undo.h"
 #include "game_task.h"
-#include "chess_gameplay_policy.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_policy.h"
 #include "game_move_validate.h"
 #include "game_hall_match.h"
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+#include "game_hall_position.h"
+#endif
 #include "../squares_task/include/hall_i2c_squares.h"
 #include "../squares_task/include/squares_task.h"
 
@@ -29,10 +38,10 @@ static const char *TAG = "GAME_MATRIX";
 
 
 /**
- * @brief Process promotion command from UART
+ * @brief Process promotion command from game_submit
  * @param cmd Promotion command structure
  */
-void game_process_promotion_command(const chess_move_command_t *cmd) {
+void game_process_promotion_command(const game_cmd_t *cmd) {
   if (!cmd) {
     ESP_LOGE(TAG, "❌ Invalid promotion command");
     return;
@@ -41,16 +50,16 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
   ESP_LOGI(TAG, "👑 Processing promotion command");
 
   // #2 & #3: Atomic check with mutex to prevent double execution
-  // Use a recursive mutex function (promotion_mutex is a recursive mutex)
-  if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) != pdTRUE) {
+  // Use a recursive mutex function ((*game_state_promotion_mutex()) is a recursive mutex)
+  if (xSemaphoreTakeRecursive((*game_state_promotion_mutex()), pdMS_TO_TICKS(100)) != pdTRUE) {
     ESP_LOGE(TAG, "❌ Failed to acquire promotion mutex");
     return;
   }
 
   // Check if promotion is still pending (might have been processed by another
   // task)
-  if (!promotion_state.pending) {
-    xSemaphoreGiveRecursive(promotion_mutex);
+  if (!(*game_state_promotion_state()).pending) {
+    xSemaphoreGiveRecursive((*game_state_promotion_mutex()));
     ESP_LOGW(TAG, "⚠️ Promotion already processed by another task");
     return;
   }
@@ -61,17 +70,26 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
   // Determine promotion choice (default to Queen if invalid or not specified)
   promotion_choice_t choice = PROMOTION_QUEEN;
 
-  if (cmd->promotion_choice <= PROMOTION_KNIGHT) {
-    choice = (promotion_choice_t)cmd->promotion_choice;
-    ESP_LOGI(TAG, "👑 Promotion choice received: %d (%s)", choice,
+  {
+    char piece = (cmd->kind == GCMD_PROMOTION_CHOICE) ? cmd->u.promo.piece : 0;
+    if (piece == 'r' || piece == 'R') {
+      choice = PROMOTION_ROOK;
+    } else if (piece == 'b' || piece == 'B') {
+      choice = PROMOTION_BISHOP;
+    } else if (piece == 'n' || piece == 'N') {
+      choice = PROMOTION_KNIGHT;
+    } else {
+      choice = PROMOTION_QUEEN;
+      if (piece != 0 && piece != 'q' && piece != 'Q') {
+        ESP_LOGW(TAG, "Invalid promotion piece '%c', defaulting to Queen",
+                 piece);
+      }
+    }
+    ESP_LOGI(TAG, "Promotion choice received: %d (%s)", choice,
              choice == PROMOTION_QUEEN    ? "Queen"
              : choice == PROMOTION_ROOK   ? "Rook"
              : choice == PROMOTION_BISHOP ? "Bishop"
                                           : "Knight");
-  } else {
-    ESP_LOGW(TAG,
-             "⚠️ Invalid or missing promotion choice (%d), defaulting to Queen",
-             cmd->promotion_choice);
   }
 
   // Execute the promotion with the selected piece
@@ -80,29 +98,34 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
     {
-      uint8_t promo_row = promotion_state.square_row;
-      uint8_t promo_col = promotion_state.square_col;
-      piece_t promoted_on_board = board[promo_row][promo_col];
+      uint8_t promo_row = (*game_state_promotion_state()).square_row;
+      uint8_t promo_col = (*game_state_promotion_state()).square_col;
+      piece_t promoted_on_board =
+          game_board_piece_at(promo_row, promo_col);
       if (!game_hall_validate_drop_square(promo_row, promo_col,
                                           promoted_on_board)) {
-        piece_t revert_pawn = (promotion_state.player == PLAYER_WHITE)
-                                  ? PIECE_WHITE_PAWN
-                                  : PIECE_BLACK_PAWN;
-        board[promo_row][promo_col] = revert_pawn;
+        (void)game_board_undo_promotion_choice();
         ESP_LOGW(TAG,
                  "❌ Hall type/color mismatch on promo square %c%d after choice",
                  'a' + promo_col, promo_row + 1);
-        game_send_response_to_uart(
+        game_cmd_reply(
             "❌ Wrong piece on promotion square (Hall type/color) — fix "
             "physical piece and choose promotion again",
             true, (QueueHandle_t)cmd->response_queue);
-        xSemaphoreGiveRecursive(promotion_mutex);
+        xSemaphoreGiveRecursive((*game_state_promotion_mutex()));
         return;
       }
     }
 #endif
 
-    promotion_state.pending = false;
+    (*game_state_promotion_state()).pending = false;
+    game_move_undo_meta_on_promotion_completed(game_board_piece_at(
+        (*game_state_promotion_state()).square_row,
+        (*game_state_promotion_state()).square_col));
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    game_hall_snapshot_last_valid();
+    game_hall_position_arm_idle_handover();
+#endif
     game_print_board();
     game_promotion_finish_turn();
 
@@ -111,8 +134,8 @@ void game_process_promotion_command(const chess_move_command_t *cmd) {
   }
 
   // CRITICAL: Release mutex at the end of the function to ensure it's always
-  // released Use recursive mutex functions (promotion_mutex is a recursive mutex)
-  xSemaphoreGiveRecursive(promotion_mutex);
+  // released Use recursive mutex functions ((*game_state_promotion_mutex()) is a recursive mutex)
+  xSemaphoreGiveRecursive((*game_state_promotion_mutex()));
 }
 
 /**
@@ -147,11 +170,11 @@ bool game_execute_promotion(promotion_choice_t choice) {
 
   // Convert promotion choice to piece type
   piece_t promoted_piece;
-  // Use promotion_state.player instead of current_player
+  // Use (*game_state_promotion_state()).player instead of current_player
   // current_player has already been switched to the opponent by
   // game_execute_move() so we must use the player stored in the promotion
   // state
-  if (promotion_state.player == PLAYER_WHITE) {
+  if ((*game_state_promotion_state()).player == PLAYER_WHITE) {
     switch (choice) {
     case PROMOTION_QUEEN:
       promoted_piece = PIECE_WHITE_QUEEN;
@@ -188,11 +211,11 @@ bool game_execute_promotion(promotion_choice_t choice) {
   }
 
   // BUG #3: Use stored position instead of scanning entire board
-  // The position was already found and stored in promotion_state by
+  // The position was already found and stored in (*game_state_promotion_state()) by
   // game_check_promotion_needed()
-  uint8_t row = promotion_state.square_row;
-  uint8_t col = promotion_state.square_col;
-  piece_t piece = board[row][col];
+  uint8_t row = (*game_state_promotion_state()).square_row;
+  uint8_t col = (*game_state_promotion_state()).square_col;
+  piece_t piece = game_get_piece(row, col);
 
   // Verify it's actually a pawn (safety check)
   if (piece != PIECE_WHITE_PAWN && piece != PIECE_BLACK_PAWN) {
@@ -201,8 +224,24 @@ bool game_execute_promotion(promotion_choice_t choice) {
     return false;
   }
 
-  // Promote the pawn
-  board[row][col] = promoted_piece;
+  char promo_ch = 'q';
+  switch (choice) {
+  case PROMOTION_ROOK:
+    promo_ch = 'r';
+    break;
+  case PROMOTION_BISHOP:
+    promo_ch = 'b';
+    break;
+  case PROMOTION_KNIGHT:
+    promo_ch = 'n';
+    break;
+  default:
+    promo_ch = 'q';
+    break;
+  }
+  if (!game_board_apply_promotion_piece(promo_ch)) {
+    return false;
+  }
   game_move_undo_meta_on_promotion_completed(promoted_piece);
   current_game_state = GAME_STATE_ACTIVE; // Restore game state to ACTIVE
   ESP_LOGI(TAG, "✅ Promoted %s pawn at %c%d to %s",
@@ -215,14 +254,8 @@ bool game_execute_promotion(promotion_choice_t choice) {
 
   // Start promotion animation
   uint8_t promotion_led = chess_pos_to_led_index(row, col);
-  led_command_t promote_cmd = {.type = LED_CMD_ANIM_PROMOTE,
-                               .led_index = promotion_led,
-                               .red = 255,
-                               .green = 215,
-                               .blue = 0, // Gold
-                               .duration_ms = 2000,
-                               .data = NULL};
-  led_execute_command_new(&promote_cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_PROMOTE, promotion_led, 0);
 
   return true;
 }
@@ -234,14 +267,14 @@ void game_highlight_movable_pieces(void) {
 #if HALL_DEBUG_LIGHT_WHERE_PIECE
   return;
 #endif
-  if (led_lamp_board_held() || led_gesture_anim_busy()) {
+  if (game_led_lamp_held() || game_led_gesture_busy()) {
     return;
   }
-  if (!chess_policy_move_hints_movable_yellow()) {
+  if (!game_policy_move_hints_movable_yellow()) {
     return;
   }
   // Do not highlight pieces if system is booting
-  if (led_is_booting()) {
+  if (game_led_boot_active()) {
     return;
   }
 
@@ -288,6 +321,10 @@ void game_highlight_movable_pieces(void) {
 
   ESP_LOGI(TAG, "🟡 Highlighting movable pieces for %s player",
            current_player == PLAYER_WHITE ? "white" : "black");
+  const bool nested_frame = game_led_frame_is_open();
+  if (!nested_frame) {
+    game_led_frame_begin(0, false);
+  }
 
   // Endgame detection is handled in game_analyze_position() called from
   // game_execute_move()
@@ -299,7 +336,7 @@ void game_highlight_movable_pieces(void) {
   // Scan all squares for current player's pieces
   for (uint8_t row = 0; row < 8; row++) {
     for (uint8_t col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
 
       // Check if piece belongs to current player
       bool is_current_player_piece = false;
@@ -321,14 +358,15 @@ void game_highlight_movable_pieces(void) {
             game_get_available_moves(row, col, suggestions, 1);
 
         if (valid_moves > 0) {
-          // Highlight movable piece in yellow
-          led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 255,
-                             0); // Yellow
+          game_led_frame_sq(row, col, 255, 255, 0);
           highlighted_count++;
         }
       }
     }
   }
 
+  if (!nested_frame) {
+    game_led_frame_end();
+  }
   ESP_LOGI(TAG, "🟡 Highlighted %lu movable pieces", highlighted_count);
 }

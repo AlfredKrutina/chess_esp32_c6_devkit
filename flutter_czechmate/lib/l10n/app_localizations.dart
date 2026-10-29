@@ -2835,6 +2835,36 @@ abstract class AppLocalizations {
   /// **'Deployment / model name'**
   String get settingsCoachAzureFoundryDeploymentLabel;
 
+  /// No description provided for @settingsCoachAzureFoundryModelsLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading models from Foundry…'**
+  String get settingsCoachAzureFoundryModelsLoading;
+
+  /// No description provided for @settingsCoachAzureFoundryModelsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No models found for this key and URL. Type the deployment name.'**
+  String get settingsCoachAzureFoundryModelsEmpty;
+
+  /// No description provided for @settingsCoachAzureFoundryModelsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load models ({error}). You can still type a deployment name.'**
+  String settingsCoachAzureFoundryModelsFailed(String error);
+
+  /// No description provided for @settingsCoachAzureFoundryModelsRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload models'**
+  String get settingsCoachAzureFoundryModelsRefresh;
+
+  /// No description provided for @settingsCoachAzureFoundryModelsPickHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a model'**
+  String get settingsCoachAzureFoundryModelsPickHint;
+
   /// No description provided for @settingsCoachAzureFoundryApiVersionLabel.
   ///
   /// In en, this message translates to:
@@ -5681,12 +5711,6 @@ abstract class AppLocalizations {
   /// **'Send color / lamp state'**
   String get lampSendColor;
 
-  /// No description provided for @lampGameModeButton.
-  ///
-  /// In en, this message translates to:
-  /// **'Game lamp mode'**
-  String get lampGameModeButton;
-
   /// No description provided for @patternTitle.
   ///
   /// In en, this message translates to:
@@ -5740,6 +5764,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drawing sent to the board.'**
   String get patternSent;
+
+  /// No description provided for @lampGameModeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Game lamp mode'**
+  String get lampGameModeButton;
 
   /// No description provided for @lampColorLabel.
   ///

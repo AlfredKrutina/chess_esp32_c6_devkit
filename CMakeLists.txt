@@ -41,6 +41,7 @@ set(EXTRA_COMPONENT_DIRS
     components/button_task
     components/uart_task
     components/game_task
+    components/chess_core
     components/test_task
     components/web_server_task
     components/config_manager

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="utf-8" />
+<title>CzechMate — AI Harness</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    width: 1920px; height: 1080px; overflow: hidden;
+    background: #0C0E11;
+    font-family: "Segoe UI", "Segoe UI Variable", sans-serif;
+    color: #ECEEF1;
+  }
+  .slide { position: relative; width: 1920px; height: 1080px; background: #0C0E11; }
+  svg.wires { position: absolute; inset: 0; width: 1920px; height: 1080px; z-index: 1; }
+  .card {
+    position: absolute; z-index: 2;
+    background: #16181C;
+    border: 1px solid #2C323A;
+    border-radius: 14px;
+    padding: 18px 18px 16px;
+  }
+  .kicker {
+    font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #A3A9B2; font-weight: 650;
+  }
+  h2 { font-size: 20px; font-weight: 650; letter-spacing: -0.01em; margin-top: 4px; }
+  .sub { margin-top: 4px; color: #A3A9B2; font-size: 13.5px; line-height: 1.35; }
+  .head {
+    position: absolute; z-index: 3; left: 64px; top: 28px;
+    display: flex; align-items: baseline; gap: 16px;
+  }
+  .head .mark {
+    font-size: 13px; letter-spacing: 0.16em; font-weight: 700; color: #F2B544;
+  }
+  .head h1 { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; }
+  .legend {
+    position: absolute; z-index: 3; right: 64px; top: 34px;
+    display: flex; gap: 18px; color: #A3A9B2; font-size: 12.5px; align-items: center;
+  }
+  .sw { width: 22px; height: 3px; display: inline-block; margin-right: 7px; vertical-align: middle; border-radius: 2px; }
+  .sw.b { background: #8FB3E8; }
+  .sw.g { background: #F2B544; }
+
+  .board { left: 64px; top: 108px; width: 308px; height: 292px; }
+  .sf { left: 64px; top: 416px; width: 308px; height: 292px; }
+  .harness {
+    left: 468px; top: 108px; width: 448px; height: 600px;
+    background: #17150F;
+    border: 2px solid #F2B544;
+    box-shadow: 0 0 0 6px rgba(242, 181, 68, 0.10);
+    padding: 22px 22px 18px;
+  }
+  .azure { left: 1000px; top: 188px; width: 360px; height: 440px; padding: 22px; }
+  .pill {
+    position: absolute; z-index: 4;
+    background: #0C0E11;
+    border: 1px solid #2C323A;
+    color: #D6E4F8;
+    font-size: 12.5px; font-weight: 600;
+    padding: 5px 9px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .pill.gold { color: #FFE2AE; border-color: #6A5420; }
+
+  .mini {
+    margin-top: 12px; width: 160px; height: 160px;
+    display: grid; grid-template-columns: repeat(8, 20px); grid-template-rows: repeat(8, 20px);
+    border-radius: 4px; overflow: hidden; border: 1px solid #1A1C1F;
+  }
+  .sq { display: flex; align-items: center; justify-content: center; }
+  .sq.l { background: #D9D3C5; }
+  .sq.d { background: #6E8B66; }
+  .sq i {
+    width: 15px; height: 15px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-style: normal; font-weight: 750; font-size: 9px; line-height: 1;
+    font-family: "Segoe UI", sans-serif;
+  }
+  .sq.w i { background: #F4F0E6; color: #1A140C; box-shadow: 0 0 0 1px #1A140C; }
+  .sq.b i { background: #1C1916; color: #F4F0E6; box-shadow: 0 0 0 1px #E6E0D4; }
+  .sq i.pawn { width: 11px; height: 11px; }
+  .moves {
+    position: absolute; left: 196px; top: 78px; width: 112px;
+    font-family: Consolas, "Cascadia Mono", "Segoe UI", monospace;
+    font-size: 12px; line-height: 1.55; color: #C9CED6;
+  }
+  .moves b { color: #8FB3E8; font-weight: 650; }
+
+  .engine {
+    margin-top: 14px; background: #101216; border: 1px solid #2C323A; border-radius: 8px;
+    padding: 10px 12px; font-family: Consolas, "Cascadia Mono", monospace;
+    font-size: 13px; line-height: 1.55; color: #D5DBE3;
+  }
+  .engine .ev { color: #B7E3B0; }
+  .engine .mv { color: #8FB3E8; }
+  .sf-row { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
+  .fish-name { font-weight: 700; font-size: 15px; }
+
+  .step {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: #211C12; border: 1px solid #3A3120; border-radius: 10px;
+    padding: 12px 12px; margin-top: 12px;
+  }
+  .num {
+    flex: 0 0 28px; height: 28px; border-radius: 7px;
+    background: #F2B544; color: #1F1300; font-weight: 750;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+  }
+  .step strong { display: block; font-size: 15px; font-weight: 650; }
+  .step span { display: block; margin-top: 2px; color: #C9B48A; font-size: 13px; }
+  .note {
+    margin-top: 16px; color: #C9B48A; font-size: 13px; line-height: 1.4;
+  }
+
+  .ms { display: flex; align-items: center; gap: 10px; color: #C5CAD1; font-size: 14px; font-weight: 650; }
+  .az-title { margin-top: 18px; font-size: 26px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.15; }
+  .model {
+    margin-top: 18px; display: inline-flex; align-items: center; gap: 8px;
+    background: #243A5A; color: #D6E4F8; border-radius: 8px;
+    padding: 8px 12px; font-weight: 750; font-size: 20px; letter-spacing: -0.02em;
+  }
+  .az-sub { margin-top: 14px; color: #A3A9B2; font-size: 14px; line-height: 1.4; }
+  .facts { margin-top: 22px; border-top: 1px solid #2C323A; padding-top: 14px; }
+  .facts div { font-size: 13.5px; color: #C5CAD1; padding: 4px 0; }
+  .facts em { font-style: normal; color: #8FB3E8; }
+
+  .phone-wrap { position: absolute; z-index: 2; left: 1564px; top: 112px; width: 292px; height: 676px; }
+  .phone {
+    width: 292px; height: 676px; background: #0C0E11;
+    border: 8px solid #2A2E35; border-radius: 36px;
+    box-shadow: 0 18px 40px rgba(0,0,0,.35);
+    overflow: hidden; position: relative;
+  }
+  .notch {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 92px; height: 16px; background: #2A2E35; border-radius: 10px; z-index: 3;
+  }
+  .screen { height: 100%; background: #111317; padding: 28px 12px 12px; display: flex; flex-direction: column; }
+  .statusbar { display: flex; justify-content: space-between; color: #A3A9B2; font-size: 11px; padding: 0 6px 6px; }
+  .appbar { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 8px; }
+  .appbar .nm { font-weight: 700; font-size: 15px; }
+  .appbar .live { color: #F2B544; font-size: 11px; font-weight: 700; letter-spacing: .08em; }
+  .pboard {
+    width: 176px; height: 176px; margin: 2px auto 6px;
+    display: grid; grid-template-columns: repeat(8, 22px); grid-template-rows: repeat(8, 22px);
+    border-radius: 3px; overflow: hidden;
+  }
+  .pboard .sq i { width: 18px; height: 18px; font-size: 11px; }
+  .pboard .sq i.pawn { width: 13px; height: 13px; }
+  .meta { text-align: center; color: #A3A9B2; font-size: 11px; margin-bottom: 8px; }
+  .msg { max-width: 92%; border-radius: 12px; padding: 8px 10px; font-size: 12px; line-height: 1.35; margin-bottom: 6px; }
+  .msg.c { background: #1A1D22; color: #ECEEF1; border: 1px solid #2A3038; }
+  .msg.u { background: #243A5A; color: #D6E4F8; margin-left: auto; }
+  .chip {
+    align-self: flex-start; margin: 0 0 6px 2px;
+    border: 1px solid #6A5420; color: #FFE2AE; background: #2A220F;
+    font-size: 11px; font-weight: 700; border-radius: 999px; padding: 4px 8px;
+  }
+  .composer {
+    margin-top: auto; display: flex; gap: 6px; align-items: center;
+    background: #1A1D22; border: 1px solid #2C323A; border-radius: 999px; padding: 6px 6px 6px 12px;
+  }
+  .composer span { color: #A3A9B2; font-size: 12px; flex: 1; }
+  .mic {
+    width: 28px; height: 28px; border-radius: 50%; background: #F2B544; color: #1F1300;
+    display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800;
+  }
+  .who { font-size: 10px; color: #A3A9B2; margin-bottom: 2px; letter-spacing: .04em; }
+  .led-label {
+    position: absolute; z-index: 4; left: 250px; top: 768px;
+    color: #FFE2AE; font-size: 13px; font-weight: 650;
+    background: #0C0E11; padding: 4px 8px;
+  }
+  .tag {
+    display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 750;
+    letter-spacing: .12em; color: #1F1300; background: #F2B544; border-radius: 5px; padding: 3px 7px;
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div class="head">
+    <div class="mark">CZECHMATE</div>
+    <h1>Architektura AI trenéra</h1>
+  </div>
+  <div class="legend">
+    <span><i class="sw b"></i>data do modelu</span>
+    <span><i class="sw g"></i>zpět do aplikace</span>
+  </div>
+
+  <svg class="wires" viewBox="0 0 1920 1080">
+    <defs>
+      <marker id="ab" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#8FB3E8"/>
+      </marker>
+      <marker id="ag" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+        <path d="M0,0 L8,4 L0,8 Z" fill="#F2B544"/>
+      </marker>
+    </defs>
+    <path d="M372 254 H424 V408" fill="none" stroke="#8FB3E8" stroke-width="2"/>
+    <path d="M372 562 H424 V408" fill="none" stroke="#8FB3E8" stroke-width="2"/>
+    <path d="M424 408 H466" fill="none" stroke="#8FB3E8" stroke-width="2" marker-end="url(#ab)"/>
+    <path d="M916 408 H998" fill="none" stroke="#8FB3E8" stroke-width="2" marker-end="url(#ab)"/>
+    <path d="M1360 330 H1556" fill="none" stroke="#F2B544" stroke-width="2" marker-end="url(#ag)"/>
+    <path d="M1360 470 H1556" fill="none" stroke="#F2B544" stroke-width="2" marker-end="url(#ag)"/>
+    <path d="M1180 628 V812 H40 V254 H62" fill="none" stroke="#F2B544" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#ag)"/>
+  </svg>
+
+  <div class="pill" style="left:898px; top:378px;">kontext</div>
+  <div class="pill gold" style="left:1376px; top:316px;">Hlasová odezva</div>
+  <div class="pill gold" style="left:1376px; top:456px;">Tool: nápověda</div>
+  <div class="led-label">Tool calling · řízení LED na desce · budoucí</div>
+
+  <section class="card board">
+    <div class="kicker">Vstup · deska</div>
+    <h2>Šachovnice</h2>
+    <div class="sub">Pozice + paměť tahů</div>
+    <div class="mini" id="board"></div>
+    <div class="moves"><b>1.</b> e4 e5<br><b>2.</b> Nf3 Nc6<br><b>3.</b> Bb5</div>
+  </section>
+
+  <section class="card sf">
+    <div class="kicker">Vstup · engine</div>
+    <h2>Stockfish</h2>
+    <div class="sub">Matematická analýza a větve vývoje</div>
+    <div class="sf-row">
+      <svg width="54" height="34" viewBox="0 0 64 40" aria-hidden="true">
+        <path d="M6 20 C16 8 36 7 48 14 C54 9 62 8 62 8 C57 16 57 24 62 32 C62 32 54 31 48 26 C36 34 16 33 6 20 Z" fill="#3A8FCB"/>
+        <circle cx="44" cy="18" r="2.1" fill="#0C0E11"/>
+        <path d="M18 20 H32" stroke="#E7F3FB" stroke-width="1.6"/>
+      </svg>
+      <div class="fish-name">Stockfish 16</div>
+    </div>
+    <div class="engine">
+      <div>depth 18</div>
+      <div class="ev">eval&nbsp;&nbsp;+0.34</div>
+      <div class="mv">1. Bb5 a6</div>
+      <div class="mv">2. Ba4 Nf6</div>
+      <div class="mv">3. O-O Be7</div>
+    </div>
+  </section>
+
+  <section class="card harness">
+    <div class="tag">JÁDRO</div>
+    <h2 style="font-size:26px; margin-top:10px;">CzechMate AI Harness</h2>
+    <div class="sub">Skládá systémový prompt, kontext a didaktická pravidla.</div>
+    <div class="step"><div class="num">1</div><div><strong>Systémový prompt</strong><span>role trenéra, jazyk, tón odpovědi</span></div></div>
+    <div class="step"><div class="num">2</div><div><strong>Kontext partie</strong><span>FEN z desky, paměť tahů, větve Stockfishe</span></div></div>
+    <div class="step"><div class="num">3</div><div><strong>Didaktická pravidla</strong><span>úroveň hráče, jen legální tahy</span></div></div>
+    <p class="note">Model nedostává surovou desku. Dostává připravená fakta, takže nemusí pravidla dopočítávat sám.</p>
+  </section>
+
+  <section class="card azure">
+    <div class="ms">
+      <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+        <rect x="0" y="0" width="8" height="8" fill="#F25022"/>
+        <rect x="10" y="0" width="8" height="8" fill="#7FBA00"/>
+        <rect x="0" y="10" width="8" height="8" fill="#00A4EF"/>
+        <rect x="10" y="10" width="8" height="8" fill="#FFB900"/>
+      </svg>
+      Microsoft
+    </div>
+    <div class="az-title">Azure AI Foundry</div>
+    <div class="model">GPT-4o</div>
+    <p class="az-sub">Cloudový běh. Model mluví s hráčem a nástroji sahá zpět do aplikace.</p>
+    <div class="facts">
+      <div><em>→</em> hlas do telefonu</div>
+      <div><em>→</em> tool: vyvolat nápovědu</div>
+      <div><em>→</em> tool: LED na desce, až později</div>
+    </div>
+  </section>
+
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen">
+        <div class="statusbar"><span>9:41</span><span>LTE</span></div>
+        <div class="appbar"><div class="nm">CzechMate</div><div class="live">● ŽIVĚ</div></div>
+        <div class="pboard" id="pboard"></div>
+        <div class="meta">Tah 6 · bílá španělská</div>
+        <div class="who">TRENÉR</div>
+        <div class="msg c">Střelec na b5 váže jezdce na c6. Neskoč hned do výměny.</div>
+        <div class="chip">Nápověda</div>
+        <div class="msg u">Ukaž mi ten tah.</div>
+        <div class="msg c">Jezdec zůstává na f3. Chceš vidět pokračování větve?</div>
+        <div class="composer"><span>Napiš nebo mluv…</span><div class="mic">◉</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  const rows = [
+    "r.bqkbnr",
+    "pppp.ppp",
+    "..n.....",
+    ".B..p...",
+    "....P...",
+    ".....N..",
+    "PPPP.PPP",
+    "RNBQK..R"
+  ];
+  const letter = { K:"K", Q:"Q", R:"R", B:"B", N:"N", P:"" };
+  function paint(id) {
+    const host = document.getElementById(id);
+    rows.forEach((row, r) => {
+      for (let f = 0; f < 8; f++) {
+        const d = document.createElement("div");
+        const light = (r + f) % 2 === 0;
+        d.className = "sq " + (light ? "l" : "d");
+        const ch = row[f];
+        if (ch !== ".") {
+          const i = document.createElement("i");
+          const key = ch.toUpperCase();
+          i.textContent = letter[key] || "";
+          if (key === "P") i.className = "pawn";
+          d.appendChild(i);
+          d.className += ch === key ? " w" : " b";
+        }
+        host.appendChild(d);
+      }
+    });
+  }
+  paint("board");
+  paint("pboard");
+</script>
+</body>
+</html>

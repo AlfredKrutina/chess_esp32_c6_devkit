@@ -118,10 +118,10 @@ static const int8_t HALL_REACH_ROYAL[]  = {0, 1, 1, 1, 0, 2, 1, 2, 2, 2, 0, 3};
 #define HALL_REOCCUPY_ENERGY            18000
 #define HALL_REOCCUPY_SCANS             4
 /** Opposite-polarity fringe under a bishop or stronger. Empty d2 beside the
- *  queen measured −100/−100, energy 100^2+100^2 = 20000, and was named a
- *  black pawn. Seated pawns beside those pieces were at least ~36000.
- *  613705 is the bishop band floor in s_poc_thresholds. */
-#define HALL_FRINGE_ENERGY              30000
+ *  queen measured 20000 and was named a black pawn. A seated white pawn
+ *  beside queen, bishop, or king can fall to ~20098, so the veto shares
+ *  the reoccupy floor. 613705 is the bishop band in s_poc_thresholds. */
+#define HALL_FRINGE_ENERGY              HALL_REOCCUPY_ENERGY
 #define HALL_STRONG_NEIGHBOR_ENERGY     613705
 /** Midpoint may walk toward a stable empty reading by at most this many
  *  counts. A seated piece is well past it, so drift can heal and a piece
@@ -819,6 +819,12 @@ void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64],
   s_logical_known = true;
   for (int sq = 0; sq < 64; sq++) {
     hall_poc_square_state_t *st = &s_poc_state[sq];
+    /* New position: drop a stale lift veto. An empty square re-learns
+     * neighbor crosstalk instead of keeping the last castle offset. */
+    st->lift_block = false;
+    if (!st->occupied) {
+      st->ctx_arm = (uint8_t)(HALL_NEIGHBOR_MASK_SCANS + HALL_STABLE_SCANS);
+    }
     if (empty_squares[sq] == 0 || !st->provisional || st->confirmed_empty ||
         !hall_clean_neighborhood((uint8_t)sq, empty_squares)) {
       continue;
@@ -843,7 +849,7 @@ void hall_i2c_squares_set_logical_empty(const uint8_t empty_squares[64],
     st->reported = false;
     st->ctx_valid = false;
     st->mask_scans = 0;
-    st->ctx_arm = 0;
+    st->ctx_arm = (uint8_t)(HALL_NEIGHBOR_MASK_SCANS + HALL_STABLE_SCANS);
     st->zero_quarantine = 0;
     st->zero_pending = false;
     st->zero_has_backup = false;
@@ -998,8 +1004,8 @@ static bool hall_neighbor_is_royal(uint8_t sq) {
 }
 
 /** Moderate opposite-polarity reading next to a strong piece is that
- *  piece's fringe, not a magnet on this square. A real opposite-color
- *  piece is well above HALL_FRINGE_ENERGY. */
+ *  piece's fringe, not a magnet on this square. Caller passes the stronger
+ *  of the midpoint and ctx_ref residuals. A real pawn clears the floor. */
 static bool hall_opposite_fringe(uint8_t sq, int32_t dev0, int32_t dev1,
                                  int32_t energy) {
     if (energy >= HALL_FRINGE_ENERGY) {
@@ -1145,19 +1151,34 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
      * stable. A stale midpoint still looks like a piece (e1 after the king
      * left: ctx energy 8744, type None, occupied 1). Veto that. Delta alone
      * must not hold or latch under the same floor. */
+    int32_t c0 = dev0;
+    int32_t c1 = dev1;
     int32_t ctx_energy = energy;
     bool ctx_low = false;
     if (st->ctx_valid) {
-        int32_t c0 = (int32_t)filt0 - st->ctx_ref[0];
-        int32_t c1 = (int32_t)filt1 - st->ctx_ref[1];
+        c0 = (int32_t)filt0 - st->ctx_ref[0];
+        c1 = (int32_t)filt1 - st->ctx_ref[1];
         ctx_energy = c0 * c0 + c1 * c1;
         if (ctx_energy < HALL_REOCCUPY_ENERGY &&
             st->current_piece == HALL_PIECE_TYPE_NONE) {
             ctx_low = true;
         }
     }
-    bool above = !ctx_low && !hall_opposite_fringe(sq, dev0, dev1, energy) &&
-                 energy >= HALL_REOCCUPY_ENERGY;
+    /* Crosstalk stored in ctx_ref shrinks filt-midpoint. The piece still
+     * shows up as filt-ctx_ref, so keep whichever residual is stronger. */
+    int32_t fringe0 = dev0;
+    int32_t fringe1 = dev1;
+    int32_t eff_energy = energy;
+    if (st->ctx_valid && ctx_energy > energy) {
+        fringe0 = c0;
+        fringe1 = c1;
+        eff_energy = ctx_energy;
+    }
+    bool signal = energy >= HALL_REOCCUPY_ENERGY ||
+                  (st->ctx_valid && ctx_energy >= HALL_REOCCUPY_ENERGY);
+    bool above = !ctx_low &&
+                 !hall_opposite_fringe(sq, fringe0, fringe1, eff_energy) &&
+                 signal;
     /* A piece already published beside a king keeps its seat. A one-scan
      * spike that never became reported must still earn the four scans. */
     if (royal && st->occupied && st->reported && !st->lift_block && above &&
@@ -1202,7 +1223,8 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
     if (hold_neighbor) {
         st->mask_scans--;
     }
-    if (st->ctx_arm > 0) {
+    bool ctx_hot = st->ctx_arm > 0;
+    if (ctx_hot) {
         st->ctx_arm--;
     }
 
@@ -1223,7 +1245,8 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         st->pending_color = HALL_PIECE_COLOR_NONE;
         st->stable_ticks = 0;
         if (st->stable_scans >= HALL_STABLE_SCANS &&
-            (delta <= HALL_CTX_MAX_SHIFT || energy < HALL_REOCCUPY_ENERGY)) {
+            (st->provisional || delta <= HALL_CTX_MAX_SHIFT ||
+             energy < HALL_REOCCUPY_ENERGY)) {
             int32_t held = 0;
             if (st->ctx_valid) {
                 held = abs(st->ctx_ref[0] - st->midpoint[0]) +
@@ -1259,8 +1282,13 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
         if (st->stable_scans >= HALL_STABLE_SCANS && above) {
             st->reported = true;
         }
-        /* Do not rename a piece from the collapsing field as it leaves. */
-        if (!hold_neighbor && sensor_present && st->vacant_scans == 0 &&
+        /* Do not rename a piece from the collapsing field as it leaves.
+         * A neighbor that just moved must not retitle a piece still seated. */
+        bool neighbor_lock = st->occupied && st->reported &&
+                             st->current_piece != HALL_PIECE_TYPE_NONE &&
+                             ctx_hot;
+        if (!hold_neighbor && !neighbor_lock && sensor_present &&
+            st->vacant_scans == 0 &&
             st->stable_scans >= HALL_STABLE_SCANS) {
             int32_t base0 = st->ctx_valid ? st->ctx_ref[0] : st->midpoint[0];
             int32_t base1 = st->ctx_valid ? st->ctx_ref[1] : st->midpoint[1];
@@ -1288,6 +1316,22 @@ static uint8_t hall_poc_update_square(uint8_t sq, uint16_t r0, uint16_t r1) {
                                                : HALL_PIECE_COLOR_BLACK;
             if (raw_piece == HALL_PIECE_TYPE_NONE) {
                 raw_color = HALL_PIECE_COLOR_NONE;
+            }
+            /* A seated piece keeps its color. A pawn is not promoted to
+             * knight or bishop by a royal neighbor that has not lifted it. */
+            if (st->occupied && st->reported &&
+                st->current_piece != HALL_PIECE_TYPE_NONE &&
+                st->vacant_scans == 0) {
+                bool color_flip = st->current_color != HALL_PIECE_COLOR_NONE &&
+                                  raw_color != HALL_PIECE_COLOR_NONE &&
+                                  raw_color != st->current_color;
+                bool pawn_bump = st->current_piece == HALL_PIECE_TYPE_PAWN &&
+                                 (raw_piece == HALL_PIECE_TYPE_KNIGHT ||
+                                  raw_piece == HALL_PIECE_TYPE_BISHOP);
+                if (color_flip || pawn_bump) {
+                    raw_piece = st->current_piece;
+                    raw_color = st->current_color;
+                }
             }
             /* The guide lights a square from this name. One noisy scan used
              * to retitle a piece that had not moved, and the color blinked.

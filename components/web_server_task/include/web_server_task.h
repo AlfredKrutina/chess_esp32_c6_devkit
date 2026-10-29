@@ -45,6 +45,7 @@
 #define WEB_SERVER_TASK_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include "esp_err.h"
 #include "freertos/FreeRTOS.h"
@@ -372,6 +373,12 @@ esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
  */
 esp_err_t web_server_ble_command_dispatch(const char *json, size_t json_len);
 
+/**
+ * App link dropped (WS close, BLE disconnect, AP station left).
+ * One idle LED frame if the position is idle. No error palette, no heap buffer.
+ */
+void web_game_on_client_drop(void);
+
 /** True if dispatch has already sent its own cmd_ack (e.g. ota_ble_status). */
 bool web_server_ble_dispatch_custom_ack_was_sent(void);
 
@@ -381,6 +388,13 @@ bool web_server_ble_dispatch_custom_ack_was_sent(void);
  */
 bool web_server_ble_extract_cmd_for_ack(const char *json, char *cmd_out,
                                         size_t cmd_out_sz);
+
+/** Command correlation id (`req`, else `id`) and session helpers used by BLE. */
+bool cmd_wire_json_u32(const char *json, const char *key, uint32_t *out);
+bool cmd_wire_correlation_id(const char *json, uint32_t *out);
+void cmd_wire_note_dispatch_result(esp_err_t err);
+void cmd_wire_on_ble_disconnect(void);
+void cmd_wire_notify_with_id(const char *json, uint32_t id, bool has_id);
 
 /**
  * @brief Get the current IP address of the STA interface

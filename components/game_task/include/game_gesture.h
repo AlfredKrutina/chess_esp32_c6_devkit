@@ -13,6 +13,9 @@ extern "C" {
 
 void game_gesture_poll(void);
 
+/** Drop a pending post-sweep new-game start. Safe if none is armed. */
+void game_gesture_cancel_new_game_dwell(void);
+
 /** Outward lamp wave, then commit HA mode. Same picture as the button. */
 void game_gesture_request_lamp_wave(void);
 

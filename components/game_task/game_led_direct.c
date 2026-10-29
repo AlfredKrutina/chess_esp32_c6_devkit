@@ -1,398 +1,214 @@
 /**
  * @file game_led_direct.c
- * @brief Direct LED function for game task
- * 
- * This file contains functions for direct LED control from the game task.
- * Uses direct LED function calls instead of queues for immediate updates.
- * 
- * @author Alfred Krutina
- * @version 1.8.0
- * @date 2025-09-02
- * 
- * @details
- * The functions in this file provide direct LED control for the display
- * game states, animations and feedback. All functions are used
- * thread-safe LED API for safe calls from any task.
+ * @brief Legacy LED entry points; drawing is via game events in led_task.
  */
 
 #include "game_task.h"
-#include "led_task.h"
-#include "freertos_chess.h"
-#include "chess_types.h"
-#include "game_led_animations.h"
+#include "game_board_core.h"
+#include "game_policy.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_events.h"
 #include "led_mapping.h"
 #include "esp_log.h"
 
 static const char *TAG = "GAME_LED_DIRECT";
 
-// ============================================================================
-// DIRECT LED FUNCTIONS
-// ============================================================================
+static bool s_frame_open;
+static bool s_frame_patch;
+static uint16_t s_frame_fade;
+static game_evt_hint_pixel_t s_frame_px[64];
+static uint8_t s_frame_n;
+static game_evt_breathe_t s_frame_br[GAME_EVT_BREATHE_MAX];
+static uint8_t s_frame_bn;
+static game_evt_hint_pixel_t s_acc[64];
+static uint8_t s_acc_n;
 
-/**
- * @brief Showing a move using direct LED calls
- * 
- * @param from_row The row of the source array
- * @param from_col The column of the source field
- * @param to_row The row of the target array
- * @param to_col The column of the target field
- * 
- * @details
- * Displays a move animation with progressive illumination of the source and target fields.
- */
-void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col) {
-    uint8_t from_led = chess_pos_to_led_index(from_row, from_col);
-    uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
-    
-    // Clear previous highlights
-    game_clear_highlights_direct();
-    
-    // Stroke animation with progressive lighting
-    // Step 1: Light source (yellow)
-    led_set_pixel_safe(from_led, 255, 255, 0);   // Yellow source
-    vTaskDelay(pdMS_TO_TICKS(300)); // 300ms delay
-    
-    // Step 2: Fade source to orange
-    led_set_pixel_safe(from_led, 255, 165, 0);   // Orange source
-    vTaskDelay(pdMS_TO_TICKS(200)); // 200ms delay
-    
-    // Step 3: Light destination (green)
-    led_set_pixel_safe(to_led, 0, 255, 0);       // A green destination
-    vTaskDelay(pdMS_TO_TICKS(300)); // 300ms delay
-    
-    // Step 4: Fade source to red (capture indication)
-    led_set_pixel_safe(from_led, 255, 0, 0);     // Red source (capture)
-    vTaskDelay(pdMS_TO_TICKS(200)); // 200ms delay
-    
-    // Step 5: Final state - clear source, keep destination
-    led_set_pixel_safe(from_led, 0, 0, 0);       // Clear source
-    led_set_pixel_safe(to_led, 0, 255, 0);       // Keep destination green
-    
-    ESP_LOGI(TAG, "Move animation complete: %d,%d -> %d,%d (LEDs %d -> %d)", 
-             from_row, from_col, to_row, to_col, from_led, to_led);
+void game_led_flush(void) {
+  uint8_t n;
+  if (s_frame_open || s_acc_n == 0) {
+    return;
+  }
+  n = s_acc_n;
+  s_acc_n = 0;
+  game_event_post_pixels(s_acc, n, NULL, 0, 0, false, 255U);
 }
 
-/**
- * @brief Display figure pick up using direct LED calls
- * 
- * @param row The array row
- * @param col Array column
- * 
- * @details
- * Will display a subtle pulsing effect on the field with a raised figure.
- */
+void game_led_frame_begin(uint16_t fade_ms, bool patch) {
+  game_led_flush();
+  s_frame_open = true;
+  s_frame_patch = patch;
+  s_frame_fade = fade_ms;
+  s_frame_n = 0;
+  s_frame_bn = 0;
+}
+
+bool game_led_frame_is_open(void) { return s_frame_open; }
+
+void game_led_frame_sq(uint8_t row, uint8_t col, uint8_t r, uint8_t g,
+                       uint8_t b) {
+  if (row >= 8 || col >= 8) {
+    return;
+  }
+  if (!s_frame_open) {
+    if (s_acc_n >= 64) {
+      game_led_flush();
+    }
+    s_acc[s_acc_n].square = (uint8_t)(row * 8u + col);
+    s_acc[s_acc_n].r = r;
+    s_acc[s_acc_n].g = g;
+    s_acc[s_acc_n].b = b;
+    s_acc_n++;
+    return;
+  }
+  if (s_frame_n >= 64) {
+    return;
+  }
+  s_frame_px[s_frame_n].square = (uint8_t)(row * 8u + col);
+  s_frame_px[s_frame_n].r = r;
+  s_frame_px[s_frame_n].g = g;
+  s_frame_px[s_frame_n].b = b;
+  s_frame_n++;
+}
+
+void game_led_frame_breathe(uint8_t row, uint8_t col, uint8_t r, uint8_t g,
+                            uint8_t b, uint8_t mode, uint8_t floor,
+                            uint16_t period_ms, uint16_t phase_ms) {
+  game_evt_breathe_t br;
+  if (row >= 8 || col >= 8) {
+    return;
+  }
+  br.square = (uint8_t)(row * 8u + col);
+  br.r = r;
+  br.g = g;
+  br.b = b;
+  br.mode = mode;
+  br.floor = floor;
+  br.period_ms = period_ms;
+  br.phase_ms = phase_ms;
+  if (!s_frame_open) {
+    game_event_post_pixels(NULL, 0, &br, 1, 0, true, 255U);
+    return;
+  }
+  if (s_frame_bn >= GAME_EVT_BREATHE_MAX) {
+    return;
+  }
+  s_frame_br[s_frame_bn++] = br;
+}
+
+void game_led_frame_end(void) {
+  if (!s_frame_open) {
+    return;
+  }
+  s_frame_open = false;
+  game_event_post_pixels(s_frame_px, s_frame_n, s_frame_br, s_frame_bn,
+                         s_frame_fade, s_frame_patch, 255U);
+}
+
+void game_led_clear_board(void) {
+  game_led_flush();
+  game_event_post_hints_clear();
+}
+
+void game_led_paint_led(uint8_t led, uint8_t r, uint8_t g, uint8_t b) {
+  uint8_t row = 0;
+  uint8_t col = 0;
+  if (led >= 64U) {
+    return;
+  }
+  led_index_to_chess_pos(led, &row, &col);
+  game_led_frame_sq(row, col, r, g, b);
+}
+
+void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row,
+                           uint8_t to_col) {
+  uint8_t from = (uint8_t)(from_row * 8u + from_col);
+  uint8_t to = (uint8_t)(to_row * 8u + to_col);
+  game_event_post_move_accepted(from, to);
+  ESP_LOGD(TAG, "move hint event %u->%u", (unsigned)from, (unsigned)to);
+}
+
 void game_show_piece_lift_direct(uint8_t row, uint8_t col) {
-    uint8_t led_index = chess_pos_to_led_index(row, col);
-    
-    // Subtle vibrant yellow effect
-    static uint8_t pulse_phase = 0;
-    pulse_phase = (pulse_phase + 1) % 64;
-    
-    // Fine Pulsation Calculation (220-255)
-    uint8_t intensity = 220 + (pulse_phase > 32 ? (64 - pulse_phase) : pulse_phase);
-    uint8_t orange_mix = intensity * 0.9; // Soft orange mix
-    
-    led_set_pixel_safe(led_index, intensity, orange_mix, 0); // Yellow-orange
-    ESP_LOGI(TAG, "Piece lift shown with subtle animation: %d,%d (LED %d)", row, col, led_index);
+  game_event_publish_lift_hints((uint8_t)(row * 8u + col));
 }
 
-/**
- * @brief Show valid moves using direct LED calls
- * 
- * @param valid_positions Array of LED indices of valid moves
- * @param count Number of valid moves
- * 
- * @details
- * Shows a green wave on all fields with valid moves.
- */
-void game_show_valid_moves_direct(uint8_t *valid_positions, uint8_t count) {
-    static uint8_t wave_offset = 0;
-    wave_offset = (wave_offset + 1) % 32;
-    
-    for (int i = 0; i < count; i++) {
-        // A gentle green wave for every valid move
-        uint8_t wave_intensity = 200 + ((wave_offset + i * 8) % 32);
-        uint8_t lime_mix = wave_intensity * 0.8; // Soft lime mix
-        
-        led_set_pixel_safe(valid_positions[i], lime_mix, wave_intensity, 0); // Greenish yellow
-    }
-    
-    ESP_LOGI(TAG, "Valid moves shown with subtle wave: %d positions", count);
-}
-
-/**
- * @brief Error display using direct LED calls
- * 
- * @param row The row of the array with the error
- * @param col The column of the array with the error
- * 
- * @details
- * Shows red color on error field.
- */
 void game_show_error_direct(uint8_t row, uint8_t col) {
-    uint8_t led_index = chess_pos_to_led_index(row, col);
-    
-    // Direct call of the LED function
-    led_set_pixel_safe(led_index, 255, 0, 0);  // Red for error
-    
-    ESP_LOGI(TAG, "Error shown: %d,%d (LED %d)", row, col, led_index);
+  game_event_post_move_rejected((uint8_t)(row * 8u + col), false);
 }
 
-/**
- * @brief Clearing highlights using direct LED calls
- * 
- * @details
- * Clears all the highlights on the chessboard, keeping the LEDs on the buttons.
- */
 void game_clear_highlights_direct(void) {
-    // Clearing only the checkerboard (keeping the LEDs on the buttons)
-    led_clear_board_only();
-    
-    ESP_LOGI(TAG, "Board highlights cleared (preserving button LEDs)");
+  game_event_post_hints_clear();
 }
 
-/**
- * @brief Display game state using direct LED calls
- * 
- * @param board Board with pieces (8x8)
- * 
- * @details
- * Displays all pieces on the board using LEDs.
- */
 void game_show_state_direct(piece_t *board) {
-    // Direct call of LED functions for status display
-    for (int row = 0; row < 8; row++) {
-        for (int col = 0; col < 8; col++) {
-            uint8_t led_index = chess_pos_to_led_index(row, col);
-            piece_t piece = board[row * 8 + col];
-            
-            if (piece != PIECE_EMPTY) {
-                if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
-                    led_set_pixel_safe(led_index, 255, 255, 255);  // White for white pieces
-                } else {
-                    led_set_pixel_safe(led_index, 0, 0, 255);      // Blue for black pieces
-                }
-            } else {
-                led_set_pixel_safe(led_index, 0, 0, 0);            // Black for empty
-            }
-        }
-    }
-    
-    ESP_LOGI(TAG, "Game state shown");
+  (void)board;
 }
 
-/**
- * @brief Show chess using direct LED calls
- * 
- * @param king_row The row of the king in chess
- * @param king_col The king column in chess
- * 
- * @details
- * Shows purple color on the king in chess.
- */
 void game_show_check_direct(uint8_t king_row, uint8_t king_col) {
-    uint8_t led_index = chess_pos_to_led_index(king_row, king_col);
-    
-    // Clear previous highlights
-    game_clear_highlights_direct();
-    
-    // Showing chess in purple
-    led_set_pixel_safe(led_index, 255, 0, 255);  // Magenta pro check
-    
-    ESP_LOGI(TAG, "Check indication: King at %d,%d (LED %d) - PURPLE", king_row, king_col, led_index);
+  game_event_post_check((uint8_t)(king_row * 8u + king_col));
 }
 
-// ============================================================================
-// ERROR HANDLING LED FUNCTIONS
-// ============================================================================
-
-/**
- * @brief Invalid move error display with LED feedback
- * 
- * @param from_row The row of the source array
- * @param from_col The column of the source field
- * @param to_row The row of the target array
- * @param to_col The column of the target field
- * 
- * @details
- * Shows a red flash on an invalid move and then instructions to return the piece.
- */
-void game_show_invalid_move_error(uint8_t from_row, uint8_t from_col, uint8_t to_row, uint8_t to_col) {
-    uint8_t from_led = chess_pos_to_led_index(from_row, from_col);
-    uint8_t to_led = chess_pos_to_led_index(to_row, to_col);
-    
-    // Clear previous highlights
-    game_clear_highlights_direct();
-    
-    // Error animation - red flashing
-    for (int flash = 0; flash < 3; flash++) {
-        led_set_pixel_safe(from_led, 255, 0, 0); // Red source
-        led_set_pixel_safe(to_led, 255, 0, 0);   // Red destination
-        vTaskDelay(pdMS_TO_TICKS(200));
-        
-        led_set_pixel_safe(from_led, 0, 0, 0);   // Clear
-        led_set_pixel_safe(to_led, 0, 0, 0);     // Clear
-        vTaskDelay(pdMS_TO_TICKS(200));
-    }
-    
-    // Show return guidance
-    led_set_pixel_safe(from_led, 255, 255, 0);   // Yellow - return piece
-    led_set_pixel_safe(to_led, 255, 165, 0);     // Orange - invalid destination
-    
-    ESP_LOGI(TAG, "Invalid move error shown: %d,%d -> %d,%d (LEDs %d -> %d)", 
-             from_row, from_col, to_row, to_col, from_led, to_led);
+void game_show_invalid_move_error(uint8_t from_row, uint8_t from_col,
+                                  uint8_t to_row, uint8_t to_col) {
+  (void)from_row;
+  (void)from_col;
+  game_event_post_move_rejected((uint8_t)(to_row * 8u + to_col), false);
 }
 
-/**
- * @brief Button error display with LED feedback
- * 
- * @param button_id The ID of the button
- * 
- * @details
- * Shows orange flashing on the error button.
- */
 void game_show_button_error(uint8_t button_id) {
-    uint8_t button_led = CHESS_LED_COUNT_BOARD + button_id;
-    
-    // Button error animation - orange flashing
-    for (int flash = 0; flash < 5; flash++) {
-        led_set_pixel_safe(button_led, 255, 165, 0); // Orange
-        vTaskDelay(pdMS_TO_TICKS(150));
-        
-        led_set_pixel_safe(button_led, 0, 0, 0);     // Clear
-        vTaskDelay(pdMS_TO_TICKS(150));
-    }
-    
-    // Return to normal button state (green - available)
-    led_set_pixel_safe(button_led, 0, 255, 0); // Green
-    
-    ESP_LOGI(TAG, "Button error shown: Button %d (LED %d)", button_id, button_led);
+  (void)button_id;
 }
 
-/**
- * @brief Showing casting instructions with step-by-step LED feedback
- * 
- * @param king_row The king row
- * @param king_col The king column
- * @param rook_row The rook row
- * @param rook_col The tower column
- * @param is_kingside True for kingside, false for ladyside
- * 
- * @details
- * Shows a step-by-step guide to casting with an animation of the king and rook movement.
- */
-void game_show_castling_guidance(uint8_t king_row, uint8_t king_col, uint8_t rook_row, uint8_t rook_col, bool is_kingside) {
-    uint8_t king_led = chess_pos_to_led_index(king_row, king_col);
-    uint8_t rook_led = chess_pos_to_led_index(rook_row, rook_col);
-    
-    // Clear previous highlights
-    game_clear_highlights_direct();
-    
-    // Step-by-step cast animation
-    // Step 1: Show king and rook
-    led_set_pixel_safe(king_led, 255, 255, 0);   // Yellow king
-    led_set_pixel_safe(rook_led, 255, 255, 0);   // Yellow rook
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    
-    // Step 2: Show king move path
-    uint8_t king_to_col = is_kingside ? king_col + 2 : king_col - 2;
-    uint8_t king_path_led = chess_pos_to_led_index(king_row, king_col + (is_kingside ? 1 : -1));
-    uint8_t king_final_led = chess_pos_to_led_index(king_row, king_to_col);
-    led_set_pixel_safe(king_path_led, 0, 255, 0); // Green path
-    led_set_pixel_safe(king_final_led, 0, 255, 0); // Green final
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    
-    // Step 3: Show rook move path
-    uint8_t rook_to_col = is_kingside ? rook_col - 2 : rook_col + 2;
-    uint8_t rook_path_led = chess_pos_to_led_index(rook_row, rook_col + (is_kingside ? -1 : 1));
-    uint8_t rook_final_led = chess_pos_to_led_index(rook_row, rook_to_col);
-    led_set_pixel_safe(rook_path_led, 0, 255, 0); // Green path
-    led_set_pixel_safe(rook_final_led, 0, 255, 0); // Green final
-    vTaskDelay(pdMS_TO_TICKS(1000));
-    
-    // Step 4: Show final positions
-    led_clear_board_only();
-    led_set_pixel_safe(king_final_led, 255, 0, 255); // Magenta final king
-    led_set_pixel_safe(rook_final_led, 255, 0, 255); // Magenta final rook
-    
-    ESP_LOGI(TAG, "Castling guidance shown: %s side (King %d,%d, Rook %d,%d)", 
-             is_kingside ? "KINGSIDE" : "QUEENSIDE", king_row, king_col, rook_row, rook_col);
+void game_show_castling_guidance(uint8_t king_row, uint8_t king_col,
+                                 uint8_t rook_row, uint8_t rook_col,
+                                 bool is_kingside) {
+  (void)king_row;
+  (void)king_col;
+  (void)rook_row;
+  (void)rook_col;
+  (void)is_kingside;
 }
 
-/**
- * @brief Show mat using direct LED calls
- * 
- * @param king_row King row in checkmate
- * @param king_col King column in checkmate
- * 
- * @details
- * Starts a winning animation in the king position in checkmate.
- */
 void game_show_checkmate_direct(uint8_t king_row, uint8_t king_col) {
-    uint8_t king_pos = chess_pos_to_led_index(king_row, king_col);
-    
-    ESP_LOGI(TAG, "🏆 CHECKMATE! Starting victory animation at %c%c", 
-             'a' + king_col, '1' + king_row);
-    
-    // Start the Victory Wave animation
-    esp_err_t result = start_endgame_animation(ENDGAME_ANIM_VICTORY_WAVE, king_pos);
-    if (result != ESP_OK) {
-        ESP_LOGW(TAG, "Failed to start endgame animation, using fallback");
-        // Fallback to the original animation
-        led_clear_board_only();
-        led_set_pixel_safe(king_pos, 255, 0, 255); // Magenta pro checkmate
-    }
+  game_event_post_game_end((uint8_t)(king_row * 8u + king_col), 0);
 }
 
-/**
- * @brief Graduation display using direct LED calls
- * 
- * @param row The row of the graduation field
- * @param col Array column with graduation
- * 
- * @details
- * Shows yellow color on graduation field.
- */
 void game_show_promotion_direct(uint8_t row, uint8_t col) {
-    uint8_t led_index = chess_pos_to_led_index(row, col);
-    
-    // Direct call of the LED function
-    led_set_pixel_safe(led_index, 255, 255, 0);  // Yellow for promotion
-    
-    ESP_LOGI(TAG, "Promotion shown: %d,%d (LED %d)", row, col, led_index);
+  (void)row;
+  (void)col;
 }
 
-/**
- * @brief Casting display using direct LED calls
- * 
- * @param king_from_row The row of the king's source array
- * @param king_from_col The column of the king's source field
- * @param king_to_row The row of the king's target field
- * @param king_to_col The column of the king's target field
- * @param rook_from_row The rook's source field row
- * @param rook_from_col The column of the rook's source field
- * @param rook_to_row The rook's target field row
- * @param rook_to_col The rook's target array column
- * 
- * @details
- * Displays orange color on source fields and green on target fields.
- */
-void game_show_castling_direct(uint8_t king_from_row, uint8_t king_from_col, 
+void game_process_web_hint(const game_cmd_t *cmd) {
+  if (cmd == NULL) {
+    return;
+  }
+  if (cmd->u.hint.clear) {
+    game_policy_refresh_idle_board_leds();
+    return;
+  }
+  game_led_frame_begin(0, false);
+  if (cmd->u.hint.from_sq < 64) {
+    uint8_t sq = cmd->u.hint.from_sq;
+    game_led_frame_sq((uint8_t)(sq / 8u), (uint8_t)(sq % 8u), 0, 255, 255);
+  }
+  if (cmd->u.hint.to_sq < 64) {
+    uint8_t sq = cmd->u.hint.to_sq;
+    game_led_frame_sq((uint8_t)(sq / 8u), (uint8_t)(sq % 8u), 255, 140, 0);
+  }
+  game_led_frame_end();
+}
+
+void game_show_castling_direct(uint8_t king_from_row, uint8_t king_from_col,
                                uint8_t king_to_row, uint8_t king_to_col,
                                uint8_t rook_from_row, uint8_t rook_from_col,
                                uint8_t rook_to_row, uint8_t rook_to_col) {
-    uint8_t king_from_led = chess_pos_to_led_index(king_from_row, king_from_col);
-    uint8_t king_to_led = chess_pos_to_led_index(king_to_row, king_to_col);
-    uint8_t rook_from_led = chess_pos_to_led_index(rook_from_row, rook_from_col);
-    uint8_t rook_to_led = chess_pos_to_led_index(rook_to_row, rook_to_col);
-    
-    // Direct call of the LED functions to display the cast
-    led_set_pixel_safe(king_from_led, 255, 165, 0);  // Orange pro king from
-    led_set_pixel_safe(king_to_led, 0, 255, 0);      // Green for king it
-    led_set_pixel_safe(rook_from_led, 255, 165, 0);  // Orange pro rook from
-    led_set_pixel_safe(rook_to_led, 0, 255, 0);      // Green for rook it
-    
-    ESP_LOGI(TAG, "Castling shown: K%d,%d->%d,%d R%d,%d->%d,%d", 
-             king_from_row, king_from_col, king_to_row, king_to_col,
-             rook_from_row, rook_from_col, rook_to_row, rook_to_col);
+  (void)king_from_row;
+  (void)king_from_col;
+  (void)king_to_row;
+  (void)king_to_col;
+  (void)rook_from_row;
+  (void)rook_from_col;
+  (void)rook_to_row;
+  (void)rook_to_col;
 }

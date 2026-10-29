@@ -11,6 +11,15 @@
  * These functions will be integrated into game_task.c
  */
 
+#include "game_task.h"
+#include "game_led_direct.h"
+
+#include "esp_log.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+
+#include <stdlib.h>
+
 // ============================================================================
 // DEMO MODE HELPER FUNCTIONS
 // ============================================================================
@@ -128,9 +137,9 @@ static void demo_ensure_safe_timing(uint32_t *last_move_time_ms,
   // Wait if interval not yet elapsed
   if (elapsed < interval_ms) {
     uint32_t wait_ms = interval_ms - elapsed;
-    vTaskDelay(pdMS_TO_TICKS(wait_ms));
+    game_led_flush(); vTaskDelay(pdMS_TO_TICKS(wait_ms));
   }
 
   // Give web UI time to process highlight clearing (100ms)
-  vTaskDelay(pdMS_TO_TICKS(100));
+  game_led_flush(); vTaskDelay(pdMS_TO_TICKS(100));
 }

@@ -6,11 +6,18 @@
 #include "game_move_exec.h"
 #include "game_move_validate.h"
 #include "game_snapshot.h"
-#include "game_task_internal.h"
+#include "position.h"
 #include "game_physical_undo.h"
 
 #include "game_task.h"
-#include "chess_gameplay_policy.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_policy.h"
+#include "game_required_step.h"
 #include "game_led_animations.h"
 #include "led_mapping.h"
 
@@ -59,10 +66,10 @@ game_state_t game_analyze_position(player_t player) {
   if (legal_moves == 0) {
     if (king_in_check) {
       // Checkmate
-      game_result = GAME_STATE_FINISHED;
+      (*game_state_game_result()) = GAME_STATE_FINISHED;
       game_result_type_t result_type =
           player == PLAYER_WHITE ? RESULT_BLACK_WINS : RESULT_WHITE_WINS;
-      current_result_type = result_type; // Save for Web API
+      (*game_state_current_result_type()) = result_type; // Save for Web API
       game_update_endgame_statistics(result_type);
       game_print_endgame_report_uart(result_type);
       ESP_LOGI(TAG, "🎯 CHECKMATE! %s wins!",
@@ -70,8 +77,8 @@ game_state_t game_analyze_position(player_t player) {
       return GAME_STATE_FINISHED;
     } else {
       // Stalemate
-      game_result = GAME_STATE_FINISHED;
-      current_result_type = RESULT_DRAW_STALEMATE; // Save for Web API
+      (*game_state_game_result()) = GAME_STATE_FINISHED;
+      (*game_state_current_result_type()) = RESULT_DRAW_STALEMATE; // Save for Web API
       game_update_endgame_statistics(RESULT_DRAW_STALEMATE);
       game_print_endgame_report_uart(RESULT_DRAW_STALEMATE);
       ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn!");
@@ -81,8 +88,8 @@ game_state_t game_analyze_position(player_t player) {
 
   // Check for fifty-move rule
   if (fifty_move_counter >= 100) { // 50 moves per side
-    game_result = GAME_STATE_FINISHED;
-    current_result_type = RESULT_DRAW_50_MOVE; // Save for Web API
+    (*game_state_game_result()) = GAME_STATE_FINISHED;
+    (*game_state_current_result_type()) = RESULT_DRAW_50_MOVE; // Save for Web API
     game_update_endgame_statistics(RESULT_DRAW_50_MOVE);
     game_print_endgame_report_uart(RESULT_DRAW_50_MOVE);
     ESP_LOGI(TAG, "🤝 DRAW! Fifty-move rule!");
@@ -95,7 +102,7 @@ game_state_t game_analyze_position(player_t player) {
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
       if (piece == PIECE_EMPTY)
         continue;
 
@@ -117,8 +124,8 @@ game_state_t game_analyze_position(player_t player) {
 
   if (white_pieces <= 2 && black_pieces <= 2 && !white_has_major &&
       !black_has_major) {
-    game_result = GAME_STATE_FINISHED;
-    current_result_type = RESULT_DRAW_INSUFFICIENT; // Save for Web API
+    (*game_state_game_result()) = GAME_STATE_FINISHED;
+    (*game_state_current_result_type()) = RESULT_DRAW_INSUFFICIENT; // Save for Web API
     game_update_endgame_statistics(RESULT_DRAW_INSUFFICIENT);
     game_print_endgame_report_uart(RESULT_DRAW_INSUFFICIENT);
     ESP_LOGI(TAG, "🤝 DRAW! Insufficient material!");
@@ -133,9 +140,9 @@ bool game_execute_move(const chess_move_t *move) {
     return false;
   }
 
-  const bool api_immediate_promo = s_uart_move_immediate_promotion;
-  const promotion_choice_t api_promo_choice = s_uart_move_immediate_promotion_piece;
-  s_uart_move_immediate_promotion = false;
+  const bool api_immediate_promo = (*game_state_s_uart_move_immediate_promotion());
+  const promotion_choice_t api_promo_choice = (*game_state_s_uart_move_immediate_promotion_piece());
+  (*game_state_s_uart_move_immediate_promotion()) = false;
 
   move_error_t error = game_is_valid_move(move);
   if (error != MOVE_ERROR_NONE) {
@@ -170,7 +177,7 @@ bool game_execute_move(const chess_move_t *move) {
   // Disable special move detection during error recovery
   //  During error recovery, ALL moves are treated as NORMAL moves to prevent
   //  state conflicts
-  if (!error_recovery_state.waiting_for_move_correction) {
+  if (!(*game_state_error_recovery_state()).waiting_for_move_correction) {
     // 1. Check for castling
     if ((source_piece == PIECE_WHITE_KING ||
          source_piece == PIECE_BLACK_KING) &&
@@ -202,17 +209,17 @@ bool game_execute_move(const chess_move_t *move) {
                  "👑 API immediate promotion (choice=%d) — skip pending state",
                  (int)api_promo_choice);
       } else {
-        // IMMEDIATELY set promotion_state before calling
+        // IMMEDIATELY set (*game_state_promotion_state()) before calling
         // game_execute_move_enhanced() This ensures that
         // game_execute_move_enhanced() does not auto-promote Use recursive
-        // mutex function (promotion_mutex is a recursive mutex)
-        if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
+        // mutex function ((*game_state_promotion_mutex()) is a recursive mutex)
+        if (xSemaphoreTakeRecursive((*game_state_promotion_mutex()), pdMS_TO_TICKS(100)) ==
             pdTRUE) {
-          promotion_state.pending = true;
-          promotion_state.square_row = move->to_row;
-          promotion_state.square_col = move->to_col;
-          promotion_state.player = current_player;
-          xSemaphoreGiveRecursive(promotion_mutex);
+          (*game_state_promotion_state()).pending = true;
+          (*game_state_promotion_state()).square_row = move->to_row;
+          (*game_state_promotion_state()).square_col = move->to_col;
+          (*game_state_promotion_state()).player = current_player;
+          xSemaphoreGiveRecursive((*game_state_promotion_mutex()));
 
           ESP_LOGI(TAG,
                    "⏸️  Promotion detected - setting pending state at %c%d for %s "
@@ -291,20 +298,20 @@ bool game_execute_move(const chess_move_t *move) {
         move_history_kind[history_index] = extended_move.move_type;
         history_index++;
         if (extended_move.move_type == MOVE_TYPE_PROMOTION &&
-            !promotion_state.pending) {
+            !(*game_state_promotion_state()).pending) {
           game_move_undo_meta_on_promotion_completed(
-              board[move->to_row][move->to_col]);
+              game_get_piece(move->to_row, move->to_col));
         }
       }
 
       // Update game state
       move_count++;
-      last_move_time = esp_timer_get_time() / 1000;
+      (*game_state_last_move_time()) = esp_timer_get_time() / 1000;
 
       // Record material advantage pro graf
       game_record_material_advantage();
     } else {
-      last_move_time = esp_timer_get_time() / 1000;
+      (*game_state_last_move_time()) = esp_timer_get_time() / 1000;
     }
 
     // ENHANCED CASTLING DETECTION
@@ -314,7 +321,8 @@ bool game_execute_move(const chess_move_t *move) {
 
       // Nastavit castling state pro tracking
       castling_state.in_progress = true;
-      castling_state.player = current_player;
+      castling_state.player =
+          game_is_white_piece(source_piece) ? PLAYER_WHITE : PLAYER_BLACK;
       castling_state.is_kingside = (move->to_col > move->from_col);
 
       // Calculate expected tower positions
@@ -338,19 +346,21 @@ bool game_execute_move(const chess_move_t *move) {
         uint8_t rc = castling_state.rook_from_col;
         uint8_t tr = castling_state.rook_to_row;
         uint8_t tc = castling_state.rook_to_col;
-        piece_t rook_piece = board[rr][rc];
-        board[rr][rc] = PIECE_EMPTY;
-        board[tr][tc] = rook_piece;
+        if (game_get_piece(rr, rc) != PIECE_EMPTY) {
+          piece_t rook_piece = game_get_piece(rr, rc);
+          game_set_piece(rr, rc, PIECE_EMPTY);
+          game_set_piece(tr, tc, rook_piece);
+        }
         piece_moved[rr][rc] = true;
         if (castling_state.player == PLAYER_WHITE) {
-          white_castles++;
+          (*game_state_white_castles())++;
           if (rc == 7) {
             white_rook_h_moved = true;
           } else {
             white_rook_a_moved = true;
           }
         } else {
-          black_castles++;
+          (*game_state_black_castles())++;
           if (rc == 7) {
             black_rook_h_moved = true;
           } else {
@@ -358,8 +368,10 @@ bool game_execute_move(const chess_move_t *move) {
           }
         }
         castling_state.in_progress = false;
-        current_player =
-            (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        if (current_player == castling_state.player) {
+          current_player =
+              (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        }
         game_end_timer_move();
         game_start_timer_move(current_player == PLAYER_WHITE);
         if (game_check_end_game_conditions() == GAME_STATE_FINISHED) {
@@ -371,8 +383,20 @@ bool game_execute_move(const chess_move_t *move) {
         return success;
       }
 #else
+      if (game_get_piece(castling_state.rook_from_row,
+                         castling_state.rook_from_col) == PIECE_EMPTY &&
+          game_get_piece(castling_state.rook_to_row,
+                         castling_state.rook_to_col) != PIECE_EMPTY) {
+        game_set_piece(castling_state.rook_from_row,
+                       castling_state.rook_from_col,
+                       game_get_piece(castling_state.rook_to_row,
+                                        castling_state.rook_to_col));
+        game_set_piece(castling_state.rook_to_row, castling_state.rook_to_col,
+                       PIECE_EMPTY);
+      }
+      current_player = castling_state.player;
       // Show LED indication for tower with pulsation for better visibility
-      led_clear_board_only();
+      game_led_clear_board();
 
       uint8_t rook_from_led = chess_pos_to_led_index(
           castling_state.rook_from_row, castling_state.rook_from_col);
@@ -391,19 +415,21 @@ bool game_execute_move(const chess_move_t *move) {
                        2.0f; // Normalizace: sin() -> 0-1 -> 0.5-1.0
 
         // Silver for tower (source) with pulsation
-        led_set_pixel_safe(rook_from_led, (uint8_t)(192 * brightness),
-                           (uint8_t)(192 * brightness),
-                           (uint8_t)(192 * brightness));
+        game_led_frame_begin(0, false);
+        game_led_paint_led(rook_from_led, (uint8_t)(192 * brightness), (uint8_t)(192 * brightness), (uint8_t)(192 * brightness));
 
         // Green for tower destination (destination) with pulsation
-        led_set_pixel_safe(rook_to_led, 0, (uint8_t)(255 * brightness), 0);
+        game_led_paint_led(rook_to_led, 0, (uint8_t)(255 * brightness), 0);
 
+        game_led_frame_end();
         vTaskDelay(pdMS_TO_TICKS(200));
       }
 
       // Final static display
-      led_set_pixel_safe(rook_from_led, 192, 192, 192); // Silver for the tower
-      led_set_pixel_safe(rook_to_led, 0, 255, 0);       // Green for tower target
+      game_led_frame_begin(0, false);
+      game_led_paint_led(rook_from_led, 192, 192, 192); // Silver for the tower
+      game_led_paint_led(rook_to_led, 0, 255, 0);       // Green for tower target
+      game_led_frame_end();
 
       // DO NOT CHANGE PLAYERS for castling!
       ESP_LOGI(
@@ -425,17 +451,17 @@ bool game_execute_move(const chess_move_t *move) {
       if (!api_promo_inline) {
         ESP_LOGI(TAG, "👑 PROMOTION DETECTED! Starting promotion animation...");
 
-        // #2: Mutex protection for promotion_state
-        // Use a recursive mutex function (promotion_mutex is a recursive mutex)
-        if (xSemaphoreTakeRecursive(promotion_mutex, pdMS_TO_TICKS(100)) ==
+        // #2: Mutex protection for (*game_state_promotion_state())
+        // Use a recursive mutex function ((*game_state_promotion_mutex()) is a recursive mutex)
+        if (xSemaphoreTakeRecursive((*game_state_promotion_mutex()), pdMS_TO_TICKS(100)) ==
             pdTRUE) {
           // Set promotion state to pending
           // This blocks further moves and enables selection via buttons/UART/web
-          promotion_state.pending = true;
-          promotion_state.square_row = move->to_row;
-          promotion_state.square_col = move->to_col;
-          promotion_state.player = current_player;
-          xSemaphoreGiveRecursive(promotion_mutex);
+          (*game_state_promotion_state()).pending = true;
+          (*game_state_promotion_state()).square_row = move->to_row;
+          (*game_state_promotion_state()).square_col = move->to_col;
+          (*game_state_promotion_state()).player = current_player;
+          xSemaphoreGiveRecursive((*game_state_promotion_mutex()));
 
           ESP_LOGI(TAG, "⏸️  Promotion pending at %c%d for %s player",
                    'a' + move->to_col, move->to_row + 1,
@@ -446,15 +472,10 @@ bool game_execute_move(const chess_move_t *move) {
         }
 
         // Start promotion animation
-        led_command_t promote_cmd = {
-            .type = LED_CMD_ANIM_PROMOTE,
-            .led_index = chess_pos_to_led_index(move->to_row, move->to_col),
-            .red = 255,
-            .green = 215,
-            .blue = 0, // Gold
-            .duration_ms = 2000,
-            .data = NULL};
-        led_execute_command_new(&promote_cmd);
+        game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_PROMOTE,
+                             chess_pos_to_led_index(move->to_row, move->to_col),
+                             0);
 
         // Update LED button indications (green for promotion buttons)
         game_check_promotion_needed();
@@ -483,15 +504,15 @@ bool game_execute_move(const chess_move_t *move) {
         ESP_LOGI(TAG, "✅ CASTLING COMPLETED! Rook moved correctly");
 
         // We will move the tower in the board[][]
-        board[move->to_row][move->to_col] = move->piece;
-        board[castling_state.rook_from_row][castling_state.rook_from_col] =
-            PIECE_EMPTY;
+        game_set_piece(move->to_row, move->to_col, move->piece);
+        game_set_piece(castling_state.rook_from_row,
+                       castling_state.rook_from_col, PIECE_EMPTY);
 
         // Number of Castings for Learning Overview / API
         if (castling_state.player == PLAYER_WHITE) {
-          white_castles++;
+          (*game_state_white_castles())++;
         } else {
-          black_castles++;
+          (*game_state_black_castles())++;
         }
 
         // Update flags for king and rook
@@ -520,10 +541,12 @@ bool game_execute_move(const chess_move_t *move) {
                      "castling: completion cleared in_progress (before endgame "
                      "check)");
 
-        // ONLY change players after casting is complete
+        // Publish already switched side when the king move applied the castle.
         player_t previous_player = current_player;
-        current_player =
-            (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        if (current_player == castling_state.player) {
+          current_player =
+              (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+        }
 
         ESP_LOGI(TAG, "🎉 Castling completed! Player changed to %s",
                  current_player == PLAYER_WHITE ? "White" : "Black");
@@ -549,7 +572,7 @@ bool game_execute_move(const chess_move_t *move) {
               (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
           uint8_t king_pos = 28; // default e4
           for (int i = 0; i < 64; i++) {
-            piece_t piece = board[i / 8][i % 8];
+            piece_t piece = game_get_piece(i / 8, i % 8);
             if ((winner == PLAYER_WHITE && piece == PIECE_WHITE_KING) ||
                 (winner == PLAYER_BLACK && piece == PIECE_BLACK_KING)) {
               king_pos = i;
@@ -563,21 +586,15 @@ bool game_execute_move(const chess_move_t *move) {
                    king_pos);
 
           // Start the endgame animation (wave from king winner)
-          led_command_t endgame_cmd = {.type = LED_CMD_ANIM_ENDGAME,
-                                       .led_index = king_pos,
-                                       .red = 255,
-                                       .green = 255,
-                                       .blue = 0,        // Yellow
-                                       .duration_ms = 0, // Endless
-                                       .data = NULL};
-          led_execute_command_new(&endgame_cmd);
+          game_led_flush();
+  game_event_post_game_end(king_pos, 0);
 
           ESP_LOGI(
               TAG,
               "✅ Endgame animation started - player change animation SKIPPED");
         } else {
-          led_clear_board_only();
-          chess_policy_highlight_movable_if_enabled();
+          game_led_clear_board();
+          game_policy_highlight_movable_if_enabled();
 
           // Check if the new player is in check
           bool in_check = game_is_king_in_check(current_player);
@@ -589,7 +606,7 @@ bool game_execute_move(const chess_move_t *move) {
                                      : PIECE_BLACK_KING;
             for (int row = 0; row < 8; row++) {
               for (int col = 0; col < 8; col++) {
-                if (board[row][col] == king_piece) {
+                if (game_get_piece(row, col) == king_piece) {
                   king_row = row;
                   king_col = col;
                   break;
@@ -604,15 +621,8 @@ bool game_execute_move(const chess_move_t *move) {
                 uint8_t king_led_index =
                     chess_pos_to_led_index(king_row, king_col);
                 // Start the check animation - pink lighting on the king
-                led_command_t check_cmd = {.type = LED_CMD_ANIM_CHECK,
-                                           .led_index = king_led_index,
-                                           .red = 0,
-                                           .green = 0,
-                                           .blue = 0,
-                                           .duration_ms =
-                                               0, // Permanent until next turn
-                                           .data = NULL};
-                led_execute_command_new(&check_cmd);
+                game_led_flush();
+  game_event_post_check(king_led_index);
                 ESP_LOGI(TAG, "⚠️ CHECK! %s is in check",
                          current_player == PLAYER_WHITE ? "White" : "Black");
               }
@@ -635,7 +645,7 @@ bool game_execute_move(const chess_move_t *move) {
           // Abort castling state
           castling_state.in_progress = false;
           // Clear LEDs
-          led_clear_board_only();
+          game_led_clear_board();
           // Treat as normal move (Undo usually)
           // We return true (success) so the move is accepted update the board
           // But we MUST ensure the player switches/unswitches correctly?
@@ -678,7 +688,7 @@ bool game_execute_move(const chess_move_t *move) {
                  // Not rook move - Abort?
                  castling_state.in_progress = false;
                  ESP_LOGW(TAG, "Castling aborted");
-                 led_clear_board_only();
+                 game_led_clear_board();
                  // Fall through to normal processing!
              }
           */
@@ -701,17 +711,25 @@ bool game_execute_move(const chess_move_t *move) {
     // NORMAL MOVES - change player (move animation starts in
     // game_process_drop_command) Switch player BEFORE checking
     // endgame conditions (according to the old project)
-    player_t previous_player = current_player;
-    ESP_LOGI(TAG, "🔄 Changing player from %s to %s",
-             previous_player == PLAYER_WHITE ? "White" : "Black",
-             (previous_player == PLAYER_WHITE) ? "Black" : "White");
-    current_player =
-        (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    player_t mover =
+        game_is_white_piece(source_piece) ? PLAYER_WHITE : PLAYER_BLACK;
+    player_t previous_player = mover;
+    if (current_player == mover) {
+      ESP_LOGI(TAG, "🔄 Changing player from %s to %s",
+               previous_player == PLAYER_WHITE ? "White" : "Black",
+               (previous_player == PLAYER_WHITE) ? "Black" : "White");
+      current_player =
+          (current_player == PLAYER_WHITE) ? PLAYER_BLACK : PLAYER_WHITE;
+    }
 
     ESP_LOGI(TAG,
              "✅ Move executed successfully. %s to move (current_player=%s)",
              (current_player == PLAYER_WHITE) ? "White" : "Black",
              current_player == PLAYER_WHITE ? "White" : "Black");
+
+    /* Hall quiet moves never reach the UART/drop timer switch. */
+    game_end_timer_move();
+    game_start_timer_move(current_player == PLAYER_WHITE);
 
     // Check for endgame conditions after move execution (podle
     // old project)
@@ -733,53 +751,16 @@ bool game_execute_move(const chess_move_t *move) {
   return success;
 }
 
-/**
- * Conversion of PROMOTION_* to piece_t according to pawn color.
- * ATTENTION: piece_t is not ordered Q,R,B,N consecutively — PIECE_WHITE_QUEEN+1 is KING,
- * not rook (see chess_types.h). Previously, "PIECE_WHITE_QUEEN + choice" gave at
- * choosing the rook of the second white king on the chessboard.
- */
-static piece_t game_piece_for_promotion_choice(piece_t pawn,
-                                                promotion_choice_t choice) {
-  if (pawn == PIECE_WHITE_PAWN) {
-    switch (choice) {
-    case PROMOTION_ROOK:
-      return PIECE_WHITE_ROOK;
-    case PROMOTION_BISHOP:
-      return PIECE_WHITE_BISHOP;
-    case PROMOTION_KNIGHT:
-      return PIECE_WHITE_KNIGHT;
-    case PROMOTION_QUEEN:
-    default:
-      return PIECE_WHITE_QUEEN;
-    }
-  }
-  if (pawn == PIECE_BLACK_PAWN) {
-    switch (choice) {
-    case PROMOTION_ROOK:
-      return PIECE_BLACK_ROOK;
-    case PROMOTION_BISHOP:
-      return PIECE_BLACK_BISHOP;
-    case PROMOTION_KNIGHT:
-      return PIECE_BLACK_KNIGHT;
-    case PROMOTION_QUEEN:
-    default:
-      return PIECE_BLACK_QUEEN;
-    }
-  }
-  ESP_LOGW(TAG,
-           "game_piece_for_promotion_choice: pece expected, I have piece=%d — "
-           "I return the white queen",
-           (int)pawn);
-  return PIECE_WHITE_QUEEN;
-}
-
 static bool s_ep_wait;
 static uint8_t s_ep_row;
 static uint8_t s_ep_col;
 
 static void game_ep_capture_show(void) {
-  led_set_pixel_safe(chess_pos_to_led_index(s_ep_row, s_ep_col), 255, 80, 0);
+  game_led_clear_board();
+  game_led_frame_begin(0, false);
+  game_led_frame_sq(s_ep_row, s_ep_col, 255, 80, 0);
+  game_led_frame_end();
+  game_required_step_refresh();
 }
 
 void game_ep_capture_arm(uint8_t row, uint8_t col) {
@@ -807,6 +788,21 @@ bool game_ep_capture_is_victim(uint8_t row, uint8_t col) {
   return s_ep_wait && row == s_ep_row && col == s_ep_col;
 }
 
+bool game_ep_capture_victim_square(uint8_t *row, uint8_t *col) {
+  if (!s_ep_wait || row == NULL || col == NULL) {
+    return false;
+  }
+  *row = s_ep_row;
+  *col = s_ep_col;
+  return true;
+}
+
+void game_ep_capture_reset(void) {
+  s_ep_wait = false;
+  s_ep_row = 0;
+  s_ep_col = 0;
+}
+
 void game_ep_capture_service(void) {
   if (!s_ep_wait) {
     return;
@@ -819,7 +815,7 @@ void game_ep_capture_service(void) {
   if (phys[sq] == 0 && !in_hand) {
     s_ep_wait = false;
     if (current_game_state != GAME_STATE_FINISHED) {
-      chess_policy_refresh_idle_board_leds();
+      game_policy_refresh_idle_board_leds();
     }
     return;
   }
@@ -830,22 +826,47 @@ void game_ep_capture_service(void) {
  * @brief Execute an enhanced chess move on the board
  */
 bool game_execute_move_enhanced(chess_move_extended_t *move) {
+  position_promo_t promo = POS_PROMO_NONE;
+  uint8_t ep_victim_row = en_passant_victim_row;
+  uint8_t ep_victim_col = en_passant_victim_col;
+
   if (move == NULL)
     return false;
+
+  if (move->move_type == MOVE_TYPE_PROMOTION && !(*game_state_promotion_state()).pending) {
+    switch (move->promotion_piece) {
+    case PROMOTION_ROOK:
+      promo = POS_PROMO_R;
+      break;
+    case PROMOTION_BISHOP:
+      promo = POS_PROMO_B;
+      break;
+    case PROMOTION_KNIGHT:
+      promo = POS_PROMO_N;
+      break;
+    case PROMOTION_QUEEN:
+    default:
+      promo = POS_PROMO_Q;
+      break;
+    }
+  }
+  if (!game_logic_play(move->from_row, move->from_col, move->to_row, move->to_col,
+                       promo)) {
+    return false;
+  }
 
   // Set last move type for special chess detection
   switch (move->move_type) {
   case MOVE_TYPE_EN_PASSANT:
-    game_ep_capture_arm(en_passant_victim_row, en_passant_victim_col);
-    board[en_passant_victim_row][en_passant_victim_col] = PIECE_EMPTY;
-    last_move_type = LAST_MOVE_EN_PASSANT;
+    game_ep_capture_arm(ep_victim_row, ep_victim_col);
+    (*game_state_last_move_type()) = LAST_MOVE_EN_PASSANT;
     ESP_LOGI(TAG, "⚔️ En passant move executed");
     break;
 
   case MOVE_TYPE_CASTLE_KING:
     // The tower does not move automatically - the player must move it himself
     // The tower remains in its original position, the animation will force the player to move it
-    last_move_type = LAST_MOVE_CASTLING; // Mark as castling
+    (*game_state_last_move_type()) = LAST_MOVE_CASTLING; // Mark as castling
     ESP_LOGI(TAG, "🏰 Kingside castling - rook stays in place, waiting for "
                   "player to move it");
     break;
@@ -853,50 +874,36 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
   case MOVE_TYPE_CASTLE_QUEEN:
     // The tower does not move automatically - the player must move it himself
     // The tower remains in its original position, the animation will force the player to move it
-    last_move_type = LAST_MOVE_CASTLING; // Mark as castling
+    (*game_state_last_move_type()) = LAST_MOVE_CASTLING; // Mark as castling
     ESP_LOGI(TAG, "🏰 Queenside castling - rook stays in place, waiting for "
                   "player to move it");
     break;
 
   case MOVE_TYPE_PROMOTION:
     // Handle promotion - the piece will be set below
-    last_move_type = LAST_MOVE_PROMOTION; // Mark as promotion
+    (*game_state_last_move_type()) = LAST_MOVE_PROMOTION; // Mark as promotion
     break;
 
   default:
     // Normal move or capture - nothing special needed
-    last_move_type = LAST_MOVE_NORMAL; // Reset to normal move
+    (*game_state_last_move_type()) = LAST_MOVE_NORMAL; // Reset to normal move
     break;
   }
 
-  // Make the basic move
-  board[move->to_row][move->to_col] = move->piece;
-  board[move->from_row][move->from_col] = PIECE_EMPTY;
-
-  // Handle promotion
-  if (move->move_type == MOVE_TYPE_PROMOTION) {
-    // Zkontrolovat zda je promotion_state.pending
-    // If so, then the user has not yet selected a piece - leave the pawn in place
-    // If not, then the promotion_piece is set and we can do the promotion
-    if (promotion_state.pending) {
-      // Promotion is pending - the user has not yet selected a figurine
-      // Leave the pawn on the promotion rank (it has already been moved there in the previous
-      // kroku)
-      ESP_LOGI(TAG,
-               "⏸️  Promotion pending - keeping pawn at %c%d, waiting for user "
-               "selection",
-               'a' + move->to_col, move->to_row + 1);
-    } else {
-      // Promotion is not pending - promotion_piece is set, perform promotion
-      piece_t promoted_piece =
-          game_piece_for_promotion_choice(move->piece, move->promotion_piece);
-      board[move->to_row][move->to_col] = promoted_piece;
-      ESP_LOGI(TAG, "✅ Promotion executed immediately with piece %d",
-               (int)move->promotion_piece);
-    }
+  if (move->move_type == MOVE_TYPE_PROMOTION && (*game_state_promotion_state()).pending) {
+    /* Hold the promoting player until the piece is chosen. */
+    current_player = (*game_state_promotion_state()).player;
+    game_logic_position()->side = (uint8_t)current_player;
+    ESP_LOGI(TAG,
+             "⏸️  Promotion pending - keeping pawn at %c%d, waiting for user "
+             "selection",
+             'a' + move->to_col, move->to_row + 1);
+  } else if (move->move_type == MOVE_TYPE_PROMOTION) {
+    ESP_LOGI(TAG, "✅ Promotion executed immediately with piece %d",
+             (int)move->promotion_piece);
   }
 
-  // Update castling flags and the squares the repetition hash reads.
+  // Squares the repetition hash reads. The rights themselves come from publish.
   if (move->piece == PIECE_WHITE_KING) {
     white_king_moved = true;
     piece_moved[0][4] = true;
@@ -926,31 +933,11 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
     }
   }
 
-  // Update en passant state
-  en_passant_available = false;
-  if ((move->piece == PIECE_WHITE_PAWN || move->piece == PIECE_BLACK_PAWN) &&
-      abs(move->to_row - move->from_row) == 2) {
-    // Pawn made a double move - enable en passant
-    en_passant_available = true;
-    en_passant_target_row = (move->from_row + move->to_row) / 2;
-    en_passant_target_col = move->from_col;
-    en_passant_victim_row = move->to_row;
-    en_passant_victim_col = move->to_col;
-  }
-
-  // Update fifty-move counter
-  if (move->piece == PIECE_WHITE_PAWN || move->piece == PIECE_BLACK_PAWN ||
-      move->captured_piece != PIECE_EMPTY) {
-    fifty_move_counter = 0;
-  } else {
-    fifty_move_counter++;
-  }
-
-  // Update move counters and statistics
-  if (current_player == PLAYER_WHITE) {
-    white_moves_count++;
-  } else {
-    black_moves_count++;
+  /* Count the mover. sync already stored the side to move next. */
+  if (game_is_white_piece(move->piece)) {
+    (*game_state_white_moves_count())++;
+  } else if (game_is_black_piece(move->piece)) {
+    (*game_state_black_moves_count())++;
   }
 
   // DO NOT CHANGE PLAYER HERE - player is changed in game_execute_move() after
@@ -959,7 +946,7 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   if (move->move_type != MOVE_TYPE_PROMOTION) {
-    piece_t landed = board[move->to_row][move->to_col];
+    piece_t landed = game_get_piece(move->to_row, move->to_col);
     hall_piece_type_t ht = HALL_PIECE_TYPE_NONE;
     hall_piece_color_t hc = HALL_PIECE_COLOR_NONE;
     if (game_hall_engine_to_sensor(landed, &ht, &hc)) {
@@ -967,7 +954,10 @@ bool game_execute_move_enhanced(chess_move_extended_t *move) {
           (uint8_t)(move->to_row * 8 + move->to_col), ht, hc);
     }
   }
-  game_hall_snapshot_last_valid();
+  /* Pawn still on the last rank is not a committed position. */
+  if (!(*game_state_promotion_state()).pending) {
+    game_hall_snapshot_last_valid();
+  }
 #endif
 
   return true;
@@ -982,9 +972,12 @@ void show_castling_completion_animation() {
                                             castling_state.rook_to_col);
 
   for (int i = 0; i < 5; i++) {
-    led_set_pixel_safe(rook_led, 255, 215, 0); // Golden
+    game_led_frame_begin(0, false);
+    game_led_paint_led(rook_led, 255, 215, 0); // Golden
+    game_led_frame_end();
     vTaskDelay(pdMS_TO_TICKS(100));
-    led_set_pixel_safe(rook_led, 0, 0, 0);
+    game_led_frame_begin(0, false);
+    game_led_frame_end();
     vTaskDelay(pdMS_TO_TICKS(100));
   }
 

@@ -60,7 +60,7 @@ bool game_physical_undo_is_active(void);
  * @param piece Piece the engine believes was lifted.
  * @return true if this pickup was consumed by the undo flow.
  */
-bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
+bool game_physical_undo_handle_pickup(const game_cmd_t *cmd,
                                       uint8_t from_row, uint8_t from_col,
                                       piece_t piece);
 
@@ -71,7 +71,7 @@ bool game_physical_undo_handle_pickup(const chess_move_command_t *cmd,
  * @param to_col Drop column.
  * @return true if the drop was fully handled and the caller should return.
  */
-bool game_physical_undo_handle_drop(const chess_move_command_t *cmd,
+bool game_physical_undo_handle_drop(const game_cmd_t *cmd,
                                     uint8_t to_row, uint8_t to_col);
 
 /** @brief Refresh pending-takeback LEDs. Called from the game command cycle. */
@@ -88,5 +88,30 @@ bool game_physical_undo_intercept_pickup(uint8_t row, uint8_t col);
  * @return false when history is empty or dest is NULL.
  */
 bool game_physical_undo_copy_previous(piece_t dest[8][8]);
+
+#define GAME_TASK_MAX_MOVES_HISTORY 200
+
+typedef struct {
+  player_t side_before;
+  bool white_king_moved;
+  bool white_rook_a_moved;
+  bool white_rook_h_moved;
+  bool black_king_moved;
+  bool black_rook_a_moved;
+  bool black_rook_h_moved;
+  bool en_passant_available;
+  uint8_t en_passant_target_row;
+  uint8_t en_passant_target_col;
+  uint8_t en_passant_victim_row;
+  uint8_t en_passant_victim_col;
+  uint8_t rook_home_col;
+  uint8_t rook_castle_col;
+  piece_t promoted_to;
+  piece_t capture_return_piece;
+  uint8_t capture_return_row;
+  uint8_t capture_return_col;
+} move_undo_meta_t;
+
+extern move_undo_meta_t move_history_meta[GAME_TASK_MAX_MOVES_HISTORY];
 
 #endif /* GAME_PHYSICAL_UNDO_H */

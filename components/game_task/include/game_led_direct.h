@@ -20,6 +20,7 @@
 #ifndef GAME_LED_DIRECT_H
 #define GAME_LED_DIRECT_H
 
+#include <stdbool.h>
 #include <stdint.h>
 #include "chess_types.h"
 
@@ -57,18 +58,6 @@ void game_show_move_direct(uint8_t from_row, uint8_t from_col, uint8_t to_row, u
  * @note PRIME CALLS - no queue
  */
 void game_show_piece_lift_direct(uint8_t row, uint8_t col);
-
-/**
- * @brief Display valid moves with direct LED calls
- * 
- * Displays a soft green wave at all positions where the figure can pull out.
- * 
- * @param valid_positions LED index array of valid positions
- * @param count Number of valid positions
- * 
- * @note PRIME CALLS - no queue
- */
-void game_show_valid_moves_direct(uint8_t *valid_positions, uint8_t count);
 
 /**
  * @brief Display error with LED prime calls
@@ -159,6 +148,18 @@ void game_show_castling_direct(uint8_t king_from_row, uint8_t king_from_col,
                                uint8_t king_to_row, uint8_t king_to_col,
                                uint8_t rook_from_row, uint8_t rook_from_col,
                                uint8_t rook_to_row, uint8_t rook_to_col);
+
+/** Accumulate one board picture, then post a single game event. */
+void game_led_frame_begin(uint16_t fade_ms, bool patch);
+bool game_led_frame_is_open(void);
+void game_led_frame_sq(uint8_t row, uint8_t col, uint8_t r, uint8_t g, uint8_t b);
+void game_led_frame_breathe(uint8_t row, uint8_t col, uint8_t r, uint8_t g,
+                            uint8_t b, uint8_t mode, uint8_t floor,
+                            uint16_t period_ms, uint16_t phase_ms);
+void game_led_frame_end(void);
+void game_led_paint_led(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
+void game_led_flush(void);
+void game_led_clear_board(void);
 
 #ifdef __cplusplus
 }

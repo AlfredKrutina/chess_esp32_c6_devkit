@@ -16,6 +16,7 @@
 
 #include "web_server_internal.h"
 #include "web_server_task.h"
+#include "cmd_wire.h"
 #include "../game_task/include/game_task.h"
 
 #include "esp_log.h"
@@ -99,40 +100,46 @@ esp_err_t web_server_resign_dispatch_body(const char *json,
     return ESP_FAIL;
   }
 
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_RESIGN;
-  cmd.promotion_choice = side;
-  cmd.response_queue = NULL;
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_RESIGN;
+  cmd.u.resign.side = side;
+  if (!game_submit(&cmd)) {
     ESP_LOGE(TAG, "resign: failed to send to game queue");
     if (out_error != NULL) {
-      *out_error = "queue_failed";
+      *out_error = "busy";
     }
-    return ESP_FAIL;
+    return ESP_ERR_TIMEOUT;
   }
 
   ESP_LOGI(TAG, "resign: queued (side=%u)", (unsigned)side);
   return ESP_OK;
 }
 
-esp_err_t http_post_game_resign_handler(httpd_req_t *req) {
+esp_err_t web_post_game_resign_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/resign");
 
-  char body[128] = {0};
+  char body[160] = {0};
   int r = httpd_req_recv(req, body, (int)sizeof(body) - 1);
   if (r > 0) {
     body[r] = '\0';
   } else {
     body[0] = '\0';
   }
+  if (cmd_wire_http_guard(req, body, "resign")) {
+    return ESP_OK;
+  }
 
   const char *err_code = NULL;
   esp_err_t err = web_server_resign_dispatch_body(body, &err_code);
 
-  httpd_resp_set_type(req, "application/json");
   if (err == ESP_OK) {
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_send(req, "{\"success\":true}", -1);
+    cmd_wire_http_send(req, "200 OK", "{\"success\":true}", body, true,
+                       "resign");
+    return ESP_OK;
+  }
+  if (err == ESP_ERR_TIMEOUT) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", body, false, NULL);
     return ESP_OK;
   }
 
@@ -147,8 +154,7 @@ esp_err_t http_post_game_resign_handler(httpd_req_t *req) {
   char out[96];
   snprintf(out, sizeof(out), "{\"success\":false,\"error\":\"%s\"}",
            err_code != NULL ? err_code : "unknown");
-  httpd_resp_set_status(req, status);
-  httpd_resp_send(req, out, -1);
+  cmd_wire_http_send(req, status, out, body, false, NULL);
   return ESP_OK;
 }
 
@@ -166,19 +172,19 @@ esp_err_t web_server_draw_dispatch(const char **out_error) {
     }
     return ESP_FAIL;
   }
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_DRAW;
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_AGREE_DRAW;
+  if (!game_submit(&cmd)) {
     if (out_error != NULL) {
-      *out_error = "queue_failed";
+      *out_error = "busy";
     }
-    return ESP_FAIL;
+    return ESP_ERR_TIMEOUT;
   }
   ESP_LOGI(TAG, "draw: queued");
   return ESP_OK;
 }
 
-esp_err_t http_post_game_draw_handler(httpd_req_t *req) {
+esp_err_t web_post_game_draw_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/draw");
   const char *err_code = NULL;
   esp_err_t err = web_server_draw_dispatch(&err_code);

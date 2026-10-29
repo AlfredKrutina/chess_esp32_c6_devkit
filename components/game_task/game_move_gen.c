@@ -3,8 +3,12 @@
  * @brief Legal move generation, attack detection, move simulation.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "position.h"
 #include "game_board_core.h"
 #include "game_move_validate.h"
 
@@ -15,8 +19,11 @@
 
 static const char *TAG = "GAME_MOVE_GEN";
 
-const int8_t knight_moves[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
+static const int8_t s_knight_moves[8][2] = {{-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
                                    {1, -2},  {1, 2},  {2, -1},  {2, 1}};
+
+const int8_t (*game_state_knight_moves(void))[2] { return s_knight_moves; }
+#define knight_moves (game_state_knight_moves())
 
 static const int8_t king_moves[8][2] = {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1},
                                         {0, 1},   {1, -1}, {1, 0},  {1, 1}};
@@ -25,39 +32,8 @@ static const int8_t bishop_dirs[4][2] = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
 
 static const int8_t rook_dirs[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 
-static piece_t game_sim_piece_after_promotion(piece_t pawn,
-                                              promotion_choice_t choice) {
-  if (pawn == PIECE_WHITE_PAWN) {
-    switch (choice) {
-    case PROMOTION_ROOK:
-      return PIECE_WHITE_ROOK;
-    case PROMOTION_BISHOP:
-      return PIECE_WHITE_BISHOP;
-    case PROMOTION_KNIGHT:
-      return PIECE_WHITE_KNIGHT;
-    case PROMOTION_QUEEN:
-    default:
-      return PIECE_WHITE_QUEEN;
-    }
-  }
-  if (pawn == PIECE_BLACK_PAWN) {
-    switch (choice) {
-    case PROMOTION_ROOK:
-      return PIECE_BLACK_ROOK;
-    case PROMOTION_BISHOP:
-      return PIECE_BLACK_BISHOP;
-    case PROMOTION_KNIGHT:
-      return PIECE_BLACK_KNIGHT;
-    case PROMOTION_QUEEN:
-    default:
-      return PIECE_BLACK_QUEEN;
-    }
-  }
-  return pawn;
-}
-
-chess_move_extended_t legal_moves_buffer[128];
-uint32_t legal_moves_count = 0;
+static chess_move_extended_t legal_moves_buffer[128];
+static uint32_t legal_moves_count = 0;
 
 // ============================================================================
 // BASIC UTILITY FUNCTIONS
@@ -95,10 +71,10 @@ bool game_is_square_attacked(uint8_t row, uint8_t col, player_t by_player) {
       (by_player == PLAYER_WHITE) ? PIECE_WHITE_PAWN : PIECE_BLACK_PAWN;
 
   if (game_is_valid_square(pawn_row, col - 1) &&
-      board[pawn_row][col - 1] == attacking_pawn)
+      game_get_piece(pawn_row, col - 1) == attacking_pawn)
     return true;
   if (game_is_valid_square(pawn_row, col + 1) &&
-      board[pawn_row][col + 1] == attacking_pawn)
+      game_get_piece(pawn_row, col + 1) == attacking_pawn)
     return true;
 
   // Check knight attacks
@@ -107,7 +83,7 @@ bool game_is_square_attacked(uint8_t row, uint8_t col, player_t by_player) {
   for (int i = 0; i < 8; i++) {
     int nr = row + knight_moves[i][0];
     int nc = col + knight_moves[i][1];
-    if (game_is_valid_square(nr, nc) && board[nr][nc] == attacking_knight) {
+    if (game_is_valid_square(nr, nc) && game_get_piece(nr, nc) == attacking_knight) {
       return true;
     }
   }
@@ -124,7 +100,7 @@ bool game_is_square_attacked(uint8_t row, uint8_t col, player_t by_player) {
 
     for (int nr = row + dr, nc = col + dc; game_is_valid_square(nr, nc);
          nr += dr, nc += dc) {
-      piece_t piece = board[nr][nc];
+      piece_t piece = game_get_piece(nr, nc);
       if (piece == PIECE_EMPTY)
         continue;
 
@@ -145,7 +121,7 @@ bool game_is_square_attacked(uint8_t row, uint8_t col, player_t by_player) {
 
     for (int nr = row + dr, nc = col + dc; game_is_valid_square(nr, nc);
          nr += dr, nc += dc) {
-      piece_t piece = board[nr][nc];
+      piece_t piece = game_get_piece(nr, nc);
       if (piece == PIECE_EMPTY)
         continue;
 
@@ -162,7 +138,7 @@ bool game_is_square_attacked(uint8_t row, uint8_t col, player_t by_player) {
   for (int i = 0; i < 8; i++) {
     int nr = row + king_moves[i][0];
     int nc = col + king_moves[i][1];
-    if (game_is_valid_square(nr, nc) && board[nr][nc] == attacking_king) {
+    if (game_is_valid_square(nr, nc) && game_get_piece(nr, nc) == attacking_king) {
       return true;
     }
   }
@@ -178,57 +154,41 @@ bool game_is_square_attacked(uint8_t row, uint8_t col, player_t by_player) {
  * @brief Simulate move and check if it leaves king in check
  */
 bool game_simulate_move_check(chess_move_extended_t *move, player_t player) {
-  // Save original state
-  piece_t original_piece = board[move->to_row][move->to_col];
-  piece_t original_en_passant = PIECE_EMPTY;
-  piece_t original_rook = PIECE_EMPTY;
-  int rook_row = move->from_row;
-  int rook_from_col = -1;
-  int rook_to_col = -1;
+  position_t *scratch = game_logic_scratch_position();
+  position_move_t mv;
 
-  // Handle en passant capture
-  if (move->move_type == MOVE_TYPE_EN_PASSANT) {
-    original_en_passant = board[en_passant_victim_row][en_passant_victim_col];
-    board[en_passant_victim_row][en_passant_victim_col] = PIECE_EMPTY;
+  (void)player;
+  if (move == NULL || scratch == NULL) {
+    return false;
   }
-
-  if (move->move_type == MOVE_TYPE_CASTLE_KING ||
-      move->move_type == MOVE_TYPE_CASTLE_QUEEN) {
-    bool kingside = (move->move_type == MOVE_TYPE_CASTLE_KING);
-    rook_from_col = kingside ? 7 : 0;
-    rook_to_col = kingside ? 5 : 3;
-    original_rook = board[rook_row][rook_from_col];
-    board[rook_row][rook_from_col] = PIECE_EMPTY;
-    board[rook_row][rook_to_col] = original_rook;
+  game_logic_copy_globals(scratch);
+  if (scratch->board[move->from_row][move->from_col] == POS_EMPTY &&
+      move->piece != PIECE_EMPTY) {
+    scratch->board[move->from_row][move->from_col] = (uint8_t)move->piece;
   }
-
-  piece_t placed = move->piece;
+  mv.from = (uint8_t)(move->from_row * 8u + move->from_col);
+  mv.to = (uint8_t)(move->to_row * 8u + move->to_col);
+  mv.promo = POS_PROMO_NONE;
   if (move->move_type == MOVE_TYPE_PROMOTION) {
-    placed = game_sim_piece_after_promotion(move->piece, move->promotion_piece);
+    switch (move->promotion_piece) {
+    case PROMOTION_ROOK:
+      mv.promo = POS_PROMO_R;
+      break;
+    case PROMOTION_BISHOP:
+      mv.promo = POS_PROMO_B;
+      break;
+    case PROMOTION_KNIGHT:
+      mv.promo = POS_PROMO_N;
+      break;
+    default:
+      mv.promo = POS_PROMO_Q;
+      break;
+    }
+  } else if ((move->piece == PIECE_WHITE_PAWN && move->to_row == 7) ||
+             (move->piece == PIECE_BLACK_PAWN && move->to_row == 0)) {
+    mv.promo = POS_PROMO_Q;
   }
-
-  // Make the move
-  board[move->to_row][move->to_col] = placed;
-  board[move->from_row][move->from_col] = PIECE_EMPTY;
-
-  // Check if king is in check after this move
-  bool king_in_check = game_is_king_in_check(player);
-
-  // Restore original state
-  board[move->from_row][move->from_col] = move->piece;
-  board[move->to_row][move->to_col] = original_piece;
-
-  if (move->move_type == MOVE_TYPE_EN_PASSANT) {
-    board[en_passant_victim_row][en_passant_victim_col] = original_en_passant;
-  }
-
-  if (rook_from_col >= 0) {
-    board[rook_row][rook_to_col] = PIECE_EMPTY;
-    board[rook_row][rook_from_col] = original_rook;
-  }
-
-  return !king_in_check; // Return true if move is legal (doesn't leave king
-                         // in check)
+  return position_apply(scratch, mv);
 }
 
 // ============================================================================
@@ -240,7 +200,7 @@ bool game_simulate_move_check(chess_move_extended_t *move, player_t player) {
  */
 void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col,
                               player_t player) {
-  piece_t pawn = board[from_row][from_col];
+  piece_t pawn = game_get_piece(from_row, from_col);
   bool is_white = (player == PLAYER_WHITE);
   int direction = is_white ? 1 : -1;
   int start_row = is_white ? 1 : 6;
@@ -249,7 +209,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col,
   // Forward move
   int to_row = from_row + direction;
   if (game_is_valid_square(to_row, from_col) &&
-      board[to_row][from_col] == PIECE_EMPTY) {
+      game_get_piece(to_row, from_col) == PIECE_EMPTY) {
 
     if (to_row == promotion_row) {
       // Promotion moves
@@ -291,7 +251,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col,
 
       // Double move from starting position
       if (from_row == start_row &&
-          board[to_row + direction][from_col] == PIECE_EMPTY) {
+          game_get_piece(to_row + direction, from_col) == PIECE_EMPTY) {
         if (legal_moves_count >= 128)
           return;
 
@@ -315,7 +275,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col,
   for (int dc = -1; dc <= 1; dc += 2) {
     int to_col = from_col + dc;
     if (game_is_valid_square(to_row, to_col)) {
-      piece_t target = board[to_row][to_col];
+      piece_t target = game_get_piece(to_row, to_col);
 
       if (game_is_enemy_piece(target, player)) {
         if (to_row == promotion_row) {
@@ -376,7 +336,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col,
         move->to_col = en_passant_target_col;
         move->piece = pawn;
         move->captured_piece =
-            board[en_passant_victim_row][en_passant_victim_col];
+            game_get_piece(en_passant_victim_row, en_passant_victim_col);
         move->move_type = MOVE_TYPE_EN_PASSANT;
 
         if (game_simulate_move_check(move, player)) {
@@ -392,7 +352,7 @@ void game_generate_pawn_moves(uint8_t from_row, uint8_t from_col,
  */
 void game_generate_knight_moves(uint8_t from_row, uint8_t from_col,
                                 player_t player) {
-  piece_t knight = board[from_row][from_col];
+  piece_t knight = game_get_piece(from_row, from_col);
 
   for (int i = 0; i < 8; i++) {
     int to_row = from_row + knight_moves[i][0];
@@ -401,7 +361,7 @@ void game_generate_knight_moves(uint8_t from_row, uint8_t from_col,
     if (!game_is_valid_square(to_row, to_col))
       continue;
 
-    piece_t target = board[to_row][to_col];
+    piece_t target = game_get_piece(to_row, to_col);
 
     // Skip if occupied by own piece
     if (game_is_own_piece(target, player))
@@ -432,7 +392,7 @@ void game_generate_knight_moves(uint8_t from_row, uint8_t from_col,
 void game_generate_sliding_moves(uint8_t from_row, uint8_t from_col,
                                  player_t player, const int8_t directions[][2],
                                  int num_directions) {
-  piece_t piece = board[from_row][from_col];
+  piece_t piece = game_get_piece(from_row, from_col);
 
   for (int d = 0; d < num_directions; d++) {
     int dr = directions[d][0];
@@ -441,7 +401,7 @@ void game_generate_sliding_moves(uint8_t from_row, uint8_t from_col,
     for (int to_row = from_row + dr, to_col = from_col + dc;
          game_is_valid_square(to_row, to_col); to_row += dr, to_col += dc) {
 
-      piece_t target = board[to_row][to_col];
+      piece_t target = game_get_piece(to_row, to_col);
 
       // Can't move to square occupied by own piece
       if (game_is_own_piece(target, player))
@@ -476,7 +436,7 @@ void game_generate_sliding_moves(uint8_t from_row, uint8_t from_col,
  */
 void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
                               player_t player) {
-  piece_t king = board[from_row][from_col];
+  piece_t king = game_get_piece(from_row, from_col);
 
   // Normal king moves
   for (int i = 0; i < 8; i++) {
@@ -486,7 +446,7 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
     if (!game_is_valid_square(to_row, to_col))
       continue;
 
-    piece_t target = board[to_row][to_col];
+    piece_t target = game_get_piece(to_row, to_col);
 
     // Skip if occupied by own piece
     if (game_is_own_piece(target, player))
@@ -516,8 +476,8 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
 
   if (player == PLAYER_WHITE && !white_king_moved) {
     // White kingside castling
-    if (!white_rook_h_moved && board[0][7] == PIECE_WHITE_ROOK &&
-        board[0][5] == PIECE_EMPTY && board[0][6] == PIECE_EMPTY &&
+    if (!white_rook_h_moved && game_get_piece(0, 7) == PIECE_WHITE_ROOK &&
+        game_get_piece(0, 5) == PIECE_EMPTY && game_get_piece(0, 6) == PIECE_EMPTY &&
         !game_is_square_attacked(0, 5, PLAYER_BLACK) &&
         !game_is_square_attacked(0, 6, PLAYER_BLACK)) {
 
@@ -538,9 +498,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
     }
 
     // White queenside castling
-    if (!white_rook_a_moved && board[0][0] == PIECE_WHITE_ROOK &&
-        board[0][1] == PIECE_EMPTY && board[0][2] == PIECE_EMPTY &&
-        board[0][3] == PIECE_EMPTY &&
+    if (!white_rook_a_moved && game_get_piece(0, 0) == PIECE_WHITE_ROOK &&
+        game_get_piece(0, 1) == PIECE_EMPTY && game_get_piece(0, 2) == PIECE_EMPTY &&
+        game_get_piece(0, 3) == PIECE_EMPTY &&
         !game_is_square_attacked(0, 2, PLAYER_BLACK) &&
         !game_is_square_attacked(0, 3, PLAYER_BLACK)) {
 
@@ -563,8 +523,8 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
 
   if (player == PLAYER_BLACK && !black_king_moved) {
     // Black kingside castling
-    if (!black_rook_h_moved && board[7][7] == PIECE_BLACK_ROOK &&
-        board[7][5] == PIECE_EMPTY && board[7][6] == PIECE_EMPTY &&
+    if (!black_rook_h_moved && game_get_piece(7, 7) == PIECE_BLACK_ROOK &&
+        game_get_piece(7, 5) == PIECE_EMPTY && game_get_piece(7, 6) == PIECE_EMPTY &&
         !game_is_square_attacked(7, 5, PLAYER_WHITE) &&
         !game_is_square_attacked(7, 6, PLAYER_WHITE)) {
 
@@ -585,9 +545,9 @@ void game_generate_king_moves(uint8_t from_row, uint8_t from_col,
     }
 
     // Black queenside castling
-    if (!black_rook_a_moved && board[7][0] == PIECE_BLACK_ROOK &&
-        board[7][1] == PIECE_EMPTY && board[7][2] == PIECE_EMPTY &&
-        board[7][3] == PIECE_EMPTY &&
+    if (!black_rook_a_moved && game_get_piece(7, 0) == PIECE_BLACK_ROOK &&
+        game_get_piece(7, 1) == PIECE_EMPTY && game_get_piece(7, 2) == PIECE_EMPTY &&
+        game_get_piece(7, 3) == PIECE_EMPTY &&
         !game_is_square_attacked(7, 2, PLAYER_WHITE) &&
         !game_is_square_attacked(7, 3, PLAYER_WHITE)) {
 
@@ -621,7 +581,7 @@ uint32_t game_generate_legal_moves(player_t player) {
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
 
       if (!game_is_own_piece(piece, player))
         continue;
@@ -682,7 +642,7 @@ move_error_t game_validate_move_enhanced(uint8_t from_row, uint8_t from_col,
   }
 
   // Check if there's a piece at source
-  piece_t piece = board[from_row][from_col];
+  piece_t piece = game_get_piece(from_row, from_col);
   if (piece == PIECE_EMPTY) {
     return MOVE_ERROR_NO_PIECE;
   }

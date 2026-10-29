@@ -11,7 +11,11 @@
 
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
 #include "game_hall_match.h"
-#include "game_task_internal.h"
+#include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "../squares_task/include/squares_task.h"
 #endif
 
@@ -123,7 +127,7 @@ static int hall_count_play(piece_t piece) {
     if (held_origin[sq]) {
       continue;
     }
-    if (board[sq / 8][sq % 8] == piece) {
+    if (game_get_piece(sq / 8, sq % 8) == piece) {
       n++;
     }
   }
@@ -208,7 +212,7 @@ static bool hall_legal_landing(piece_t piece, uint8_t from_row, uint8_t from_col
                        .to_row = to_row,
                        .to_col = to_col,
                        .piece = piece,
-                       .captured_piece = board[to_row][to_col]};
+                       .captured_piece = game_get_piece(to_row, to_col)};
   return game_is_valid_move(&move) == MOVE_ERROR_NONE;
 }
 

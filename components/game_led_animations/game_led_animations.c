@@ -19,7 +19,7 @@
  */
 
 #include "game_led_animations.h"
-#include "../../game_task/include/game_task.h" // Needed for game_get_piece
+#include "../../game_task/include/game_task.h" // game_session_snap_piece
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
@@ -182,7 +182,7 @@ static void endgame_animation_victory_wave(uint32_t frame) {
         // Get piece at this position
         uint8_t r, c;
         led_index_to_chess_pos(led, &r, &c);
-        piece_t piece = game_get_piece(r, c);
+        piece_t piece = game_session_snap_piece(r, c);
 
         // Determine if it's an enemy piece
         bool is_enemy = false;
@@ -190,7 +190,7 @@ static void endgame_animation_victory_wave(uint32_t frame) {
           // Get winner color from the king at center_pos
           uint8_t king_r, king_c;
           led_index_to_chess_pos(wave_state.center_pos, &king_r, &king_c);
-          piece_t winner_king = game_get_piece(king_r, king_c);
+          piece_t winner_king = game_session_snap_piece(king_r, king_c);
           bool winner_is_white = game_is_white_piece(winner_king);
 
           // Compare with current piece

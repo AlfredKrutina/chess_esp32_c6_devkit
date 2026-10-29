@@ -47,19 +47,43 @@
 #include "mqtt_client.h"
 #include "nvs.h"
 #include "nvs_flash.h"
+#include "sdkconfig.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
 static const char *TAG = "HA_LIGHT_TASK";
 
-/** The client takes ~10 KB (task stack + buffers). Start only if Wi-Fi still
- * keeps headroom for RX/TX bursts afterwards ("m f null" = Wi-Fi malloc fail). */
-#define HA_MQTT_MIN_FREE_HEAP_BYTES (32 * 1024)
-/** Drop the client before the Wi-Fi task starts failing malloc. */
-#define HA_MQTT_STOP_HEAP_BYTES (16 * 1024)
+/** esp-mqtt uses this when task.stack_size is 0. Custom menuconfig is off,
+ * so mqtt_config.h falls back to 6144. xTaskCreate needs one internal block
+ * of that size. In buffer is 512, out buffer is HA_MQTT_PAYLOAD_MAX.
+ * URI is mqtt:// so mbedtls content buffers are not taken
+ * (CONFIG_MBEDTLS_SSL_IN_CONTENT_LEN is 16384 and does not fit a 14 KiB block).
+ * tcp_snd is the sdkconfig send-buffer cap the broker socket grows toward. */
+#if CONFIG_MQTT_TASK_STACK_SIZE
+#define HA_MQTT_TASK_STACK_BYTES CONFIG_MQTT_TASK_STACK_SIZE
+#else
+#define HA_MQTT_TASK_STACK_BYTES (6 * 1024)
+#endif
+#define HA_MQTT_IN_BYTES 512
+/* HA_MQTT_PAYLOAD_MAX is the out buffer; defined just below. */
+#define HA_MQTT_OUT_BYTES 768
+#define HA_MQTT_TCP_SND_BYTES CONFIG_LWIP_TCP_SND_BUF_DEFAULT
+#define HA_MQTT_CLIENT_OVERHEAD_BYTES 2048
+#define HA_MQTT_NEED_BYTES                                                     \
+  ((size_t)HA_MQTT_TASK_STACK_BYTES + (size_t)HA_MQTT_IN_BYTES +              \
+   (size_t)HA_MQTT_OUT_BYTES + (size_t)HA_MQTT_TCP_SND_BYTES +                \
+   (size_t)HA_MQTT_CLIENT_OVERHEAD_BYTES)
+/** Biggest single internal alloc is the task stack, not the TCP cap. */
+#define HA_MQTT_BIGGEST_BLOCK_BYTES ((size_t)HA_MQTT_TASK_STACK_BYTES)
+/** Heap must stay above the start gate this long before a start. */
+#define HA_MQTT_CALM_MS 8000u
+/** Release the client as soon as WiFi/lwIP lose their floor. */
+#define HA_MQTT_STOP_HEAP_BYTES CHESS_WIFI_HEAP_FLOOR_BYTES
 /* One reused payload. The client copies it before publish returns. */
 #define HA_MQTT_PAYLOAD_MAX 768
+_Static_assert(HA_MQTT_OUT_BYTES == HA_MQTT_PAYLOAD_MAX,
+               "MQTT out buffer and payload slot must match");
 static char s_mqtt_payload[HA_MQTT_PAYLOAD_MAX];
 
 // ============================================================================
@@ -192,9 +216,7 @@ static bool ha_game_publish_state(void);
 static void lamp_nvs_load(void);
 static void lamp_nvs_save(void);
 static void lamp_nvs_save_mode(void);
-static void ha_pattern_paint_all(void);
-static void ha_pattern_nvs_load(void);
-static volatile bool s_pat_on;
+static void ha_pattern_nvs_erase_once(void);
 
 // ============================================================================
 // WDT HELPER FUNCTIONS
@@ -337,12 +359,9 @@ static void ha_light_switch_to_ha_mode(void) {
 
   remember_lit_color(r, g, b, brightness);
 
-  /* A drawing owns the squares. A solid lamp color is everything else.
-   * Light off releases the board: a lift then continues the game, or the
+  /* Light off releases the board: a lift then continues the game, or the
    * starting-position piece colors come back. */
-  if (s_pat_on) {
-    ha_pattern_paint_all();
-  } else if (state) {
+  if (state) {
     led_set_ha_color(r, g, b, brightness);
   } else {
     led_set_ha_color(0, 0, 0, 0);
@@ -1063,7 +1082,8 @@ static void ha_discovery_pump(void) {
   if (step < 0 || !mqtt_connected || mqtt_client == NULL) {
     return;
   }
-  if (esp_get_free_heap_size() < HA_MQTT_MIN_FREE_HEAP_BYTES) {
+  /* Skip publishes once free heap is under the WiFi floor. */
+  if (esp_get_free_heap_size() < HA_MQTT_STOP_HEAP_BYTES) {
     return;
   }
   static int64_t s_disc_next_us;
@@ -1138,6 +1158,67 @@ static void mqtt_ensure_config_loaded(void) {
   }
 }
 
+static bool s_mqtt_hold_logged;
+static uint32_t s_mqtt_gate_since_ms;
+
+static void ha_mqtt_read_mem(size_t *free_b, size_t *largest) {
+  *free_b = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+  *largest =
+      heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+}
+
+static bool ha_mqtt_start_ok(size_t free_b, size_t largest) {
+  return free_b >= (HA_MQTT_NEED_BYTES + (size_t)CHESS_WIFI_HEAP_FLOOR_BYTES) &&
+         largest >= (HA_MQTT_BIGGEST_BLOCK_BYTES +
+                     (size_t)CHESS_WIFI_LARGEST_FLOOR_BYTES);
+}
+
+static void ha_mqtt_log_hold(size_t free_b, size_t largest) {
+  if (s_mqtt_hold_logged) {
+    return;
+  }
+  s_mqtt_hold_logged = true;
+  ESP_LOGW(TAG,
+           "MQTT held: free %u B, largest %u B, mqtt need %u B "
+           "(stack %d + in %d + out %d + tcp_snd %d + ovh %d, tls 0 mqtt://), "
+           "floor %d B, need free >= %u B and largest >= %u B",
+           (unsigned)free_b, (unsigned)largest, (unsigned)HA_MQTT_NEED_BYTES,
+           HA_MQTT_TASK_STACK_BYTES, HA_MQTT_IN_BYTES, HA_MQTT_OUT_BYTES,
+           HA_MQTT_TCP_SND_BYTES, HA_MQTT_CLIENT_OVERHEAD_BYTES,
+           CHESS_WIFI_HEAP_FLOOR_BYTES,
+           (unsigned)(HA_MQTT_NEED_BYTES + (size_t)CHESS_WIFI_HEAP_FLOOR_BYTES),
+           (unsigned)(HA_MQTT_BIGGEST_BLOCK_BYTES +
+                      (size_t)CHESS_WIFI_LARGEST_FLOOR_BYTES));
+}
+
+static void ha_mqtt_release_client(size_t free_b, size_t largest) {
+  ESP_LOGW(TAG,
+           "MQTT stop: free %u B largest %u B crossed WiFi floor "
+           "(free < %d or largest < %d)",
+           (unsigned)free_b, (unsigned)largest, CHESS_WIFI_HEAP_FLOOR_BYTES,
+           CHESS_WIFI_LARGEST_FLOOR_BYTES);
+  esp_mqtt_client_stop(mqtt_client);
+  esp_mqtt_client_destroy(mqtt_client);
+  mqtt_client = NULL;
+  mqtt_connected = false;
+  s_mqtt_down = false;
+  s_mqtt_gate_since_ms = 0;
+  s_mqtt_hold_logged = false;
+}
+
+static void ha_mqtt_stop_if_low(void) {
+  if (mqtt_client == NULL) {
+    return;
+  }
+  size_t free_b = 0;
+  size_t largest = 0;
+  ha_mqtt_read_mem(&free_b, &largest);
+  if (free_b < (size_t)CHESS_WIFI_HEAP_FLOOR_BYTES ||
+      largest < (size_t)CHESS_WIFI_LARGEST_FLOOR_BYTES) {
+    ha_mqtt_release_client(free_b, largest);
+  }
+}
+
 /**
  * @brief Initializes the MQTT client
  *
@@ -1150,11 +1231,11 @@ static esp_err_t ha_light_init_mqtt(void) {
     return ESP_OK;
   }
 
-  size_t free_heap = esp_get_free_heap_size();
-  if (free_heap < HA_MQTT_MIN_FREE_HEAP_BYTES) {
-    ESP_LOGW(TAG,
-             "MQTT deferred: free heap %zu B < %d B (need RAM for mqtt task)",
-             free_heap, HA_MQTT_MIN_FREE_HEAP_BYTES);
+  size_t free_heap = 0;
+  size_t largest = 0;
+  ha_mqtt_read_mem(&free_heap, &largest);
+  if (!ha_mqtt_start_ok(free_heap, largest)) {
+    ha_mqtt_log_hold(free_heap, largest);
     return ESP_ERR_NO_MEM;
   }
 
@@ -1191,9 +1272,10 @@ static esp_err_t ha_light_init_mqtt(void) {
       .session.keepalive = 120, // Increase keepalive to 120s for stability
       .network.timeout_ms = 4000,
       .network.disable_auto_reconnect = false,
+      .task.stack_size = HA_MQTT_TASK_STACK_BYTES,
       /* Incoming commands are small. Outgoing discovery fits in 768. */
-      .buffer.size = 512,
-      .buffer.out_size = HA_MQTT_PAYLOAD_MAX,
+      .buffer.size = HA_MQTT_IN_BYTES,
+      .buffer.out_size = HA_MQTT_OUT_BYTES,
   };
 
   mqtt_client = esp_mqtt_client_init(&mqtt_cfg);
@@ -1214,156 +1296,51 @@ static esp_err_t ha_light_init_mqtt(void) {
   }
 
   ESP_LOGI(TAG, "MQTT client initialized and started");
+  s_mqtt_hold_logged = false;
+  s_mqtt_gate_since_ms = 0;
   return ESP_OK;
+}
+
+static void ha_mqtt_consider_start(uint32_t now_ms) {
+  if (mqtt_client != NULL) {
+    return;
+  }
+  size_t free_b = 0;
+  size_t largest = 0;
+  ha_mqtt_read_mem(&free_b, &largest);
+  if (!ha_mqtt_start_ok(free_b, largest)) {
+    s_mqtt_gate_since_ms = 0;
+    ha_mqtt_log_hold(free_b, largest);
+    return;
+  }
+  if (s_mqtt_gate_since_ms == 0) {
+    s_mqtt_gate_since_ms = now_ms;
+    return;
+  }
+  if ((now_ms - s_mqtt_gate_since_ms) < HA_MQTT_CALM_MS) {
+    return;
+  }
+  if (ha_light_init_mqtt() != ESP_OK) {
+    s_mqtt_gate_since_ms = 0;
+  }
 }
 
 // ============================================================================
 // LAMP NVS PERSISTENCE
 // ============================================================================
 
-static uint8_t s_pat_a[3] = {255, 255, 255};
-static uint8_t s_pat_b[3] = {40, 90, 255};
-static uint8_t s_pat_pen;
-static uint8_t s_pat_map[64];
-
-static void ha_pattern_nvs_save(bool colors, bool map) {
+static void ha_pattern_nvs_erase_once(void) {
   nvs_handle_t handle;
   if (nvs_open(LAMP_NVS_NAMESPACE, NVS_READWRITE, &handle) != ESP_OK) {
     return;
   }
-  if (colors) {
-    uint8_t pack[7] = {s_pat_a[0], s_pat_a[1], s_pat_a[2], s_pat_b[0],
-                       s_pat_b[1], s_pat_b[2], s_pat_pen};
-    nvs_set_blob(handle, "pat_col", pack, sizeof(pack));
+  /* Old per-square drawing. Drop it once; do not load or write it back. */
+  esp_err_t col = nvs_erase_key(handle, "pat_col");
+  esp_err_t map = nvs_erase_key(handle, "pat_map");
+  if (col == ESP_OK || map == ESP_OK) {
+    nvs_commit(handle);
   }
-  if (map) {
-    nvs_set_blob(handle, "pat_map", s_pat_map, sizeof(s_pat_map));
-  }
-  nvs_commit(handle);
   nvs_close(handle);
-}
-
-static void ha_pattern_nvs_load(void) {
-  nvs_handle_t handle;
-  if (nvs_open(LAMP_NVS_NAMESPACE, NVS_READONLY, &handle) != ESP_OK) {
-    return;
-  }
-  uint8_t pack[7];
-  size_t len = sizeof(pack);
-  if (nvs_get_blob(handle, "pat_col", pack, &len) == ESP_OK && len == sizeof(pack)) {
-    memcpy(s_pat_a, pack, 3);
-    memcpy(s_pat_b, pack + 3, 3);
-    s_pat_pen = pack[6] & 1u;
-  }
-  len = sizeof(s_pat_map);
-  nvs_get_blob(handle, "pat_map", s_pat_map, &len);
-  nvs_close(handle);
-}
-
-static void ha_pattern_paint_square(uint8_t square) {
-  if (square >= 64) {
-    return;
-  }
-  uint8_t which = s_pat_map[square];
-  uint8_t r = 0, g = 0, b = 0;
-  if (which == 1) {
-    r = s_pat_a[0];
-    g = s_pat_a[1];
-    b = s_pat_a[2];
-  } else if (which == 2) {
-    r = s_pat_b[0];
-    g = s_pat_b[1];
-    b = s_pat_b[2];
-  }
-  uint8_t cr = 0, cg = 0, cb = 0;
-  if (which != 0) {
-    led_correct_sk6812(r, g, b, 255, &cr, &cg, &cb);
-  }
-  uint8_t led = chess_pos_to_led_index(square / 8u, square % 8u);
-  led_set_pixel_rgbw(led, cr, cg, cb, 0);
-}
-
-static void ha_pattern_paint_all(void) {
-  led_set_lamp_hold(true);
-  for (uint8_t i = 0; i < 64; i++) {
-    ha_pattern_paint_square(i);
-  }
-  led_force_immediate_update();
-}
-
-static void ha_pattern_apply(const ha_light_command_t *cmd) {
-  if (cmd->u.pattern.clear_map) {
-    memset(s_pat_map, 0, sizeof(s_pat_map));
-    ha_pattern_nvs_save(false, true);
-  }
-  if (cmd->u.pattern.write_colors) {
-    s_pat_a[0] = cmd->u.pattern.ar;
-    s_pat_a[1] = cmd->u.pattern.ag;
-    s_pat_a[2] = cmd->u.pattern.ab;
-    s_pat_b[0] = cmd->u.pattern.br;
-    s_pat_b[1] = cmd->u.pattern.bg;
-    s_pat_b[2] = cmd->u.pattern.bb;
-    s_pat_pen = cmd->u.pattern.pen & 1u;
-    ha_pattern_nvs_save(true, false);
-  }
-  if (cmd->u.pattern.action == HA_PAT_STAMP) {
-    if (!s_pat_on || cmd->u.pattern.square >= 64) {
-      return;
-    }
-    s_pat_map[cmd->u.pattern.square] = (uint8_t)(s_pat_pen ? 2 : 1);
-    ha_pattern_paint_square(cmd->u.pattern.square);
-    led_force_immediate_update();
-    ha_pattern_nvs_save(false, true);
-    return;
-  }
-  if (cmd->u.pattern.action == HA_PAT_OFF) {
-    s_pat_on = false;
-    return;
-  }
-  if (cmd->u.pattern.action == HA_PAT_CLEAR) {
-    if (s_pat_on) {
-      ha_pattern_paint_all();
-    }
-    return;
-  }
-  if (cmd->u.pattern.action == HA_PAT_COLORS) {
-    if (s_pat_on) {
-      ha_pattern_paint_all();
-    }
-    return;
-  }
-  if (cmd->u.pattern.action == HA_PAT_ON) {
-    s_pat_on = true;
-    if (current_mode != HA_MODE_HA) {
-      game_gesture_request_lamp_wave();
-    } else {
-      ha_pattern_paint_all();
-    }
-  }
-}
-
-bool ha_pattern_is_active(void) { return s_pat_on; }
-
-bool ha_pattern_request(uint8_t action, uint8_t square, uint8_t pen, uint8_t ar,
-                        uint8_t ag, uint8_t ab, uint8_t br, uint8_t bg,
-                        uint8_t bb, uint8_t write_colors, uint8_t clear_map) {
-  if (!task_running || ha_light_cmd_queue == NULL) {
-    return false;
-  }
-  ha_light_command_t cmd = {0};
-  cmd.type = HA_CMD_PATTERN;
-  cmd.u.pattern.action = action;
-  cmd.u.pattern.square = square;
-  cmd.u.pattern.pen = pen;
-  cmd.u.pattern.ar = ar;
-  cmd.u.pattern.ag = ag;
-  cmd.u.pattern.ab = ab;
-  cmd.u.pattern.br = br;
-  cmd.u.pattern.bg = bg;
-  cmd.u.pattern.bb = bb;
-  cmd.u.pattern.write_colors = write_colors;
-  cmd.u.pattern.clear_map = clear_map;
-  return xQueueSend(ha_light_cmd_queue, &cmd, 0) == pdTRUE;
 }
 
 static void lamp_nvs_load(void) {
@@ -1392,7 +1369,7 @@ static void lamp_nvs_load(void) {
     s_nvs_mode_found = true;
   }
   nvs_close(handle);
-  ha_pattern_nvs_load();
+  ha_pattern_nvs_erase_once();
 
   if (ha_light_state_mutex != NULL &&
       xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
@@ -1630,6 +1607,8 @@ esp_err_t ha_light_reinit_mqtt(void) {
 
   // Reset config loaded flag to force reload from NVS
   mqtt_config.loaded = false;
+  s_mqtt_hold_logged = false;
+  s_mqtt_gate_since_ms = 0;
 
   // Initialize new MQTT client with updated config
   esp_err_t ret = ha_light_init_mqtt();
@@ -1710,7 +1689,6 @@ void ha_light_task_start(void *pvParameters) {
     if (ha_light_cmd_queue &&
         xQueueReceive(ha_light_cmd_queue, &cmd, pdMS_TO_TICKS(100)) == pdTRUE) {
       if (cmd.type == HA_CMD_WEB_LAMP) {
-        s_pat_on = false;
         if (ha_light_state_mutex != NULL &&
             xSemaphoreTake(ha_light_state_mutex, pdMS_TO_TICKS(100)) ==
                 pdTRUE) {
@@ -1729,10 +1707,7 @@ void ha_light_task_start(void *pvParameters) {
         }
         lamp_nvs_save();
         ha_light_switch_to_ha_mode();
-      } else if (cmd.type == HA_CMD_PATTERN) {
-        ha_pattern_apply(&cmd);
       } else if (cmd.type == HA_CMD_MQTT_STATE) {
-        s_pat_on = false;
         bool was_on = ha_light_state.state;
         bool now_on_cmd = (cmd.u.web_lamp.state != 0);
         /* Capture the lit color before state becomes off, so the shrink wave
@@ -1855,6 +1830,11 @@ void ha_light_task_start(void *pvParameters) {
     static uint32_t last_wifi_check = 0;
     static uint32_t last_mqtt_retry_ms = 0;
     uint32_t current_time_ms = esp_timer_get_time() / 1000;
+    /* Stop within one loop (~100 ms). Start only after the gate holds. */
+    ha_mqtt_stop_if_low();
+    if (sta_connected && mqtt_client == NULL) {
+      ha_mqtt_consider_start(current_time_ms);
+    }
     if (current_time_ms - last_wifi_check >= 5000) {
       static uint32_t last_heap_log_ms;
       if (current_time_ms - last_heap_log_ms >= 10000) {
@@ -1862,7 +1842,7 @@ void ha_light_task_start(void *pvParameters) {
         size_t free_b = esp_get_free_heap_size();
         size_t largest = heap_caps_get_largest_free_block(MALLOC_CAP_8BIT);
         size_t least = esp_get_minimum_free_heap_size();
-        if (free_b < 16384) {
+        if (free_b < (size_t)CHESS_WIFI_HEAP_FLOOR_BYTES) {
           ESP_LOGW(TAG, "heap free=%u largest=%u min=%u", (unsigned)free_b,
                    (unsigned)largest, (unsigned)least);
         } else {
@@ -1871,43 +1851,22 @@ void ha_light_task_start(void *pvParameters) {
         }
       }
       bool wifi_connected = ha_light_check_wifi_sta_connected();
-      if (wifi_connected && sta_connected && mqtt_client != NULL) {
-        size_t fh = esp_get_free_heap_size();
-        if (fh < HA_MQTT_STOP_HEAP_BYTES) {
-          ESP_LOGW(TAG,
-                   "[STAGING] MQTT stop: critical heap %zu B (<%d B) — release "
-                   "client",
-                   fh, HA_MQTT_STOP_HEAP_BYTES);
-          esp_mqtt_client_stop(mqtt_client);
-          esp_mqtt_client_destroy(mqtt_client);
-          mqtt_client = NULL;
-          mqtt_connected = false;
-        }
-      }
       if (wifi_connected && !sta_connected) {
         sta_connected = true;
-        ESP_LOGI(TAG, "WiFi STA connected - initializing MQTT");
+        ESP_LOGI(TAG, "WiFi STA connected - MQTT waits for the heap gate");
         chess_task_wdt_reset_safe(TAG);
-        ha_light_init_mqtt();
       } else if (wifi_connected && sta_connected && mqtt_client != NULL &&
                  s_mqtt_down && !mqtt_connected) {
-        if (current_time_ms - last_mqtt_retry_ms >= 15000) {
+        size_t free_b = 0;
+        size_t largest = 0;
+        ha_mqtt_read_mem(&free_b, &largest);
+        /* Another TCP buffer on top of a running client. */
+        if (ha_mqtt_start_ok(free_b, largest) &&
+            current_time_ms - last_mqtt_retry_ms >= 15000) {
           last_mqtt_retry_ms = current_time_ms;
           esp_err_t rr = esp_mqtt_client_reconnect(mqtt_client);
           if (rr != ESP_OK) {
             ESP_LOGW(TAG, "MQTT reconnect: %s", esp_err_to_name(rr));
-          }
-        }
-      } else if (wifi_connected && sta_connected && mqtt_client == NULL) {
-        /* Repeat after freeing the heap; with NO_MEM no more often than 1×/30 s (saves
-         *CPU and WDT) */
-        if (current_time_ms - last_mqtt_retry_ms >= 30000) {
-          last_mqtt_retry_ms = current_time_ms;
-          chess_task_wdt_reset_safe(TAG);
-          esp_err_t mr = ha_light_init_mqtt();
-          if (mr == ESP_ERR_NO_MEM) {
-            ESP_LOGW(TAG, "MQTT retry skipped/low heap: free=%zu B",
-                     (size_t)esp_get_free_heap_size());
           }
         }
       } else if (!wifi_connected && sta_connected) {

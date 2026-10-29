@@ -4,14 +4,17 @@
  */
 
 #include "web_server_task.h"
+#include "cmd_wire.h"
 #include "web_server_internal.h"
 #include "board_api_auth.h"
 #include "../config_manager/include/config_manager.h"
 #include "../game_task/include/game_task.h"
+#include "../freertos_chess/include/game_cmd.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
 #include "../squares_task/include/hall_i2c_squares.h"
 
+#include "cJSON.h"
 #include "esp_http_server.h"
 #include "esp_log.h"
 #include "esp_partition.h"
@@ -38,7 +41,7 @@ static const char *TAG = "WEB_SYSTEM";
  * @param req HTTP request
  * @return ESP_OK on success, error code on failure
  */
-esp_err_t http_get_web_lock_status_handler(httpd_req_t *req) {
+esp_err_t web_get_web_lock_status_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/web/lock-status");
 
   char response[128];
@@ -72,7 +75,7 @@ esp_err_t http_get_web_lock_status_handler(httpd_req_t *req) {
  * Returns JSON:
  * {"host":"...","port":1883,"username":"...","connected":true/false,"mode":"game/ha"}
  */
-esp_err_t http_get_mqtt_status_handler(httpd_req_t *req) {
+esp_err_t web_get_mqtt_status_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/mqtt/status");
 
   // Get MQTT config
@@ -138,7 +141,7 @@ esp_err_t http_get_mqtt_status_handler(httpd_req_t *req) {
  * Expects JSON: {"host":"...","port":1883,"username":"...","password":"..."}
  * Returns JSON: {"success": true/false, "message": "..."}
  */
-esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
+esp_err_t web_post_mqtt_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/mqtt/config");
 
   // Kontrola web lock
@@ -301,19 +304,30 @@ esp_err_t http_post_mqtt_config_handler(httpd_req_t *req) {
 // SETTINGS API HANDLERS
 // ============================================================================
 
-esp_err_t http_post_settings_hall_rest_handler(httpd_req_t *req) {
+esp_err_t web_post_settings_hall_rest_handler(httpd_req_t *req) {
+  char body[128];
   if (web_is_locked()) {
     httpd_resp_set_status(req, "403 Forbidden");
     httpd_resp_send(req, "{\"success\":false,\"message\":\"Web locked\"}", -1);
     return ESP_OK;
   }
+  body[0] = '\0';
+  if (req->content_len > 0) {
+    int n = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+    if (n > 0) {
+      body[n] = '\0';
+    }
+  }
+  if (cmd_wire_http_guard(req, body, "hall_rest")) {
+    return ESP_OK;
+  }
   hall_i2c_squares_request_rest_measure();
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", body, true,
+                     "hall_rest");
   return ESP_OK;
 }
 
-esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
+esp_err_t web_post_settings_brightness_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/brightness");
 
   if (web_is_locked()) {
@@ -322,7 +336,7 @@ esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  char content[100];
+  char content[160];
   int ret = httpd_req_recv(req, content, sizeof(content) - 1);
   if (ret <= 0) {
     httpd_resp_set_status(req, "400 Bad Request");
@@ -330,12 +344,21 @@ esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
   content[ret] = '\0';
+  if (cmd_wire_http_guard(req, content, "brightness")) {
+    return ESP_OK;
+  }
 
-  // Parse "brightness"
+  // Parse "percent" (current) or "brightness" (older clients).
   int brightness_val = -1;
-  char *ptr = strstr(content, "\"brightness\":");
-  if (ptr) {
-    if (sscanf(ptr, "\"brightness\":%d", &brightness_val) == 1) {
+  char *ptr = strstr(content, "\"percent\":");
+  if (ptr == NULL || sscanf(ptr, "\"percent\":%d", &brightness_val) != 1) {
+    brightness_val = -1;
+    ptr = strstr(content, "\"brightness\":");
+    if (ptr) {
+      (void)sscanf(ptr, "\"brightness\":%d", &brightness_val);
+    }
+  }
+  if (brightness_val >= 0) {
       // Validovat
       if (brightness_val < 0)
         brightness_val = 0;
@@ -366,15 +389,14 @@ esp_err_t http_post_settings_brightness_handler(httpd_req_t *req) {
       cached_brightness = (uint8_t)brightness_val;
       cached_brightness_valid = true;
       ESP_LOGI(TAG, "Brightness updated to %d%% via Web UI", brightness_val);
-    }
   }
 
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", content, true,
+                     "brightness");
   return ESP_OK;
 }
 
-esp_err_t http_post_settings_auto_lamp_timeout_handler(httpd_req_t *req) {
+esp_err_t web_post_settings_auto_lamp_timeout_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/auto_lamp_timeout");
 
   if (web_is_locked()) {
@@ -409,7 +431,7 @@ esp_err_t http_post_settings_auto_lamp_timeout_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_post_settings_guided_hints_handler(httpd_req_t *req) {
+esp_err_t web_post_settings_guided_hints_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/guided_hints");
 
   if (web_is_locked()) {
@@ -454,7 +476,7 @@ esp_err_t http_post_settings_guided_hints_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req) {
+esp_err_t web_post_settings_led_guidance_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/led_guidance");
 
   if (web_is_locked()) {
@@ -515,7 +537,7 @@ esp_err_t http_post_settings_led_guidance_handler(httpd_req_t *req) {
  *
  * Return the status of the guard to the initial position (enabled true/false).
  */
-esp_err_t http_get_settings_start_pos_check_handler(httpd_req_t *req) {
+esp_err_t web_get_settings_start_pos_check_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/settings/start_pos_check");
 
   bool enabled = game_get_starting_position_check();
@@ -533,7 +555,7 @@ esp_err_t http_get_settings_start_pos_check_handler(httpd_req_t *req) {
  * Set the status of the guard to the initial position and save it in the NVS.
  * Points: {"enabled": true/false}
  */
-esp_err_t http_post_settings_start_pos_check_handler(httpd_req_t *req) {
+esp_err_t web_post_settings_start_pos_check_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/start_pos_check");
 
   if (web_is_locked()) {
@@ -578,17 +600,16 @@ esp_err_t http_post_settings_start_pos_check_handler(httpd_req_t *req) {
 // LIGHT API HANDLERS
 // ============================================================================
 
-esp_err_t http_post_light_command_handler(httpd_req_t *req) {
+esp_err_t web_post_light_command_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/light/command");
 
   char content[128];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
+  if (!web_recv_json_body(req, content, sizeof(content))) {
     httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "{\"success\":false,\"message\":\"No data\"}", -1);
+    httpd_resp_send(req, "{\"success\":false,\"message\":\"Incomplete light command\"}",
+                    -1);
     return ESP_OK;
   }
-  content[ret] = '\0';
 
   bool state = true;
   int r = 255, g = 255, b = 255;
@@ -622,65 +643,22 @@ esp_err_t http_post_light_command_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static int light_json_int(const char *content, const char *key, int fallback) {
-  char pat[16];
-  snprintf(pat, sizeof(pat), "\"%s\":", key);
-  const char *p = strstr(content, pat);
-  if (p == NULL) {
-    return fallback;
-  }
-  int v = fallback;
-  sscanf(p + strlen(pat), "%d", &v);
-  if (v < 0) {
-    v = 0;
-  }
-  if (v > 255) {
-    v = 255;
-  }
-  return v;
-}
-
-esp_err_t http_post_light_pattern_handler(httpd_req_t *req) {
-  char content[256];
-  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
-  if (ret <= 0) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_send(req, "{\"success\":false}", -1);
-    return ESP_OK;
-  }
-  content[ret] = '\0';
-  bool on = strstr(content, "\"on\":true") != NULL ||
-            strstr(content, "\"on\": true") != NULL;
-  bool clear_map = strstr(content, "\"clear\":true") != NULL ||
-                   strstr(content, "\"clear\": true") != NULL;
-  int pen = light_json_int(content, "pen", 0) ? 1 : 0;
-  int ar = light_json_int(content, "ar", 255);
-  int ag = light_json_int(content, "ag", 255);
-  int ab = light_json_int(content, "ab", 255);
-  int br = light_json_int(content, "br", 40);
-  int bg = light_json_int(content, "bg", 90);
-  int bb = light_json_int(content, "bb", 255);
-  uint8_t action = on ? HA_PAT_ON : HA_PAT_COLORS;
-  if (!on && clear_map) {
-    action = HA_PAT_CLEAR;
-  }
-  if (!ha_pattern_request(action, 0, (uint8_t)pen, (uint8_t)ar, (uint8_t)ag,
-                          (uint8_t)ab, (uint8_t)br, (uint8_t)bg, (uint8_t)bb, 1,
-                          clear_map ? 1 : 0)) {
-    httpd_resp_set_status(req, "503 Service Unavailable");
-    httpd_resp_send(req, "{\"success\":false}", -1);
-    return ESP_OK;
-  }
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
-  return ESP_OK;
-}
-
-esp_err_t http_post_light_game_mode_handler(httpd_req_t *req) {
+esp_err_t web_post_light_game_mode_handler(httpd_req_t *req) {
+  char body[128];
   ESP_LOGI(TAG, "POST /api/light/game_mode");
+  body[0] = '\0';
+  if (req->content_len > 0) {
+    int n = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+    if (n > 0) {
+      body[n] = '\0';
+    }
+  }
+  if (cmd_wire_http_guard(req, body, "light_game_mode")) {
+    return ESP_OK;
+  }
   ha_light_report_activity("web_game_mode");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", body, true,
+                     "light_game_mode");
   return ESP_OK;
 }
 
@@ -688,7 +666,7 @@ esp_err_t http_post_light_game_mode_handler(httpd_req_t *req) {
 // DEMO MODE API HANDLERS
 // ============================================================================
 
-esp_err_t http_post_demo_config_handler(httpd_req_t *req) {
+esp_err_t web_post_demo_config_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/demo/config");
 
   if (web_is_locked()) {
@@ -726,7 +704,7 @@ esp_err_t http_post_demo_config_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_post_demo_start_handler(httpd_req_t *req) {
+esp_err_t web_post_demo_start_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/demo/start");
 
   if (web_is_locked()) {
@@ -742,7 +720,7 @@ esp_err_t http_post_demo_start_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_get_demo_status_handler(httpd_req_t *req) {
+esp_err_t web_get_demo_status_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/demo/status");
 
   bool enabled = is_demo_mode_enabled();
@@ -812,7 +790,7 @@ esp_err_t factory_reset_schedule(void) {
 /**
  * GET /api/settings/ui — JSON preferences from NVS (or default).
  */
-esp_err_t http_get_settings_ui_handler(httpd_req_t *req) {
+esp_err_t web_get_settings_ui_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/settings/ui");
   char buf[CONFIG_UI_PREFS_MAX_BYTES + 1];
   size_t len = 0;
@@ -830,7 +808,7 @@ esp_err_t http_get_settings_ui_handler(httpd_req_t *req) {
 /**
  * POST /api/settings/ui — save web UI JSON to NVS.
  */
-esp_err_t http_post_settings_ui_handler(httpd_req_t *req) {
+esp_err_t web_post_settings_ui_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/settings/ui");
 
   if (web_is_locked()) {
@@ -883,7 +861,7 @@ esp_err_t http_post_settings_ui_handler(httpd_req_t *req) {
  * Deletes the entire NVS partition (raw erase) and restarts the MCU. Does not solve web lock — rescue
  * path The body must contain: {"confirm":"erase_all_nvs"}
  */
-esp_err_t http_post_factory_reset_handler(httpd_req_t *req) {
+esp_err_t web_post_factory_reset_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/system/factory_reset");
 
   if (board_api_auth_admin_http_denied(req)) {
@@ -929,4 +907,408 @@ esp_err_t http_post_factory_reset_handler(httpd_req_t *req) {
                   "\"rebooting\":true}",
                   -1);
   return ESP_OK;
+}
+
+esp_err_t web_post_timer_config_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/config");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer config blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  // Precist JSON data
+  char content[256];
+  int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+  if (ret <= 0) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "No data received", -1);
+    return ESP_FAIL;
+  }
+  content[ret] = '\0';
+  if (cmd_wire_http_guard(req, content, "timer_config")) {
+    return ESP_OK;
+  }
+
+  // Parse the JSON and send the command to the game task
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_TIMER_SET;
+
+  // Vylepsene JSON parsovani pouzitim sscanf pro spolehlivejsi parsovani
+  // Nejprve najit pole "type"
+  char *type_str = strstr(content, "\"type\":");
+  if (type_str == NULL) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "Missing 'type' field", -1);
+    return ESP_FAIL;
+  }
+
+  // Parsovat hodnotu type
+  int type_value;
+  if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "Invalid type value", -1);
+    return ESP_FAIL;
+  }
+
+  if (type_value < 0 || type_value > 14) {
+    httpd_resp_set_status(req, "400 Bad Request");
+    httpd_resp_send(req, "Type out of range (0-14)", -1);
+    return ESP_FAIL;
+  }
+
+  cmd.u.timer.time_control_type = (uint8_t)type_value;
+
+  // Parse custom time values ​​if type is CUSTOM
+  if (type_value == 14) { // TIME_CONTROL_CUSTOM
+    char *minutes_str = strstr(content, "\"custom_minutes\":");
+    char *increment_str = strstr(content, "\"custom_increment\":");
+
+    if (minutes_str) {
+      int minutes;
+      if (sscanf(minutes_str, "\"custom_minutes\":%d", &minutes) == 1) {
+        if (minutes >= 1 && minutes <= 180) {
+          cmd.u.timer.custom_minutes = (uint32_t)minutes;
+        } else {
+          httpd_resp_set_status(req, "400 Bad Request");
+          httpd_resp_send(req, "Minutes must be 1-180", -1);
+          return ESP_FAIL;
+        }
+      }
+    }
+
+    if (increment_str) {
+      int increment;
+      if (sscanf(increment_str, "\"custom_increment\":%d", &increment) == 1) {
+        if (increment >= 0 && increment <= 60) {
+          cmd.u.timer.custom_increment = (uint32_t)increment;
+        } else {
+          httpd_resp_set_status(req, "400 Bad Request");
+          httpd_resp_send(req, "Increment must be 0-60", -1);
+          return ESP_FAIL;
+        }
+      }
+    }
+
+    // Verify that custom values ​​have been provided
+    if (minutes_str == NULL || increment_str == NULL) {
+      httpd_resp_set_status(req, "400 Bad Request");
+      httpd_resp_send(req, "Custom time control requires minutes and increment",
+                      -1);
+      return ESP_FAIL;
+    }
+  }
+
+  // Send the command to the game task
+  if (!game_submit(&cmd)) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", content, false,
+                       NULL);
+    return ESP_OK;
+  }
+
+  cmd_wire_http_send(req, "200 OK",
+                     "{\"success\":true,\"message\":\"Time control set\"}",
+                     content, true, "timer_config");
+  return ESP_OK;
+}
+
+esp_err_t web_post_timer_pause_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/pause");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer pause blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  char body[160];
+  body[0] = '\0';
+  if (req->content_len > 0) {
+    int n = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+    if (n > 0) {
+      body[n] = '\0';
+    }
+  }
+  if (cmd_wire_http_guard(req, body, "timer_pause")) {
+    return ESP_OK;
+  }
+
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_TIMER_PAUSE;
+
+  if (!game_submit(&cmd)) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", body, false, NULL);
+    return ESP_OK;
+  }
+
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", body, true,
+                     "timer_pause");
+  return ESP_OK;
+}
+
+esp_err_t web_post_timer_resume_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/resume");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer resume blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  char body[160];
+  body[0] = '\0';
+  if (req->content_len > 0) {
+    int n = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+    if (n > 0) {
+      body[n] = '\0';
+    }
+  }
+  if (cmd_wire_http_guard(req, body, "timer_resume")) {
+    return ESP_OK;
+  }
+
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_TIMER_RESUME;
+
+  if (!game_submit(&cmd)) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", body, false, NULL);
+    return ESP_OK;
+  }
+
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", body, true,
+                     "timer_resume");
+  return ESP_OK;
+}
+
+esp_err_t web_post_timer_reset_handler(httpd_req_t *req) {
+  ESP_LOGI(TAG, "POST /api/timer/reset");
+
+  // Kontrola web lock
+  if (web_is_locked()) {
+    ESP_LOGW(TAG, "Timer reset blocked: web interface is locked");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_set_status(req, "403 Forbidden");
+    httpd_resp_send(req,
+                    "{\"success\":false,\"message\":\"Web interface is locked. "
+                    "Use UART to unlock.\"}",
+                    -1);
+    return ESP_OK;
+  }
+
+  char body[160];
+  body[0] = '\0';
+  if (req->content_len > 0) {
+    int n = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+    if (n > 0) {
+      body[n] = '\0';
+    }
+  }
+  if (cmd_wire_http_guard(req, body, "timer_reset")) {
+    return ESP_OK;
+  }
+
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_TIMER_RESET;
+
+  if (!game_submit(&cmd)) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", body, false, NULL);
+    return ESP_OK;
+  }
+
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", body, true,
+                     "timer_reset");
+  return ESP_OK;
+}
+
+esp_err_t web_server_ble_system_command_dispatch(const char *cmd, char *buf) {
+  if (strcmp(cmd, "demo_config") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] demo_config blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    bool enabled = false;
+    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
+    if (cJSON_IsBool(en)) {
+      enabled = cJSON_IsTrue(en);
+    }
+    cJSON *sp = cJSON_GetObjectItemCaseSensitive(root, "speed_ms");
+    if (cJSON_IsNumber(sp)) {
+      double v = cJSON_GetNumberValue(sp);
+      if (v >= 0 && v <= 600000) {
+        set_demo_speed_ms((uint32_t)v);
+      }
+    }
+    cJSON_Delete(root);
+    toggle_demo_mode(enabled);
+    ESP_LOGI(TAG, "[BLE] demo_config enabled=%d", (int)enabled);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "demo_start") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] demo_start blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    toggle_demo_mode(true);
+    ESP_LOGI(TAG, "[BLE] demo_start");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_auto_lamp_timeout") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *sec = cJSON_GetObjectItemCaseSensitive(root, "seconds");
+    int seconds_val = -1;
+    if (cJSON_IsNumber(sec)) {
+      seconds_val = (int)cJSON_GetNumberValue(sec);
+    }
+    cJSON_Delete(root);
+    if (seconds_val < 5) {
+      seconds_val = 5;
+    }
+    if (seconds_val > 7200) {
+      seconds_val = 7200;
+    }
+    if (ha_light_set_activity_timeout_sec((uint32_t)seconds_val) != ESP_OK) {
+      return ESP_ERR_INVALID_ARG;
+    }
+    ESP_LOGI(TAG, "[BLE] settings_auto_lamp_timeout %d", seconds_val);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_guided_hints") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    bool enabled = false;
+    cJSON *en = cJSON_GetObjectItemCaseSensitive(root, "enabled");
+    if (cJSON_IsBool(en)) {
+      enabled = cJSON_IsTrue(en);
+    }
+    cJSON_Delete(root);
+    system_config_t syscfg;
+    if (config_load_from_nvs(&syscfg) != ESP_OK) {
+      return ESP_FAIL;
+    }
+    syscfg.guided_capture_hints_enabled = enabled;
+    syscfg.led_guidance_level = enabled ? (uint8_t)5 : (uint8_t)4;
+    config_save_to_nvs(&syscfg);
+    game_set_led_guidance_level(syscfg.led_guidance_level);
+    ESP_LOGI(TAG, "[BLE] settings_guided_hints enabled=%d", (int)enabled);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "settings_led_guidance") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *lv = cJSON_GetObjectItemCaseSensitive(root, "level");
+    int level = -1;
+    if (cJSON_IsNumber(lv)) {
+      level = (int)cJSON_GetNumberValue(lv);
+    }
+    cJSON_Delete(root);
+    if (level < 1 || level > 5) {
+      return ESP_ERR_INVALID_ARG;
+    }
+    system_config_t syscfg;
+    if (config_load_from_nvs(&syscfg) != ESP_OK) {
+      return ESP_FAIL;
+    }
+    syscfg.led_guidance_level = (uint8_t)level;
+    syscfg.guided_capture_hints_enabled = (level >= 5);
+    config_save_to_nvs(&syscfg);
+    game_set_led_guidance_level((uint8_t)level);
+    ESP_LOGI(TAG, "[BLE] settings_led_guidance level=%d", level);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "mqtt_config") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *hj = cJSON_GetObjectItemCaseSensitive(root, "host");
+    if (!cJSON_IsString(hj) || hj->valuestring == NULL ||
+        hj->valuestring[0] == '\0' || strlen(hj->valuestring) > 127) {
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    uint16_t port = 1883;
+    cJSON *pj = cJSON_GetObjectItemCaseSensitive(root, "port");
+    if (cJSON_IsNumber(pj)) {
+      double pv = cJSON_GetNumberValue(pj);
+      if (pv > 0 && pv <= 65535) {
+        port = (uint16_t)pv;
+      }
+    }
+    const char *user_str = NULL;
+    cJSON *uj = cJSON_GetObjectItemCaseSensitive(root, "username");
+    if (cJSON_IsString(uj) && uj->valuestring != NULL && uj->valuestring[0]) {
+      user_str = uj->valuestring;
+    }
+    const char *pass_str = NULL;
+    cJSON *pwj = cJSON_GetObjectItemCaseSensitive(root, "password");
+    if (cJSON_IsString(pwj) && pwj->valuestring != NULL && pwj->valuestring[0]) {
+      pass_str = pwj->valuestring;
+    }
+    esp_err_t merr = mqtt_save_config_to_nvs(hj->valuestring, port, user_str,
+                                             pass_str);
+    cJSON_Delete(root);
+    if (merr != ESP_OK) {
+      ESP_LOGW(TAG, "[BLE] mqtt_config save failed: %s",
+               esp_err_to_name(merr));
+      return merr;
+    }
+    if (wifi_is_sta_connected()) {
+      (void)ha_light_reinit_mqtt();
+    }
+    ESP_LOGI(TAG, "[BLE] mqtt_config OK");
+    return ESP_OK;
+  }
+
+  return ESP_ERR_NOT_FOUND;
 }

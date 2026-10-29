@@ -3,16 +3,25 @@
  * @brief Game reset, new game, board setup tutorial, and state revision.
  */
 
-#include "game_task_internal.h"
 #include "game_physical_undo.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
 #include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_mode.h"
+#include "game_board_core.h"
+#include "game_board_transition.h"
 #include "game_snapshot.h"
 #include "game_squares_guard.h"
 #include "game_hall_match.h"
 #include "game_hall_hand.h"
 #include "game_hall_restore_guide.h"
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
+#include "game_required_step.h"
+#include "game_gesture.h"
 
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../squares_task/include/squares_task.h"
@@ -32,6 +41,12 @@
 #include <string.h>
 
 static const char *TAG = "GAME_INIT";
+/* Web baseline: empty logic, matrix guard suppressed. */
+static bool s_board_setup_tutorial_active = false;
+
+bool *game_state_board_setup_tutorial_active(void) { return &s_board_setup_tutorial_active; }
+#define board_setup_tutorial_active (*game_state_board_setup_tutorial_active())
+
 
 #ifndef NDEBUG
 #define STAGING_LOGI(tag, fmt, ...) ESP_LOGI(tag, "[STAGING] " fmt, ##__VA_ARGS__)
@@ -136,7 +151,7 @@ bool game_is_board_in_starting_position(void) {
       votes[i] += snap[i];
     }
     if (s + 1 < GAME_START_POS_MATRIX_SAMPLES) {
-      vTaskDelay(pdMS_TO_TICKS(12));
+      game_led_flush(); vTaskDelay(pdMS_TO_TICKS(12));
     }
   }
 
@@ -183,12 +198,12 @@ void game_show_missing_pieces_led(void) {
     }
   }
   if (!any_piece) {
-    led_clear_board_only();
+    game_led_clear_board();
     return;
   }
   
   // Clean the board
-  led_clear_board_only();
+  game_led_clear_board();
   
   // Definition of expected starting position (row-major order)
   // Rows 0-1 and 6-7 should be occupied, rows 2-5 empty
@@ -197,7 +212,7 @@ void game_show_missing_pieces_led(void) {
       int idx = row * 8 + col;
       if (squares_state[idx] == 0) {
         // A figure is missing on the white baseline
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
+        game_led_frame_sq(row, col, 255, 0, 0); // Red
       }
     }
   }
@@ -206,7 +221,7 @@ void game_show_missing_pieces_led(void) {
       int idx = row * 8 + col;
       if (squares_state[idx] == 0) {
         // A figure is missing on the black baseline
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
+        game_led_frame_sq(row, col, 255, 0, 0); // Red
       }
     }
   }
@@ -215,7 +230,7 @@ void game_show_missing_pieces_led(void) {
       int idx = row * 8 + col;
       if (squares_state[idx] != 0) {
         // A random figure in the middle of the board - also in red
-        led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 0, 0); // Red
+        game_led_frame_sq(row, col, 255, 0, 0); // Red
       }
     }
   }
@@ -227,16 +242,16 @@ void game_show_missing_pieces_led(void) {
 
 void game_bump_revision_and_notify(void) {
   game_task_wdt_reset_safe();
-  game_state_revision++;
-  if (game_state_revision == 0U) {
-    game_state_revision = 1U;
+  (*game_state_game_state_revision())++;
+  if ((*game_state_game_state_revision()) == 0U) {
+    (*game_state_game_state_revision()) = 1U;
   }
   game_task_wdt_reset_safe();
   czechmate_on_game_state_changed();
   game_task_wdt_reset_safe();
 }
 
-uint32_t game_get_state_revision(void) { return game_state_revision; }
+uint32_t game_get_state_revision(void) { return (*game_state_game_state_revision()); }
 
 /**
  * @brief Resets the game to its default state
@@ -259,37 +274,37 @@ void game_reset_game(void) {
   game_hall_hand_reset();
 
   // Stop resignation timer if it is running (silent cleanup, game resets)
-  if (resignation_state.active) {
+  if ((*game_state_resignation_state()).active) {
     resignation_stop(true);
   }
 
   // Reset game state
   current_game_state = GAME_STATE_IDLE;
   current_player = PLAYER_WHITE;
-  game_start_time = 0;
-  last_move_time = 0;
+  (*game_state_game_start_time()) = 0;
+  (*game_state_last_move_time()) = 0;
   move_count = 0;
   game_active = false;
 
   // Reset extended statistics
-  white_time_total = 0;
-  black_time_total = 0;
-  white_moves_count = 0;
-  black_moves_count = 0;
-  white_captures = 0;
-  black_captures = 0;
-  white_checks = 0;
-  black_checks = 0;
-  white_castles = 0;
-  black_castles = 0;
+  (*game_state_white_time_total()) = 0;
+  (*game_state_black_time_total()) = 0;
+  (*game_state_white_moves_count()) = 0;
+  (*game_state_black_moves_count()) = 0;
+  (*game_state_white_captures()) = 0;
+  (*game_state_black_captures()) = 0;
+  (*game_state_white_checks()) = 0;
+  (*game_state_black_checks()) = 0;
+  (*game_state_white_castles()) = 0;
+  (*game_state_black_castles()) = 0;
   moves_without_capture = 0;
   max_moves_without_capture = 0;
   game_set_fifty_move_counter(0);
   position_history_count = 0;
-  game_result = GAME_STATE_IDLE;
-  current_result_type = RESULT_WHITE_WINS;           // Reset pro novou hru
-  current_endgame_reason = ENDGAME_REASON_CHECKMATE; // Reset endgame reason.
-  last_move_type = LAST_MOVE_NORMAL;                 // Reset last move type.
+  (*game_state_game_result()) = GAME_STATE_IDLE;
+  (*game_state_current_result_type()) = RESULT_WHITE_WINS;           // Reset pro novou hru
+  (*game_state_current_endgame_reason()) = ENDGAME_REASON_CHECKMATE; // Reset endgame reason.
+  (*game_state_last_move_type()) = LAST_MOVE_NORMAL;                 // Reset last move type.
   game_saved = false;
   saved_game_name[0] = '\0';
 
@@ -299,34 +314,35 @@ void game_reset_game(void) {
   memset(move_history_meta, 0, sizeof(move_history_meta));
   history_index = 0;
   game_physical_undo_reset();
-  puzzle_active = false;
-  puzzle_active_id = 0;
-  puzzle_setup_active = false;
-  puzzle_setup_id = 0;
-  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+  (*game_state_puzzle_active()) = false;
+  (*game_state_puzzle_active_id()) = 0;
+  (*game_state_puzzle_setup_active()) = false;
+  (*game_state_puzzle_setup_id()) = 0;
+  (*game_state_puzzle_feedback()) = PUZZLE_FEEDBACK_NONE;
 
   // Clear captured pieces
-  white_captured_count = 0;
-  black_captured_count = 0;
-  white_captured_index = 0;
-  black_captured_index = 0;
+  (*game_state_white_captured_count()) = 0;
+  (*game_state_black_captured_count()) = 0;
+  (*game_state_white_captured_index()) = 0;
+  (*game_state_black_captured_index()) = 0;
 
   // Clear material advantage history
-  advantage_history_count = 0;
-  memset(material_advantage_history, 0, sizeof(material_advantage_history));
+  (*game_state_advantage_history_count()) = 0;
+  memset(game_state_material_advantage_history(), 0,
+         GAME_TASK_MAX_ADVANTAGE_HISTORY * sizeof(int8_t));
 
   // Clear last move tracking
   has_last_move = false;
 
   // Complete reset error recovery state
-  error_recovery_state.has_invalid_piece = false;
-  error_recovery_state.invalid_row = 0;
-  error_recovery_state.invalid_col = 0;
-  error_recovery_state.original_valid_row = 0;
-  error_recovery_state.original_valid_col = 0;
-  error_recovery_state.piece_type = PIECE_EMPTY;
-  error_recovery_state.waiting_for_move_correction = false;
-  error_recovery_state.error_count = 0;
+  (*game_state_error_recovery_state()).has_invalid_piece = false;
+  (*game_state_error_recovery_state()).invalid_row = 0;
+  (*game_state_error_recovery_state()).invalid_col = 0;
+  (*game_state_error_recovery_state()).original_valid_row = 0;
+  (*game_state_error_recovery_state()).original_valid_col = 0;
+  (*game_state_error_recovery_state()).piece_type = PIECE_EMPTY;
+  (*game_state_error_recovery_state()).waiting_for_move_correction = false;
+  (*game_state_error_recovery_state()).error_count = 0;
 
   // Reset opponent piece recovery state
   opponent_piece_moved = false;
@@ -336,8 +352,12 @@ void game_reset_game(void) {
   opponent_current_row = 0;
   opponent_current_col = 0;
 
+  game_required_step_clear();
+  game_ep_capture_reset();
+
   // Reset capture state
   capture_in_progress = false;
+  game_board_transition_reset();
   capture_target_row = 0;
   capture_target_col = 0;
   capture_removed_piece = PIECE_EMPTY;
@@ -359,10 +379,10 @@ void game_reset_game(void) {
   resync_required_after_restore = false;
 
   // Reset promotion state to prevent blocking moves in a new game.
-  promotion_state.pending = false;
-  promotion_state.square_row = 0;
-  promotion_state.square_col = 0;
-  promotion_state.player = PLAYER_WHITE;
+  (*game_state_promotion_state()).pending = false;
+  (*game_state_promotion_state()).square_row = 0;
+  (*game_state_promotion_state()).square_col = 0;
+  (*game_state_promotion_state()).player = PLAYER_WHITE;
 
   // Reset lifted piece state.
   piece_lifted = false;
@@ -378,18 +398,19 @@ void game_reset_game(void) {
   // Reset auto-new game detection flags.
   // This allows auto-new game to work after manual resets or when pieces are
   // manually arranged into starting position
-  auto_new_game_in_starting_position = false;
-  auto_new_game_triggered = false;
-  auto_new_game_blocked_until_move = false; // Reset block flag too
+  (*game_state_auto_new_game_in_starting_position()) = false;
+  (*game_state_auto_new_game_triggered()) = false;
+  (*game_state_auto_new_game_blocked_until_move()) = false; // Reset block flag too
   ESP_LOGI(TAG, "✅ Auto new game detection flags reset in game_reset_game()");
 
   // Stop endgame animation on game reset
-  led_stop_endgame_animation();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_STOP_ENDGAME, 0, 0, 0, 0);
 
   // Reinitialize board
   game_initialize_board();
 
   game_squares_guard_clear_both_layers();
+  game_mode_set(NULL);
 
   ESP_LOGI(TAG, "Game reset completed");
   game_bump_revision_and_notify();
@@ -400,7 +421,11 @@ void game_reset_game(void) {
  * setup tutorial.
  */
 void game_apply_empty_logical_board_after_full_reset(void) {
-  memset(board, 0, sizeof(board));
+  for (int row = 0; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      game_set_piece(row, col, PIECE_EMPTY);
+    }
+  }
   memset(piece_moved, 0, sizeof(piece_moved));
   current_game_state = GAME_STATE_IDLE;
   game_active = false;
@@ -413,8 +438,37 @@ void game_apply_empty_logical_board_after_full_reset(void) {
   black_rook_h_moved = true;
   memset(&castling_state, 0, sizeof(castling_state));
   en_passant_available = false;
+  game_logic_adopt_globals();
   game_check_promotion_needed();
 }
+
+static void tutorial_on_lift(const position_t *pos, uint8_t square) {
+  (void)pos;
+  (void)square;
+}
+
+static void tutorial_on_drop(const position_t *pos, uint8_t from, uint8_t to,
+                             bool has_from) {
+  (void)pos;
+  (void)from;
+  (void)to;
+  (void)has_from;
+  game_mode_reject_drop();
+}
+
+static void tutorial_on_move_applied(const position_t *pos, position_move_t mv) {
+  (void)pos;
+  (void)mv;
+}
+
+static void tutorial_on_leds(const position_t *pos) { (void)pos; }
+
+static const game_mode_t s_tutorial_mode = {
+    tutorial_on_lift,
+    tutorial_on_drop,
+    tutorial_on_move_applied,
+    tutorial_on_leds,
+};
 
 void game_enter_board_setup_tutorial(void) {
   /* Preserve opening config while user aligns physical board (setup_phase). */
@@ -425,11 +479,13 @@ void game_enter_board_setup_tutorial(void) {
   game_reset_game();
   game_apply_empty_logical_board_after_full_reset();
   board_setup_tutorial_active = true;
+  game_mode_set(&s_tutorial_mode);
   STAGING_LOGI(TAG,
                "board_setup_tutorial: entered (empty logical, guard bypass)");
 }
 
 void game_exit_board_setup_tutorial(bool apply_full_start_position) {
+  game_mode_clear(&s_tutorial_mode);
   board_setup_tutorial_active = false;
   if (apply_full_start_position) {
     game_start_new_game();
@@ -456,6 +512,7 @@ bool game_finish_board_setup_tutorial_from_web(void) {
   if (!game_is_board_in_starting_position()) {
     return false;
   }
+  game_mode_clear(&s_tutorial_mode);
   board_setup_tutorial_active = false;
   game_start_new_game();
   STAGING_LOGI(TAG,
@@ -482,13 +539,14 @@ bool game_finish_board_setup_tutorial_from_web(void) {
  */
 void game_start_new_game(void) {
   ESP_LOGI(TAG, "Starting new game...");
+  game_gesture_cancel_new_game_dwell();
   game_opening_cancel();
   game_puzzle_cancel();
-  led_stop_endgame_animation();
-  led_release_direct_hold();
-  led_move_trail_cancel();
-  led_takeback_clear();
-  led_resign_ring_cancel();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_STOP_ENDGAME, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_RELEASE_HOLD, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_CANCEL, 0, 0, 0, 0);
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   game_hall_restore_guide_force_resync();
 #endif
@@ -507,7 +565,7 @@ void game_start_new_game(void) {
   ESP_LOGI(TAG, "Timer reset for new game");
 
   // BUG FIX 1: Checking the physical board before activating the game (only if watchdog is on)
-  if (starting_position_check_enabled && !game_is_board_in_starting_position()) {
+  if ((*game_state_starting_position_check_enabled()) && !game_is_board_in_starting_position()) {
     // The board is not physically ready - go to waiting state
     current_game_state = GAME_STATE_WAITING_FOR_BOARD_SETUP;
     game_active = false;
@@ -526,8 +584,8 @@ void game_start_new_game(void) {
   // Set game state - only when the board is OK
   current_game_state = GAME_STATE_ACTIVE;
   game_active = true;
-  game_start_time = esp_timer_get_time() / 1000;
-  last_move_time = game_start_time;
+  (*game_state_game_start_time()) = esp_timer_get_time() / 1000;
+  (*game_state_last_move_time()) = (*game_state_game_start_time());
   ha_game_report(HA_GAME_NEW, HA_REASON_NONE);
 
   // Start timer for white player if time control is active.
@@ -540,31 +598,31 @@ void game_start_new_game(void) {
 #endif
 
   // Initialize extended statistics
-  white_time_total = 0;
-  black_time_total = 0;
-  white_moves_count = 0;
-  black_moves_count = 0;
-  white_captures = 0;
-  black_captures = 0;
-  white_checks = 0;
-  black_checks = 0;
-  white_castles = 0;
-  black_castles = 0;
+  (*game_state_white_time_total()) = 0;
+  (*game_state_black_time_total()) = 0;
+  (*game_state_white_moves_count()) = 0;
+  (*game_state_black_moves_count()) = 0;
+  (*game_state_white_captures()) = 0;
+  (*game_state_black_captures()) = 0;
+  (*game_state_white_checks()) = 0;
+  (*game_state_black_checks()) = 0;
+  (*game_state_white_castles()) = 0;
+  (*game_state_black_castles()) = 0;
   moves_without_capture = 0;
   max_moves_without_capture = 0;
   game_set_fifty_move_counter(0);
   position_history_count = 0;
-  game_result = GAME_STATE_IDLE;
+  (*game_state_game_result()) = GAME_STATE_IDLE;
   game_saved = false;
   saved_game_name[0] = '\0';
 
-  total_games++;
+  (*game_state_total_games())++;
 
   ESP_LOGI(TAG, "New game started - White to move");
-  ESP_LOGI(TAG, "Total games: %" PRIu32, total_games);
+  ESP_LOGI(TAG, "Total games: %" PRIu32, (*game_state_total_games()));
 
   // Boot sequence: first game vs. restart.
-  if (total_games > 1) {
+  if ((*game_state_total_games()) > 1) {
     // Restart the game - stop all animations
     unified_animation_stop_all();
     stop_endgame_animation();     // Stop NEW endgame animations system
@@ -575,8 +633,8 @@ void game_start_new_game(void) {
   }
 
   // Wait for boot animation to finish if running (critical for button LEDs)
-  while (led_is_booting()) {
-    vTaskDelay(pdMS_TO_TICKS(100));
+  while (game_led_boot_active()) {
+    game_led_flush(); vTaskDelay(pdMS_TO_TICKS(100));
     game_task_wdt_reset_safe();
   }
 
@@ -586,18 +644,18 @@ void game_start_new_game(void) {
 
   // Reset auto-new game flags for all games (not just the first).
   // This allows auto-new game detection to work after manual resets
-  auto_new_game_in_starting_position = false;
-  auto_new_game_triggered = false;
-  auto_new_game_blocked_until_move = false; // Reset block flag too
+  (*game_state_auto_new_game_in_starting_position()) = false;
+  (*game_state_auto_new_game_triggered()) = false;
+  (*game_state_auto_new_game_blocked_until_move()) = false; // Reset block flag too
   ESP_LOGI(TAG, "✅ Auto new game detection flags reset for new game");
 
-  vTaskDelay(pdMS_TO_TICKS(100));
+  game_led_flush(); vTaskDelay(pdMS_TO_TICKS(100));
   game_task_wdt_reset_safe();
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
   /* Opening guide, or yellow the moment the pieces already match the start. */
   game_hall_restore_guide_sync();
 #else
-  chess_policy_highlight_movable_if_enabled();
+  game_policy_highlight_movable_if_enabled();
 #endif
   game_task_wdt_reset_safe();
   game_bump_revision_and_notify();
@@ -617,12 +675,13 @@ bool game_start_new_game_from_fen(const char *fen) {
   }
 
   ESP_LOGI(TAG, "Starting new game from FEN...");
+  game_gesture_cancel_new_game_dwell();
   game_opening_cancel();
   game_puzzle_cancel();
-  led_stop_endgame_animation();
-  led_move_trail_cancel();
-  led_takeback_clear();
-  led_resign_ring_cancel();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_STOP_ENDGAME, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_CANCEL, 0, 0, 0, 0);
   game_task_wdt_reset_safe();
   game_task_wdt_reset_safe();
 
@@ -638,59 +697,59 @@ bool game_start_new_game_from_fen(const char *fen) {
     return false;
   }
 
-  puzzle_active = false;
-  puzzle_active_id = 0;
-  puzzle_setup_active = false;
-  puzzle_setup_id = 0;
-  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+  (*game_state_puzzle_active()) = false;
+  (*game_state_puzzle_active_id()) = 0;
+  (*game_state_puzzle_setup_active()) = false;
+  (*game_state_puzzle_setup_id()) = 0;
+  (*game_state_puzzle_feedback()) = PUZZLE_FEEDBACK_NONE;
   board_setup_tutorial_active = false;
 
   current_player = fen_player;
   current_game_state = GAME_STATE_ACTIVE;
   game_active = true;
-  game_start_time = esp_timer_get_time() / 1000;
-  last_move_time = game_start_time;
+  (*game_state_game_start_time()) = esp_timer_get_time() / 1000;
+  (*game_state_last_move_time()) = (*game_state_game_start_time());
   ha_game_report(HA_GAME_NEW, HA_REASON_NONE);
 
   if (game_is_timer_active()) {
     game_start_timer_move(fen_player == PLAYER_WHITE);
   }
 
-  white_time_total = 0;
-  black_time_total = 0;
-  white_moves_count = 0;
-  black_moves_count = 0;
-  white_captures = 0;
-  black_captures = 0;
-  white_checks = 0;
-  black_checks = 0;
-  white_castles = 0;
-  black_castles = 0;
+  (*game_state_white_time_total()) = 0;
+  (*game_state_black_time_total()) = 0;
+  (*game_state_white_moves_count()) = 0;
+  (*game_state_black_moves_count()) = 0;
+  (*game_state_white_captures()) = 0;
+  (*game_state_black_captures()) = 0;
+  (*game_state_white_checks()) = 0;
+  (*game_state_black_checks()) = 0;
+  (*game_state_white_castles()) = 0;
+  (*game_state_black_castles()) = 0;
   max_moves_without_capture = 0;
-  game_result = GAME_STATE_IDLE;
+  (*game_state_game_result()) = GAME_STATE_IDLE;
   game_saved = false;
   saved_game_name[0] = '\0';
-  total_games++;
+  (*game_state_total_games())++;
 
-  if (total_games > 1) {
+  if ((*game_state_total_games()) > 1) {
     unified_animation_stop_all();
-    led_stop_endgame_animation();
+    game_event_post_led_ctrl(GAME_EVT_CTRL_STOP_ENDGAME, 0, 0, 0, 0);
     stop_endgame_animation();
   }
 
-  while (led_is_booting()) {
-    vTaskDelay(pdMS_TO_TICKS(100));
+  while (game_led_boot_active()) {
+    game_led_flush(); vTaskDelay(pdMS_TO_TICKS(100));
     game_task_wdt_reset_safe();
   }
 
   game_check_promotion_needed();
-  auto_new_game_in_starting_position = false;
-  auto_new_game_triggered = false;
-  auto_new_game_blocked_until_move = false;
+  (*game_state_auto_new_game_in_starting_position()) = false;
+  (*game_state_auto_new_game_triggered()) = false;
+  (*game_state_auto_new_game_blocked_until_move()) = false;
 
-  vTaskDelay(pdMS_TO_TICKS(100));
+  game_led_flush(); vTaskDelay(pdMS_TO_TICKS(100));
   game_task_wdt_reset_safe();
-  chess_policy_highlight_movable_if_enabled();
+  game_policy_highlight_movable_if_enabled();
   game_task_wdt_reset_safe();
   game_bump_revision_and_notify();
   game_snapshot_persist_after_valid_move();

@@ -42,7 +42,11 @@ final boardSessionNotifierProvider =
 
 class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
   BoardSessionNotifier(this._prefs, this._ref)
-      : super(const BoardSessionState());
+      : super(const BoardSessionState()) {
+    _ble.onAckTimeout = () {
+      unawaited(refreshNow());
+    };
+  }
 
   final PrefsRepository _prefs;
   final Ref _ref;
@@ -364,6 +368,25 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
         return _mockCommands;
       case BoardTransport.none:
         return null;
+    }
+  }
+
+  Future<void> _claimWriteSession(String transport) async {
+    final epoch = BoardCommandPayload.beginEpoch();
+    try {
+      if (transport == 'ble') {
+        await _ble.postSessionClaim(epoch: epoch, transport: 'ble');
+      } else {
+        final base = state.wifiBaseUrl;
+        if (base == null || base.isEmpty) return;
+        await _boardHttp.postSessionClaim(
+          base,
+          epoch: epoch,
+          transport: 'wifi',
+        );
+      }
+    } catch (e) {
+      connDebugLog('session claim', '$transport $e');
     }
   }
 
@@ -689,6 +712,9 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
           unawaited(_pollOnce(normalized));
         });
         state = state.copyWith(pollingActive: true, busy: false);
+        if (!keepBleAsRealtime) {
+          unawaited(_claimWriteSession('wifi'));
+        }
         unawaited(_persistMdnsHostFromWifiStatus(normalized));
         if (useWs) {
           _ws.connect(
@@ -864,6 +890,7 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
       await _prefs.setUseMockBoard(false);
       await _prefs.setLastBoardLinkKind('bluetooth');
       state = state.copyWith(busy: false, bleGattConnected: true);
+      unawaited(_claimWriteSession('ble'));
       connDebugLog(
         'BoardSession.connectBle OK',
         'GATT attached → sync network metadata',
@@ -1178,8 +1205,14 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
 
   void _applySnapshot(GameSnapshot s, String baseForTimer) {
     final prev = state.snapshot;
+    final incoming = s.stateVersion;
+    final held = prev?.stateVersion;
+    final canCompare = incoming != null && held != null;
+    if (canCompare && incoming < held) {
+      return;
+    }
     var merged = s;
-    if (prev != null) {
+    if (prev != null && (!canCompare || incoming == held)) {
       merged = merged.replacingStatus(
         s.status.coalescingTransientLampOff(prev.status),
       );

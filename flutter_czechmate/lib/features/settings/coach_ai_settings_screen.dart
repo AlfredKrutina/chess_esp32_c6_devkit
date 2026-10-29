@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,6 +9,7 @@ import '../../core/layout/form_factor.dart';
 import '../../core/widgets/glass_snackbar.dart';
 import '../../core/localization/context_l10n.dart';
 import '../../core/models/coach_ai_provider.dart';
+import '../../core/services/coach_ai_completion_service.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Presets for Google AI Studio (`generativelanguage.googleapis.com`).
@@ -50,6 +53,13 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
   late final TextEditingController _coachAzureApiVersion;
   List<CoachAiProviderId> _coachPriority = [];
   String _gemmaPresetChoice = _kGemmaPresetModels.first;
+  List<String> _azureModelIds = const [];
+  bool _azureModelsLoading = false;
+  String? _azureModelsError;
+  bool _azureForceCustom = false;
+  String? _azureFetchedFingerprint;
+  Timer? _azureFetchDebounce;
+  int _azureFetchGen = 0;
 
   @override
   void initState() {
@@ -71,6 +81,9 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
         TextEditingController(text: p.coachAzureFoundryDeployment);
     _coachAzureApiVersion =
         TextEditingController(text: p.coachAzureFoundryApiVersion);
+    _coachAzureBase.addListener(_scheduleAzureModelLoad);
+    _coachAzureKey.addListener(_scheduleAzureModelLoad);
+    _coachAzureApiVersion.addListener(_scheduleAzureModelLoad);
     final savedModel = p.coachGemmaModelId;
     if (_kGemmaPresetModels.contains(savedModel)) {
       _gemmaPresetChoice = savedModel;
@@ -79,6 +92,9 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
       _gemmaPresetChoice = '__custom__';
       _coachGemmaModelCustom = TextEditingController(text: savedModel);
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _loadAzureModels();
+    });
   }
 
   @override
@@ -93,11 +109,84 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
     _coachXaiModel.dispose();
     _coachOllamaBase.dispose();
     _coachOllamaModel.dispose();
+    _azureFetchDebounce?.cancel();
+    _coachAzureBase.removeListener(_scheduleAzureModelLoad);
+    _coachAzureKey.removeListener(_scheduleAzureModelLoad);
+    _coachAzureApiVersion.removeListener(_scheduleAzureModelLoad);
     _coachAzureBase.dispose();
     _coachAzureKey.dispose();
     _coachAzureDeployment.dispose();
     _coachAzureApiVersion.dispose();
     super.dispose();
+  }
+
+  void _scheduleAzureModelLoad() {
+    _azureFetchDebounce?.cancel();
+    _azureFetchDebounce = Timer(const Duration(milliseconds: 800), () {
+      if (mounted) _loadAzureModels();
+    });
+  }
+
+  Future<void> _loadAzureModels({bool force = false}) async {
+    final base = _coachAzureBase.text.trim();
+    final key = _coachAzureKey.text.trim();
+    final ver = _coachAzureApiVersion.text.trim();
+    if (base.isEmpty || key.isEmpty) {
+      _azureFetchDebounce?.cancel();
+      if (!mounted) return;
+      setState(() {
+        _azureModelIds = const [];
+        _azureModelsLoading = false;
+        _azureModelsError = null;
+        _azureFetchedFingerprint = null;
+      });
+      return;
+    }
+    final fingerprint = '$base\n$key\n$ver';
+    if (!force &&
+        fingerprint == _azureFetchedFingerprint &&
+        _azureModelsError == null) {
+      return;
+    }
+    final gen = ++_azureFetchGen;
+    setState(() {
+      _azureModelsLoading = true;
+      _azureModelsError = null;
+    });
+    try {
+      final ids = await CoachAiCompletionService.listAzureFoundryModels(
+        baseUrl: base,
+        apiKey: key,
+        apiVersion: ver,
+      );
+      if (!mounted || gen != _azureFetchGen) return;
+      final current = _coachAzureDeployment.text.trim();
+      setState(() {
+        _azureModelIds = ids;
+        _azureModelsLoading = false;
+        _azureFetchedFingerprint = fingerprint;
+        if (current.isNotEmpty && !ids.contains(current)) {
+          _azureForceCustom = true;
+        } else if (ids.contains(current)) {
+          _azureForceCustom = false;
+        }
+      });
+    } catch (e) {
+      if (!mounted || gen != _azureFetchGen) return;
+      setState(() {
+        _azureModelIds = const [];
+        _azureModelsLoading = false;
+        _azureModelsError = _shortAzureModelError(e);
+        _azureFetchedFingerprint = null;
+      });
+    }
+  }
+
+  String _shortAzureModelError(Object error) {
+    var text = error.toString().replaceFirst(RegExp(r'^CoachLlmException(\(\d+\))?:\s*'), '');
+    text = text.replaceAll(RegExp(r'\s+'), ' ').trim();
+    if (text.length > 160) text = '${text.substring(0, 160)}…';
+    return text.isEmpty ? error.toString() : text;
   }
 
   Future<void> _openCoachDocUrl(Uri uri) async {
@@ -109,6 +198,95 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
   String _resolvedGemmaModelId() {
     if (_gemmaPresetChoice != '__custom__') return _gemmaPresetChoice;
     return _coachGemmaModelCustom.text.trim();
+  }
+
+  Widget _azureModelPicker(AppLocalizations l10n) {
+    final ids = _azureModelIds;
+    final current = _coachAzureDeployment.text.trim();
+    final showDropdown = ids.isNotEmpty;
+    final dropdownValue = !showDropdown
+        ? null
+        : (_azureForceCustom || (current.isNotEmpty && !ids.contains(current))
+            ? '__custom__'
+            : (current.isEmpty ? null : current));
+    final showCustomField = !showDropdown || dropdownValue == '__custom__';
+    String? helper;
+    if (_azureModelsLoading && !showDropdown) {
+      helper = l10n.settingsCoachAzureFoundryModelsLoading;
+    } else if (_azureModelsError != null && showCustomField) {
+      helper = l10n.settingsCoachAzureFoundryModelsFailed(_azureModelsError!);
+    } else if (!showDropdown &&
+        _azureFetchedFingerprint != null &&
+        !_azureModelsLoading) {
+      helper = l10n.settingsCoachAzureFoundryModelsEmpty;
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _coachFieldLabel(
+                context,
+                l10n.settingsCoachAzureFoundryDeploymentLabel,
+              ),
+            ),
+            IconButton(
+              tooltip: l10n.settingsCoachAzureFoundryModelsRefresh,
+              onPressed: _azureModelsLoading ? null : () => _loadAzureModels(force: true),
+              icon: _azureModelsLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.refresh),
+            ),
+          ],
+        ),
+        if (showDropdown)
+          DropdownButtonFormField<String>(
+            key: ValueKey('${ids.join('|')}|$dropdownValue'),
+            isExpanded: true,
+            initialValue: dropdownValue,
+            hint: Text(l10n.settingsCoachAzureFoundryModelsPickHint),
+            decoration: _coachOutlineDecoration(),
+            items: [
+              for (final id in ids)
+                DropdownMenuItem(
+                  value: id,
+                  child: Text(id, overflow: TextOverflow.ellipsis),
+                ),
+              DropdownMenuItem(
+                value: '__custom__',
+                child: Text(l10n.settingsCoachCustomModel),
+              ),
+            ],
+            onChanged: (value) {
+              if (value == null) return;
+              setState(() {
+                if (value == '__custom__') {
+                  _azureForceCustom = true;
+                } else {
+                  _azureForceCustom = false;
+                  _coachAzureDeployment.text = value;
+                }
+              });
+            },
+          ),
+        if (showCustomField) ...[
+          if (showDropdown) const SizedBox(height: 12),
+          TextField(
+            controller: _coachAzureDeployment,
+            decoration: _coachOutlineDecoration(
+              hintText: l10n.settingsCoachAzureFoundryDeploymentHint,
+              helperText: helper,
+            ),
+            autocorrect: false,
+          ),
+        ],
+      ],
+    );
   }
 
   Widget _coachFieldLabel(BuildContext context, String text) {
@@ -426,17 +604,7 @@ class _CoachAiSettingsScreenState extends ConsumerState<CoachAiSettingsScreen> {
                       autocorrect: false,
                       enableSuggestions: false,
                     ),
-                    _coachFieldLabel(
-                      context,
-                      l10n.settingsCoachAzureFoundryDeploymentLabel,
-                    ),
-                    TextField(
-                      controller: _coachAzureDeployment,
-                      decoration: _coachOutlineDecoration(
-                        hintText: l10n.settingsCoachAzureFoundryDeploymentHint,
-                      ),
-                      autocorrect: false,
-                    ),
+                    _azureModelPicker(l10n),
                     _coachFieldLabel(
                       context,
                       l10n.settingsCoachAzureFoundryApiVersionLabel,

@@ -185,9 +185,10 @@ class BoardCommandPayload {
   static Map<String, dynamic> blePuzzle(Map<String, dynamic> body) =>
       bleWrap('puzzle', body);
 
-  /// HTTP `POST /api/settings/brightness` reads `"brightness"`.
+  /// HTTP `POST /api/settings/brightness` reads `"percent"` (and still
+  /// accepts the older `"brightness"` key).
   static Map<String, dynamic> httpBrightness(int percent) =>
-      <String, dynamic>{'brightness': percent.clamp(0, 100)};
+      <String, dynamic>{'percent': percent.clamp(0, 100)};
 
   /// BLE `brightness` reads `"percent"` first (also accepts `"brightness"`).
   static Map<String, dynamic> bleBrightness(int percent) => bleWrap(
@@ -301,5 +302,53 @@ class BoardCommandPayload {
     Map<String, dynamic>? fields,
   ]) {
     return <String, dynamic>{'cmd': cmd, ...?fields};
+  }
+
+  static int _nextId = 1;
+
+  /// Set by [beginEpoch] after the app claims the write session.
+  static int? epoch;
+
+  static int allocateId() {
+    final id = _nextId;
+    _nextId = _nextId == 0x7fffffff ? 1 : _nextId + 1;
+    return id;
+  }
+
+  /// Next write owner. Resets the command id so a new session can start at 1.
+  static int beginEpoch() {
+    epoch = (epoch ?? 0) + 1;
+    _nextId = 1;
+    return epoch!;
+  }
+
+  /// Adds correlation `req` (and `id` when the body has no semantic id) plus
+  /// the current session epoch. Puzzle catalog `id` is left alone.
+  static Map<String, dynamic> stamp(
+    Map<String, dynamic> body, {
+    int? id,
+    int? epoch,
+  }) {
+    final out = Map<String, dynamic>.from(body);
+    final n = id ?? allocateId();
+    out['req'] = n;
+    out.putIfAbsent('id', () => n);
+    final ep = epoch ?? BoardCommandPayload.epoch;
+    if (ep != null) out.putIfAbsent('epoch', () => ep);
+    return out;
+  }
+
+  static Map<String, dynamic> sessionClaim({
+    required int epoch,
+    required String transport,
+  }) {
+    return stamp(
+      <String, dynamic>{
+        'cmd': 'session_claim',
+        'epoch': epoch,
+        'transport': transport,
+      },
+      epoch: epoch,
+    );
   }
 }

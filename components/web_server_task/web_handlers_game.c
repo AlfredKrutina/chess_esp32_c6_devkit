@@ -5,8 +5,10 @@
 
 #include "web_server_task.h"
 #include "web_server_internal.h"
+#include "cmd_wire.h"
 #include "../game_task/include/game_task.h"
 #include "../game_task/include/game_board_core.h"
+#include "../freertos_chess/include/game_cmd.h"
 #include "../squares_task/include/squares_task.h"
 #include "../ha_light_task/include/ha_light_task.h"
 #include "../led_task/include/led_task.h"
@@ -33,6 +35,21 @@
 extern QueueHandle_t game_command_queue;
 
 static const char *TAG = "WEB_GAME";
+
+static StaticQueue_t s_web_move_rsp_q_struct;
+static uint8_t s_web_move_rsp_q_storage[sizeof(game_response_t)];
+static QueueHandle_t s_web_move_rsp_queue;
+static SemaphoreHandle_t s_web_move_rsp_mutex;
+
+static QueueHandle_t web_move_response_queue(void) {
+  if (s_web_move_rsp_queue == NULL) {
+    s_web_move_rsp_queue =
+        xQueueCreateStatic(1, sizeof(game_response_t), s_web_move_rsp_q_storage,
+                           &s_web_move_rsp_q_struct);
+    s_web_move_rsp_mutex = xSemaphoreCreateMutex();
+  }
+  return s_web_move_rsp_queue;
+}
 
 
 char *snapshot_buffer;
@@ -330,6 +347,42 @@ esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
   return e;
 }
 
+static void web_led_clear_highlights_direct(void) {
+  led_command_t lcmd = {0};
+  lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
+  led_execute_command_new(&lcmd);
+}
+
+bool web_game_submit_hint_clear(void) {
+  if (!game_active) {
+    web_led_clear_highlights_direct();
+    return true;
+  }
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_WEB_HINT;
+  cmd.u.hint.clear = 1;
+  return game_submit(&cmd);
+}
+
+void web_game_on_client_drop(void) {
+  if (!game_active) {
+    return;
+  }
+  /* Hint-clear is the idle full frame. Do not paint from this task. */
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_WEB_HINT;
+  cmd.u.hint.clear = 1;
+  (void)game_submit(&cmd);
+}
+
+static bool web_game_submit_hint_pixels(uint8_t from_sq, uint8_t to_sq) {
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_WEB_HINT;
+  cmd.u.hint.from_sq = from_sq;
+  cmd.u.hint.to_sq = to_sq;
+  return game_submit(&cmd);
+}
+
 /** Common logic of POST /api/game/hint_highlight and hint_highlight BLE command. */
 esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
   if (buf == NULL) {
@@ -381,18 +434,24 @@ esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
     }
   }
 
-  led_command_t cmd = {0};
-  cmd.type = LED_CMD_HIGHLIGHT_HINT;
-  cmd.led_index = from_led;
-  cmd.data = (void *)&to_led;
-  led_execute_command_new(&cmd);
+  if (game_active) {
+    if (!web_game_submit_hint_pixels(from_led, to_led)) {
+      return ESP_ERR_NO_MEM;
+    }
+  } else {
+    led_command_t cmd = {0};
+    cmd.type = LED_CMD_HIGHLIGHT_HINT;
+    cmd.led_index = from_led;
+    cmd.data = (void *)&to_led;
+    led_execute_command_new(&cmd);
+  }
   ESP_LOGI(TAG, "Hint highlight: %s (LED %u -> %u)", to_sq, (unsigned)from_led,
            (unsigned)to_led);
   return ESP_OK;
 }
 
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
-esp_err_t http_get_board_handler(httpd_req_t *req) {
+esp_err_t web_get_board_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/board");
 
   char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
@@ -414,7 +473,7 @@ esp_err_t http_get_board_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_get_status_handler(httpd_req_t *req) {
+esp_err_t web_get_status_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/status");
 
   char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
@@ -438,7 +497,7 @@ esp_err_t http_get_status_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_get_history_handler(httpd_req_t *req) {
+esp_err_t web_get_history_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/history");
 
   char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
@@ -460,7 +519,7 @@ esp_err_t http_get_history_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_get_captured_handler(httpd_req_t *req) {
+esp_err_t web_get_captured_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/captured");
 
   char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
@@ -482,7 +541,7 @@ esp_err_t http_get_captured_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_get_game_snapshot_handler(httpd_req_t *req) {
+esp_err_t web_get_game_snapshot_handler(httpd_req_t *req) {
   ESP_LOGD(TAG, "GET /api/game/snapshot");
   uint32_t rev = game_get_state_revision();
   char etag[24];
@@ -518,7 +577,7 @@ esp_err_t http_get_game_snapshot_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-esp_err_t http_get_advantage_handler(httpd_req_t *req) {
+esp_err_t web_get_advantage_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "GET /api/advantage");
 
   char *jb = get_shared_buffer(JSON_BUFFER_SIZE);
@@ -554,7 +613,7 @@ esp_err_t http_get_advantage_handler(httpd_req_t *req) {
  * @details
  * Expected JSON: {"from": "e2", "to": "e4", "promotion": "q"}
  */
-esp_err_t http_post_game_move_handler(httpd_req_t *req) {
+esp_err_t web_post_game_move_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/move");
 
 #if CONFIG_CHESS_ENABLE_WEB_SERVER
@@ -576,7 +635,7 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
   }
 
   // Precist JSON data
-  char content[128];
+  char content[192];
   int ret = httpd_req_recv(req, content, sizeof(content) - 1);
   if (ret <= 0) {
     httpd_resp_set_status(req, "400 Bad Request");
@@ -584,6 +643,9 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
   content[ret] = '\0';
+  if (cmd_wire_http_guard(req, content, "move")) {
+    return ESP_OK;
+  }
 
   // Jednoduchy JSON parser
   char from[8] = {0};
@@ -672,10 +734,11 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
     httpd_resp_send(req, "Game queue not available", -1);
     return ESP_FAIL;
   }
-  if (qerr == ESP_ERR_NO_MEM || qerr == ESP_FAIL) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, "Failed to queue move", -1);
-    return ESP_FAIL;
+  if (qerr == ESP_ERR_NO_MEM || qerr == ESP_FAIL || qerr == ESP_ERR_TIMEOUT) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", content, false,
+                       NULL);
+    return ESP_OK;
   }
   if (qerr == ESP_ERR_INVALID_ARG) {
     httpd_resp_set_status(req, "400 Bad Request");
@@ -687,15 +750,15 @@ esp_err_t http_post_game_move_handler(httpd_req_t *req) {
     httpd_resp_send(req, error_json, -1);
     return ESP_OK;
   }
-  httpd_resp_set_type(req, "application/json");
   if (accepted_async) {
-    httpd_resp_set_status(req, "202 Accepted");
-    httpd_resp_send(
-        req, "{\"success\":true,\"message\":\"Move queued (timeout)\"}", -1);
+    cmd_wire_http_send(
+        req, "202 Accepted",
+        "{\"success\":true,\"message\":\"Move queued (timeout)\"}", content,
+        true, "move");
   } else {
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_send(req, "{\"success\":true,\"message\":\"Move processed\"}",
-                    -1);
+    cmd_wire_http_send(req, "200 OK",
+                       "{\"success\":true,\"message\":\"Move processed\"}",
+                       content, true, "move");
   }
   return ESP_OK;
 }
@@ -712,46 +775,50 @@ esp_err_t web_game_enqueue_move(const char *from, const char *to,
   if (from == NULL || to == NULL || from[0] == '\0' || to[0] == '\0') {
     return ESP_ERR_INVALID_ARG;
   }
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_MOVE;
-  strncpy(cmd.from_notation, from, sizeof(cmd.from_notation) - 1);
-  strncpy(cmd.to_notation, to, sizeof(cmd.to_notation) - 1);
-  cmd.promotion_choice = PROMOTION_QUEEN;
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_MOVE;
+  strncpy(cmd.u.move.from, from, sizeof(cmd.u.move.from) - 1);
+  strncpy(cmd.u.move.to, to, sizeof(cmd.u.move.to) - 1);
   if (promotion != NULL && promotion[0] != '\0') {
     switch (promotion[0]) {
     case 'r':
     case 'R':
-      cmd.promotion_choice = PROMOTION_ROOK;
+      cmd.u.move.promotion = 'r';
       break;
     case 'b':
     case 'B':
-      cmd.promotion_choice = PROMOTION_BISHOP;
+      cmd.u.move.promotion = 'b';
       break;
     case 'n':
     case 'N':
-      cmd.promotion_choice = PROMOTION_KNIGHT;
+      cmd.u.move.promotion = 'n';
       break;
     default:
-      cmd.promotion_choice = PROMOTION_QUEEN;
+      cmd.u.move.promotion = 'q';
       break;
     }
-    cmd.promotion_from_remote = 1U;
   }
   if (game_command_queue == NULL) {
     return ESP_ERR_INVALID_STATE;
   }
-  QueueHandle_t response_queue = xQueueCreate(1, sizeof(game_response_t));
-  if (response_queue == NULL) {
+  QueueHandle_t response_queue = web_move_response_queue();
+  if (response_queue == NULL || s_web_move_rsp_mutex == NULL) {
     return ESP_ERR_NO_MEM;
   }
+  if (xSemaphoreTake(s_web_move_rsp_mutex, pdMS_TO_TICKS(2000)) != pdTRUE) {
+    return ESP_ERR_TIMEOUT;
+  }
+  game_response_t junk;
+  while (xQueueReceive(response_queue, &junk, 0) == pdTRUE) {
+  }
   cmd.response_queue = response_queue;
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    vQueueDelete(response_queue);
+  if (!game_submit(&cmd)) {
+    xSemaphoreGive(s_web_move_rsp_mutex);
     return ESP_FAIL;
   }
   game_response_t response;
   if (xQueueReceive(response_queue, &response, pdMS_TO_TICKS(1000)) == pdTRUE) {
-    vQueueDelete(response_queue);
+    xSemaphoreGive(s_web_move_rsp_mutex);
     if (response.type == GAME_RESPONSE_ERROR) {
       ESP_LOGW(TAG, "Move rejected by game task: %s", response.data);
       if (err != NULL && err_cap > 0) {
@@ -762,7 +829,7 @@ esp_err_t web_game_enqueue_move(const char *from, const char *to,
     ESP_LOGI(TAG, "Move accepted by game task");
     return ESP_OK;
   }
-  vQueueDelete(response_queue);
+  xSemaphoreGive(s_web_move_rsp_mutex);
   ESP_LOGW(TAG, "Move validation timed out");
   if (accepted_async != NULL) {
     *accepted_async = true;
@@ -781,7 +848,7 @@ esp_err_t web_game_enqueue_move(const char *from, const char *to,
  * @details
  * Expected JSON: {"action": "pickup"|"drop", "square": "e2"}
  */
-esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
+esp_err_t web_post_game_virtual_action_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/virtual_action");
 
   // Kontrola web lock
@@ -876,15 +943,14 @@ esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  // Pripravit command pro game task
-  chess_move_command_t cmd = {0};
+  game_cmd_t cmd = {0};
 
   if (strcmp(action, "pickup") == 0) {
-    cmd.type = GAME_CMD_PICKUP; // UP command
+    cmd.kind = GCMD_BOARD_LIFT;
   } else if (strcmp(action, "drop") == 0) {
-    cmd.type = GAME_CMD_DROP; // DOWN command
+    cmd.kind = GCMD_BOARD_DROP;
   } else if (strcmp(action, "promote") == 0) {
-    cmd.type = GAME_CMD_PROMOTION;
+    cmd.kind = GCMD_PROMOTION_CHOICE;
   } else {
     httpd_resp_set_status(req, "400 Bad Request");
     httpd_resp_set_type(req, "application/json");
@@ -894,46 +960,37 @@ esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
   }
 
   if (strcmp(action, "pickup") == 0) {
-    // PICKUP: source square goes in from_notation
     if (strlen(square) == 0) {
       httpd_resp_send(
           req, "{\"success\":false,\"message\":\"Missing square for pickup\"}",
           -1);
       return ESP_FAIL;
     }
-    strncpy(cmd.from_notation, square, sizeof(cmd.from_notation) - 1);
+    strncpy(cmd.u.lift.square, square, sizeof(cmd.u.lift.square) - 1);
   } else if (strcmp(action, "drop") == 0) {
-    // DROP: destination square goes in to_notation
     if (strlen(square) == 0) {
       httpd_resp_send(
           req, "{\"success\":false,\"message\":\"Missing square for drop\"}",
           -1);
       return ESP_FAIL;
     }
-    strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
+    strncpy(cmd.u.drop.to, square, sizeof(cmd.u.drop.to) - 1);
   } else if (strcmp(action, "promote") == 0) {
-    // PROMOTE: choice goes into promotion_choice
-    if (strlen(choice) == 0)
-      strcpy(choice, "Q"); // Default to Queen
-
-    if (strcasecmp(choice, "Q") == 0)
-      cmd.promotion_choice = PROMOTION_QUEEN;
-    else if (strcasecmp(choice, "R") == 0)
-      cmd.promotion_choice = PROMOTION_ROOK;
-    else if (strcasecmp(choice, "B") == 0)
-      cmd.promotion_choice = PROMOTION_BISHOP;
-    else if (strcasecmp(choice, "N") == 0)
-      cmd.promotion_choice = PROMOTION_KNIGHT;
-    else
-      cmd.promotion_choice = PROMOTION_QUEEN; // Fallback
-
-    // Optional square
-    if (strlen(square) > 0)
-      strncpy(cmd.to_notation, square, sizeof(cmd.to_notation) - 1);
+    if (strlen(choice) == 0) {
+      strcpy(choice, "Q");
+    }
+    if (strcasecmp(choice, "R") == 0) {
+      cmd.u.promo.piece = 'r';
+    } else if (strcasecmp(choice, "B") == 0) {
+      cmd.u.promo.piece = 'b';
+    } else if (strcasecmp(choice, "N") == 0) {
+      cmd.u.promo.piece = 'n';
+    } else {
+      cmd.u.promo.piece = 'q';
+    }
   }
 
-  // Send to queue
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+  if (!game_submit(&cmd)) {
     httpd_resp_set_status(req, "500 Internal Server Error");
     httpd_resp_send(req, "Failed to send command", -1);
     return ESP_FAIL;
@@ -957,7 +1014,7 @@ esp_err_t http_post_game_virtual_action_handler(httpd_req_t *req) {
  * Without JSON payload. It differs from the automatic NEW_GAME when starting from main
  * (initialize_chess_game), where the NVS command is not sent when restoring.
  */
-esp_err_t http_post_game_new_handler(httpd_req_t *req) {
+esp_err_t web_post_game_new_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/new");
 
   // Kontrola web lock
@@ -970,34 +1027,30 @@ esp_err_t http_post_game_new_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  chess_move_command_t cmd = {0};
-  cmd.player = 0;
-  cmd.response_queue = NULL;
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_NEW_GAME;
 
   char body[256] = {0};
   int r = httpd_req_recv(req, body, (int)sizeof(body) - 1);
   if (r > 0) {
     body[r] = '\0';
+  }
+  if (cmd_wire_http_guard(req, body, "new_game")) {
+    return ESP_OK;
+  }
+  if (r > 0) {
     cJSON *root = cJSON_Parse(body);
     if (root != NULL) {
       cJSON *fj = cJSON_GetObjectItemCaseSensitive(root, "fen");
       if (cJSON_IsString(fj) && fj->valuestring != NULL &&
           fj->valuestring[0] != '\0') {
-        cmd.type = GAME_CMD_NEW_GAME_FROM_FEN;
-        strncpy(cmd.timer_data.fen_new_game.fen, fj->valuestring,
-                sizeof(cmd.timer_data.fen_new_game.fen) - 1);
-        cmd.timer_data.fen_new_game.fen[sizeof(cmd.timer_data.fen_new_game.fen) -
-                                        1] = '\0';
+        cmd.kind = GCMD_NEW_GAME_FEN;
+        strncpy(cmd.u.fen.fen, fj->valuestring, sizeof(cmd.u.fen.fen) - 1);
         cJSON_Delete(root);
       } else {
         cJSON_Delete(root);
-        cmd.type = GAME_CMD_NEW_GAME;
       }
-    } else {
-      cmd.type = GAME_CMD_NEW_GAME;
     }
-  } else {
-    cmd.type = GAME_CMD_NEW_GAME;
   }
 
   if (game_command_queue == NULL) {
@@ -1009,9 +1062,9 @@ esp_err_t http_post_game_new_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  if (cmd.type == GAME_CMD_NEW_GAME_FROM_FEN) {
+  if (cmd.kind == GCMD_NEW_GAME_FEN) {
     game_fen_position_t parsed;
-    if (!game_parse_fen(cmd.timer_data.fen_new_game.fen, &parsed)) {
+    if (!game_parse_fen(cmd.u.fen.fen, &parsed)) {
       httpd_resp_set_status(req, "400 Bad Request");
       httpd_resp_set_type(req, "application/json");
       httpd_resp_send(req, "{\"success\":false,\"error\":\"FEN rejected\"}",
@@ -1020,21 +1073,18 @@ esp_err_t http_post_game_new_handler(httpd_req_t *req) {
     }
   }
 
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+  if (!game_submit(&cmd)) {
     ESP_LOGE(TAG, "Failed to send NEW_GAME command to queue");
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(
-        req, "{\"success\":false,\"error\":\"Failed to send command\"}", -1);
-    return ESP_FAIL;
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", body, false, NULL);
+    return ESP_OK;
   }
 
-  ESP_LOGI(TAG, "✅ game/new command sent (type=%d)", (int)cmd.type);
+  ESP_LOGI(TAG, "game/new command sent (kind=%d)", (int)cmd.kind);
 
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true,\"message\":\"New game accepted\"}",
-                  -1);
+  cmd_wire_http_send(req, "200 OK",
+                     "{\"success\":true,\"message\":\"New game accepted\"}",
+                     body, true, "new_game");
 
   return ESP_OK;
 }
@@ -1045,7 +1095,7 @@ esp_err_t http_post_game_new_handler(httpd_req_t *req) {
  * Points: { "to": "e4" } required; { "from": "e2" } optional.
  * If "from" is missing or invalid, send from_led=64 so that only "it" lights up on the board.
  */
-esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
+esp_err_t web_post_game_hint_highlight_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/hint_highlight");
 
   if (web_is_locked()) {
@@ -1059,28 +1109,33 @@ esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
     return ESP_OK;
   }
 
-  char buf[128];
-  int ret = httpd_req_recv(req, buf, sizeof(buf) - 1);
-  if (ret <= 0) {
+  char buf[192];
+  if (!web_recv_json_body(req, buf, sizeof(buf))) {
     httpd_resp_set_status(req, "400 Bad Request");
     httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"No body\"}", -1);
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"Incomplete hint\"}", -1);
     return ESP_OK;
   }
-  buf[ret] = '\0';
+
+  if (cmd_wire_http_guard(req, buf, "hint_highlight")) {
+    return ESP_OK;
+  }
 
   esp_err_t herr = web_server_apply_hint_highlight_json_body(buf);
   if (herr == ESP_ERR_INVALID_ARG) {
-    httpd_resp_set_status(req, "400 Bad Request");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"success\":false,\"error\":\"Invalid hint body\"}",
-                    -1);
+    cmd_wire_http_send(req, "400 Bad Request",
+                       "{\"success\":false,\"error\":\"Invalid hint body\"}",
+                       buf, false, NULL);
+    return ESP_OK;
+  }
+  if (herr == ESP_ERR_NO_MEM || herr == ESP_ERR_TIMEOUT || herr == ESP_FAIL) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", buf, false, NULL);
     return ESP_OK;
   }
 
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", buf, true,
+                     "hint_highlight");
   return ESP_OK;
 }
 
@@ -1088,21 +1143,42 @@ esp_err_t http_post_game_hint_highlight_handler(httpd_req_t *req) {
  * @brief Handler for POST /api/game/hint_clear
  * Deletes the visualization of the hint on the LED (called with clearBotSuggestion).
  */
-esp_err_t http_post_game_hint_clear_handler(httpd_req_t *req) {
-  (void)req;
+esp_err_t web_post_game_hint_clear_handler(httpd_req_t *req) {
+  char body[160];
   ESP_LOGI(TAG, "POST /api/game/hint_clear");
-  led_command_t cmd = {0};
-  cmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-  led_execute_command_new(&cmd);
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
-  httpd_resp_send(req, "{\"success\":true}", -1);
+  body[0] = '\0';
+  if (req->content_len > 0) {
+    int n = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+    if (n > 0) {
+      body[n] = '\0';
+    }
+  }
+  if (cmd_wire_http_guard(req, body, "hint_clear")) {
+    return ESP_OK;
+  }
+  if (!web_game_submit_hint_clear()) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", body, false, NULL);
+    return ESP_OK;
+  }
+  cmd_wire_http_send(req, "200 OK", "{\"success\":true}", body, true,
+                     "hint_clear");
   return ESP_OK;
 }
 
-esp_err_t http_post_game_guard_clear_handler(httpd_req_t *req) {
-  (void)req;
+esp_err_t web_post_game_guard_clear_handler(httpd_req_t *req) {
+  char body[160];
   ESP_LOGI(TAG, "POST /api/game/guard_clear");
+  body[0] = '\0';
+  if (req->content_len > 0) {
+    int n = httpd_req_recv(req, body, (int)sizeof(body) - 1);
+    if (n > 0) {
+      body[n] = '\0';
+    }
+  }
+  if (cmd_wire_http_guard(req, body, "guard_clear")) {
+    return ESP_OK;
+  }
 
   if (web_is_locked()) {
     httpd_resp_set_type(req, "application/json");
@@ -1118,16 +1194,15 @@ esp_err_t http_post_game_guard_clear_handler(httpd_req_t *req) {
     game_force_clear_squares_guard();
   }
 
-  httpd_resp_set_status(req, "200 OK");
-  httpd_resp_set_type(req, "application/json");
   if (was_active) {
-    httpd_resp_send(
-        req,
+    cmd_wire_http_send(
+        req, "200 OK",
         "{\"success\":true,\"cleared\":true,\"message\":\"Matrix guard "
         "cleared. Verify physical board matches the game.\"}",
-        -1);
+        body, true, "guard_clear");
   } else {
-    httpd_resp_send(req, "{\"success\":true,\"cleared\":false}", -1);
+    cmd_wire_http_send(req, "200 OK", "{\"success\":true,\"cleared\":false}",
+                       body, true, "guard_clear");
   }
   return ESP_OK;
 }
@@ -1136,7 +1211,7 @@ esp_err_t http_post_game_guard_clear_handler(httpd_req_t *req) {
  * POST /api/game/setup_tutorial
  * Body: {"action":"start"|"cancel"|"finish"}
  */
-esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
+esp_err_t web_post_game_setup_tutorial_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/setup_tutorial");
 
   if (web_is_locked()) {
@@ -1216,12 +1291,13 @@ esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
     return ESP_FAIL;
   }
 
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_BOARD_SETUP_TUTORIAL;
-  cmd.promotion_choice = want_start ? 0U : (want_finish ? 2U : 1U);
-  cmd.response_queue = NULL;
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_MODE_TUTORIAL;
+  cmd.u.mode.act = want_start ? (uint8_t)TUTORIAL_ACT_START
+                              : (want_finish ? (uint8_t)TUTORIAL_ACT_FINISH
+                                             : (uint8_t)TUTORIAL_ACT_CANCEL);
 
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+  if (!game_submit(&cmd)) {
     ESP_LOGE(TAG, "setup_tutorial: queue send failed");
     httpd_resp_set_type(req, "application/json");
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -1230,9 +1306,7 @@ esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
   }
 
   if (want_cancel) {
-    led_command_t lcmd = {0};
-    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-    led_execute_command_new(&lcmd);
+    (void)web_game_submit_hint_clear();
   }
 
   httpd_resp_set_status(req, "200 OK");
@@ -1241,22 +1315,16 @@ esp_err_t http_post_game_setup_tutorial_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static esp_err_t puzzle_queue_choice(uint8_t choice) {
-  if (game_command_queue == NULL) {
+static esp_err_t puzzle_queue_act(puzzle_act_t act) {
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_MODE_PUZZLE;
+  cmd.u.mode.act = (uint8_t)act;
+  if (!game_submit(&cmd)) {
+    ESP_LOGE(TAG, "puzzle: queue send failed act=%u", (unsigned)act);
     return ESP_FAIL;
   }
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_PUZZLE;
-  cmd.promotion_choice = choice;
-  cmd.response_queue = NULL;
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
-    ESP_LOGE(TAG, "puzzle: queue send failed choice=%u", (unsigned)choice);
-    return ESP_FAIL;
-  }
-  if (choice == 0U) {
-    led_command_t lcmd = {0};
-    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-    led_execute_command_new(&lcmd);
+  if (act == PUZZLE_ACT_CANCEL) {
+    (void)web_game_submit_hint_clear();
   }
   return ESP_OK;
 }
@@ -1300,7 +1368,7 @@ esp_err_t web_server_puzzle_dispatch_body(const char *json, char *response,
 
   if (strcmp(action, "cancel") == 0) {
     cJSON_Delete(root);
-    if (puzzle_queue_choice(0) != ESP_OK) {
+    if (puzzle_queue_act(PUZZLE_ACT_CANCEL) != ESP_OK) {
       puzzle_copy_response(response, response_len,
                            "{\"success\":false,\"error\":\"Queue full\"}");
       return ESP_FAIL;
@@ -1403,7 +1471,7 @@ esp_err_t web_server_puzzle_dispatch_body(const char *json, char *response,
   cJSON_Delete(root);
 
   if (is_prepare || !match) {
-    if (puzzle_queue_choice(210) != ESP_OK) {
+    if (puzzle_queue_act(PUZZLE_ACT_APPLY_SETUP) != ESP_OK) {
       puzzle_copy_response(response, response_len,
                            "{\"success\":false,\"error\":\"Queue full\"}");
       return ESP_FAIL;
@@ -1422,7 +1490,7 @@ esp_err_t web_server_puzzle_dispatch_body(const char *json, char *response,
     return ESP_ERR_INVALID_STATE;
   }
 
-  if (puzzle_queue_choice(211) != ESP_OK) {
+  if (puzzle_queue_act(PUZZLE_ACT_START_STAGED) != ESP_OK) {
     puzzle_copy_response(response, response_len,
                          "{\"success\":false,\"error\":\"Queue full\"}");
     return ESP_FAIL;
@@ -1439,7 +1507,7 @@ esp_err_t web_server_puzzle_dispatch_body(const char *json, char *response,
  *       {"action":"start"} | {"action":"start","id":1}
  *       {"action":"prepare","id":1} | {"action":"cancel"} | {"action":"hint"}
  */
-esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
+esp_err_t web_post_game_puzzle_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/puzzle");
 
   if (web_is_locked()) {
@@ -1459,30 +1527,29 @@ esp_err_t http_post_game_puzzle_handler(httpd_req_t *req) {
     return ESP_OK;
   }
   buf[r] = '\0';
+  if (cmd_wire_http_guard(req, buf, "puzzle")) {
+    return ESP_OK;
+  }
 
   char response[192];
   response[0] = '\0';
   esp_err_t err = web_server_puzzle_dispatch_body(buf, response, sizeof(response));
-  const char *body =
+  const char *sent =
       response[0] != '\0' ? response : "{\"success\":false,\"error\":\"puzzle\"}";
-  httpd_resp_set_type(req, "application/json");
   if (err == ESP_OK) {
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_send(req, body, -1);
+    cmd_wire_http_send(req, "200 OK", sent, buf, true, "puzzle");
     return ESP_OK;
   }
   if (err == ESP_ERR_INVALID_STATE) {
-    httpd_resp_set_status(req, "409 Conflict");
-    httpd_resp_send(req, body, -1);
+    cmd_wire_http_send(req, "409 Conflict", sent, buf, false, NULL);
     return ESP_OK;
   }
-  if (err == ESP_FAIL) {
-    httpd_resp_set_status(req, "500 Internal Server Error");
-    httpd_resp_send(req, body, -1);
-    return ESP_FAIL;
+  if (err == ESP_FAIL || err == ESP_ERR_TIMEOUT) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", buf, false, NULL);
+    return ESP_OK;
   }
-  httpd_resp_set_status(req, "400 Bad Request");
-  httpd_resp_send(req, body, -1);
+  cmd_wire_http_send(req, "400 Bad Request", sent, buf, false, NULL);
   return ESP_OK;
 }
 
@@ -1493,14 +1560,14 @@ static const char *opening_dispatch_error_key(esp_err_t err) {
   if (err == ESP_ERR_NOT_ALLOWED) {
     return "resync_incomplete";
   }
-  if (err == ESP_FAIL) {
-    return "queue_full";
+  if (err == ESP_FAIL || err == ESP_ERR_TIMEOUT) {
+    return "busy";
   }
   return "invalid_line";
 }
 
 /** POST /api/game/opening */
-esp_err_t http_post_game_opening_handler(httpd_req_t *req) {
+esp_err_t web_post_game_opening_handler(httpd_req_t *req) {
   ESP_LOGI(TAG, "POST /api/game/opening");
 
   if (web_is_locked()) {
@@ -1520,6 +1587,9 @@ esp_err_t http_post_game_opening_handler(httpd_req_t *req) {
     return ESP_OK;
   }
   buf[r] = '\0';
+  if (cmd_wire_http_guard(req, buf, "opening")) {
+    return ESP_OK;
+  }
 
   cJSON *root = cJSON_Parse(buf);
   if (root == NULL) {
@@ -1551,33 +1621,554 @@ esp_err_t http_post_game_opening_handler(httpd_req_t *req) {
   cJSON_Delete(root);
 
   if (dispatch_err == ESP_OK) {
-    httpd_resp_set_status(req, "200 OK");
-    httpd_resp_set_type(req, "application/json");
-    httpd_resp_send(req, "{\"ok\":true}", -1);
+    cmd_wire_http_send(req, "200 OK", "{\"ok\":true}", buf, true, "opening");
     return ESP_OK;
   }
-
-  httpd_resp_set_type(req, "application/json");
   if (dispatch_err == ESP_ERR_INVALID_STATE) {
-    httpd_resp_set_status(req, "409 Conflict");
-    httpd_resp_send(req, "{\"ok\":false,\"error\":\"mode_conflict\"}", -1);
+    cmd_wire_http_send(req, "409 Conflict",
+                       "{\"ok\":false,\"error\":\"mode_conflict\"}", buf, false,
+                       NULL);
     return ESP_OK;
   }
   if (dispatch_err == ESP_ERR_NOT_ALLOWED) {
-    httpd_resp_set_status(req, "409 Conflict");
-    httpd_resp_send(req, "{\"ok\":false,\"error\":\"resync_incomplete\"}", -1);
+    cmd_wire_http_send(req, "409 Conflict",
+                       "{\"ok\":false,\"error\":\"resync_incomplete\"}", buf,
+                       false, NULL);
     return ESP_OK;
   }
-  if (dispatch_err == ESP_FAIL) {
-    httpd_resp_set_status(req, "503 Service Unavailable");
-    httpd_resp_send(req, "{\"ok\":false,\"error\":\"queue_full\"}", -1);
-    return ESP_FAIL;
+  if (dispatch_err == ESP_FAIL || dispatch_err == ESP_ERR_TIMEOUT) {
+    cmd_wire_http_send(req, "503 Service Unavailable",
+                       "{\"ok\":false,\"error\":\"busy\"}", buf, false, NULL);
+    return ESP_OK;
   }
-  httpd_resp_set_status(req, "400 Bad Request");
   char err_body[96];
-  snprintf(err_body, sizeof(err_body),
-           "{\"ok\":false,\"error\":\"%s\"}", opening_dispatch_error_key(dispatch_err));
-  httpd_resp_send(req, err_body, -1);
+  snprintf(err_body, sizeof(err_body), "{\"ok\":false,\"error\":\"%s\"}",
+           opening_dispatch_error_key(dispatch_err));
+  cmd_wire_http_send(req, "400 Bad Request", err_body, buf, false, NULL);
   return ESP_OK;
 }
 #endif /* CONFIG_CHESS_ENABLE_WEB_SERVER */
+
+/**
+ * BLE game commands (move, new game, timers, virtual, tutorial, puzzle, opening).
+ * @return ESP_ERR_NOT_FOUND when cmd is not handled here.
+ */
+esp_err_t web_server_ble_game_command_dispatch(const char *cmd, char *buf) {
+  if (strcmp(cmd, "move") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] move blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    // BLE move command: {"cmd": "move", "from": "e2", "to": "e4", "promotion": "q"}
+    char from[8] = {0};
+    char to[8] = {0};
+    char promotion[8] = {0};
+
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      ESP_LOGE(TAG, "Invalid JSON in move command");
+      return ESP_FAIL;
+    }
+
+    cJSON *from_obj = cJSON_GetObjectItemCaseSensitive(root, "from");
+    cJSON *to_obj = cJSON_GetObjectItemCaseSensitive(root, "to");
+    cJSON *promo_obj = cJSON_GetObjectItemCaseSensitive(root, "promotion");
+
+    if (cJSON_IsString(from_obj) && cJSON_IsString(to_obj)) {
+      strncpy(from, from_obj->valuestring, sizeof(from) - 1);
+      strncpy(to, to_obj->valuestring, sizeof(to) - 1);
+      from[sizeof(from) - 1] = '\0';
+      to[sizeof(to) - 1] = '\0';
+      if (cJSON_IsString(promo_obj)) {
+        strncpy(promotion, promo_obj->valuestring, sizeof(promotion) - 1);
+      }
+
+      /* Same field (double tap in app) — don't send to game_task (MOVE_ERROR_DESTINATION_OCCUPIED). */
+      if (strcmp(from, to) == 0) {
+        ESP_LOGW(TAG, "[BLE] move: ignored (from==to)");
+        cJSON_Delete(root);
+        return ESP_OK;
+      }
+
+      {
+        game_cmd_t move_cmd = {0};
+        move_cmd.kind = GCMD_MOVE;
+        strncpy(move_cmd.u.move.from, from, sizeof(move_cmd.u.move.from) - 1);
+        strncpy(move_cmd.u.move.to, to, sizeof(move_cmd.u.move.to) - 1);
+        if (strlen(promotion) > 0) {
+          switch (promotion[0]) {
+          case 'r':
+          case 'R':
+            move_cmd.u.move.promotion = 'r';
+            break;
+          case 'b':
+          case 'B':
+            move_cmd.u.move.promotion = 'b';
+            break;
+          case 'n':
+          case 'N':
+            move_cmd.u.move.promotion = 'n';
+            break;
+          default:
+            move_cmd.u.move.promotion = 'q';
+            break;
+          }
+        }
+
+        if (!game_submit(&move_cmd)) {
+          ESP_LOGE(TAG, "[BLE] move: failed to send to game queue");
+          cJSON_Delete(root);
+          return ESP_ERR_TIMEOUT;
+        }
+        ESP_LOGI(TAG, "[BLE] move: %s -> %s (promo: %s)", from, to,
+                 strlen(promotion) > 0 ? promotion : "none");
+      }
+    } else {
+      ESP_LOGW(TAG, "[BLE] move: missing from/to fields");
+      cJSON_Delete(root);
+      return ESP_ERR_INVALID_ARG;
+    }
+    cJSON_Delete(root);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "new_game") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] new_game blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    game_cmd_t new_cmd = {0};
+    new_cmd.kind = GCMD_NEW_GAME;
+    cJSON *root = cJSON_Parse(buf);
+    if (root != NULL) {
+      cJSON *fj = cJSON_GetObjectItemCaseSensitive(root, "fen");
+      if (cJSON_IsString(fj) && fj->valuestring != NULL &&
+          fj->valuestring[0] != '\0') {
+        new_cmd.kind = GCMD_NEW_GAME_FEN;
+        strncpy(new_cmd.u.fen.fen, fj->valuestring, sizeof(new_cmd.u.fen.fen) - 1);
+      }
+      cJSON_Delete(root);
+    }
+    if (new_cmd.kind == GCMD_NEW_GAME_FEN) {
+      game_fen_position_t parsed;
+      if (!game_parse_fen(new_cmd.u.fen.fen, &parsed)) {
+        ESP_LOGW(TAG, "[BLE] new_game: FEN rejected");
+        return ESP_ERR_INVALID_ARG;
+      }
+    }
+    if (game_submit(&new_cmd)) {
+      ESP_LOGI(TAG, "[BLE] new_game: kind=%d", (int)new_cmd.kind);
+    } else {
+      ESP_LOGE(TAG, "[BLE] new_game: failed to send to game queue");
+      return ESP_FAIL;
+    }
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "resign") == 0) {
+    const char *rerr = NULL;
+    esp_err_t rr = web_server_resign_dispatch_body(buf, &rerr);
+    if (rr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] resign: command sent");
+    } else {
+      ESP_LOGW(TAG, "[BLE] resign refused: %s", rerr != NULL ? rerr : "?");
+    }
+    return rr;
+  }
+
+  if (strcmp(cmd, "draw") == 0) {
+    const char *derr = NULL;
+    esp_err_t dr = web_server_draw_dispatch(&derr);
+    if (dr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] draw: command sent");
+    } else {
+      ESP_LOGW(TAG, "[BLE] draw refused: %s", derr != NULL ? derr : "?");
+    }
+    return dr;
+  }
+
+  if (strcmp(cmd, "undo") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] undo blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (game_move_history_count() == 0) {
+      ESP_LOGW(TAG, "[BLE] undo: nothing to undo");
+      return ESP_ERR_INVALID_STATE;
+    }
+    {
+      game_cmd_t undo_cmd = {0};
+      undo_cmd.kind = GCMD_UNDO;
+      if (!game_submit(&undo_cmd)) {
+        ESP_LOGE(TAG, "[BLE] undo: failed to send to game queue");
+        return ESP_ERR_TIMEOUT;
+      }
+      ESP_LOGI(TAG, "[BLE] undo: command sent");
+    }
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "promotion") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] promotion blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      ESP_LOGE(TAG, "Invalid JSON in promotion command");
+      return ESP_FAIL;
+    }
+    cJSON *choice_obj = cJSON_GetObjectItemCaseSensitive(root, "choice");
+    if (cJSON_IsString(choice_obj)) {
+      game_cmd_t promo_cmd = {0};
+      promo_cmd.kind = GCMD_PROMOTION_CHOICE;
+      switch (choice_obj->valuestring[0]) {
+      case 'r':
+      case 'R':
+        promo_cmd.u.promo.piece = 'r';
+        break;
+      case 'b':
+      case 'B':
+        promo_cmd.u.promo.piece = 'b';
+        break;
+      case 'n':
+      case 'N':
+        promo_cmd.u.promo.piece = 'n';
+        break;
+      default:
+        promo_cmd.u.promo.piece = 'q';
+        break;
+      }
+      if (!game_submit(&promo_cmd)) {
+        ESP_LOGE(TAG, "[BLE] promotion: failed to send to game queue");
+        cJSON_Delete(root);
+        return ESP_ERR_TIMEOUT;
+      }
+      ESP_LOGI(TAG, "[BLE] promotion: choice %s", choice_obj->valuestring);
+    }
+    cJSON_Delete(root);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_config") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_config blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    game_cmd_t tcmd = {0};
+    tcmd.kind = GCMD_TIMER_SET;
+
+    char *type_str = strstr(buf, "\"type\":");
+    if (type_str == NULL) {
+      ESP_LOGW(TAG, "[BLE] timer_config: missing type");
+      return ESP_ERR_INVALID_ARG;
+    }
+    int type_value;
+    if (sscanf(type_str, "\"type\":%d", &type_value) != 1) {
+      ESP_LOGW(TAG, "[BLE] timer_config: invalid type");
+      return ESP_ERR_INVALID_ARG;
+    }
+    if (type_value < 0 || type_value > 14) {
+      ESP_LOGW(TAG, "[BLE] timer_config: type out of range");
+      return ESP_ERR_INVALID_ARG;
+    }
+    tcmd.u.timer.time_control_type = (uint8_t)type_value;
+
+    if (type_value == 14) {
+      char *minutes_str = strstr(buf, "\"custom_minutes\":");
+      char *increment_str = strstr(buf, "\"custom_increment\":");
+      if (minutes_str) {
+        int minutes;
+        if (sscanf(minutes_str, "\"custom_minutes\":%d", &minutes) == 1) {
+          if (minutes >= 1 && minutes <= 180) {
+            tcmd.u.timer.custom_minutes = (uint32_t)minutes;
+          } else {
+            ESP_LOGW(TAG, "[BLE] timer_config: minutes out of range");
+            return ESP_ERR_INVALID_ARG;
+          }
+        }
+      }
+      if (increment_str) {
+        int increment;
+        if (sscanf(increment_str, "\"custom_increment\":%d", &increment) ==
+            1) {
+          if (increment >= 0 && increment <= 60) {
+            tcmd.u.timer.custom_increment = (uint32_t)increment;
+          } else {
+            ESP_LOGW(TAG, "[BLE] timer_config: increment out of range");
+            return ESP_ERR_INVALID_ARG;
+          }
+        }
+      }
+      if (minutes_str == NULL || increment_str == NULL) {
+        ESP_LOGW(TAG, "[BLE] timer_config: custom needs minutes+increment");
+        return ESP_ERR_INVALID_ARG;
+      }
+    }
+
+    if (!game_submit(&tcmd)) {
+      ESP_LOGE(TAG, "[BLE] timer_config: queue send failed");
+      return ESP_ERR_TIMEOUT;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_config: type=%d", type_value);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_pause") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_pause blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    game_cmd_t tcmd = {0};
+    tcmd.kind = GCMD_TIMER_PAUSE;
+    if (!game_submit(&tcmd)) {
+      return ESP_ERR_TIMEOUT;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_pause");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_resume") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_resume blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    game_cmd_t tcmd = {0};
+    tcmd.kind = GCMD_TIMER_RESUME;
+    if (!game_submit(&tcmd)) {
+      return ESP_ERR_TIMEOUT;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_resume");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "timer_reset") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] timer_reset blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    game_cmd_t tcmd = {0};
+    tcmd.kind = GCMD_TIMER_RESET;
+    if (!game_submit(&tcmd)) {
+      return ESP_ERR_TIMEOUT;
+    }
+    ESP_LOGI(TAG, "[BLE] timer_reset");
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "virtual_action") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] virtual_action blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    char action[16] = {0};
+    char square[8] = {0};
+    char choice[8] = {0};
+
+    const char *action_start = strstr(buf, "\"action\"");
+    if (action_start != NULL) {
+      action_start = strchr(action_start, ':');
+      if (action_start != NULL) {
+        action_start++;
+        while (*action_start == ' ' || *action_start == '\"') {
+          action_start++;
+        }
+        const char *action_end = strchr(action_start, '\"');
+        if (action_end != NULL && action_end > action_start) {
+          size_t len = (size_t)(action_end - action_start);
+          if (len < sizeof(action)) {
+            strncpy(action, action_start, len);
+          }
+        }
+      }
+    }
+
+    const char *square_start = strstr(buf, "\"square\"");
+    if (square_start != NULL) {
+      square_start = strchr(square_start, ':');
+      if (square_start != NULL) {
+        square_start++;
+        while (*square_start == ' ' || *square_start == '\"') {
+          square_start++;
+        }
+        const char *square_end = strchr(square_start, '\"');
+        if (square_end != NULL && square_end > square_start) {
+          size_t len = (size_t)(square_end - square_start);
+          if (len < sizeof(square)) {
+            strncpy(square, square_start, len);
+          }
+        }
+      }
+    }
+
+    const char *choice_start = strstr(buf, "\"choice\"");
+    if (choice_start != NULL) {
+      choice_start = strchr(choice_start, ':');
+      if (choice_start != NULL) {
+        choice_start++;
+        while (*choice_start == ' ' || *choice_start == '\"') {
+          choice_start++;
+        }
+        const char *choice_end = strchr(choice_start, '\"');
+        if (choice_end != NULL && choice_end > choice_start) {
+          size_t len = (size_t)(choice_end - choice_start);
+          if (len < sizeof(choice)) {
+            strncpy(choice, choice_start, len);
+          }
+        }
+      }
+    }
+
+    if (strlen(action) == 0) {
+      ESP_LOGW(TAG, "[BLE] virtual_action: missing action");
+      return ESP_ERR_INVALID_ARG;
+    }
+
+    game_cmd_t vacmd = {0};
+    if (strcmp(action, "pickup") == 0) {
+      vacmd.kind = GCMD_BOARD_LIFT;
+    } else if (strcmp(action, "drop") == 0) {
+      vacmd.kind = GCMD_BOARD_DROP;
+    } else if (strcmp(action, "promote") == 0) {
+      vacmd.kind = GCMD_PROMOTION_CHOICE;
+    } else {
+      ESP_LOGW(TAG, "[BLE] virtual_action: invalid action");
+      return ESP_ERR_INVALID_ARG;
+    }
+
+    if (strcmp(action, "pickup") == 0) {
+      if (strlen(square) == 0) {
+        ESP_LOGW(TAG, "[BLE] virtual_action: pickup needs square");
+        return ESP_ERR_INVALID_ARG;
+      }
+      strncpy(vacmd.u.lift.square, square, sizeof(vacmd.u.lift.square) - 1);
+    } else if (strcmp(action, "drop") == 0) {
+      if (strlen(square) == 0) {
+        ESP_LOGW(TAG, "[BLE] virtual_action: drop needs square");
+        return ESP_ERR_INVALID_ARG;
+      }
+      strncpy(vacmd.u.drop.to, square, sizeof(vacmd.u.drop.to) - 1);
+    } else if (strcmp(action, "promote") == 0) {
+      if (strlen(choice) == 0) {
+        strcpy(choice, "Q");
+      }
+      if (strcasecmp(choice, "R") == 0) {
+        vacmd.u.promo.piece = 'r';
+      } else if (strcasecmp(choice, "B") == 0) {
+        vacmd.u.promo.piece = 'b';
+      } else if (strcasecmp(choice, "N") == 0) {
+        vacmd.u.promo.piece = 'n';
+      } else {
+        vacmd.u.promo.piece = 'q';
+      }
+    }
+
+    if (!game_submit(&vacmd)) {
+      ESP_LOGE(TAG, "[BLE] virtual_action: queue send failed");
+      return ESP_ERR_TIMEOUT;
+    }
+    ESP_LOGI(TAG, "[BLE] virtual_action: %s", action);
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "setup_tutorial") == 0) {
+    if (web_is_locked()) {
+      return ESP_ERR_INVALID_STATE;
+    }
+    cJSON *root = cJSON_Parse(buf);
+    if (root == NULL) {
+      return ESP_FAIL;
+    }
+    cJSON *aj = cJSON_GetObjectItemCaseSensitive(root, "action");
+    const char *act = NULL;
+    if (cJSON_IsString(aj) && aj->valuestring != NULL) {
+      act = aj->valuestring;
+    }
+    bool want_start = (act != NULL && strcmp(act, "start") == 0);
+    bool want_cancel = (act != NULL && strcmp(act, "cancel") == 0);
+    bool want_finish = (act != NULL && strcmp(act, "finish") == 0);
+    int nact = (want_start ? 1 : 0) + (want_cancel ? 1 : 0) +
+               (want_finish ? 1 : 0);
+    cJSON_Delete(root);
+    if (nact != 1) {
+      return ESP_ERR_INVALID_ARG;
+    }
+
+    if (want_start || want_cancel) {
+      setup_tutorial_reset_finish_cooldown();
+    }
+
+    if (want_finish) {
+      if (!game_is_board_setup_tutorial_active()) {
+        return ESP_ERR_INVALID_ARG;
+      }
+      if (setup_tutorial_finish_in_cooldown()) {
+        return ESP_ERR_NOT_FINISHED;
+      }
+      if (!game_is_physical_board_starting_occupancy()) {
+        setup_tutorial_note_finish_conflict();
+        return ESP_ERR_NOT_FINISHED;
+      }
+      setup_tutorial_reset_finish_cooldown();
+    }
+
+    if (game_command_queue == NULL) {
+      ESP_LOGE(TAG, "[BLE] setup_tutorial: game_command_queue NULL");
+      return ESP_FAIL;
+    }
+    game_cmd_t gcmd = {0};
+    gcmd.kind = GCMD_MODE_TUTORIAL;
+    gcmd.u.mode.act = want_start ? (uint8_t)TUTORIAL_ACT_START
+                                 : (want_finish ? (uint8_t)TUTORIAL_ACT_FINISH
+                                                : (uint8_t)TUTORIAL_ACT_CANCEL);
+    if (!game_submit(&gcmd)) {
+      ESP_LOGE(TAG, "[BLE] setup_tutorial: queue send failed");
+      return ESP_ERR_TIMEOUT;
+    }
+    if (want_cancel) {
+      (void)web_game_submit_hint_clear();
+    }
+    ESP_LOGI(TAG, "[BLE] setup_tutorial action=%s queued",
+             want_start ? "start" : (want_finish ? "finish" : "cancel"));
+    return ESP_OK;
+  }
+
+  if (strcmp(cmd, "puzzle") == 0) {
+    if (web_is_locked()) {
+      ESP_LOGW(TAG, "[BLE] puzzle blocked (web locked)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    esp_err_t perr = web_server_puzzle_dispatch_body(buf, NULL, 0);
+    if (perr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] puzzle dispatched");
+      return ESP_OK;
+    }
+    if (perr == ESP_ERR_INVALID_STATE) {
+      ESP_LOGW(TAG, "[BLE] puzzle physical mismatch or hint unavailable");
+      return ESP_ERR_INVALID_STATE;
+    }
+    ESP_LOGW(TAG, "[BLE] puzzle dispatch failed: %s", esp_err_to_name(perr));
+    return perr;
+  }
+
+  if (strcmp(cmd, "opening") == 0) {
+    esp_err_t oerr = web_server_opening_dispatch_body(buf);
+    if (oerr == ESP_OK) {
+      ESP_LOGI(TAG, "[BLE] opening dispatched");
+      return ESP_OK;
+    }
+    if (oerr == ESP_ERR_INVALID_STATE) {
+      ESP_LOGW(TAG, "[BLE] opening blocked (locked or mode conflict)");
+      return ESP_ERR_INVALID_STATE;
+    }
+    if (oerr == ESP_ERR_NOT_ALLOWED) {
+      ESP_LOGW(TAG, "[BLE] opening checkpoint resync incomplete");
+      return ESP_ERR_NOT_ALLOWED;
+    }
+    ESP_LOGW(TAG, "[BLE] opening dispatch failed: %s", esp_err_to_name(oerr));
+    return oerr;
+  }
+
+  return ESP_ERR_NOT_FOUND;
+}
+

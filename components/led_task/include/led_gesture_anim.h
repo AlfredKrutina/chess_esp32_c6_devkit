@@ -66,9 +66,13 @@ bool led_gesture_start_wave(const uint32_t new_colors[64], bool inward,
 
 /**
  * @brief Smooth sweep from h1 that wipes the board to black. Reverse on early release.
- * @return true if the snake started (idle). false if another gesture is running.
+ * A second call while this sweep is running replays it once from h1.
+ * @return true if the snake started or restarted. false if another gesture is running.
  */
 bool led_gesture_start_snake(void);
+
+/** @brief True while the new-game sweep is moving forward or back. */
+bool led_gesture_snake_active(void);
 
 /**
  * @brief Red power symbol, then the ring goes out and the bar sinks.

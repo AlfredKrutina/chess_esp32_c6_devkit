@@ -139,16 +139,18 @@ void led_board_restore_guide_apply(const led_restore_guide_plan_t *plan) {
     led_board_restore_guide_clear();
     return;
   }
-  if (led_gesture_anim_busy() || led_lamp_board_held()) {
-    return;
-  }
-  if (s_plan.active && s_plan.mark_count == plan->mark_count &&
+  bool overlay_blocks = led_gesture_anim_busy() || led_lamp_board_held();
+  if (!overlay_blocks && s_plan.active && s_plan.mark_count == plan->mark_count &&
       memcmp(s_plan.marks, plan->marks,
              (size_t)plan->mark_count * sizeof(plan->marks[0])) == 0 &&
       s_pushed_gen == led_board_picture_gen()) {
     return;
   }
   memcpy(&s_plan, plan, sizeof(s_plan));
+  if (overlay_blocks) {
+    s_need_push = true;
+    return;
+  }
   push_plan();
   s_pushed_gen = led_board_picture_gen();
 }

@@ -39,7 +39,7 @@ extern "C" {
 #endif
 
 // Predni deklarace
-// Poznamka: chess_move_command_t je definovan v chess_types.h
+// Game commands are game_cmd_t in game_cmd.h. UART does not enqueue them.
 
 // ============================================================================
 // COMMAND RESULT TYPES

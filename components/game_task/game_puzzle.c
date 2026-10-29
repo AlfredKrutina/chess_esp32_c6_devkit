@@ -7,9 +7,17 @@
  * shown on LEDs and must be executed on the board so logic and wood stay together.
  */
 
-#include "game_task_internal.h"
 #include "game_board_core.h"
 #include "game_task.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "game_mode.h"
+#include "game_board_transition.h"
+#include "game_board_machine.h"
 #include "../squares_task/include/squares_task.h"
 #include "../squares_task/include/hall_i2c_squares.h"
 #include "../led_task/include/led_task.h"
@@ -24,6 +32,9 @@
 #include <string.h>
 
 static const char *TAG = "GAME_PUZZLE";
+
+static void puzzle_mode_bind(void);
+static void puzzle_mode_unbind(void);
 
 #ifndef NDEBUG
 #define STAGING_LOGI(tag, fmt, ...) ESP_LOGI(tag, "[STAGING] " fmt, ##__VA_ARGS__)
@@ -60,15 +71,42 @@ static const game_puzzle_definition_t game_puzzles[] = {
      "6k1/5ppp/8/8/3Q4/8/6PP/6K1 w - - 0 1", "d4", "d8"},
 };
 
-bool puzzle_active = false;
-bool puzzle_setup_active = false;
-uint8_t puzzle_setup_id = 0;
-uint8_t puzzle_active_id = 0;
-uint8_t puzzle_solution_from_row = 0;
-uint8_t puzzle_solution_from_col = 0;
-uint8_t puzzle_solution_to_row = 0;
-uint8_t puzzle_solution_to_col = 0;
-puzzle_feedback_t puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+static bool s_puzzle_active = false;
+
+bool *game_state_puzzle_active(void) { return &s_puzzle_active; }
+#define puzzle_active (*game_state_puzzle_active())
+static bool s_puzzle_setup_active = false;
+
+bool *game_state_puzzle_setup_active(void) { return &s_puzzle_setup_active; }
+#define puzzle_setup_active (*game_state_puzzle_setup_active())
+static uint8_t s_puzzle_setup_id = 0;
+
+uint8_t *game_state_puzzle_setup_id(void) { return &s_puzzle_setup_id; }
+#define puzzle_setup_id (*game_state_puzzle_setup_id())
+static uint8_t s_puzzle_active_id = 0;
+
+uint8_t *game_state_puzzle_active_id(void) { return &s_puzzle_active_id; }
+#define puzzle_active_id (*game_state_puzzle_active_id())
+static uint8_t s_puzzle_solution_from_row = 0;
+
+uint8_t *game_state_puzzle_solution_from_row(void) { return &s_puzzle_solution_from_row; }
+#define puzzle_solution_from_row (*game_state_puzzle_solution_from_row())
+static uint8_t s_puzzle_solution_from_col = 0;
+
+uint8_t *game_state_puzzle_solution_from_col(void) { return &s_puzzle_solution_from_col; }
+#define puzzle_solution_from_col (*game_state_puzzle_solution_from_col())
+static uint8_t s_puzzle_solution_to_row = 0;
+
+uint8_t *game_state_puzzle_solution_to_row(void) { return &s_puzzle_solution_to_row; }
+#define puzzle_solution_to_row (*game_state_puzzle_solution_to_row())
+static uint8_t s_puzzle_solution_to_col = 0;
+
+uint8_t *game_state_puzzle_solution_to_col(void) { return &s_puzzle_solution_to_col; }
+#define puzzle_solution_to_col (*game_state_puzzle_solution_to_col())
+static puzzle_feedback_t s_puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+
+puzzle_feedback_t *game_state_puzzle_feedback(void) { return &s_puzzle_feedback; }
+#define puzzle_feedback (*game_state_puzzle_feedback())
 
 static bool puzzle_session_loaded = false;
 static bool puzzle_solved = false;
@@ -202,8 +240,8 @@ static void puzzle_bind_expected_squares(void) {
   puzzle_expected_to[1] = uci[3];
   puzzle_expected_to[2] = '\0';
   uint8_t from_row = 0, from_col = 0, to_row = 0, to_col = 0;
-  if (!convert_notation_to_coords(puzzle_expected_from, &from_row, &from_col) ||
-      !convert_notation_to_coords(puzzle_expected_to, &to_row, &to_col)) {
+  if (!game_notation_to_coords(puzzle_expected_from, &from_row, &from_col) ||
+      !game_notation_to_coords(puzzle_expected_to, &to_row, &to_col)) {
     puzzle_clear_expected();
     return;
   }
@@ -214,19 +252,19 @@ static void puzzle_bind_expected_squares(void) {
 }
 
 static void puzzle_show_play_leds(bool reveal_destination) {
-  led_clear_board_only();
+  game_led_clear_board();
   if (puzzle_expected_from[0] == '\0') {
     return;
   }
   uint8_t row = 0, col = 0;
-  if (convert_notation_to_coords(puzzle_expected_from, &row, &col)) {
-    led_set_pixel_safe(chess_pos_to_led_index(row, col), 255, 210, 0);
+  if (game_notation_to_coords(puzzle_expected_from, &row, &col)) {
+    game_led_frame_sq(row, col, 255, 210, 0);
   }
   if (!reveal_destination || puzzle_expected_to[0] == '\0') {
     return;
   }
-  if (convert_notation_to_coords(puzzle_expected_to, &row, &col)) {
-    led_set_pixel_safe(chess_pos_to_led_index(row, col), 40, 90, 255);
+  if (game_notation_to_coords(puzzle_expected_to, &row, &col)) {
+    game_led_frame_sq(row, col, 40, 90, 255);
   }
 }
 
@@ -240,7 +278,7 @@ static bool puzzle_square_disagrees(uint8_t index, uint8_t want_occ,
   if (puzzle_active && !puzzle_setup_active) {
     uint8_t row = index / 8;
     uint8_t col = index % 8;
-    if (!game_hall_square_agrees_with_logic(index, board[row][col], phys[index])) {
+    if (!game_hall_square_agrees_with_logic(index, game_get_piece(row, col), phys[index])) {
       return true;
     }
   }
@@ -253,7 +291,7 @@ static bool puzzle_square_disagrees(uint8_t index, uint8_t want_occ,
 static bool puzzle_paint_target(const uint8_t exp[64]) {
   uint8_t phys[64];
   squares_get_state(phys);
-  led_clear_board_only();
+  game_led_clear_board();
   bool match = true;
   for (int i = 0; i < 64; i++) {
     uint8_t want = exp[i] ? (uint8_t)1 : (uint8_t)0;
@@ -262,16 +300,16 @@ static bool puzzle_paint_target(const uint8_t exp[64]) {
     uint8_t led = chess_pos_to_led_index(row, col);
     if (!puzzle_square_disagrees((uint8_t)i, want, phys)) {
       if (want) {
-        led_set_pixel_safe(led, 0, 90, 0);
+        game_led_paint_led(led, 0, 90, 0);
       }
       continue;
     }
     match = false;
     uint8_t got = phys[i] ? (uint8_t)1 : (uint8_t)0;
     if (want && !got) {
-      led_set_pixel_safe(led, 210, 210, 210);
+      game_led_paint_led(led, 210, 210, 210);
     } else {
-      led_set_pixel_safe(led, 255, 0, 0);
+      game_led_paint_led(led, 255, 0, 0);
     }
   }
   return match;
@@ -280,7 +318,7 @@ static bool puzzle_paint_target(const uint8_t exp[64]) {
 static void puzzle_expected_occupancy_from_logic(uint8_t exp[64]) {
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      exp[row * 8 + col] = (board[row][col] == PIECE_EMPTY) ? 0 : 1;
+      exp[row * 8 + col] = (game_get_piece(row, col) == PIECE_EMPTY) ? 0 : 1;
     }
   }
 }
@@ -399,6 +437,7 @@ bool game_puzzle_apply_staged_setup(void) {
   STAGING_LOGI(TAG, "puzzle: setup session=%u match=%d",
                (unsigned)puzzle_session, match ? 1 : 0);
   game_bump_revision_and_notify();
+  puzzle_mode_bind();
   return true;
 }
 
@@ -473,9 +512,9 @@ bool game_puzzle_try_start_staged(void) {
   current_player = fen_player;
   current_game_state = GAME_STATE_ACTIVE;
   game_active = true;
-  game_start_time = esp_timer_get_time() / 1000;
-  last_move_time = game_start_time;
-  board_setup_tutorial_active = false;
+  (*game_state_game_start_time()) = esp_timer_get_time() / 1000;
+  (*game_state_last_move_time()) = (*game_state_game_start_time());
+  (*game_state_board_setup_tutorial_active()) = false;
   puzzle_setup_active = false;
   puzzle_setup_id = 0;
   puzzle_active = true;
@@ -505,6 +544,7 @@ bool game_puzzle_try_start_staged(void) {
                  (unsigned)puzzle_session, (unsigned)puzzle_solution_count);
   }
   game_bump_revision_and_notify();
+  puzzle_mode_bind();
   return true;
 }
 
@@ -516,6 +556,7 @@ bool game_puzzle_start(uint8_t puzzle_id) {
 }
 
 void game_puzzle_cancel(void) {
+  puzzle_mode_unbind();
   bool was = puzzle_active || puzzle_setup_active || puzzle_session_loaded;
   puzzle_active = false;
   puzzle_active_id = 0;
@@ -524,7 +565,7 @@ void game_puzzle_cancel(void) {
   puzzle_feedback = PUZZLE_FEEDBACK_NONE;
   puzzle_forget_session();
   if (was) {
-    led_clear_board_only();
+    game_led_clear_board();
     STAGING_LOGI(TAG, "puzzle: cancelled");
     game_bump_revision_and_notify();
   }
@@ -555,6 +596,66 @@ bool game_puzzle_drop_is_expected(uint8_t from_row, uint8_t from_col,
          to_row == puzzle_solution_to_row && to_col == puzzle_solution_to_col;
 }
 
+static void puzzle_on_lift(const position_t *pos, uint8_t square) {
+  (void)pos;
+  (void)square;
+}
+
+static void puzzle_on_drop(const position_t *pos, uint8_t from, uint8_t to,
+                           bool has_from) {
+  uint8_t fr;
+  uint8_t fc;
+  uint8_t tr;
+  uint8_t tc;
+  position_move_t mv;
+  (void)has_from;
+  if (puzzle_setup_active || puzzle_sync_hold) {
+    game_mode_reject_drop();
+    return;
+  }
+  if (!puzzle_active || puzzle_solved) {
+    return;
+  }
+  fr = from / 8u;
+  fc = from % 8u;
+  tr = to / 8u;
+  tc = to % 8u;
+  if (game_puzzle_drop_is_expected(fr, fc, tr, tc)) {
+    return;
+  }
+  mv.from = from;
+  mv.to = to;
+  mv.promo = POS_PROMO_NONE;
+  puzzle_feedback = (pos != NULL && position_legal(pos, mv)) ? PUZZLE_FEEDBACK_WRONG
+                                                            : PUZZLE_FEEDBACK_ILLEGAL;
+  game_mode_reject_drop();
+}
+
+static void puzzle_on_move_applied(const position_t *pos, position_move_t mv) {
+  (void)pos;
+  (void)mv;
+  if (!puzzle_active || (*game_state_promotion_state()).pending) {
+    return;
+  }
+  game_puzzle_after_accepted_move();
+}
+
+static void puzzle_on_leds(const position_t *pos) {
+  (void)pos;
+  game_puzzle_service_leds();
+}
+
+static const game_mode_t s_puzzle_mode = {
+    puzzle_on_lift,
+    puzzle_on_drop,
+    puzzle_on_move_applied,
+    puzzle_on_leds,
+};
+
+static void puzzle_mode_bind(void) { game_mode_set(&s_puzzle_mode); }
+
+static void puzzle_mode_unbind(void) { game_mode_clear(&s_puzzle_mode); }
+
 void game_puzzle_after_accepted_move(void) {
   if (!puzzle_active || puzzle_solved) {
     return;
@@ -571,7 +672,7 @@ void game_puzzle_after_accepted_move(void) {
     puzzle_awaiting_opponent = false;
     puzzle_feedback = PUZZLE_FEEDBACK_SOLVED;
     puzzle_clear_expected();
-    led_clear_board_only();
+    game_led_clear_board();
     STAGING_LOGI(TAG, "puzzle: solved session=%u", (unsigned)puzzle_session);
     game_bump_revision_and_notify();
     return;
@@ -603,7 +704,7 @@ bool game_puzzle_hint(void) {
 }
 
 void game_puzzle_service_leds(void) {
-  if (error_recovery_state.waiting_for_move_correction || piece_lifted) {
+  if ((*game_state_error_recovery_state()).waiting_for_move_correction || piece_lifted) {
     return;
   }
   if (puzzle_setup_active && puzzle_fen[0] != '\0') {
@@ -746,7 +847,7 @@ void game_puzzle_service_hall_move(void) {
   fc = puzzle_solution_from_col;
   tr = puzzle_solution_to_row;
   tc = puzzle_solution_to_col;
-  mover = board[fr][fc];
+  mover = game_get_piece(fr, fc);
   if (mover == PIECE_EMPTY) {
     s_armed = false;
     return;
@@ -762,7 +863,7 @@ void game_puzzle_service_hall_move(void) {
   }
   squares_get_state(occ);
   for (sq = 0; sq < 64; sq++) {
-    bool want = board[sq / 8][sq % 8] != PIECE_EMPTY;
+    bool want = game_get_piece(sq / 8, sq % 8) != PIECE_EMPTY;
     if (sq == (uint8_t)(fr * 8 + fc)) {
       want = false;
     }
@@ -800,12 +901,18 @@ void game_puzzle_service_hall_move(void) {
   move.to_row = tr;
   move.to_col = tc;
   move.piece = mover;
-  move.captured_piece = board[tr][tc];
-  if (!game_execute_move(&move)) {
-    return;
+  move.captured_piece = game_get_piece(tr, tc);
+  {
+    board_machine_out_t bout = game_board_on_drop_squares(fr, fc, tr, tc, true);
+    if ((bout.kind != BM_OUT_MOVE && bout.kind != BM_OUT_NEED_PROMO) ||
+        !game_board_apply_machine_move(&bout, &move)) {
+      return;
+    }
   }
-  game_puzzle_after_accepted_move();
-  game_send_response_to_uart("Puzzle move accepted.", false, NULL);
+  if (castle) {
+    board_machine_reset(game_board_machine());
+  }
+  game_cmd_reply("Puzzle move accepted.", false, NULL);
 #else
   (void)0;
 #endif

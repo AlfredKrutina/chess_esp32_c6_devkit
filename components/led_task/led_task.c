@@ -177,12 +177,10 @@
 #include "power_guard.h"
 #include "../freertos_chess/include/chess_types.h"
 #include "../freertos_chess/include/streaming_output.h"
-#include "../game_task/include/game_task.h" // For game_get_piece() function
-#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-#include "../game_task/include/game_hall_restore_guide.h"
-#endif
+#include "../game_task/include/game_task.h" // game_session_snap_piece()
 #include "../unified_animation_manager/include/unified_animation_manager.h" // Non-blocking endgame animations
 #include "led_board_restore_guide.h"
+#include "led_required_step_guide.h"
 #include "led_gesture_anim.h"
 #include "led_gesture_anim.h"
 #include "led_mapping.h" // Include LED mapping functions
@@ -203,6 +201,9 @@
 #include "freertos/timers.h"
 #include "freertos_chess.h"
 #include "task_wdt.h"
+
+void led_game_events_process(void);
+void led_game_events_report_overlay(void);
 #include "led_strip.h"
 #include <inttypes.h>
 #include <math.h>
@@ -1224,6 +1225,7 @@ static void led_show_begin(void) {
     s_board_show++;
   }
   led_board_restore_guide_yield();
+  led_required_step_guide_yield();
 }
 
 static void led_show_end(void) {
@@ -2271,6 +2273,8 @@ void led_task_start(void *pvParameters) {
 
     // Process LED commands from queue
     led_frame_begin();
+    led_game_events_report_overlay();
+    led_game_events_process();
     led_process_commands();
 
     /* Game animations paint and refresh their own frames. Drawing the board
@@ -2280,6 +2284,7 @@ void led_task_start(void *pvParameters) {
       led_update_endgame_wave();
       if (!led_board_show_active()) {
         led_board_restore_guide_tick();
+        led_required_step_guide_tick();
       }
       led_process_duration_expirations();
       led_gesture_anim_tick();
@@ -2693,7 +2698,7 @@ void led_anim_endgame(const led_command_t *cmd) {
     endgame_wave.win_king_row = row;
     endgame_wave.win_king_col = col;
     endgame_wave.win_king_led = chess_pos_to_led_index(row, col);
-    endgame_wave.winner_piece = game_get_piece(row, col);
+    endgame_wave.winner_piece = game_session_snap_piece(row, col);
   }
   endgame_wave.lose_king_row = 0;
   endgame_wave.lose_king_col = 0;
@@ -2711,6 +2716,7 @@ void led_anim_endgame(const led_command_t *cmd) {
   endgame_wave.active = true;
   endgame_wave.initialized = true;
   led_board_restore_guide_yield();
+  led_required_step_guide_yield();
 
   // Set global endgame state
   endgame_animation_active = true;
@@ -2805,7 +2811,7 @@ void led_update_endgame_wave(void) {
         intensity = 1.f;
       }
 
-      piece_t piece = game_get_piece(row, col);
+      piece_t piece = game_session_snap_piece(row, col);
       uint8_t red;
       uint8_t green;
       uint8_t blue;
@@ -3001,9 +3007,7 @@ void led_set_lamp_hold(bool hold) {
     /* The lamp overwrote the strip. The guide still remembers the old
      * colors and would otherwise leave the pieces dark. */
     led_board_restore_guide_yield();
-#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-    game_hall_restore_guide_force_resync();
-#endif
+    led_required_step_guide_yield();
   }
 }
 
@@ -3392,6 +3396,7 @@ void led_clear_board_only(void) {
   }
   if (s_picture_open) {
     led_board_restore_guide_yield();
+  led_required_step_guide_yield();
     return;
   }
   /* Other task's clear opens one frame. Release drops it only while that
@@ -3412,6 +3417,7 @@ void led_clear_board_only(void) {
     led_frame_end();
   }
   led_board_restore_guide_yield();
+  led_required_step_guide_yield();
 }
 
 void led_clear_buttons_only(void) {

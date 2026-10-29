@@ -1572,6 +1572,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Deployment / model name';
 
   @override
+  String get settingsCoachAzureFoundryModelsLoading =>
+      'Loading models from Foundry…';
+
+  @override
+  String get settingsCoachAzureFoundryModelsEmpty =>
+      'No models found for this key and URL. Type the deployment name.';
+
+  @override
+  String settingsCoachAzureFoundryModelsFailed(String error) {
+    return 'Could not load models ($error). You can still type a deployment name.';
+  }
+
+  @override
+  String get settingsCoachAzureFoundryModelsRefresh => 'Reload models';
+
+  @override
+  String get settingsCoachAzureFoundryModelsPickHint => 'Select a model';
+
+  @override
   String get settingsCoachAzureFoundryApiVersionLabel =>
       'API version (optional)';
 
@@ -3189,9 +3208,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get lampSendColor => 'Send color / lamp state';
 
   @override
-  String get lampGameModeButton => 'Game lamp mode';
-
-  @override
   String get patternTitle => 'Drawing';
 
   @override
@@ -3218,6 +3234,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get patternSent => 'Drawing sent to the board.';
+
+  @override
+  String get lampGameModeButton => 'Game lamp mode';
 
   @override
   String get lampColorLabel => 'Color';

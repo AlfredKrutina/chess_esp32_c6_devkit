@@ -1,15 +1,15 @@
 /**
  * @file uart_task.c
- * @brief UART Terminal Task - interactive command line for chess control
+ * @brief UART Terminal Task - diagnostics console (no chess commands)
  *
  * @details
  * =============================================================================
  * WHAT THIS FILE DOES
  * =============================================================================
  *
- * This task is the chessboard "terminal". It enables control over UART:
+ * This task is a diagnostics terminal. Chess moves do not enter here:
  * 1. Command line with editing (backspace, command history)
- * 2. 50+ control commands (move, board, status, wifi, timer...)
+ * 2. Console commands (STATUS, RESET, LED/Hall/anim diagnostics)
  * 3. Colored output (ANSI colors) for clearer readability
  * 4. Debug dumps of all tasks (tasks, heap, queues...)
  * 5. WiFi configuration and management
@@ -41,8 +41,8 @@
  * COMMUNICATION (FIFOS & MUTEXES)
  * =============================================================================
  *
- * QUEUES - Sending commands to other tasks:
- * - game_command_queue -> Commands for game_task (move, reset...)
+ * QUEUES - This task does not use game_command_queue.
+ * Chess commands enter through game_submit() from web, BLE, squares, and main:
  * - web_server_queue -> Commands for web server (wifi config...)
  * - LEDs are controlled by direct calls (queue was removed)
  *
@@ -62,13 +62,13 @@
  * =============================================================================
  *
  * Commands are organized in a table with function pointers:
- * - cmd_name: Command name (e.g. "move")
- * - cmd_handler: Function pointer (e.g. uart_cmd_move)
+ * - cmd_name: Command name (e.g. "HELP")
+ * - cmd_handler: Function pointer (e.g. uart_cmd_help)
  * - cmd_help: Short help text
  * - cmd_priority: Priority (HIGH/MEDIUM/LOW)
  *
  * Command categories:
- * - Chessboard: move, board, status, reset, undo
+ * - System: STATUS, RESET, Hall/MAG bench, LED/ANIM demos
  * - System: help, tasks, heap, version
  * - WiFi: wifi_scan, wifi_connect, wifi_status
  * - Timer: timer_start, timer_stop, timer_status
@@ -93,7 +93,7 @@
  * DEPENDENCIES
  * =============================================================================
  *
- * - game_task: We send commands (move, reset...)
+ * - game_task: chess commands enter through game_submit() from web, BLE, squares, and main (not this CLI)
  * - led_task: LED tests, animations
  * - web_server_task: WiFi configuration
  * - timer_system: Start/stop clock
@@ -115,7 +115,7 @@
  *
  * 3. NEVER access other tasks' data directly!
  *    ❌ game_board[0][0] = PIECE_KING;  // Direct access - UNSAFE
- *    ✅ Use queues (game_command_queue)
+ *    ✅ Use game_submit() with game_cmd_t
  *
  * 4. ALWAYS reset WDT in long loops!
  *    ✅ uart_task_wdt_reset_safe();  // Every few seconds
@@ -172,8 +172,11 @@
 #include "config_manager.h"
 #include "esp_system.h"
 #include "freertos_chess.h"
+#include "esp_heap_caps.h"
 #include "task_wdt.h"
 #include "game_task.h"
+#include "../game_task/include/game_board_core.h"
+#include "../game_task/include/game_snapshot.h"
 #include "game_gesture.h"
 #include "led_mapping.h"
 #include "led_task.h"
@@ -184,10 +187,6 @@
 #include "uart_task_internal.h"
 #include <inttypes.h>
 #include <math.h>
-
-// External function declarations
-extern bool convert_notation_to_coords(const char *notation, uint8_t *row,
-                                       uint8_t *col);
 
 // External UART mutex for clean output
 extern SemaphoreHandle_t uart_mutex;
@@ -228,9 +227,6 @@ extern TaskHandle_t led_task_handle;
 extern TaskHandle_t squares_task_handle;
 extern TaskHandle_t button_task_handle;
 extern TaskHandle_t game_task_handle;
-extern QueueHandle_t game_command_queue;
-// extern QueueHandle_t led_command_queue;  //  REMOVED: Queue hell eliminated
-
 // Component status tracking
 static bool squares_component_enabled = true;
 static bool led_component_enabled = true;
@@ -1531,6 +1527,12 @@ command_result_t uart_cmd_status(const char *args) {
                       uxTaskGetStackHighWaterMark(button_task_handle));
   uart_send_formatted("  Game Task: %u bytes free",
                       uxTaskGetStackHighWaterMark(game_task_handle));
+  uart_send_formatted("  Web Task: %u bytes free",
+                      web_server_task_handle != NULL
+                          ? uxTaskGetStackHighWaterMark(web_server_task_handle)
+                          : 0U);
+  uart_send_formatted("  Largest free block: %zu bytes",
+                      heap_caps_get_largest_free_block(MALLOC_CAP_DEFAULT));
   uart_send_formatted("Uptime: %llu seconds", esp_timer_get_time() / 1000000);
   uart_send_formatted("Commands Processed: %lu", command_count);
   uart_send_formatted("Errors: %lu", error_count);
@@ -1557,11 +1559,42 @@ command_result_t uart_cmd_status(const char *args) {
   uart_send_formatted("  White Wins: %" PRIu32, game_get_white_wins());
   uart_send_formatted("  Black Wins: %" PRIu32, game_get_black_wins());
   uart_send_formatted("  Draws: %" PRIu32, game_get_draws());
-  uart_send_formatted("  Current Game State: %s", game_get_game_state_string());
-  uart_send_formatted("  Move Count: %" PRIu32, game_get_move_count());
-  uart_send_formatted("  Current Player: %s",
-                      game_get_current_player() == PLAYER_WHITE ? "White"
-                                                                : "Black");
+  {
+    const char *state_label = "Unknown";
+    const game_session_snap_t *snap = game_session_snap_acquire();
+    if (snap == NULL) {
+      uart_send_formatted("  Current Game State: (snapshot unavailable)");
+      goto uart_stats_snap_done;
+    }
+    switch ((game_state_t)snap->game_state) {
+    case GAME_STATE_ACTIVE:
+      state_label = "Active";
+      break;
+    case GAME_STATE_PAUSED:
+      state_label = "Paused";
+      break;
+    case GAME_STATE_FINISHED:
+      state_label = "Finished";
+      break;
+    case GAME_STATE_PROMOTION:
+      state_label = "Promotion";
+      break;
+    case GAME_STATE_IDLE:
+      state_label = "Idle";
+      break;
+    case GAME_STATE_WAITING_FOR_BOARD_SETUP:
+      state_label = "WaitingForBoardSetup";
+      break;
+    default:
+      break;
+    }
+    uart_send_formatted("  Current Game State: %s", state_label);
+    uart_send_formatted("  Move Count: %" PRIu32, snap->move_count);
+    uart_send_formatted("  Current Player: %s",
+                        snap->pos.side == PLAYER_WHITE ? "White" : "Black");
+    game_session_snap_release();
+  uart_stats_snap_done:;
+  }
 
   uart_send_formatted("");
   uart_send_formatted("💡 Use 'COMPONENT_OFF <name>' or 'COMPONENT_ON <name>' "
@@ -1733,8 +1766,19 @@ static void uart_anim_wait_wave(void) {
   }
 }
 
+static bool uart_led_anim_blocked(void) {
+  if (game_active) {
+    uart_send_line("LED anim disabled while game is active");
+    return true;
+  }
+  return false;
+}
+
 static void uart_anim_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
                            uint8_t to_col) {
+  if (uart_led_anim_blocked()) {
+    return;
+  }
   static uint8_t to_led;
   to_led = chess_pos_to_led_index(to_row, to_col);
   led_command_t cmd = {
@@ -1750,6 +1794,9 @@ static void uart_anim_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
 }
 
 static void uart_anim_castle(bool queenside, bool black) {
+  if (uart_led_anim_blocked()) {
+    return;
+  }
   uint8_t row = black ? 7 : 0;
   uint8_t king_from_col = 4;
   uint8_t king_to_col = queenside ? 2 : 6;
@@ -1768,6 +1815,9 @@ static void uart_anim_castle(bool queenside, bool black) {
 }
 
 static void uart_anim_end(uint8_t row, uint8_t col) {
+  if (uart_led_anim_blocked()) {
+    return;
+  }
   led_command_t cmd = {
       .type = LED_CMD_ANIM_ENDGAME,
       .led_index = chess_pos_to_led_index(row, col),

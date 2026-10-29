@@ -3,8 +3,11 @@
  * @brief Endgame statistics update, UART report formatting, win/draw getters.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "../ha_light_task/include/ha_light_task.h"
 
 #include "esp_log.h"
@@ -16,6 +19,125 @@
 #include <string.h>
 
 static const char *TAG = "GAME_ENDGAME";
+/* Win/draw counters, captured material, and advantage history. */
+static uint32_t s_total_games = 0;
+
+uint32_t *game_state_total_games(void) { return &s_total_games; }
+#define total_games (*game_state_total_games())
+static uint32_t s_white_wins = 0;
+
+uint32_t *game_state_white_wins(void) { return &s_white_wins; }
+#define white_wins (*game_state_white_wins())
+static uint32_t s_black_wins = 0;
+
+uint32_t *game_state_black_wins(void) { return &s_black_wins; }
+#define black_wins (*game_state_black_wins())
+static uint32_t s_draws = 0;
+
+uint32_t *game_state_draws(void) { return &s_draws; }
+#define draws (*game_state_draws())
+static bool s_endgame_report_requested = false;
+
+bool *game_state_endgame_report_requested(void) { return &s_endgame_report_requested; }
+#define endgame_report_requested (*game_state_endgame_report_requested())
+static endgame_reason_t s_current_endgame_reason = ENDGAME_REASON_CHECKMATE;
+
+endgame_reason_t *game_state_current_endgame_reason(void) { return &s_current_endgame_reason; }
+#define current_endgame_reason (*game_state_current_endgame_reason())
+static last_move_type_t s_last_move_type = LAST_MOVE_NORMAL;
+
+last_move_type_t *game_state_last_move_type(void) { return &s_last_move_type; }
+#define last_move_type (*game_state_last_move_type())
+static uint32_t s_game_start_time = 0;
+
+uint32_t *game_state_game_start_time(void) { return &s_game_start_time; }
+#define game_start_time (*game_state_game_start_time())
+static uint32_t s_last_move_time = 0;
+
+uint32_t *game_state_last_move_time(void) { return &s_last_move_time; }
+#define last_move_time (*game_state_last_move_time())
+static uint32_t s_white_time_total = 0;
+
+uint32_t *game_state_white_time_total(void) { return &s_white_time_total; }
+#define white_time_total (*game_state_white_time_total())
+static uint32_t s_black_time_total = 0;
+
+uint32_t *game_state_black_time_total(void) { return &s_black_time_total; }
+#define black_time_total (*game_state_black_time_total())
+static uint32_t s_white_moves_count = 0;
+
+uint32_t *game_state_white_moves_count(void) { return &s_white_moves_count; }
+#define white_moves_count (*game_state_white_moves_count())
+static uint32_t s_black_moves_count = 0;
+
+uint32_t *game_state_black_moves_count(void) { return &s_black_moves_count; }
+#define black_moves_count (*game_state_black_moves_count())
+static uint32_t s_white_captures = 0;
+
+uint32_t *game_state_white_captures(void) { return &s_white_captures; }
+#define white_captures (*game_state_white_captures())
+static uint32_t s_black_captures = 0;
+
+uint32_t *game_state_black_captures(void) { return &s_black_captures; }
+#define black_captures (*game_state_black_captures())
+static uint32_t s_white_checks = 0;
+
+uint32_t *game_state_white_checks(void) { return &s_white_checks; }
+#define white_checks (*game_state_white_checks())
+static uint32_t s_black_checks = 0;
+
+uint32_t *game_state_black_checks(void) { return &s_black_checks; }
+#define black_checks (*game_state_black_checks())
+static uint32_t s_white_castles = 0;
+
+uint32_t *game_state_white_castles(void) { return &s_white_castles; }
+#define white_castles (*game_state_white_castles())
+static uint32_t s_black_castles = 0;
+
+uint32_t *game_state_black_castles(void) { return &s_black_castles; }
+#define black_castles (*game_state_black_castles())
+static piece_t s_white_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
+
+piece_t *game_state_white_captured_pieces(void) { return s_white_captured_pieces; }
+#define white_captured_pieces (game_state_white_captured_pieces())
+static piece_t s_black_captured_pieces[GAME_TASK_MAX_CAPTURED_PIECES];
+
+piece_t *game_state_black_captured_pieces(void) { return s_black_captured_pieces; }
+#define black_captured_pieces (game_state_black_captured_pieces())
+static uint32_t s_white_captured_count = 0;
+
+uint32_t *game_state_white_captured_count(void) { return &s_white_captured_count; }
+#define white_captured_count (*game_state_white_captured_count())
+static uint32_t s_black_captured_count = 0;
+
+uint32_t *game_state_black_captured_count(void) { return &s_black_captured_count; }
+#define black_captured_count (*game_state_black_captured_count())
+static uint32_t s_white_captured_index = 0;
+
+uint32_t *game_state_white_captured_index(void) { return &s_white_captured_index; }
+#define white_captured_index (*game_state_white_captured_index())
+static uint32_t s_black_captured_index = 0;
+
+uint32_t *game_state_black_captured_index(void) { return &s_black_captured_index; }
+#define black_captured_index (*game_state_black_captured_index())
+static int8_t s_material_advantage_history[GAME_TASK_MAX_ADVANTAGE_HISTORY];
+
+int8_t *game_state_material_advantage_history(void) { return s_material_advantage_history; }
+#define material_advantage_history (game_state_material_advantage_history())
+static uint32_t s_advantage_history_count = 0;
+
+uint32_t *game_state_advantage_history_count(void) { return &s_advantage_history_count; }
+#define advantage_history_count (*game_state_advantage_history_count())
+static game_state_t s_game_result = GAME_STATE_IDLE;
+
+game_state_t *game_state_game_result(void) { return &s_game_result; }
+#define game_result (*game_state_game_result())
+static game_result_type_t s_current_result_type =
+    RESULT_WHITE_WINS; // Current end game type
+
+game_result_type_t *game_state_current_result_type(void) { return &s_current_result_type; }
+#define current_result_type (*game_state_current_result_type())
+
 
 // ============================================================================
 // GAME STATISTICS DISPLAY
@@ -408,3 +530,314 @@ const char *game_get_game_state_string(void) {
     return "Unknown";
   }
 }
+
+char piece_to_char(piece_t piece) {
+  switch (piece) {
+  case PIECE_EMPTY:
+    return ' ';
+  case PIECE_WHITE_PAWN:
+    return 'P';
+  case PIECE_WHITE_KNIGHT:
+    return 'N';
+  case PIECE_WHITE_BISHOP:
+    return 'B';
+  case PIECE_WHITE_ROOK:
+    return 'R';
+  case PIECE_WHITE_QUEEN:
+    return 'Q';
+  case PIECE_WHITE_KING:
+    return 'K';
+  case PIECE_BLACK_PAWN:
+    return 'p';
+  case PIECE_BLACK_KNIGHT:
+    return 'n';
+  case PIECE_BLACK_BISHOP:
+    return 'b';
+  case PIECE_BLACK_ROOK:
+    return 'r';
+  case PIECE_BLACK_QUEEN:
+    return 'q';
+  case PIECE_BLACK_KING:
+    return 'k';
+  default:
+    return ' ';
+  }
+}
+
+static int8_t game_calculate_material_advantage(void) {
+  int white_material = 0;
+  int black_material = 0;
+
+  // Figure values
+  const int pawn_value = 1;
+  const int knight_value = 3;
+  const int bishop_value = 3;
+  const int rook_value = 5;
+  const int queen_value = 9;
+
+  // Spocitat material na boardu
+  for (int row = 0; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      piece_t piece = game_get_piece(row, col);
+      switch (piece) {
+      case PIECE_WHITE_PAWN:
+        white_material += pawn_value;
+        break;
+      case PIECE_WHITE_KNIGHT:
+        white_material += knight_value;
+        break;
+      case PIECE_WHITE_BISHOP:
+        white_material += bishop_value;
+        break;
+      case PIECE_WHITE_ROOK:
+        white_material += rook_value;
+        break;
+      case PIECE_WHITE_QUEEN:
+        white_material += queen_value;
+        break;
+      case PIECE_BLACK_PAWN:
+        black_material += pawn_value;
+        break;
+      case PIECE_BLACK_KNIGHT:
+        black_material += knight_value;
+        break;
+      case PIECE_BLACK_BISHOP:
+        black_material += bishop_value;
+        break;
+      case PIECE_BLACK_ROOK:
+        black_material += rook_value;
+        break;
+      case PIECE_BLACK_QUEEN:
+        black_material += queen_value;
+        break;
+      default:
+        break;
+      }
+    }
+  }
+
+  int advantage = white_material - black_material;
+  // Omezit na int8_t rozsah
+  if (advantage > 127)
+    advantage = 127;
+  if (advantage < -127)
+    advantage = -127;
+
+  return (int8_t)advantage;
+}
+
+void game_record_material_advantage(void) {
+  if (advantage_history_count >= GAME_TASK_MAX_ADVANTAGE_HISTORY) {
+    return; // Historie plna
+  }
+
+  int8_t advantage = game_calculate_material_advantage();
+  material_advantage_history[advantage_history_count++] = advantage;
+}
+
+void game_add_captured_piece(piece_t piece) {
+  // Determine which array to use based on piece color
+  if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_KING) {
+    // White piece captured by black
+    if (black_captured_index < GAME_TASK_MAX_CAPTURED_PIECES) {
+      black_captured_pieces[black_captured_index++] = piece;
+      black_captured_count++;
+      black_captures++;
+    }
+  } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_KING) {
+    // Black piece captured by white
+    if (white_captured_index < GAME_TASK_MAX_CAPTURED_PIECES) {
+      white_captured_pieces[white_captured_index++] = piece;
+      white_captured_count++;
+      white_captures++;
+    }
+  }
+}
+
+static const int piece_values[] = {
+    0, // PIECE_EMPTY
+    1, // PIECE_WHITE_PAWN
+    3, // PIECE_WHITE_KNIGHT
+    3, // PIECE_WHITE_BISHOP
+    5, // PIECE_WHITE_ROOK
+    9, // PIECE_WHITE_QUEEN
+    0, // PIECE_WHITE_KING (infinite value)
+    1, // PIECE_BLACK_PAWN
+    3, // PIECE_BLACK_KNIGHT
+    3, // PIECE_BLACK_BISHOP
+    5, // PIECE_BLACK_ROOK
+    9, // PIECE_BLACK_QUEEN
+    0  // PIECE_BLACK_KING (infinite value)
+};
+
+int game_calculate_material_balance(int *white_material, int *black_material) {
+  int white_total = 0;
+  int black_total = 0;
+
+  for (int row = 0; row < 8; row++) {
+    for (int col = 0; col < 8; col++) {
+      piece_t piece = game_get_piece(row, col);
+      if (piece != PIECE_EMPTY) {
+        if (piece >= PIECE_WHITE_PAWN && piece <= PIECE_WHITE_QUEEN) {
+          white_total += piece_values[piece];
+        } else if (piece >= PIECE_BLACK_PAWN && piece <= PIECE_BLACK_QUEEN) {
+          black_total +=
+              piece_values[piece - 6]; // Adjust index for black pieces
+        }
+      }
+    }
+  }
+
+  if (white_material)
+    *white_material = white_total;
+  if (black_material)
+    *black_material = black_total;
+
+  return white_total - black_total;
+}
+
+void game_get_material_string(char *buffer, size_t buffer_size) {
+  int white_material, black_material;
+  int balance =
+      game_calculate_material_balance(&white_material, &black_material);
+
+  if (balance > 0) {
+    snprintf(buffer, buffer_size, "White +%d", balance);
+  } else if (balance < 0) {
+    snprintf(buffer, buffer_size, "Black +%d", -balance);
+  } else {
+    snprintf(buffer, buffer_size, "Even (+0)");
+  }
+}
+
+void game_print_game_stats(void) {
+  uint32_t current_time = esp_timer_get_time() / 1000;
+  uint32_t game_duration = current_time - game_start_time;
+  uint32_t minutes = game_duration / 60;
+  uint32_t seconds = game_duration % 60;
+
+  // Calculate average time per move
+  uint32_t white_avg_time =
+      (white_moves_count > 0) ? white_time_total / white_moves_count : 0;
+  uint32_t black_avg_time =
+      (black_moves_count > 0) ? black_time_total / black_moves_count : 0;
+
+  // Get material balance
+  char material_str[32];
+  game_get_material_string(material_str, sizeof(material_str));
+
+  // Print atmospheric header
+  ESP_LOGI(TAG, "╔═══════════════════════════════╗");
+  ESP_LOGI(TAG, "║ ESP32 CHESS v2.4 ║");
+  ESP_LOGI(TAG, "║ Move %" PRIu32 " - %s to play ║", move_count,
+           (current_player == PLAYER_WHITE) ? "White" : "Black");
+  ESP_LOGI(TAG, "║ Material: %s ║", material_str);
+  ESP_LOGI(TAG, "╚═══════════════════════════════╝");
+
+  // Game duration and move info
+  ESP_LOGI(TAG,
+           "Game duration: %02" PRIu32 ":%02" PRIu32 ", Move %" PRIu32
+           " (%s to play)",
+           minutes, seconds, move_count,
+           (current_player == PLAYER_WHITE) ? "White" : "Black");
+
+  // Capture statistics
+  ESP_LOGI(TAG, "Captures: White %" PRIu32 " pieces, Black %" PRIu32 " pieces",
+           white_captures, black_captures);
+
+  // Check and castle statistics
+  ESP_LOGI(TAG,
+           "Checks: White %" PRIu32 ", Black %" PRIu32
+           " | Castles: White %" PRIu32 ", Black %" PRIu32 "",
+           white_checks, black_checks, white_castles, black_castles);
+
+  // Material breakdown
+  int white_material, black_material;
+  game_calculate_material_balance(&white_material, &black_material);
+  ESP_LOGI(TAG, "Material: White %d points, Black %d points (%s)",
+           white_material, black_material, material_str);
+
+  // Time statistics
+  if (game_timer_is_enabled()) {
+    ESP_LOGI(TAG,
+             "Time per move: White avg %" PRIu32 "s, Black avg %" PRIu32 "s",
+             white_avg_time, black_avg_time);
+  }
+
+  // Draw detection info
+  if (moves_without_capture > 30) {
+    ESP_LOGI(TAG,
+             "⚠️  %" PRIu32 " moves without capture (50-move rule approaching)",
+             moves_without_capture);
+  }
+
+  if (game_is_position_repeated()) {
+    ESP_LOGI(TAG, "⚠️  Position repeated (potential draw by repetition)");
+  }
+
+  // Game save status
+  if (game_saved) {
+    ESP_LOGI(TAG, "💾 Game saved as: %s", saved_game_name);
+  }
+
+  ESP_LOGI(TAG, "═══════════════════════════════");
+}
+
+void game_export_pgn(char *pgn_buffer, size_t buffer_size) {
+  if (pgn_buffer == NULL || buffer_size == 0) {
+    ESP_LOGE(TAG, "Invalid PGN buffer");
+    return;
+  }
+
+  // Start PGN with metadata
+  int pos = snprintf(pgn_buffer, buffer_size,
+                     "[Event \"ESP32 Chess Game\"]\n"
+                     "[Site \"ESP32-C6\"]\n"
+                     "[Date \"%s\"]\n"
+                     "[Round \"1\"]\n"
+                     "[White \"Player 1\"]\n"
+                     "[Black \"Player 2\"]\n"
+                     "[Result \"*\"]\n\n",
+                     "2025-01-01"); // TODO: Get actual date
+
+  // Add moves
+  for (uint32_t i = 0; i < history_index && pos < buffer_size - 50; i++) {
+    const chess_move_t *move = &move_history[i];
+    char from_square[4], to_square[4];
+    game_coords_to_square(move->from_row, move->from_col, from_square);
+    game_coords_to_square(move->to_row, move->to_col, to_square);
+
+    if (i % 2 == 0) {
+      // White move
+      pos += snprintf(pgn_buffer + pos, buffer_size - pos, "%" PRIu32 ". %s%s",
+                      (i / 2) + 1, from_square, to_square);
+    } else {
+      // Black move
+      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " %s%s ",
+                      from_square, to_square);
+    }
+
+    // Add newline every 10 moves
+    if ((i + 1) % 20 == 0) {
+      pos += snprintf(pgn_buffer + pos, buffer_size - pos, "\n");
+    }
+  }
+
+  // Add result
+  if (game_result == GAME_STATE_FINISHED) {
+    if (strstr(saved_game_name, "CHECKMATE")) {
+      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " 1-0");
+    } else if (strstr(saved_game_name, "STALEMATE")) {
+      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " 1/2-1/2");
+    } else {
+      pos += snprintf(pgn_buffer + pos, buffer_size - pos, " 1/2-1/2");
+    }
+  } else {
+    pos += snprintf(pgn_buffer + pos, buffer_size - pos, " *");
+  }
+
+  ESP_LOGI(TAG, "📄 PGN export completed (%d characters)", pos);
+}
+
+uint8_t game_endgame_reason(void) { return (uint8_t)current_endgame_reason; }
+

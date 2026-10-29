@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 import '../models/coach_ai_provider.dart';
 import 'coach_llm_clients.dart';
@@ -79,6 +80,73 @@ abstract final class CoachAiCompletionService {
     }
     // Already …/openai/v1 or …/deployments/<name> — keep.
     return t;
+  }
+
+  /// URLs to try when listing what this key can call.
+  /// Deployments first: that `id` is the name chat completions expect.
+  static List<Uri> azureFoundryModelListUris(String normalizedBase, {String? apiVersion}) {
+    var base = normalizedBase.trim().replaceAll(RegExp(r'/+$'), '');
+    if (base.endsWith('/models')) {
+      base = base.substring(0, base.length - '/models'.length).replaceAll(RegExp(r'/+$'), '');
+    }
+    final uri = Uri.tryParse(base);
+    if (uri == null || !uri.hasScheme || uri.host.isEmpty) return const [];
+    final port = uri.hasPort ? ':${uri.port}' : '';
+    final origin = '${uri.scheme}://${uri.host}$port';
+    final deployVer = (apiVersion ?? '').trim().isEmpty ? '2024-10-21' : apiVersion!.trim();
+    final uris = <Uri>[
+      Uri.parse('$origin/openai/deployments?api-version=${Uri.encodeQueryComponent(deployVer)}'),
+      Uri.parse('$base/models'),
+    ];
+    final v1Models = Uri.parse('$origin/openai/v1/models');
+    if (!uris.contains(v1Models)) uris.add(v1Models);
+    final catalog = Uri.parse('$origin/openai/models?api-version=${Uri.encodeQueryComponent(deployVer)}');
+    if (!uris.contains(catalog)) uris.add(catalog);
+    return uris;
+  }
+
+  /// Model / deployment ids for an Azure AI Foundry or Azure OpenAI key.
+  static Future<List<String>> listAzureFoundryModels({
+    required String baseUrl,
+    required String apiKey,
+    String? apiVersion,
+    http.Client? httpClient,
+  }) async {
+    final base = normalizeAzureFoundryOpenAiBase(baseUrl);
+    if (base.isEmpty) {
+      throw CoachLlmException('Azure AI Foundry: empty base URL');
+    }
+    if (apiKey.trim().isEmpty) {
+      throw CoachLlmException('Azure AI Foundry: no API key');
+    }
+    final uris = azureFoundryModelListUris(base, apiVersion: apiVersion);
+    if (uris.isEmpty) {
+      throw CoachLlmException('Azure AI Foundry: base URL is not a valid address');
+    }
+    final client = httpClient ?? http.Client();
+    Object? lastError;
+    try {
+      for (final uri in uris) {
+        final isDeployments = uri.path.endsWith('/deployments');
+        try {
+          final ids = await CoachOpenAiClient.listModelIds(
+            uri: uri,
+            apiKey: apiKey,
+            client: client,
+          );
+          if (ids == null) continue;
+          if (ids.isEmpty && !isDeployments) continue;
+          return ids;
+        } on CoachLlmException catch (e) {
+          if (e.statusCode == 401 || e.statusCode == 403) rethrow;
+          lastError = e;
+        }
+      }
+    } finally {
+      if (httpClient == null) client.close();
+    }
+    if (lastError != null) throw lastError;
+    return const [];
   }
 
   /// Cap assistant/user pairs so payloads stay reasonable on mobile networks.

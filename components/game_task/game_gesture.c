@@ -14,9 +14,14 @@
 #include "button_gesture.h"
 #include "game_hall_restore_guide.h"
 #include "hall_i2c_squares.h"
-#include "chess_gameplay_policy.h"
+#include "game_policy.h"
 #include "game_task.h"
-#include "game_task_internal.h"
+#include "game_led_direct.h"
+#include "game_events.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "led_gesture_anim.h"
 #include "led_mapping.h"
 
@@ -26,6 +31,7 @@
 
 #include "esp_log.h"
 #include "esp_task_wdt.h"
+#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
@@ -91,72 +97,45 @@ static const uint8_t k_demo_colors[][3] = {
 
 static void demo_show_stop_leds(void) {
   led_gesture_stop_pair_pulse();
-  led_stop_endgame_animation();
-  led_set_lamp_hold(false);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_STOP_ENDGAME, 0, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_LAMP, 0, 0, 0, 0);
 }
 
 static void demo_play_move(uint8_t from_row, uint8_t from_col, uint8_t to_row,
                            uint8_t to_col) {
   static uint8_t to_led;
   to_led = chess_pos_to_led_index(to_row, to_col);
-  led_command_t cmd = {
-      .type = LED_CMD_ANIM_MOVE_PATH,
-      .led_index = chess_pos_to_led_index(from_row, from_col),
-      .red = 0,
-      .green = 0,
-      .blue = 255,
-      .duration_ms = 0,
-      .data = &to_led,
-  };
-  led_execute_command_new(&cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_MOVE_PATH,
+                             chess_pos_to_led_index(from_row, from_col), to_led);
 }
 
 /* King and rook travel together. King squares only; rook is derived. */
 static void demo_play_castle(uint8_t row, uint8_t from_col, uint8_t to_col) {
   static uint8_t king_to;
   king_to = chess_pos_to_led_index(row, to_col);
-  led_command_t cmd = {
-      .type = LED_CMD_ANIM_CASTLE,
-      .led_index = chess_pos_to_led_index(row, from_col),
-      .red = 255,
-      .green = 215,
-      .blue = 0,
-      .duration_ms = 0,
-      .data = &king_to,
-  };
-  led_execute_command_new(&cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_CASTLE,
+                             chess_pos_to_led_index(row, from_col), king_to);
 }
 
 static void demo_play_promote(uint8_t row, uint8_t col) {
-  led_command_t cmd = {
-      .type = LED_CMD_ANIM_PROMOTE,
-      .led_index = chess_pos_to_led_index(row, col),
-      .red = 255,
-      .green = 215,
-      .blue = 0,
-      .duration_ms = 0,
-      .data = NULL,
-  };
-  led_execute_command_new(&cmd);
+  game_led_flush();
+  game_event_post_board_anim(GAME_EVT_ANIM_PROMOTE,
+                             chess_pos_to_led_index(row, col), 0);
 }
 
 static void demo_play_end(void) {
-  led_command_t cmd = {
-      .type = LED_CMD_ANIM_ENDGAME,
-      .led_index = chess_pos_to_led_index(6, 1),
-      .red = 0,
-      .green = 0,
-      .blue = 0,
-      .duration_ms = 0,
-      .data = NULL,
-  };
-  led_execute_command_new(&cmd);
+  game_led_flush();
+  game_event_post_game_end(chess_pos_to_led_index(6, 1), 0);
 }
 
 static void demo_paint(uint8_t index) {
-  led_set_lamp_hold(true);
-  led_set_ha_color(k_demo_colors[index][0], k_demo_colors[index][1],
-                   k_demo_colors[index][2], 255);
+  game_led_flush();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_LAMP, 1, 0, 0, 0);
+  game_event_post_led_ctrl(GAME_EVT_CTRL_HA_COLOR, k_demo_colors[index][0],
+                           k_demo_colors[index][1], k_demo_colors[index][2],
+                           255);
 }
 
 static bool demo_wave(bool inward, uint8_t index) {
@@ -180,7 +159,7 @@ static void demo_show_tick(void) {
     if ((int32_t)(now - s_demo_until) < 0) {
       break;
     }
-    led_set_lamp_hold(false);
+    game_event_post_led_ctrl(GAME_EVT_CTRL_LAMP, 0, 0, 0, 0);
     if (s_demo_ply >= (uint8_t)(sizeof(k_demo_game) / sizeof(k_demo_game[0]))) {
       s_demo_sent = false;
       s_demo_phase = DEMO_END;
@@ -213,7 +192,7 @@ static void demo_show_tick(void) {
     if ((int32_t)(now - s_demo_until) < 0) {
       break;
     }
-    led_stop_endgame_animation();
+    game_event_post_led_ctrl(GAME_EVT_CTRL_STOP_ENDGAME, 0, 0, 0, 0);
     s_demo_sent = false;
     s_demo_phase = DEMO_LAMP;
     break;
@@ -271,7 +250,7 @@ static void demo_show_tick(void) {
       break;
     }
     (void)led_gesture_take_result();
-    led_set_lamp_hold(false);
+    game_event_post_led_ctrl(GAME_EVT_CTRL_LAMP, 0, 0, 0, 0);
     s_demo_sent = false;
     s_demo_ply = 0;
     s_demo_until = 0;
@@ -297,6 +276,7 @@ void game_demo_show_set(bool on) {
   if (s_demo_phase != DEMO_OFF) {
     return;
   }
+  game_gesture_cancel_new_game_dwell();
   demo_show_stop_leds();
   s_demo_sent = false;
   s_demo_color = 0;
@@ -326,6 +306,118 @@ static volatile bool s_lamp_wave_req;
 static volatile bool s_off_wave_req;
 static uint32_t s_off_cover;
 static ha_mode_t s_pending_mode;
+
+/* One-shot handoff: sweep cycle ended, game start waits 2 s on the game task. */
+#define NEW_GAME_DWELL_US (2000LL * 1000LL)
+static esp_timer_handle_t s_dwell_timer;
+static volatile uint32_t s_dwell_seq;
+static volatile uint32_t s_dwell_expect;
+static volatile uint32_t s_dwell_due;
+static bool s_drop_snake_done;
+
+static void new_game_dwell_cb(void *arg) {
+  uint32_t expect = s_dwell_expect;
+  (void)arg;
+  if (expect != 0 && expect == s_dwell_seq) {
+    s_dwell_due = expect;
+  }
+}
+
+static void new_game_dwell_ensure(void) {
+  if (s_dwell_timer != NULL) {
+    return;
+  }
+  const esp_timer_create_args_t args = {
+      .callback = &new_game_dwell_cb,
+      .name = "ng_dwell",
+  };
+  if (esp_timer_create(&args, &s_dwell_timer) != ESP_OK) {
+    s_dwell_timer = NULL;
+    ESP_LOGE(TAG, "new-game dwell timer create failed");
+  }
+}
+
+static void new_game_dwell_cancel(void) {
+  uint32_t seq = s_dwell_seq + 1u;
+  if (seq == 0u) {
+    seq = 1u;
+  }
+  s_dwell_seq = seq;
+  s_dwell_expect = 0;
+  s_dwell_due = 0;
+  if (s_dwell_timer != NULL) {
+    (void)esp_timer_stop(s_dwell_timer);
+  }
+}
+
+static void new_game_dwell_arm(void) {
+  uint32_t seq = s_dwell_seq + 1u;
+  new_game_dwell_ensure();
+  if (seq == 0u) {
+    seq = 1u;
+  }
+  s_dwell_seq = seq;
+  s_dwell_due = 0;
+  s_dwell_expect = 0;
+  if (s_dwell_timer == NULL) {
+    return;
+  }
+  (void)esp_timer_stop(s_dwell_timer);
+  s_dwell_expect = seq;
+  if (esp_timer_start_once(s_dwell_timer, NEW_GAME_DWELL_US) != ESP_OK) {
+    s_dwell_expect = 0;
+    ESP_LOGE(TAG, "new-game dwell timer start failed");
+  }
+}
+
+static bool new_game_dwell_take(void) {
+  uint32_t due = s_dwell_due;
+  if (due == 0u || due != s_dwell_seq || due != s_dwell_expect) {
+    return false;
+  }
+  s_dwell_due = 0;
+  s_dwell_expect = 0;
+  return true;
+}
+
+void game_gesture_cancel_new_game_dwell(void) {
+  s_new_game_after_boot = false;
+  new_game_dwell_cancel();
+  if (led_gesture_snake_active()) {
+    s_drop_snake_done = true;
+  }
+}
+
+static void new_game_dwell_watch(void) {
+  if (s_dwell_expect == 0u && !s_new_game_after_boot) {
+    return;
+  }
+  if (game_demo_show_active() ||
+      (led_gesture_anim_busy() && !led_gesture_snake_active())) {
+    s_new_game_after_boot = false;
+    new_game_dwell_cancel();
+  } else if (led_gesture_snake_active() &&
+             (s_dwell_expect != 0u || s_new_game_after_boot)) {
+    /* A new sweep replaced the cycle that armed this dwell. */
+    s_new_game_after_boot = false;
+    new_game_dwell_cancel();
+  }
+}
+
+static void commit_sweep_new_game(void) {
+  if (ha_light_get_mode() == HA_MODE_HA) {
+    (void)ha_light_request_mode(HA_MODE_GAME);
+  }
+  ESP_LOGI(TAG, "[STAGING] new game after sweep dwell");
+  game_event_post_led_ctrl(GAME_EVT_CTRL_ARM_HANDOVER, 0, 0, 0, 0);
+  game_start_new_game();
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
+    game_hall_restore_guide_force_resync();
+    game_hall_restore_guide_sync();
+  }
+#endif
+}
 
 static uint32_t rgb_of(uint8_t r, uint8_t g, uint8_t b) {
   return ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
@@ -390,20 +482,17 @@ static void fill_mode_colors(ha_mode_t mode, uint32_t out[64]) {
 
 static void gesture_power_off(void) {
   gpio_num_t pin = (gpio_num_t)CONFIG_CHESS_GESTURE_BUTTON_GPIO;
-  led_set_forced_blackout(true);
-  for (int i = 0; i < CHESS_LED_COUNT_TOTAL; i++) {
-    led_set_pixel_internal((uint8_t)i, 0, 0, 0);
-  }
-  led_force_immediate_update();
+  game_led_flush();
+  game_event_post_led_ctrl(GAME_EVT_CTRL_BLACKOUT, 0, 0, 0, 0);
   ha_light_persist_mode();
 
   /* The hold that finished the chase must be released first, otherwise a
    * level-low wake fires immediately. */
   while (led_gesture_button_down()) {
     (void)esp_task_wdt_reset();
-    vTaskDelay(pdMS_TO_TICKS(25));
+    game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
   }
-  vTaskDelay(pdMS_TO_TICKS(25));
+  game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
 
   gpio_wakeup_disable(pin);
   gpio_wakeup_enable(pin, GPIO_INTR_LOW_LEVEL);
@@ -447,24 +536,24 @@ static void gesture_power_off(void) {
     for (;;) {
       (void)esp_task_wdt_reset();
       if (led_gesture_button_down()) {
-        vTaskDelay(pdMS_TO_TICKS(25));
+        game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
         if (led_gesture_button_down()) {
           while (led_gesture_button_down()) {
             (void)esp_task_wdt_reset();
-            vTaskDelay(pdMS_TO_TICKS(25));
+            game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
           }
-          vTaskDelay(pdMS_TO_TICKS(25));
+          game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
           ESP_LOGI(TAG, "[STAGING] power on from GPIO%d, restart",
                    CONFIG_CHESS_GESTURE_BUTTON_GPIO);
           esp_restart();
         }
       }
-      vTaskDelay(pdMS_TO_TICKS(25));
+      game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
     }
   }
   while (led_gesture_button_down()) {
     (void)esp_task_wdt_reset();
-    vTaskDelay(pdMS_TO_TICKS(25));
+    game_led_flush(); vTaskDelay(pdMS_TO_TICKS(25));
   }
   ESP_LOGI(TAG, "[STAGING] wake on GPIO%d, restarting as power-on",
            CONFIG_CHESS_GESTURE_BUTTON_GPIO);
@@ -474,6 +563,8 @@ static void gesture_power_off(void) {
 
 static bool gesture_begin_mode_wave(ha_mode_t next) {
   uint32_t colors[64];
+  s_new_game_after_boot = false;
+  new_game_dwell_cancel();
   /* Opening spreads the last lamp color. Closing shrinks that same color. */
   bool inward = (next == HA_MODE_GAME);
   uint32_t lamp = inward ? lamp_rgb() : lamp_rgb_entering();
@@ -517,7 +608,7 @@ static bool gesture_in_puzzle(void) {
 }
 
 static void gesture_next_puzzle(void) {
-  uint8_t id = puzzle_active_id != 0 ? puzzle_active_id : puzzle_setup_id;
+  uint8_t id = (*game_state_puzzle_active_id()) != 0 ? (*game_state_puzzle_active_id()) : (*game_state_puzzle_setup_id());
   uint8_t next = 1;
   if (id >= 1 && id < 5) {
     next = (uint8_t)(id + 1);
@@ -529,6 +620,8 @@ static void gesture_next_puzzle(void) {
 
 static void gesture_begin_opening(void) {
   uint32_t colors[64];
+  s_new_game_after_boot = false;
+  new_game_dwell_cancel();
   for (int i = 0; i < 64; i++) {
     uint8_t t = (uint8_t)((i * 255) / 63);
     colors[i] = ((uint32_t)(40 + t / 4) << 16) | ((uint32_t)(80 + t / 3) << 8) |
@@ -544,6 +637,8 @@ static void gesture_begin_opening(void) {
 
 static void handle_event(gesture_event_t ev) {
   if (gesture_in_puzzle() && ev == GESTURE_SNAKE_START) {
+    s_new_game_after_boot = false;
+    new_game_dwell_cancel();
     gesture_next_puzzle();
     return;
   }
@@ -562,6 +657,7 @@ static void handle_event(gesture_event_t ev) {
   if (ev == GESTURE_SHUTDOWN_START) {
     /* Button task already started this. A second start after the player lets
      * go replays the symbol and then powers off. */
+    game_gesture_cancel_new_game_dwell();
     if (!led_gesture_anim_busy() && button_gesture_is_down()) {
       if (!led_gesture_start_shutdown()) {
         ESP_LOGW(TAG, "shutdown did not start");
@@ -571,7 +667,10 @@ static void handle_event(gesture_event_t ev) {
   }
   if (ev == GESTURE_SNAKE_START) {
     /* Button task already started this. A second start after release would
-     * play the sweep again. */
+     * play the sweep again. Drop any dwell from the previous cycle. */
+    s_drop_snake_done = false;
+    s_new_game_after_boot = false;
+    new_game_dwell_cancel();
     if (!led_gesture_anim_busy() && button_gesture_is_down()) {
       if (!led_gesture_start_snake()) {
         ESP_LOGW(TAG, "snake did not start");
@@ -616,33 +715,16 @@ static void handle_event(gesture_event_t ev) {
         {0, 0, 255},     /* blue */
         {255, 0, 0},     /* red */
     };
-    if (ha_pattern_is_active()) {
-      (void)ha_pattern_request(HA_PAT_OFF, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-      if (!ha_light_request_web_lamp(true, k_lamp_colors[0][0],
-                                     k_lamp_colors[0][1],
-                                     k_lamp_colors[0][2])) {
-        ESP_LOGW(TAG, "lamp color queue full");
-      }
-      break;
-    }
     uint8_t r = 0, g = 0, b = 0, bright = 255;
     bool on = true;
     ha_light_get_state(&r, &g, &b, &bright, &on);
     unsigned next = 0;
-    bool matched = false;
     for (unsigned i = 0; i < 4u; i++) {
       if (r == k_lamp_colors[i][0] && g == k_lamp_colors[i][1] &&
           b == k_lamp_colors[i][2]) {
         next = (i + 1u) % 4u;
-        matched = true;
         break;
       }
-    }
-    if (matched && next == 0) {
-      if (!ha_pattern_request(HA_PAT_ON, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)) {
-        ESP_LOGW(TAG, "pattern queue full");
-      }
-      break;
     }
     if (!ha_light_request_web_lamp(true, k_lamp_colors[next][0],
                                    k_lamp_colors[next][1],
@@ -694,30 +776,22 @@ static void handle_result(led_gesture_result_t result) {
     }
     break;
   case LED_GESTURE_SNAKE_DONE:
+    if (s_drop_snake_done) {
+      s_drop_snake_done = false;
+      ESP_LOGI(TAG, "[STAGING] sweep finished after game already started");
+      break;
+    }
     if (!button_gesture_is_down()) {
       ESP_LOGI(TAG, "[STAGING] snake ended after release, no new game");
       break;
     }
-    if (ha_light_get_mode() == HA_MODE_HA) {
-      (void)ha_light_request_mode(HA_MODE_GAME);
-    }
-    ESP_LOGI(TAG, "[STAGING] new game (sweep finished while held)");
-    if (led_is_booting()) {
-      s_new_game_after_boot = true;
-      ESP_LOGI(TAG, "[STAGING] new game waits until boot animation ends");
-      break;
-    }
-    s_new_game_after_boot = false;
-    led_arm_direct_handover();
-    game_start_new_game();
-#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-    if (current_game_state == GAME_STATE_WAITING_FOR_BOARD_SETUP) {
-      game_hall_restore_guide_force_resync();
-      game_hall_restore_guide_sync();
-    }
-#endif
+    ESP_LOGI(TAG, "[STAGING] new-game sweep finished, dwell 2000 ms");
+    new_game_dwell_arm();
     break;
   case LED_GESTURE_SNAKE_CANCELLED:
+    s_drop_snake_done = false;
+    s_new_game_after_boot = false;
+    new_game_dwell_cancel();
     ESP_LOGI(TAG, "[STAGING] new game cancelled");
     break;
   case LED_GESTURE_SHUTDOWN_DONE:
@@ -734,7 +808,25 @@ static void handle_result(led_gesture_result_t result) {
 }
 
 void game_gesture_poll(void) {
-  if (s_new_game_after_boot && !led_is_booting()) {
+  if (s_off_wave_req || s_lamp_wave_req) {
+    s_new_game_after_boot = false;
+    new_game_dwell_cancel();
+  }
+  new_game_dwell_watch();
+  if (new_game_dwell_take()) {
+    /* Demo, wave, or shutdown owns the board: the dwell must not start a game. */
+    bool board_taken = game_demo_show_active() ||
+                       (led_gesture_anim_busy() && !led_gesture_snake_active());
+    if (board_taken) {
+      ESP_LOGI(TAG, "[STAGING] new-game dwell dropped, board taken");
+    } else if (game_led_boot_active()) {
+      s_new_game_after_boot = true;
+      ESP_LOGI(TAG, "[STAGING] new game waits until boot animation ends");
+    } else {
+      commit_sweep_new_game();
+    }
+  }
+  if (s_new_game_after_boot && !game_led_boot_active()) {
     s_new_game_after_boot = false;
     ESP_LOGI(TAG, "[STAGING] deferred new game after boot");
     game_start_new_game();
@@ -744,7 +836,7 @@ void game_gesture_poll(void) {
       game_hall_restore_guide_force_resync();
     } else if (!game_hall_restore_guide_show_opening()) {
       game_hall_restore_guide_stop_leds();
-      chess_policy_highlight_movable_if_enabled();
+      game_policy_highlight_movable_if_enabled();
     }
 #endif
   }
@@ -813,5 +905,7 @@ void game_gesture_poll(void) {
   demo_show_tick();
   (void)led_gesture_take_result();
 }
+
+void game_gesture_cancel_new_game_dwell(void) {}
 
 #endif

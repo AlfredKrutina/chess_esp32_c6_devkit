@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
+import '../protocol/board_command_ack.dart';
 import '../protocol/board_command_payload.dart';
 import '../utils/http_json_decode.dart';
 import '../models/board_firmware_models.dart';
@@ -79,6 +80,49 @@ class BoardApiClient {
 
   Uri _api(String baseUrl, String path) => _base(baseUrl).resolve(path);
 
+  void _rejectWireStatus(http.Response res) {
+    final err = _extractJsonErrorCode(res.bodyBytes);
+    if (res.statusCode == 409 && err == 'stale') {
+      throw BoardCommandRejected('stale');
+    }
+    if (res.statusCode == 503 && (err == 'busy' || err == 'queue_full')) {
+      throw BoardCommandRejected(err ?? 'busy');
+    }
+  }
+
+  Future<http.Response> _postStamped(
+    String baseUrl,
+    String path,
+    Map<String, dynamic> body, {
+    bool commandAuth = false,
+    bool webLock = false,
+  }) async {
+    final stamped = BoardCommandPayload.stamp(body);
+    final id = (stamped['req'] as num?)?.toInt();
+    final res = await _client
+        .post(
+          _api(baseUrl, path),
+          headers: commandAuth ? _headersCommand() : _headersJson(),
+          body: jsonEncode(stamped),
+        )
+        .timeout(_timeout);
+    _rejectWireStatus(res);
+    if (id != null) BoardCommandAck.expectResponseId(res.bodyBytes, id);
+    _validate(res.statusCode, res.bodyBytes, treat403WebLock: webLock);
+    return res;
+  }
+
+  Future<void> postSessionClaim(
+    String baseUrl, {
+    required int epoch,
+    required String transport,
+  }) {
+    return _postStamped(baseUrl, 'api/session/claim', <String, dynamic>{
+      'epoch': epoch,
+      'transport': transport,
+    });
+  }
+
   Future<void> close() async => _client.close();
 
   Future<GameSnapshot> fetchSnapshot(String baseUrl) async {
@@ -120,16 +164,16 @@ class BoardApiClient {
     int? customMinutes,
     int? customIncrement,
   }) async {
-    final uri = _api(baseUrl, 'api/timer/config');
-    final body = jsonEncode(BoardCommandPayload.timerConfig(
-      type: type,
-      customMinutes: customMinutes,
-      customIncrement: customIncrement,
-    ));
-    final res = await _client
-        .post(uri, headers: _headersJson(), body: body)
-        .timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+    await _postStamped(
+      baseUrl,
+      'api/timer/config',
+      BoardCommandPayload.timerConfig(
+        type: type,
+        customMinutes: customMinutes,
+        customIncrement: customIncrement,
+      ),
+      webLock: true,
+    );
   }
 
   Future<void> postTimerPause(String baseUrl) =>
@@ -140,26 +184,30 @@ class BoardApiClient {
       _postEmpty(baseUrl, 'api/timer/reset', webLock: true);
 
   Future<void> postNewGame(String baseUrl, {String? fen}) async {
-    final uri = _api(baseUrl, 'api/game/new');
-    final body = BoardCommandPayload.httpNewGame(fen: fen);
-    final res = body.isEmpty
-        ? await _client
-            .post(uri, headers: _headersOptional())
-            .timeout(_timeout)
-        : await _client
-            .post(uri, headers: _headersJson(), body: jsonEncode(body))
-            .timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+    await _postStamped(
+      baseUrl,
+      'api/game/new',
+      BoardCommandPayload.httpNewGame(fen: fen),
+      webLock: true,
+    );
   }
 
   /// `POST /api/game/resign`. 409 = no game running, puzzle/opening active,
   /// or [side] is not on move; [BoardApiException.detail] carries the code.
   Future<void> postResign(String baseUrl, {required String side}) async {
-    final uri = _api(baseUrl, 'api/game/resign');
-    final body = jsonEncode(BoardCommandPayload.httpResign(side: side));
+    final stamped = BoardCommandPayload.stamp(
+      BoardCommandPayload.httpResign(side: side),
+    );
+    final id = (stamped['req'] as num?)?.toInt();
     final res = await _client
-        .post(uri, headers: _headersJson(), body: body)
+        .post(
+          _api(baseUrl, 'api/game/resign'),
+          headers: _headersJson(),
+          body: jsonEncode(stamped),
+        )
         .timeout(_timeout);
+    if (id != null) BoardCommandAck.expectResponseId(res.bodyBytes, id);
+    _rejectWireStatus(res);
     if (res.statusCode == 409) {
       throw BoardApiException(
         'Resign refused',
@@ -176,15 +224,23 @@ class BoardApiClient {
     required String to,
     String? promotion,
   }) async {
-    final uri = _api(baseUrl, 'api/move');
-    final map = BoardCommandPayload.httpMove(
-      from: from,
-      to: to,
-      promotion: promotion,
+    final stamped = BoardCommandPayload.stamp(
+      BoardCommandPayload.httpMove(
+        from: from,
+        to: to,
+        promotion: promotion,
+      ),
     );
+    final id = (stamped['req'] as num?)?.toInt();
     final res = await _client
-        .post(uri, headers: _headersCommand(), body: jsonEncode(map))
+        .post(
+          _api(baseUrl, 'api/move'),
+          headers: _headersCommand(),
+          body: jsonEncode(stamped),
+        )
         .timeout(_timeout);
+    if (id != null) BoardCommandAck.expectResponseId(res.bodyBytes, id);
+    _rejectWireStatus(res);
     if (res.statusCode == 403) {
       final err = _extractJsonErrorCode(res.bodyBytes);
       if (err == 'web_locked') throw BoardApiException.webLocked();
@@ -275,13 +331,13 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
-  Future<void> postHintHighlight(String baseUrl, {required String from, required String to}) async {
-    final uri = _api(baseUrl, 'api/game/hint_highlight');
-    final body = jsonEncode(
+  Future<void> postHintHighlight(String baseUrl, {required String from, required String to}) {
+    return _postStamped(
+      baseUrl,
+      'api/game/hint_highlight',
       BoardCommandPayload.hintSquares(from: from, to: to),
+      webLock: true,
     );
-    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
   }
 
   Future<void> postHintClear(String baseUrl) =>
@@ -291,37 +347,33 @@ class BoardApiClient {
       _postEmpty(baseUrl, 'api/game/guard_clear', webLock: true);
 
   /// Like `ChessboardAPIClient+SetupWizard` — just target field on LED.
-  Future<void> postHintHighlightDestinationOnly(String baseUrl, String toSquare) async {
-    final uri = _api(baseUrl, 'api/game/hint_highlight');
-    final body = jsonEncode(BoardCommandPayload.hintDestination(toSquare));
-    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  Future<void> postHintHighlightDestinationOnly(String baseUrl, String toSquare) {
+    return _postStamped(
+      baseUrl,
+      'api/game/hint_highlight',
+      BoardCommandPayload.hintDestination(toSquare),
+      webLock: true,
+    );
   }
 
   /// `POST /api/game/setup_tutorial` — `start` | `cancel` | `finish`.
-  Future<void> postSetupTutorial(String baseUrl, {required String action}) async {
-    final uri = _api(baseUrl, 'api/game/setup_tutorial');
-    final body = jsonEncode(BoardCommandPayload.setupTutorial(action));
-    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  Future<void> postSetupTutorial(String baseUrl, {required String action}) {
+    return _postStamped(
+      baseUrl,
+      'api/game/setup_tutorial',
+      BoardCommandPayload.setupTutorial(action),
+      webLock: true,
+    );
   }
 
   /// `POST /api/game/puzzle` — load | start | prepare | cancel | hint.
-  Future<void> postPuzzle(String baseUrl, Map<String, dynamic> body) async {
-    final uri = _api(baseUrl, 'api/game/puzzle');
-    final res = await _client
-        .post(uri, headers: _headersJson(), body: jsonEncode(body))
-        .timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  Future<void> postPuzzle(String baseUrl, Map<String, dynamic> body) {
+    return _postStamped(baseUrl, 'api/game/puzzle', body, webLock: true);
   }
 
   /// `POST /api/game/opening` — start | cancel | hint | checkpoint_ack
-  Future<void> postOpening(String baseUrl, Map<String, dynamic> body) async {
-    final uri = _api(baseUrl, 'api/game/opening');
-    final res = await _client
-        .post(uri, headers: _headersJson(), body: jsonEncode(body))
-        .timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  Future<void> postOpening(String baseUrl, Map<String, dynamic> body) {
+    return _postStamped(baseUrl, 'api/game/opening', body, webLock: true);
   }
 
   /// `GET /api/status` — for `matrix_occupied` during tutorial (Wi‑Fi).
@@ -335,19 +387,21 @@ class BoardApiClient {
     return raw.map((e) => (e as num).toInt()).toList();
   }
 
-  Future<void> postBrightness(String baseUrl, int percent) async {
-    final uri = _api(baseUrl, 'api/settings/brightness');
-    final body = jsonEncode(BoardCommandPayload.httpBrightness(percent));
-    final res = await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+  Future<void> postBrightness(String baseUrl, int percent) {
+    return _postStamped(
+      baseUrl,
+      'api/settings/brightness',
+      BoardCommandPayload.httpBrightness(percent),
+    );
   }
 
-  Future<void> postHallRest(String baseUrl) async {
-    final uri = _api(baseUrl, 'api/settings/hall-rest');
-    final res = await _client
-        .post(uri, headers: _headersJson(), body: '{}')
-        .timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: true);
+  Future<void> postHallRest(String baseUrl) {
+    return _postStamped(
+      baseUrl,
+      'api/settings/hall-rest',
+      const <String, dynamic>{},
+      webLock: true,
+    );
   }
 
   Future<ESPMQTTStatusJSON> fetchMQTTStatus(String baseUrl) async {
@@ -436,17 +490,12 @@ class BoardApiClient {
     required int r,
     required int g,
     required int b,
-  }) async {
-    final uri = _api(baseUrl, 'api/light/command');
-    final body = jsonEncode(BoardCommandPayload.lightCommand(
-      state: state,
-      r: r,
-      g: g,
-      b: b,
-    ));
-    final res =
-        await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+  }) {
+    return _postStamped(
+      baseUrl,
+      'api/light/command',
+      BoardCommandPayload.lightCommand(state: state, r: r, g: g, b: b),
+    );
   }
 
   /// `POST /api/light/pattern` — two-color drawing shown on the board.
@@ -462,29 +511,26 @@ class BoardApiClient {
     required int bb,
     bool clear = false,
   }) async {
-    final uri = _api(baseUrl, 'api/light/pattern');
-    final body = jsonEncode(BoardCommandPayload.lightPattern(
-      on: on,
-      pen: pen,
-      ar: ar,
-      ag: ag,
-      ab: ab,
-      br: br,
-      bg: bg,
-      bb: bb,
-      clear: clear,
-    ));
-    final res =
-        await _client.post(uri, headers: _headersJson(), body: body).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+    await _postStamped(
+      baseUrl,
+      'api/light/pattern',
+      BoardCommandPayload.lightPattern(
+        on: on,
+        pen: pen,
+        ar: ar,
+        ag: ag,
+        ab: ab,
+        br: br,
+        bg: bg,
+        bb: bb,
+        clear: clear,
+      ),
+    );
   }
 
   /// `POST /api/light/game_mode` — LED by game mode.
-  Future<void> postLightGameMode(String baseUrl) async {
-    final uri = _api(baseUrl, 'api/light/game_mode');
-    final res =
-        await _client.post(uri, headers: _headersOptional()).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
+  Future<void> postLightGameMode(String baseUrl) {
+    return _postStamped(baseUrl, 'api/light/game_mode', const <String, dynamic>{});
   }
 
   Future<ESPDemoStatusJSON> fetchDemoStatus(String baseUrl) async {
@@ -623,11 +669,8 @@ class BoardApiClient {
     _validate(res.statusCode, res.bodyBytes, treat403WebLock: false);
   }
 
-  Future<void> _postEmpty(String baseUrl, String path, {bool webLock = false}) async {
-    final uri = _api(baseUrl, path);
-    final res =
-        await _client.post(uri, headers: _headersOptional()).timeout(_timeout);
-    _validate(res.statusCode, res.bodyBytes, treat403WebLock: webLock);
+  Future<void> _postEmpty(String baseUrl, String path, {bool webLock = false}) {
+    return _postStamped(baseUrl, path, const <String, dynamic>{}, webLock: webLock);
   }
 
   String? _extractJsonErrorCode(List<int> body) {

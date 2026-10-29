@@ -599,7 +599,7 @@ static void firmware_json_add_guard_fields(cJSON *root) {
   cJSON_AddStringToObject(root, "running_slot", st.running_slot);
 }
 
-static esp_err_t http_get_firmware(httpd_req_t *req) {
+static esp_err_t web_get_firmware(httpd_req_t *req) {
   const esp_app_desc_t *app = esp_app_get_description();
   if (app == NULL) {
     httpd_resp_set_status(req, "500 Internal Server Error");
@@ -644,7 +644,7 @@ static esp_err_t http_get_firmware(httpd_req_t *req) {
  * `{"state":…,"percent":…,…,"message":"<last error>"}` — state vocabulary:
  * idle | receiving | verifying | rebooting | success | aborted | rolled_back | error.
  */
-static esp_err_t http_get_ota_status(httpd_req_t *req) {
+static esp_err_t web_get_ota_status(httpd_req_t *req) {
   char fields[512];
   int n = ota_guard_format_json_fields(fields, sizeof(fields));
   if (n < 0 || (size_t)n >= sizeof(fields)) {
@@ -668,7 +668,7 @@ static esp_err_t http_get_ota_status(httpd_req_t *req) {
   return ESP_OK;
 }
 
-static esp_err_t http_post_ota(httpd_req_t *req) {
+static esp_err_t web_post_ota(httpd_req_t *req) {
   if (board_api_auth_admin_http_denied(req)) {
     return ESP_OK;
   }
@@ -770,15 +770,15 @@ esp_err_t ota_update_register_http_handlers(httpd_handle_t hd) {
 
   httpd_uri_t get_fw = {.uri = "/api/system/firmware",
                         .method = HTTP_GET,
-                        .handler = http_get_firmware,
+                        .handler = web_get_firmware,
                         .user_ctx = NULL};
   httpd_uri_t get_st = {.uri = "/api/system/ota/status",
                         .method = HTTP_GET,
-                        .handler = http_get_ota_status,
+                        .handler = web_get_ota_status,
                         .user_ctx = NULL};
   httpd_uri_t post_ota = {.uri = "/api/system/ota",
                           .method = HTTP_POST,
-                          .handler = http_post_ota,
+                          .handler = web_post_ota,
                           .user_ctx = NULL};
 
   esp_err_t e = httpd_register_uri_handler(hd, &get_fw);

@@ -130,18 +130,15 @@ static esp_err_t opening_queue_action(uint8_t action_code) {
     ESP_LOGE(TAG, "game_command_queue NULL");
     return ESP_FAIL;
   }
-  chess_move_command_t cmd = {0};
-  cmd.type = GAME_CMD_OPENING_TRAINER;
-  cmd.promotion_choice = action_code;
-  cmd.response_queue = NULL;
-  if (xQueueSend(game_command_queue, &cmd, pdMS_TO_TICKS(100)) != pdTRUE) {
+  game_cmd_t cmd = {0};
+  cmd.kind = GCMD_MODE_OPENING;
+  cmd.u.mode.act = action_code;
+  if (!game_submit(&cmd)) {
     ESP_LOGE(TAG, "queue send failed action=%u", (unsigned)action_code);
-    return ESP_FAIL;
+    return ESP_ERR_TIMEOUT;
   }
   if (action_code == 0) {
-    led_command_t lcmd = {0};
-    lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-    led_execute_command_new(&lcmd);
+    (void)web_game_submit_hint_clear();
   }
   return ESP_OK;
 }

@@ -1573,6 +1573,25 @@ class AppLocalizationsCs extends AppLocalizations {
       'Nasazení / název modelu';
 
   @override
+  String get settingsCoachAzureFoundryModelsLoading =>
+      'Načítám modely z Foundry…';
+
+  @override
+  String get settingsCoachAzureFoundryModelsEmpty =>
+      'Pro tenhle klíč a URL se nenašly žádné modely. Napiš název nasazení.';
+
+  @override
+  String settingsCoachAzureFoundryModelsFailed(String error) {
+    return 'Modely se nepodařilo načíst ($error). Název nasazení můžeš pořád napsat ručně.';
+  }
+
+  @override
+  String get settingsCoachAzureFoundryModelsRefresh => 'Znovu načíst modely';
+
+  @override
+  String get settingsCoachAzureFoundryModelsPickHint => 'Vyber model';
+
+  @override
   String get settingsCoachAzureFoundryApiVersionLabel =>
       'Verze API (volitelné)';
 
@@ -3194,9 +3213,6 @@ class AppLocalizationsCs extends AppLocalizations {
   String get lampSendColor => 'Odeslat barvu / stav lampy';
 
   @override
-  String get lampGameModeButton => 'Režim hry (LED podle partie)';
-
-  @override
   String get patternTitle => 'Kresba';
 
   @override
@@ -3223,6 +3239,9 @@ class AppLocalizationsCs extends AppLocalizations {
 
   @override
   String get patternSent => 'Kresba odeslána na desku.';
+
+  @override
+  String get lampGameModeButton => 'Režim hry (LED podle partie)';
 
   @override
   String get lampColorLabel => 'Barva';

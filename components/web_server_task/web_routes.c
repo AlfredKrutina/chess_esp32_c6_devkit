@@ -9,6 +9,7 @@
 #include "board_api_auth.h"
 #include "ota_update.h"
 #include "web_server_task.h"
+#include "cmd_wire.h"
 
 #include "esp_http_server.h"
 #include "esp_log.h"
@@ -27,106 +28,118 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
   /* Old browser bookmark. The page itself is in kos/unused/web_ui. */
   httpd_uri_t chess_js_uri = {.uri = "/chess_app.js",
                               .method = HTTP_GET,
-                              .handler = http_get_chess_js_handler,
+                              .handler = web_get_chess_js_handler,
                               .user_ctx = NULL};
   httpd_register_uri_handler(handle, &chess_js_uri);
 
   // Handler for root (JSON — application instead of browser)
   httpd_uri_t root_uri = {.uri = "/",
                           .method = HTTP_GET,
-                          .handler = http_get_root_handler,
+                          .handler = web_get_root_handler,
                           .user_ctx = NULL};
   httpd_register_uri_handler(handle, &root_uri);
 
   // Handlers for APIs
   httpd_uri_t board_uri = {.uri = "/api/board",
                            .method = HTTP_GET,
-                           .handler = http_get_board_handler,
+                           .handler = web_get_board_handler,
                            .user_ctx = NULL};
   httpd_register_uri_handler(handle, &board_uri);
 
   httpd_uri_t game_snapshot_uri = {.uri = "/api/game/snapshot",
                                    .method = HTTP_GET,
-                                   .handler = http_get_game_snapshot_handler,
+                                   .handler = web_get_game_snapshot_handler,
                                    .user_ctx = NULL};
   httpd_register_uri_handler(handle, &game_snapshot_uri);
 
   httpd_uri_t status_uri = {.uri = "/api/status",
                             .method = HTTP_GET,
-                            .handler = http_get_status_handler,
+                            .handler = web_get_status_handler,
                             .user_ctx = NULL};
   httpd_register_uri_handler(handle, &status_uri);
 
   httpd_uri_t history_uri = {.uri = "/api/history",
                              .method = HTTP_GET,
-                             .handler = http_get_history_handler,
+                             .handler = web_get_history_handler,
                              .user_ctx = NULL};
   httpd_register_uri_handler(handle, &history_uri);
 
   httpd_uri_t captured_uri = {.uri = "/api/captured",
                               .method = HTTP_GET,
-                              .handler = http_get_captured_handler,
+                              .handler = web_get_captured_handler,
                               .user_ctx = NULL};
   httpd_register_uri_handler(handle, &captured_uri);
 
   httpd_uri_t advantage_uri = {.uri = "/api/advantage",
                                .method = HTTP_GET,
-                               .handler = http_get_advantage_handler,
+                               .handler = web_get_advantage_handler,
                                .user_ctx = NULL};
   httpd_register_uri_handler(handle, &advantage_uri);
 
   // Handlers for the Timer API
   httpd_uri_t timer_uri = {.uri = "/api/timer",
                            .method = HTTP_GET,
-                           .handler = http_get_timer_handler,
+                           .handler = web_get_timer_handler,
                            .user_ctx = NULL};
   httpd_register_uri_handler(handle, &timer_uri);
 
   // Handler for favicon.ico (silence 404 warnings)
   httpd_uri_t favicon_uri = {.uri = "/favicon.ico",
                              .method = HTTP_GET,
-                             .handler = http_get_favicon_handler,
+                             .handler = web_get_favicon_handler,
                              .user_ctx = NULL};
   httpd_register_uri_handler(handle, &favicon_uri);
 
   httpd_uri_t timer_config_uri = {.uri = "/api/timer/config",
                                   .method = HTTP_POST,
-                                  .handler = http_post_timer_config_handler,
+                                  .handler = web_post_timer_config_handler,
                                   .user_ctx = NULL};
   httpd_register_uri_handler(handle, &timer_config_uri);
+
+  httpd_uri_t session_claim_uri = {.uri = "/api/session/claim",
+                                  .method = HTTP_POST,
+                                  .handler = cmd_wire_http_claim_handler,
+                                  .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &session_claim_uri);
+
+  httpd_uri_t session_release_uri = {.uri = "/api/session/release",
+                                     .method = HTTP_POST,
+                                     .handler = cmd_wire_http_release_handler,
+                                     .user_ctx = NULL};
+  httpd_register_uri_handler(handle, &session_release_uri);
 
   httpd_uri_t settings_brightness_uri = {
       .uri = "/api/settings/brightness",
       .method = HTTP_POST,
-      .handler = http_post_settings_brightness_handler,
+      .handler = web_post_settings_brightness_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_brightness_uri);
 
   httpd_uri_t settings_hall_rest_uri = {
       .uri = "/api/settings/hall-rest",
       .method = HTTP_POST,
-      .handler = http_post_settings_hall_rest_handler,
+      .handler = web_post_settings_hall_rest_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_hall_rest_uri);
 
   httpd_uri_t settings_auto_lamp_timeout_uri = {
       .uri = "/api/settings/auto_lamp_timeout",
       .method = HTTP_POST,
-      .handler = http_post_settings_auto_lamp_timeout_handler,
+      .handler = web_post_settings_auto_lamp_timeout_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_auto_lamp_timeout_uri);
 
   httpd_uri_t settings_guided_hints_uri = {
       .uri = "/api/settings/guided_hints",
       .method = HTTP_POST,
-      .handler = http_post_settings_guided_hints_handler,
+      .handler = web_post_settings_guided_hints_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_guided_hints_uri);
 
   httpd_uri_t settings_led_guidance_uri = {
       .uri = "/api/settings/led_guidance",
       .method = HTTP_POST,
-      .handler = http_post_settings_led_guidance_handler,
+      .handler = web_post_settings_led_guidance_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_led_guidance_uri);
 
@@ -134,64 +147,64 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
   httpd_uri_t settings_start_pos_check_get_uri = {
       .uri = "/api/settings/start_pos_check",
       .method = HTTP_GET,
-      .handler = http_get_settings_start_pos_check_handler,
+      .handler = web_get_settings_start_pos_check_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_start_pos_check_get_uri);
 
   httpd_uri_t settings_start_pos_check_post_uri = {
       .uri = "/api/settings/start_pos_check",
       .method = HTTP_POST,
-      .handler = http_post_settings_start_pos_check_handler,
+      .handler = web_post_settings_start_pos_check_handler,
       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_start_pos_check_post_uri);
 
   httpd_uri_t timer_pause_uri = {.uri = "/api/timer/pause",
                                  .method = HTTP_POST,
-                                 .handler = http_post_timer_pause_handler,
+                                 .handler = web_post_timer_pause_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &timer_pause_uri);
 
   httpd_uri_t timer_resume_uri = {.uri = "/api/timer/resume",
                                   .method = HTTP_POST,
-                                  .handler = http_post_timer_resume_handler,
+                                  .handler = web_post_timer_resume_handler,
                                   .user_ctx = NULL};
   httpd_register_uri_handler(handle, &timer_resume_uri);
 
   httpd_uri_t timer_reset_uri = {.uri = "/api/timer/reset",
                                  .method = HTTP_POST,
-                                 .handler = http_post_timer_reset_handler,
+                                 .handler = web_post_timer_reset_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &timer_reset_uri);
 
   // Handlers for the WiFi API
   httpd_uri_t wifi_config_uri = {.uri = "/api/wifi/config",
                                  .method = HTTP_POST,
-                                 .handler = http_post_wifi_config_handler,
+                                 .handler = web_post_wifi_config_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &wifi_config_uri);
 
   httpd_uri_t wifi_connect_uri = {.uri = "/api/wifi/connect",
                                   .method = HTTP_POST,
-                                  .handler = http_post_wifi_connect_handler,
+                                  .handler = web_post_wifi_connect_handler,
                                   .user_ctx = NULL};
   httpd_register_uri_handler(handle, &wifi_connect_uri);
 
   httpd_uri_t wifi_disconnect_uri = {.uri = "/api/wifi/disconnect",
                                      .method = HTTP_POST,
                                      .handler =
-                                         http_post_wifi_disconnect_handler,
+                                         web_post_wifi_disconnect_handler,
                                      .user_ctx = NULL};
   httpd_register_uri_handler(handle, &wifi_disconnect_uri);
 
   httpd_uri_t wifi_clear_uri = {.uri = "/api/wifi/clear",
                                 .method = HTTP_POST,
-                                .handler = http_post_wifi_clear_handler,
+                                .handler = web_post_wifi_clear_handler,
                                 .user_ctx = NULL};
   httpd_register_uri_handler(handle, &wifi_clear_uri);
 
   httpd_uri_t factory_reset_uri = {.uri = "/api/system/factory_reset",
                                    .method = HTTP_POST,
-                                   .handler = http_post_factory_reset_handler,
+                                   .handler = web_post_factory_reset_handler,
                                    .user_ctx = NULL};
   httpd_register_uri_handler(handle, &factory_reset_uri);
 
@@ -204,7 +217,7 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
 
   httpd_uri_t wifi_status_uri = {.uri = "/api/wifi/status",
                                  .method = HTTP_GET,
-                                 .handler = http_get_wifi_status_handler,
+                                 .handler = web_get_wifi_status_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &wifi_status_uri);
 
@@ -212,33 +225,33 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
   httpd_uri_t web_lock_status_uri = {.uri = "/api/web/lock-status",
                                      .method = HTTP_GET,
                                      .handler =
-                                         http_get_web_lock_status_handler,
+                                         web_get_web_lock_status_handler,
                                      .user_ctx = NULL};
   httpd_register_uri_handler(handle, &web_lock_status_uri);
 
   // Handlers for Demo Mode
   httpd_uri_t demo_config_uri = {.uri = "/api/demo/config",
                                  .method = HTTP_POST,
-                                 .handler = http_post_demo_config_handler,
+                                 .handler = web_post_demo_config_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &demo_config_uri);
 
   httpd_uri_t demo_start_uri = {.uri = "/api/demo/start",
                                 .method = HTTP_POST,
-                                .handler = http_post_demo_start_handler,
+                                .handler = web_post_demo_start_handler,
                                 .user_ctx = NULL};
   httpd_register_uri_handler(handle, &demo_start_uri);
 
   httpd_uri_t demo_status_uri = {.uri = "/api/demo/status",
                                  .method = HTTP_GET,
-                                 .handler = http_get_demo_status_handler,
+                                 .handler = web_get_demo_status_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &demo_status_uri);
 
   // Handler for Moves
   httpd_uri_t move_uri = {.uri = "/api/move",
                           .method = HTTP_POST,
-                          .handler = http_post_game_move_handler,
+                          .handler = web_post_game_move_handler,
                           .user_ctx = NULL};
   httpd_register_uri_handler(handle, &move_uri);
 
@@ -252,27 +265,27 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
   httpd_uri_t virtual_action_uri = {.uri = "/api/game/virtual_action",
                                     .method = HTTP_POST,
                                     .handler =
-                                        http_post_game_virtual_action_handler,
+                                        web_post_game_virtual_action_handler,
                                     .user_ctx = NULL};
   httpd_register_uri_handler(handle, &virtual_action_uri);
 
   // Handler for New Game
   httpd_uri_t new_game_uri = {.uri = "/api/game/new",
                               .method = HTTP_POST,
-                              .handler = http_post_game_new_handler,
+                              .handler = web_post_game_new_handler,
                               .user_ctx = NULL};
   httpd_register_uri_handler(handle, &new_game_uri);
 
   // Handler for Resign (side on move, same end path as king lift)
   httpd_uri_t resign_uri = {.uri = "/api/game/resign",
                             .method = HTTP_POST,
-                            .handler = http_post_game_resign_handler,
+                            .handler = web_post_game_resign_handler,
                             .user_ctx = NULL};
   httpd_register_uri_handler(handle, &resign_uri);
 
   httpd_uri_t draw_uri = {.uri = "/api/game/draw",
                           .method = HTTP_POST,
-                          .handler = http_post_game_draw_handler,
+                          .handler = web_post_game_draw_handler,
                           .user_ctx = NULL};
   httpd_register_uri_handler(handle, &draw_uri);
 
@@ -280,89 +293,83 @@ esp_err_t web_routes_register(httpd_handle_t handle) {
   httpd_uri_t hint_highlight_uri = {.uri = "/api/game/hint_highlight",
                                     .method = HTTP_POST,
                                     .handler =
-                                        http_post_game_hint_highlight_handler,
+                                        web_post_game_hint_highlight_handler,
                                     .user_ctx = NULL};
   httpd_register_uri_handler(handle, &hint_highlight_uri);
 
   httpd_uri_t hint_clear_uri = {.uri = "/api/game/hint_clear",
                                .method = HTTP_POST,
-                               .handler = http_post_game_hint_clear_handler,
+                               .handler = web_post_game_hint_clear_handler,
                                .user_ctx = NULL};
   httpd_register_uri_handler(handle, &hint_clear_uri);
 
   httpd_uri_t guard_clear_uri = {.uri = "/api/game/guard_clear",
                                  .method = HTTP_POST,
-                                 .handler = http_post_game_guard_clear_handler,
+                                 .handler = web_post_game_guard_clear_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &guard_clear_uri);
 
   httpd_uri_t setup_tutorial_uri = {.uri = "/api/game/setup_tutorial",
                                     .method = HTTP_POST,
                                     .handler =
-                                        http_post_game_setup_tutorial_handler,
+                                        web_post_game_setup_tutorial_handler,
                                     .user_ctx = NULL};
   httpd_register_uri_handler(handle, &setup_tutorial_uri);
 
   httpd_uri_t puzzle_uri = {.uri = "/api/game/puzzle",
                             .method = HTTP_POST,
-                            .handler = http_post_game_puzzle_handler,
+                            .handler = web_post_game_puzzle_handler,
                             .user_ctx = NULL};
   httpd_register_uri_handler(handle, &puzzle_uri);
 
   httpd_uri_t opening_uri = {.uri = "/api/game/opening",
                              .method = HTTP_POST,
-                             .handler = http_post_game_opening_handler,
+                             .handler = web_post_game_opening_handler,
                              .user_ctx = NULL};
   httpd_register_uri_handler(handle, &opening_uri);
 
   httpd_uri_t settings_ui_get_uri = {.uri = "/api/settings/ui",
                                    .method = HTTP_GET,
-                                   .handler = http_get_settings_ui_handler,
+                                   .handler = web_get_settings_ui_handler,
                                    .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_ui_get_uri);
 
   httpd_uri_t settings_ui_post_uri = {.uri = "/api/settings/ui",
                                       .method = HTTP_POST,
-                                      .handler = http_post_settings_ui_handler,
+                                      .handler = web_post_settings_ui_handler,
                                       .user_ctx = NULL};
   httpd_register_uri_handler(handle, &settings_ui_post_uri);
 
   // Lamp Handlers (Lamp Mode from Web)
   httpd_uri_t light_command_uri = {.uri = "/api/light/command",
                                    .method = HTTP_POST,
-                                   .handler = http_post_light_command_handler,
+                                   .handler = web_post_light_command_handler,
                                    .user_ctx = NULL};
   httpd_register_uri_handler(handle, &light_command_uri);
 
   httpd_uri_t light_game_mode_uri = {.uri = "/api/light/game_mode",
                                     .method = HTTP_POST,
-                                    .handler = http_post_light_game_mode_handler,
+                                    .handler = web_post_light_game_mode_handler,
                                     .user_ctx = NULL};
   httpd_register_uri_handler(handle, &light_game_mode_uri);
-
-  httpd_uri_t light_pattern_uri = {.uri = "/api/light/pattern",
-                                   .method = HTTP_POST,
-                                   .handler = http_post_light_pattern_handler,
-                                   .user_ctx = NULL};
-  httpd_register_uri_handler(handle, &light_pattern_uri);
 
   // Handlers for the MQTT API
   httpd_uri_t mqtt_status_uri = {.uri = "/api/mqtt/status",
                                  .method = HTTP_GET,
-                                 .handler = http_get_mqtt_status_handler,
+                                 .handler = web_get_mqtt_status_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &mqtt_status_uri);
 
   httpd_uri_t mqtt_config_uri = {.uri = "/api/mqtt/config",
                                  .method = HTTP_POST,
-                                 .handler = http_post_mqtt_config_handler,
+                                 .handler = web_post_mqtt_config_handler,
                                  .user_ctx = NULL};
   httpd_register_uri_handler(handle, &mqtt_config_uri);
 
 #if CONFIG_HTTPD_WS_SUPPORT
   httpd_uri_t ws_uri = {.uri = "/ws",
                         .method = HTTP_GET,
-                        .handler = http_ws_handler,
+                        .handler = web_ws_handler,
                         .user_ctx = NULL,
                         .is_websocket = true};
   httpd_register_uri_handler(handle, &ws_uri);

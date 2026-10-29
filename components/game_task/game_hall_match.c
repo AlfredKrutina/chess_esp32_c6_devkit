@@ -5,7 +5,11 @@
 
 #include "game_hall_match.h"
 #include "game_hall_hand.h"
-#include "game_task_internal.h"
+#include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
 #include "../squares_task/include/squares_task.h"
 
 #include "esp_log.h"
@@ -241,7 +245,7 @@ bool game_hall_logic_matches_stable_sensors(const uint8_t sensor_occ[64]) {
     return false;
   }
   for (uint8_t sq = 0; sq < 64; sq++) {
-    piece_t expect = board[sq / 8][sq % 8];
+    piece_t expect = game_get_piece(sq / 8, sq % 8);
     if (!game_hall_square_agrees_with_logic(sq, expect, sensor_occ[sq])) {
       return false;
     }
@@ -304,7 +308,7 @@ int game_hall_relocated_origin(uint8_t placed, const uint8_t occ[64]) {
     if (sq == placed || occ[sq] != 0) {
       continue;
     }
-    piece_t piece = board[sq / 8][sq % 8];
+    piece_t piece = game_get_piece(sq / 8, sq % 8);
     if (!hall_piece_matches_reading(piece, ht, hc)) {
       continue;
     }

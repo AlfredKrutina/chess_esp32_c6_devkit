@@ -7,6 +7,9 @@
 #define GAME_SNAPSHOT_H
 
 #include "esp_err.h"
+#include "position.h"
+#include "chess_types.h"
+#include "game_physical_undo.h"
 #include <stdbool.h>
 
 /** @brief Erase snapshot and boot-tracker NVS keys (new game). */
@@ -14,6 +17,9 @@ void game_snapshot_erase_nvs(void);
 
 /** @brief Clear save/restore failure flags after starting a fresh game. */
 void game_snapshot_reset_failure_flags(void);
+
+/** Push the live board's empty map and piece types into the Hall driver. */
+void game_snapshot_publish_hall_empty(void);
 
 /**
  * @brief Whether NVS holds a full or minimal snapshot with a valid CRC.
@@ -67,5 +73,57 @@ bool game_has_snapshot_save_failure(void);
  * @return true when that rule fired and a valid snapshot was not present.
  */
 bool game_was_boot_new_game_triggered(void);
+
+/** Board header only (no position undo hist). Same layout as position_t prefix. */
+typedef struct {
+  uint8_t board[8][8];
+  uint8_t side;
+  uint8_t castling;
+  uint8_t ep_square;
+  uint16_t halfmove;
+  uint16_t fullmove;
+} game_snap_pos_t;
+
+/** Session snapshot for HTTP/UART reads (position, mode, clocks, web history). */
+typedef struct {
+  game_snap_pos_t pos;
+  position_status_t pos_status;
+  char fen[100];
+  uint8_t mode; /* 0 none, 1 puzzle, 2 opening, 3 tutorial, 4 guard */
+  uint8_t timer_fields_ready;
+  uint32_t white_time_total;
+  uint32_t black_time_total;
+  uint32_t white_remaining_ms;
+  uint32_t black_remaining_ms;
+  uint32_t move_count;
+  uint8_t game_state;
+  uint32_t history_len;
+  chess_move_t history_moves[POSITION_HIST_CAP];
+} game_session_snap_t;
+
+/** Thread-safe copy of the last committed session snapshot. */
+void game_session_snap_copy(game_session_snap_t *out);
+
+/** Hold s_session_snap_mutex; pair with game_session_snap_release(). */
+const game_session_snap_t *game_session_snap_acquire(void);
+
+/** Release after game_session_snap_acquire(). */
+void game_session_snap_release(void);
+
+/** Rebuild session snapshot from live game state (game task thread). */
+void game_session_snap_refresh(void);
+
+extern chess_move_t move_history[GAME_TASK_MAX_MOVES_HISTORY];
+extern move_type_t move_history_kind[GAME_TASK_MAX_MOVES_HISTORY];
+extern uint32_t history_index;
+
+extern bool has_last_move;
+extern uint8_t last_move_from_row;
+extern uint8_t last_move_from_col;
+extern uint8_t last_move_to_row;
+extern uint8_t last_move_to_col;
+
+extern bool game_saved;
+extern char saved_game_name[32];
 
 #endif /* GAME_SNAPSHOT_H */

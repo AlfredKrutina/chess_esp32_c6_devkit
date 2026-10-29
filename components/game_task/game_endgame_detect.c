@@ -3,8 +3,12 @@
  * @brief Check, stalemate, draw detection, and end-game condition analysis.
  */
 
-#include "game_task_internal.h"
 #include "game_task.h"
+#include "game_board_core.h"
+#include "game_board_machine.h"
+#include "game_snapshot.h"
+#include "game_squares_guard.h"
+#include "position.h"
 
 #include "../../timer_system/include/timer_system.h"
 
@@ -31,7 +35,7 @@ bool game_is_king_in_check(player_t player) {
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      if (board[row][col] == king_piece) {
+      if (game_get_piece(row, col) == king_piece) {
         king_row = row;
         king_col = col;
         break;
@@ -52,7 +56,7 @@ bool game_is_king_in_check(player_t player) {
 
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
       if (piece >= opponent_pieces_start && piece <= opponent_pieces_end) {
         // Create temporary move to check if it can capture king
         chess_move_t temp_move = {.from_row = row,
@@ -112,7 +116,7 @@ bool game_is_insufficient_material(void) {
   // Count pieces and analyze material
   for (int row = 0; row < 8; row++) {
     for (int col = 0; col < 8; col++) {
-      piece_t piece = board[row][col];
+      piece_t piece = game_get_piece(row, col);
 
       switch (piece) {
       case PIECE_WHITE_PAWN:
@@ -217,55 +221,56 @@ bool game_is_insufficient_material(void) {
  * - Original check >= 50 was bad (half count)
  */
 game_state_t game_check_end_game_conditions(void) {
-  // Check if current player is in check
-  bool in_check = game_is_king_in_check(current_player);
-
-  // Check if current player has legal moves
-  bool has_moves = game_has_legal_moves(current_player);
+  const position_t *logic = game_logic_position();
+  bool use_core = (logic != NULL && logic->side == (uint8_t)current_player);
+  position_status_t st = use_core ? position_status(logic) : (position_status_t){0};
+  bool in_check = use_core ? st.in_check : game_is_king_in_check(current_player);
+  bool has_moves = use_core ? (!st.checkmate && !st.stalemate)
+                            : game_has_legal_moves(current_player);
 
   if (in_check && !has_moves) {
     // Checkmate - determine the type according to the last move
-    game_result = GAME_STATE_FINISHED;
-    current_result_type = (current_player == PLAYER_WHITE) ? RESULT_BLACK_WINS
+    (*game_state_game_result()) = GAME_STATE_FINISHED;
+    (*game_state_current_result_type()) = (current_player == PLAYER_WHITE) ? RESULT_BLACK_WINS
                                                            : RESULT_WHITE_WINS;
 
     // Distinguish the type of chess according to the last move
-    switch (last_move_type) {
+    switch ((*game_state_last_move_type())) {
     case LAST_MOVE_EN_PASSANT:
-      current_endgame_reason = ENDGAME_REASON_CHECKMATE_EN_PASSANT;
+      (*game_state_current_endgame_reason()) = ENDGAME_REASON_CHECKMATE_EN_PASSANT;
       ESP_LOGI(TAG, "🎯 CHECKMATE BY EN PASSANT! %s wins in %" PRIu32 " moves!",
                (current_player == PLAYER_WHITE) ? "Black" : "White",
                move_count);
       break;
     case LAST_MOVE_CASTLING:
-      current_endgame_reason = ENDGAME_REASON_CHECKMATE_CASTLING;
+      (*game_state_current_endgame_reason()) = ENDGAME_REASON_CHECKMATE_CASTLING;
       ESP_LOGI(TAG, "🎯 CHECKMATE BY CASTLING! %s wins in %" PRIu32 " moves!",
                (current_player == PLAYER_WHITE) ? "Black" : "White",
                move_count);
       break;
     case LAST_MOVE_PROMOTION:
-      current_endgame_reason = ENDGAME_REASON_CHECKMATE_PROMOTION;
+      (*game_state_current_endgame_reason()) = ENDGAME_REASON_CHECKMATE_PROMOTION;
       ESP_LOGI(TAG, "🎯 CHECKMATE BY PROMOTION! %s wins in %" PRIu32 " moves!",
                (current_player == PLAYER_WHITE) ? "Black" : "White",
                move_count);
       break;
     case LAST_MOVE_DISCOVERED:
-      current_endgame_reason = ENDGAME_REASON_CHECKMATE_DISCOVERED;
+      (*game_state_current_endgame_reason()) = ENDGAME_REASON_CHECKMATE_DISCOVERED;
       ESP_LOGI(
           TAG,
           "🎯 CHECKMATE BY DISCOVERED CHECK! %s wins in %" PRIu32 " moves!",
           (current_player == PLAYER_WHITE) ? "Black" : "White", move_count);
       break;
     default:
-      current_endgame_reason = ENDGAME_REASON_CHECKMATE;
+      (*game_state_current_endgame_reason()) = ENDGAME_REASON_CHECKMATE;
       ESP_LOGI(TAG, "🎯 CHECKMATE! %s wins in %" PRIu32 " moves!",
                (current_player == PLAYER_WHITE) ? "Black" : "White",
                move_count);
       break;
     }
 
-    game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Report request
+    game_update_endgame_statistics((*game_state_current_result_type()));
+    (*game_state_endgame_report_requested()) = true; // Report request
 
     // Stop timer (game over)
     timer_pause();
@@ -281,15 +286,15 @@ game_state_t game_check_end_game_conditions(void) {
     return GAME_STATE_FINISHED;
   } else if (!in_check && !has_moves) {
     // Stalemate
-    game_result = GAME_STATE_FINISHED;
-    current_result_type = RESULT_DRAW_STALEMATE;
-    current_endgame_reason = ENDGAME_REASON_STALEMATE; // Mark as stalemate
-    game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Report request
+    (*game_state_game_result()) = GAME_STATE_FINISHED;
+    (*game_state_current_result_type()) = RESULT_DRAW_STALEMATE;
+    (*game_state_current_endgame_reason()) = ENDGAME_REASON_STALEMATE; // Mark as stalemate
+    game_update_endgame_statistics((*game_state_current_result_type()));
+    (*game_state_endgame_report_requested()) = true; // Report request
 
     // Stop timer (game over)
     timer_pause();
-    game_send_response_to_uart("Stalemate. The game is drawn.", false, NULL);
+    game_cmd_reply("Stalemate. The game is drawn.", false, NULL);
     game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 STALEMATE! Game drawn in %" PRIu32 " moves", move_count);
@@ -299,34 +304,34 @@ game_state_t game_check_end_game_conditions(void) {
   // BUG #13: Check for draw conditions
   // 50-move rule: 50 full moves = 100 half-moves/ply
   // moves_without_capture counts half moves so >= 100
-  if (game_get_fifty_move_counter() >= 100) {
-    game_result = GAME_STATE_FINISHED;
-    current_result_type = RESULT_DRAW_50_MOVE;
-    current_endgame_reason =
+  if (st.fifty_move || game_get_fifty_move_counter() >= 100) {
+    (*game_state_game_result()) = GAME_STATE_FINISHED;
+    (*game_state_current_result_type()) = RESULT_DRAW_50_MOVE;
+    (*game_state_current_endgame_reason()) =
         ENDGAME_REASON_50_MOVE; // Mark as 50-move rule
-    game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Report request
+    game_update_endgame_statistics((*game_state_current_result_type()));
+    (*game_state_endgame_report_requested()) = true; // Report request
 
     // Stop timer (game over)
     timer_pause();
-    game_send_response_to_uart("Draw by the 50-move rule.", false, NULL);
+    game_cmd_reply("Draw by the 50-move rule.", false, NULL);
     game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 DRAW! 50 moves without capture (50-move rule)");
     return GAME_STATE_FINISHED;
   }
 
-  if (game_is_position_repeated()) {
-    game_result = GAME_STATE_FINISHED;
-    current_result_type = RESULT_DRAW_REPETITION;
-    current_endgame_reason =
+  if (st.repetition || game_is_position_repeated()) {
+    (*game_state_game_result()) = GAME_STATE_FINISHED;
+    (*game_state_current_result_type()) = RESULT_DRAW_REPETITION;
+    (*game_state_current_endgame_reason()) =
         ENDGAME_REASON_REPETITION; // Mark as threefold repetition
-    game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Report request
+    game_update_endgame_statistics((*game_state_current_result_type()));
+    (*game_state_endgame_report_requested()) = true; // Report request
 
     // Stop timer (game over)
     timer_pause();
-    game_send_response_to_uart("Draw by repetition.", false, NULL);
+    game_cmd_reply("Draw by repetition.", false, NULL);
     game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 DRAW! Position repeated (draw by repetition)");
@@ -334,17 +339,17 @@ game_state_t game_check_end_game_conditions(void) {
   }
 
   // Check for insufficient material
-  if (game_is_insufficient_material()) {
-    game_result = GAME_STATE_FINISHED;
-    current_result_type = RESULT_DRAW_INSUFFICIENT;
-    current_endgame_reason =
+  if (st.insufficient_material || game_is_insufficient_material()) {
+    (*game_state_game_result()) = GAME_STATE_FINISHED;
+    (*game_state_current_result_type()) = RESULT_DRAW_INSUFFICIENT;
+    (*game_state_current_endgame_reason()) =
         ENDGAME_REASON_INSUFFICIENT; // Mark as insufficient material
-    game_update_endgame_statistics(current_result_type);
-    endgame_report_requested = true; // Report request
+    game_update_endgame_statistics((*game_state_current_result_type()));
+    (*game_state_endgame_report_requested()) = true; // Report request
 
     // Stop timer (game over)
     timer_pause();
-    game_send_response_to_uart("Draw by insufficient material.", false, NULL);
+    game_cmd_reply("Draw by insufficient material.", false, NULL);
     game_trigger_victory_animation(current_player);
 
     ESP_LOGI(TAG, "🤝 DRAW! Insufficient material to checkmate");
