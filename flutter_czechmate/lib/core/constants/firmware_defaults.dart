@@ -2,7 +2,7 @@
 /// The binary in the manifest goes to `raw.githubusercontent.com/.../gh-pages/firmware/…` after successful deployment.
 /// Viz [.github/workflows/gh-pages.yml].
 const kDefaultFirmwareManifestUrl =
-    'https://raw.githubusercontent.com/alfredkrutina/chess_esp32_c6_devkit/main/firmware/version.json';
+    'https://raw.githubusercontent.com/alfredkrutina/CzechMate/main/firmware/version.json';
 
 /// Fixes truncated GitHub Pages URLs (e.g. `…/chess_`), repo paths missing `version.json`,
 /// and migrates `*.github.io/.../version.json` for this project to [kDefaultFirmwareManifestUrl].
@@ -40,7 +40,8 @@ String normalizeFirmwareManifestUrl(String raw) {
   final seg0 = segments.isEmpty ? '' : segments[0].replaceAll('-', '_').toLowerCase();
 
   if (segments.any((e) => e.toLowerCase() == 'version.json')) {
-    if (uri.path.toLowerCase().contains('chess_esp32_c6_devkit')) {
+    final path = uri.path.toLowerCase();
+    if (path.contains('chess_esp32_c6_devkit') || path.contains('czechmate')) {
       return kDefaultFirmwareManifestUrl;
     }
     return s;
@@ -52,12 +53,13 @@ String normalizeFirmwareManifestUrl(String raw) {
   }
 
   // Project root without `/firmware/version.json`
-  if (segments.length == 1 && seg0 == 'chess_esp32_c6_devkit') {
+  if (segments.length == 1 &&
+      (seg0 == 'chess_esp32_c6_devkit' || seg0 == 'czechmate')) {
     return kDefaultFirmwareManifestUrl;
   }
 
   if (segments.length == 2 &&
-      seg0 == 'chess_esp32_c6_devkit' &&
+      (seg0 == 'chess_esp32_c6_devkit' || seg0 == 'czechmate') &&
       segments[1].toLowerCase() == 'firmware') {
     return kDefaultFirmwareManifestUrl;
   }

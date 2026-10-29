@@ -4,8 +4,8 @@
 /// After changing the `version` in the application, compare the manifest in `gh-pages-ready/` and push — until
 /// workflow does not deploy the new build, clients see the old manifest.
 const kAppUpdateJsonUrl =
-    'https://alfredkrutina.github.io/chess_esp32_c6_devkit/app_update.json';
+    'https://alfredkrutina.github.io/CzechMate/app_update.json';
 
 /// Default downloads / release notes page if JSON doesn't have its own `release_page_url`.
 const kDefaultAppReleasePageUrl =
-    'https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html';
+    'https://alfredkrutina.github.io/CzechMate/downloads.html';

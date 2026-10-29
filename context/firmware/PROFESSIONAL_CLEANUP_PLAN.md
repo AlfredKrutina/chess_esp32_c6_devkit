@@ -28,8 +28,8 @@ The project works but carries typical fast-development debt:
 
 | PR | Branch | Content | Recommendation |
 |----|-------|-------|------------|
-| [#5](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/5) | `cursor/matrix-guard-sync-8fdd` | Matrix guard fix + recovery API + UI | **Merge first** (~26 files, behavior fix) |
-| [#4](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/pull/4) | `cursor/repo-organize-complete-8fdd` | Reorg phases 1–5 + cherry-pick guard | **Rebase on `main` after #5**, then merge |
+| [#5](https://github.com/AlfredKrutina/CzechMate/pull/5) | `cursor/matrix-guard-sync-8fdd` | Matrix guard fix + recovery API + UI | **Merge first** (~26 files, behavior fix) |
+| [#4](https://github.com/AlfredKrutina/CzechMate/pull/4) | `cursor/repo-organize-complete-8fdd` | Reorg phases 1–5 + cherry-pick guard | **Rebase on `main` after #5**, then merge |
 | #1–#3 | older reorg drafts | superseded | Close after merge #4 |
 
 ### 2.2 “God file” sizes

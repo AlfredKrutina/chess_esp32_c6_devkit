@@ -2,7 +2,7 @@
 # and deploys the live site via GitHub Actions Pages (avoids the legacy Jekyll builder).
 # App/OTA manifest: raw from main …/main/firmware/version.json
 # Firmware bin: raw from gh-pages …/gh-pages/firmware/esp32_chess_v24.bin
-# Live site: https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html
+# Live site: https://alfredkrutina.github.io/CzechMate/downloads.html
 
 name: Deploy GitHub Pages
 

@@ -16,7 +16,7 @@ import '../connection/board_session_state.dart';
 
 /// Project docs (MQTT / Home Assistant context) — opens in external browser.
 final Uri kMqttHaDocumentationUri = Uri.parse(
-  'https://alfredkrutina.github.io/chess_esp32_c6_devkit/',
+  'https://alfredkrutina.github.io/CzechMate/',
 );
 
 Future<void> openMqttHaDocumentation() async {

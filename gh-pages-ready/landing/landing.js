@@ -321,7 +321,7 @@
   /* Direct APK/DMG download from the latest GitHub release (API → browser_download_url) */
   (function initReleaseDownloadLinks() {
     var api =
-      "https://api.github.com/repos/alfredkrutina/chess_esp32_c6_devkit/releases/latest";
+      "https://api.github.com/repos/alfredkrutina/CzechMate/releases/latest";
     var apkAnchors = document.querySelectorAll("[data-dl-apk]");
     var dmgAnchors = document.querySelectorAll("[data-dl-dmg]");
     var winAnchors = document.querySelectorAll("[data-dl-windows]");

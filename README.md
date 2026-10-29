@@ -1,12 +1,12 @@
 # CzechMate
 
-**Product site:** [alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html)
+**Product site:** [alfredkrutina.github.io/CzechMate/downloads.html](https://alfredkrutina.github.io/CzechMate/downloads.html)
 
 Smart physical chess — real pieces, lights on the squares, and an app that teaches. Firmware on ESP32-C6, next-generation Hall architecture for V2, Flutter client in `flutter_czechmate/`.
 
 **Firmware in this repo:** **1.8.0** on prototype **V1** (reed matrix — occupied / empty). **V2** uses **Hall sensors** with differential occupancy sensing in current firmware; automated piece type and color recognition is the design goal of the new version — see [HARDWARE_VERSIONS.md](context/hardware/HARDWARE_VERSIONS.md) and [hardware/v2-hall-stm32/README.md](hardware/v2-hall-stm32/README.md).
 
-**Download the app:** same [product page](https://alfredkrutina.github.io/chess_esp32_c6_devkit/downloads.html) · binaries on [GitHub Releases](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/releases/latest). **Windows:** no BLE scan — connect via Wi‑Fi URL ([docs/flutter/README.md](docs/flutter/README.md)). **iOS / iPad** support is in progress.
+**Download the app:** same [product page](https://alfredkrutina.github.io/CzechMate/downloads.html) · binaries on [GitHub Releases](https://github.com/AlfredKrutina/CzechMate/releases/latest). **Windows:** no BLE scan — connect via Wi‑Fi URL ([docs/flutter/README.md](docs/flutter/README.md)). **iOS / iPad** support is in progress.
 
 *Checkmate from Czechia*
 
@@ -131,7 +131,7 @@ idf.py -p PORT monitor
 | **UART** | 115200 baud — `help`, `move e2e4`, `board`, `reset` |
 | **Web** | `http://<IP>/` after Wi‑Fi (IP in the log) |
 | **Flutter** | `cd flutter_czechmate && flutter pub get && flutter run` |
-| **Releases** | [GitHub Releases](https://github.com/AlfredKrutina/chess_esp32_c6_devkit/releases) |
+| **Releases** | [GitHub Releases](https://github.com/AlfredKrutina/CzechMate/releases) |
 
 **Physical play:** lift a piece → LED on the source square; place → validation. Green = OK, red = error, blue = check.
 

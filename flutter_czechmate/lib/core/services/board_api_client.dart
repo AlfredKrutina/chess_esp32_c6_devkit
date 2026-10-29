@@ -587,7 +587,7 @@ class BoardApiClient {
             'Accept': 'application/json',
             'Accept-Encoding': 'identity',
             'User-Agent':
-                'CzechMate/1.0 (Flutter; +https://github.com/alfredkrutina/chess_esp32_c6_devkit)',
+                'CzechMate/1.0 (Flutter; +https://github.com/alfredkrutina/CzechMate)',
           },
         )
         .timeout(_timeout);

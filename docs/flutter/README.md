@@ -16,7 +16,7 @@ cd flutter_czechmate && flutter pub get && flutter run
 - **Bluetooth:** the `flutter_blue_plus` library has **no** Windows backend in this project. The client does not call the BLE API; board connection is via **HTTP / WebSocket** (same network as the PC, URL from the board web UI or from the phone after Wi‑Fi setup). BLE scan and OTA over GATT require Android / iOS / macOS / Linux.
 - **CI installer:** on push to `main`/`master` that changes `flutter_czechmate/**`, [`.github/workflows/flutter-app-release.yml`](../../.github/workflows/flutter-app-release.yml) runs on GitHub Actions — the `windows` job runs `flutter build windows --release` and packages the output with the Inno Setup script `flutter_czechmate/installer/windows/CzechMateSetup.iss` into `czechmate-<ver>-windows-setup.exe` on Releases.
 
-Release builds: [GitHub Releases](https://github.com/alfredkrutina/chess_esp32_c6_devkit/releases).
+Release builds: [GitHub Releases](https://github.com/alfredkrutina/CzechMate/releases).
 
 New diagram ideas can be tracked locally in `context/diagrams/LOCAL_DIAGRAM_BACKLOG.md`; the template is [DIAGRAM_BACKLOG.local.example.md](../../context/diagrams/DIAGRAM_BACKLOG.local.example.md).
 

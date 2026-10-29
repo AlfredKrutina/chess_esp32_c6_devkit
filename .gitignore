@@ -184,9 +184,21 @@ venv/
 /.espressif/
 
 # =============================================================================
-# Blender / 3D pipeline (models/blender)
-# Commituj: skripty (build_*.py, cine_common, led_*), board/*.glb|stl, timeline JSON.
-# Nekommituj: scény .blend (přegenerují se skriptem), video/, MPFB set/, scratch _*.py.
+# Prezentace — velké podklady, jen lokálně
+# =============================================================================
+/prezentace/
+/context/*.pptx
+/context/*.pdf
+
+# =============================================================================
+# 3D modely, rendery, tiskové soubory a fotky figurek.
+# Zůstávají na disku. Do Gitu nepatří (velké binárky).
+# =============================================================================
+/models/
+*.3mf
+
+# =============================================================================
+# Blender scratch (kdyby models/ někdo z ignore výjimkou vrátil)
 # =============================================================================
 # Scény a Blender autosave / crash — vždy znovu z build_*.py
 /models/blender/*.blend
