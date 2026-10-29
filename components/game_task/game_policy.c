@@ -216,7 +216,8 @@ void game_policy_refresh_idle_board_leds(void) {
   if (piece_lifted || castling_state.in_progress ||
       (*game_state_promotion_state()).pending || game_ep_capture_waiting() ||
       game_is_castle_animation_active() || game_is_castling_expected() ||
-      game_puzzle_suppress_move_hints()) {
+      game_puzzle_suppress_move_hints() || game_is_puzzle_active() ||
+      game_is_puzzle_setup_active()) {
     return;
   }
   if (current_game_state != GAME_STATE_ACTIVE &&
@@ -229,33 +230,30 @@ void game_policy_refresh_idle_board_leds(void) {
   game_led_frame_begin(GAME_EVT_HINT_FADE_MS, false);
   game_policy_highlight_movable_if_enabled();
 
-  if (!game_is_king_in_check(current_player)) {
-    game_led_frame_end();
-    return;
-  }
-  int king_row = -1;
-  int king_col = -1;
-  piece_t king_piece = (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING
-                                                        : PIECE_BLACK_KING;
-  for (int row = 0; row < 8; row++) {
-    for (int col = 0; col < 8; col++) {
-      if (game_get_piece(row, col) == king_piece) {
-        king_row = row;
-        king_col = col;
+  if (game_is_king_in_check(current_player) &&
+      game_led_guidance_show_check_anim()) {
+    int king_row = -1;
+    int king_col = -1;
+    piece_t king_piece = (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING
+                                                          : PIECE_BLACK_KING;
+    for (int row = 0; row < 8; row++) {
+      for (int col = 0; col < 8; col++) {
+        if (game_get_piece(row, col) == king_piece) {
+          king_row = row;
+          king_col = col;
+          break;
+        }
+      }
+      if (king_row != -1) {
         break;
       }
     }
-    if (king_row != -1) {
-      break;
+    if (king_row != -1 && king_col != -1) {
+      game_led_frame_breathe((uint8_t)king_row, (uint8_t)king_col, 255, 192,
+                             203, GAME_EVT_BREATHE_TARGET, 0, 0, 0);
     }
   }
-  if (king_row == -1 || king_col == -1 ||
-      !game_led_guidance_show_check_anim()) {
-    game_led_frame_end();
-    return;
-  }
-  game_led_frame_breathe((uint8_t)king_row, (uint8_t)king_col, 255, 192, 203,
-                         GAME_EVT_BREATHE_TARGET, 0, 0, 0);
+  game_coach_hint_paint();
   game_led_frame_end();
 }
 

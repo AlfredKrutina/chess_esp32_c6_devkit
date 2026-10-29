@@ -304,12 +304,12 @@ static void snake_square(uint8_t step, uint8_t *row, uint8_t *col) {
 
 /* Head position is in 1/256 of a square. The crest eases in over 3 squares
  * and the tail fades out over 5, so the wipe is a soft brush. The head must
- * travel past a8 until that tail leaves the board black. ~1.7 s at 33 ms. */
+ * travel past a8 until that tail leaves the board black. One pass, ~0.85 s. */
 #define SWEEP_AHEAD_Q8 768
 #define SWEEP_BEHIND_Q8 1280
 #define SWEEP_CREST 0xFFE6B0u
 #define SNAKE_Q8_END (64u * 256u + SWEEP_BEHIND_Q8)
-#define SNAKE_Q8_FWD 340u
+#define SNAKE_Q8_FWD 680u
 
 static uint32_t snake_q8_delta(void) {
   uint32_t num = s_snake_acc + s_dt_ms * SNAKE_Q8_FWD;

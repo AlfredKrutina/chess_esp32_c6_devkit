@@ -105,7 +105,7 @@ class _GameScreenState extends ConsumerState<GameScreen> {
           session.transport == BoardTransport.ble) {
         await ref
             .read(boardSessionNotifierProvider.notifier)
-            .postHintDestination(best.to);
+            .postHintMove(from: best.from, to: best.to);
       }
     } catch (e) {
       if (!mounted) return;

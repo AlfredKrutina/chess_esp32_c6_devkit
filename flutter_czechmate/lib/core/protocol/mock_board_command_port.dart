@@ -162,6 +162,11 @@ class MockBoardCommandPort implements BoardCommandPort {
   }
 
   @override
+  Future<void> postHintMove({required String from, required String to}) async {
+    throw StateError(refuse(BoardCommandRefuse.hintsNeedConnection));
+  }
+
+  @override
   Future<void> postHintClear() async {}
 
   @override

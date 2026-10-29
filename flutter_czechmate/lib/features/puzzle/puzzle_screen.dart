@@ -724,24 +724,26 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
           SelectableText(_daily!.fen,
               style: const TextStyle(fontFamily: 'monospace', fontSize: 12)),
           const SizedBox(height: 16),
-          PressableScale(
-            child: FilledButton(
-              onPressed: () => _tryPuzzleOnScreen(
-                ref,
-                fen: _daily!.fen,
-                title: l10n.puzzleDailySolveTitle,
-                solution: _daily!.solutionMoves,
-                rating: _daily!.rating,
-                lineKind: 'lichess',
+          Row(
+            children: [
+              Expanded(
+                child: PressableScale(
+                  child: FilledButton(
+                    onPressed: () => _tryPuzzleOnScreen(
+                      ref,
+                      fen: _daily!.fen,
+                      title: l10n.puzzleDailySolveTitle,
+                      solution: _daily!.solutionMoves,
+                      rating: _daily!.rating,
+                      lineKind: 'lichess',
+                    ),
+                    child: Text(l10n.puzzleTryOnScreen),
+                  ),
+                ),
               ),
-              child: Text(l10n.puzzleTryOnScreen),
-            ),
-          ),
-          const SizedBox(height: 10),
-          if (!compactOverflowActions) ...[
-            Row(
-              children: [
-                Expanded(
+              const SizedBox(width: 10),
+              Expanded(
+                child: PressableScale(
                   child: OutlinedButton(
                     onPressed: () => _sendToBoard(
                       ref,
@@ -754,7 +756,13 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                     child: Text(l10n.puzzleLoadToBoard),
                   ),
                 ),
-                const SizedBox(width: 10),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          if (!compactOverflowActions) ...[
+            Row(
+              children: [
                 Expanded(
                   child: OutlinedButton.icon(
                     onPressed: (session.transport == BoardTransport.wifi ||

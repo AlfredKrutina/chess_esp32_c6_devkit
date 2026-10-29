@@ -178,6 +178,7 @@ static bool sensors_unchanged(const uint8_t digest[64]) {
 static bool s_digest_valid;
 static uint32_t s_play_gen;
 static bool s_opening_done;
+static bool s_target_aligned;
 static bool s_opening_clock_started;
 static uint32_t s_opening_deadline_ms;
 static uint8_t s_pending_digest[64];
@@ -203,6 +204,9 @@ static bool initial_setup_guide(void) {
   /* Piece colors are the opening guide only. A game that already has moves,
    * and the demo, draw their own lights. Once the pieces have sat correctly,
    * or the player has lifted one to move, those colors stay off. */
+  if (game_is_puzzle_setup_active() || game_is_puzzle_active()) {
+    return false;
+  }
   if (s_opening_done || game_demo_show_active()) {
     return false;
   }
@@ -820,6 +824,7 @@ void game_hall_restore_guide_force_resync(void) {
   s_opening_clock_started = false;
   s_digest_valid = false;
   s_sync_requested = true;
+  s_target_aligned = false;
 }
 
 static bool apply_opening_homes(void) {
@@ -967,7 +972,7 @@ static void handover_opening_aligned(const uint8_t digest[64]) {
 }
 
 void game_hall_restore_guide_sync(void) {
-  if (s_opening_done) {
+  if (s_opening_done || game_is_puzzle_setup_active() || game_is_puzzle_active()) {
     s_sync_requested = false;
     return;
   }
@@ -1109,6 +1114,47 @@ static bool apply_composed_plan(const uint8_t occ[64]) {
   game_event_post_restore(plan, GAME_EVT_RESTORE_OP_APPLY);
   s_guide_led_active = true;
   return true;
+}
+
+bool game_hall_restore_guide_show_target(void) {
+  uint8_t occ[64];
+  uint8_t digest[64];
+  game_restore_plan_t *plan = &s_restore_work_plan;
+  bool aligned = false;
+  uint32_t now_ms;
+
+  if (s_in_sync || !hall_i2c_squares_readings_usable() || mode_blocks_guide()) {
+    return s_target_aligned;
+  }
+  squares_get_state(occ);
+  digest_sensors(occ, digest);
+  now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+  if (!guide_digest_settled(digest, now_ms)) {
+    return s_target_aligned;
+  }
+  if (s_digest_valid && sensors_unchanged(digest)) {
+    return s_target_aligned;
+  }
+  s_in_sync = true;
+  if (!compose_restore_plan(occ, plan, &aligned)) {
+    s_in_sync = false;
+    return s_target_aligned;
+  }
+  remember_digest(digest);
+  if (aligned) {
+    if (s_guide_led_active) {
+      game_hall_restore_guide_release();
+    }
+    s_target_aligned = true;
+    s_in_sync = false;
+    return true;
+  }
+  plan->active = true;
+  game_event_post_restore(plan, GAME_EVT_RESTORE_OP_APPLY);
+  s_guide_led_active = true;
+  s_target_aligned = false;
+  s_in_sync = false;
+  return false;
 }
 
 bool game_hall_restore_guide_show_play(void) {

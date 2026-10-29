@@ -4,6 +4,7 @@
  */
 
 #include "game_task.h"
+#include "game_led_direct.h"
 #include "game_board_core.h"
 #include "game_policy.h"
 #include "game_board_machine.h"
@@ -24,6 +25,46 @@ static game_evt_breathe_t s_frame_br[GAME_EVT_BREATHE_MAX];
 static uint8_t s_frame_bn;
 static game_evt_hint_pixel_t s_acc[64];
 static uint8_t s_acc_n;
+
+static bool s_coach_on;
+static uint8_t s_coach_from = 255;
+static uint8_t s_coach_to = 255;
+
+void game_coach_hint_clear(void) {
+  s_coach_on = false;
+  s_coach_from = 255;
+  s_coach_to = 255;
+}
+
+void game_coach_hint_paint(void) {
+  uint8_t row;
+  uint8_t col;
+  piece_t dest;
+  bool opponent;
+
+  if (!s_coach_on || !s_frame_open) {
+    return;
+  }
+  if (s_coach_from < 64) {
+    game_led_frame_sq((uint8_t)(s_coach_from / 8u), (uint8_t)(s_coach_from % 8u),
+                      255, 255, 0);
+  }
+  if (s_coach_to >= 64) {
+    return;
+  }
+  row = (uint8_t)(s_coach_to / 8u);
+  col = (uint8_t)(s_coach_to % 8u);
+  dest = game_get_piece(row, col);
+  opponent = (current_player == PLAYER_WHITE && dest >= PIECE_BLACK_PAWN &&
+              dest <= PIECE_BLACK_KING) ||
+             (current_player == PLAYER_BLACK && dest >= PIECE_WHITE_PAWN &&
+              dest <= PIECE_WHITE_KING);
+  if (opponent) {
+    game_led_frame_sq(row, col, 255, 165, 0);
+  } else {
+    game_led_frame_sq(row, col, 0, 255, 0);
+  }
+}
 
 void game_led_flush(void) {
   uint8_t n;
@@ -184,19 +225,23 @@ void game_process_web_hint(const game_cmd_t *cmd) {
     return;
   }
   if (cmd->u.hint.clear) {
-    game_policy_refresh_idle_board_leds();
+    game_coach_hint_clear();
+  } else if (cmd->u.hint.from_sq >= 64 && cmd->u.hint.to_sq >= 64) {
+    game_coach_hint_clear();
+  } else {
+    s_coach_on = true;
+    s_coach_from = cmd->u.hint.from_sq;
+    s_coach_to = cmd->u.hint.to_sq;
+  }
+  if (game_is_puzzle_active() && !game_is_puzzle_setup_active() &&
+      !game_puzzle_sync_hold()) {
+    game_puzzle_refresh_play_leds();
     return;
   }
-  game_led_frame_begin(0, false);
-  if (cmd->u.hint.from_sq < 64) {
-    uint8_t sq = cmd->u.hint.from_sq;
-    game_led_frame_sq((uint8_t)(sq / 8u), (uint8_t)(sq % 8u), 0, 255, 255);
+  if (game_is_puzzle_setup_active()) {
+    return;
   }
-  if (cmd->u.hint.to_sq < 64) {
-    uint8_t sq = cmd->u.hint.to_sq;
-    game_led_frame_sq((uint8_t)(sq / 8u), (uint8_t)(sq % 8u), 255, 140, 0);
-  }
-  game_led_frame_end();
+  game_policy_refresh_idle_board_leds();
 }
 
 void game_show_castling_direct(uint8_t king_from_row, uint8_t king_from_col,

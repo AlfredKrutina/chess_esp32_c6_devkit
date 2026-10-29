@@ -205,6 +205,8 @@
 void led_game_events_process(void);
 void led_game_events_report_overlay(void);
 #include "led_strip.h"
+#include "led_strip_spi.h"
+#include "driver/spi_master.h"
 #include <inttypes.h>
 #include <math.h>
 #include <stdbool.h>
@@ -442,6 +444,8 @@ static volatile uint8_t s_picture_open;
 static volatile uint8_t s_hw_resync;
 static uint8_t s_target_write;
 static uint32_t s_pic_gen;
+/* Set when a target store changes the picture. One frame bumps gen once. */
+static uint8_t s_frame_changed;
 static uint8_t s_force_hw;
 
 /* Triangle → smoothstep → gamma lift. Floor stays 40%; midtones are not dark. */
@@ -673,19 +677,18 @@ static void led_set_pixel_channels(uint8_t led_index, uint8_t red, uint8_t green
   uint32_t color = ((uint32_t)white << 24) | ((uint32_t)red << 16) |
                    ((uint32_t)green << 8) | blue;
 
-  /* Same color is already on the strip. A refresh here is a full frame and
-   * the guide used to request one 30 times a second, which blinks under WiFi.
-   * A direct board write still leaves out_* stale, so the next target frame
-   * is sent in full. The target renderer sets s_target_write / s_force_hw. */
-  if (led_index < LED_BOARD_N && !s_target_write) {
-    s_hw_resync = 1U;
-    s_pic_gen++;
-  }
-  if (!s_force_hw && led_states[led_index] == color) {
+  /* Same colour is already stored. Refreshing it clocks the whole strip and
+   * blinks under WiFi. A direct write that really changes a board LED still
+   * leaves out_* stale, so the next target frame repairs those squares. */
+  if (led_states[led_index] == color) {
     if (led_unified_mutex != NULL) {
       xSemaphoreGive(led_unified_mutex);
     }
     return;
+  }
+  if (led_index < LED_BOARD_N && !s_target_write) {
+    s_hw_resync = 1U;
+    s_pic_gen++;
   }
 
   // Update internal state
@@ -1976,7 +1979,7 @@ void led_clear_all_highlights(void) {
 // ============================================================================
 
 /**
- * @brief Initialize RMT hardware for WS2812B LED control
+ * @brief Initialize the SK6812 strip on SPI DMA.
  * @return ESP_OK on success, error code on failure
  */
 static esp_err_t led_hardware_init(void) {
@@ -1989,6 +1992,8 @@ static esp_err_t led_hardware_init(void) {
    * SK6812 preset uses T1H 0.6 µs, under that minimum. WS2812 timing in
    * this driver is T0H 0.3 / T1H 0.9 µs, inside the window, and the reset
    * is 280 µs (datasheet wants >200 µs). Byte order is GRBW, 4 bytes.
+   * ESP32-C6 RMT has no DMA, so WiFi stretches a refilled frame. SPI DMA
+   * clocks the whole frame without that refill.
    */
   led_strip_config_t strip_config = {
       .strip_gpio_num = LED_DATA_PIN,
@@ -1997,21 +2002,17 @@ static esp_err_t led_hardware_init(void) {
       .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRBW,
   };
 
-  // RMT BACKEND CONFIGURATION - Optimized for WS2812B timing
-  led_strip_rmt_config_t rmt_config = {
-      .clk_src = RMT_CLK_SRC_DEFAULT,
-      .resolution_hz =
-          10 * 1000 * 1000,     // 10MHz resolution for precise WS2812B timing
-      .mem_block_symbols = 128, // More buffer for stability
+  led_strip_spi_config_t spi_config = {
+      .clk_src = SPI_CLK_SRC_DEFAULT,
+      .spi_bus = SPI2_HOST,
       .flags =
           {
-              .with_dma = false, // ESP32-C6 doesn't support DMA for RMT
+              .with_dma = true,
           },
   };
 
-  // CREATE LED STRIP OBJECT
   esp_err_t ret =
-      led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip);
+      led_strip_new_spi_device(&strip_config, &spi_config, &led_strip);
   if (ret != ESP_OK) {
     ESP_LOGE(TAG, "❌ LED strip creation failed: %s", esp_err_to_name(ret));
     led_strip = NULL; // Ensure handle is NULL on failure
@@ -2045,7 +2046,7 @@ static esp_err_t led_hardware_init(void) {
   ESP_LOGI(TAG, "LED pixel format GRBW, 4 bytes per LED");
   ESP_LOGI(TAG, "  • GPIO: %d", LED_DATA_PIN);
   ESP_LOGI(TAG, "  • LEDs: %d total", CHESS_LED_COUNT_TOTAL);
-  ESP_LOGI(TAG, "  • Driver: espressif/led_strip, led_strip_set_pixel_rgbw");
+  ESP_LOGI(TAG, "  • Driver: espressif/led_strip SPI2 DMA, led_strip_set_pixel_rgbw");
   ESP_LOGI(TAG, "  • Batch update system: initialized");
 
   return ESP_OK;
@@ -3159,6 +3160,24 @@ static void led_tgt_store(led_tgt_t *t, uint8_t r, uint8_t g, uint8_t b,
     }
     return;
   }
+  /* Snap colour is already on the strip. A repeated idle frame uses another
+   * fade_ms (0 vs 180) and must not start that fade again. */
+  if (!t->pulse && mode == LED_VIS_SNAP && t->mode == LED_VIS_SNAP &&
+      t->out_r == r && t->out_g == g && t->out_b == b) {
+    t->tr = r;
+    t->tg = g;
+    t->tb = b;
+    t->br_fading = 0U;
+    t->br_delay = 0U;
+    t->br_floor = floor;
+    t->br_period = period;
+    t->br_phase = phase;
+    t->br_fade_ms = fade_ms;
+    if (mark && s_picture_open) {
+      t->touched = 1U;
+    }
+    return;
+  }
   t->pulse = 0U;
   if (fade_ms != 0U) {
     /* From the colour on the strip now, so a cut-off fade does not jump. */
@@ -3190,19 +3209,28 @@ static void led_tgt_store(led_tgt_t *t, uint8_t r, uint8_t g, uint8_t b,
   if (mark && s_picture_open) {
     t->touched = 1U;
   }
+  s_frame_changed = 1U;
 }
 
 uint32_t led_board_picture_gen(void) { return s_pic_gen; }
 
+static void led_pic_note_if_idle(void) {
+  if (!s_picture_open && s_frame_changed) {
+    s_pic_gen++;
+    s_frame_changed = 0U;
+  }
+}
+
 void led_target_begin(void) {
   uint8_t i;
-  s_pic_gen++;
   if (!led_tgt_lock()) {
     s_picture_open = 1U;
+    s_frame_changed = 0U;
     return;
   }
   s_picture_open = 1U;
   s_frame_fade = 0U;
+  s_frame_changed = 0U;
   for (i = 0; i < LED_BOARD_N; i++) {
     s_tgt[i].touched = 0U;
   }
@@ -3248,12 +3276,12 @@ void led_target_set(uint8_t led_index, uint8_t red, uint8_t green, uint8_t blue,
   if (led_index >= LED_BOARD_N) {
     return;
   }
-  s_pic_gen++;
   if (!led_tgt_lock()) {
     return;
   }
   led_tgt_store(&s_tgt[led_index], red, green, blue, (uint8_t)mode, true, 0, 0,
                 0, s_frame_fade);
+  led_pic_note_if_idle();
   led_tgt_unlock();
 }
 
@@ -3263,12 +3291,12 @@ void led_target_set_breathe_sq(uint8_t led_index, uint8_t red, uint8_t green,
   if (led_index >= LED_BOARD_N || fade_ms == 0U) {
     return;
   }
-  s_pic_gen++;
   if (!led_tgt_lock()) {
     return;
   }
   led_tgt_store(&s_tgt[led_index], red, green, blue, LED_VIS_BREATHE, true,
                 floor, period_ms, phase_ms, fade_ms);
+  led_pic_note_if_idle();
   led_tgt_unlock();
 }
 
@@ -3296,6 +3324,10 @@ void led_target_end(void) {
   }
   s_picture_open = 0U;
   s_frame_fade = 0U;
+  if (s_frame_changed) {
+    s_pic_gen++;
+    s_frame_changed = 0U;
+  }
   led_tgt_unlock();
   led_target_kick();
 }
@@ -3834,7 +3866,7 @@ static void led_commit_pending_changes(void) {
       }
     }
   } else if (ret == ESP_ERR_INVALID_STATE) {
-    ESP_LOGD(TAG, "LED strip refresh skipped (RMT not ready)");
+    ESP_LOGD(TAG, "LED strip refresh skipped (SPI not ready)");
   } else {
     ESP_LOGW(TAG, "LED strip refresh warning: %s", esp_err_to_name(ret));
   }
@@ -4221,9 +4253,15 @@ static void led_render_targets(void) {
       led_overlay_square(i, tb_gain, ring_elapsed, ring_radius, ring_fade, gain,
                          &r, &g, &b);
     }
-    dirty[i] = (s_force_hw || r != t->out_r || g != t->out_g || b != t->out_b)
-                   ? 1U
-                   : 0U;
+    dirty[i] = (r != t->out_r || g != t->out_g || b != t->out_b) ? 1U : 0U;
+    /* A direct write changed the strip but not this target. Resend only the
+     * squares whose stored colour is no longer the one on the wire. */
+    if (!dirty[i] && s_force_hw) {
+      uint32_t want = ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
+      if (led_states[i] != want) {
+        dirty[i] = 1U;
+      }
+    }
     if (dirty[i]) {
       t->out_r = r;
       t->out_g = g;

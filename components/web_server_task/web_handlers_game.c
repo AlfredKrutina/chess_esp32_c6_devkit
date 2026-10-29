@@ -347,17 +347,7 @@ esp_err_t web_server_build_game_snapshot_json_shared(char **out_json,
   return e;
 }
 
-static void web_led_clear_highlights_direct(void) {
-  led_command_t lcmd = {0};
-  lcmd.type = LED_CMD_CLEAR_HIGHLIGHTS;
-  led_execute_command_new(&lcmd);
-}
-
 bool web_game_submit_hint_clear(void) {
-  if (!game_active) {
-    web_led_clear_highlights_direct();
-    return true;
-  }
   game_cmd_t cmd = {0};
   cmd.kind = GCMD_WEB_HINT;
   cmd.u.hint.clear = 1;
@@ -434,16 +424,8 @@ esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
     }
   }
 
-  if (game_active) {
-    if (!web_game_submit_hint_pixels(from_led, to_led)) {
-      return ESP_ERR_NO_MEM;
-    }
-  } else {
-    led_command_t cmd = {0};
-    cmd.type = LED_CMD_HIGHLIGHT_HINT;
-    cmd.led_index = from_led;
-    cmd.data = (void *)&to_led;
-    led_execute_command_new(&cmd);
+  if (!web_game_submit_hint_pixels(from_led, to_led)) {
+    return ESP_ERR_TIMEOUT;
   }
   ESP_LOGI(TAG, "Hint highlight: %s (LED %u -> %u)", to_sq, (unsigned)from_led,
            (unsigned)to_led);

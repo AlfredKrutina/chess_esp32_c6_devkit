@@ -273,6 +273,7 @@ bool game_execute_move(const chess_move_t *move) {
            success, current_player == PLAYER_WHITE ? "White" : "Black");
 
   if (success) {
+    game_coach_hint_clear();
     // Update last move tracking for future en passant detection
     last_move_from_row = move->from_row;
     last_move_from_col = move->from_col;

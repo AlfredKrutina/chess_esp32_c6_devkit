@@ -543,6 +543,7 @@ bool game_puzzle_drop_is_expected(uint8_t from_row, uint8_t from_col,
 void game_puzzle_after_accepted_move(void);
 bool game_puzzle_hint(void);
 void game_puzzle_service_leds(void);
+void game_puzzle_refresh_play_leds(void);
 /** Hall: accept the expected puzzle ply from a stable occupancy snapshot. */
 void game_puzzle_service_hall_move(void);
 bool game_puzzle_suppress_move_hints(void);

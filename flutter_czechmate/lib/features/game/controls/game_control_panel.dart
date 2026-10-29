@@ -52,7 +52,7 @@ class _GameControlPanelState extends ConsumerState<GameControlPanel> {
           session.transport == BoardTransport.ble) {
         await ref
             .read(boardSessionNotifierProvider.notifier)
-            .postHintDestination(best.to);
+            .postHintMove(from: best.from, to: best.to);
       }
       if (!context.mounted) return;
       showAppSnackBar(context, l10n.gameBestMoveSnack(best.from, best.to));

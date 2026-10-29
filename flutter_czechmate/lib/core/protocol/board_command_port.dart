@@ -28,6 +28,8 @@ abstract class BoardCommandPort {
 
   Future<void> postHintDestination(String square);
 
+  Future<void> postHintMove({required String from, required String to});
+
   Future<void> postHintClear();
 
   Future<void> postGuardClear();
@@ -121,6 +123,10 @@ class HttpBoardCommandPort implements BoardCommandPort {
   @override
   Future<void> postHintDestination(String square) =>
       _api.postHintHighlightDestinationOnly(baseUrl, square);
+
+  @override
+  Future<void> postHintMove({required String from, required String to}) =>
+      _api.postHintHighlight(baseUrl, from: from, to: to);
 
   @override
   Future<void> postHintClear() => _api.postHintClear(baseUrl);
@@ -245,6 +251,10 @@ class BleBoardCommandPort implements BoardCommandPort {
   @override
   Future<void> postHintDestination(String square) =>
       _ble.postHintHighlightDestinationOnly(square);
+
+  @override
+  Future<void> postHintMove({required String from, required String to}) =>
+      _ble.postHintHighlight(from, to);
 
   @override
   Future<void> postHintClear() => _ble.postHintClear();

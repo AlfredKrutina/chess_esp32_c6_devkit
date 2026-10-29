@@ -161,6 +161,10 @@ void game_led_paint_led(uint8_t led, uint8_t r, uint8_t g, uint8_t b);
 void game_led_flush(void);
 void game_led_clear_board(void);
 
+/** Stored app hint. Painted into an already open LED frame. */
+void game_coach_hint_clear(void);
+void game_coach_hint_paint(void);
+
 #ifdef __cplusplus
 }
 #endif

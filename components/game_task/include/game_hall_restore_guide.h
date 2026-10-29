@@ -57,6 +57,13 @@ bool game_hall_restore_guide_in_play(void);
 bool game_hall_restore_guide_show_play(void);
 
 /**
+ * @brief Guide sensors onto the current board[][] without retiring the opening.
+ * Debounced like the opening sync. Does not start the clock.
+ * @return true when the pieces already match.
+ */
+bool game_hall_restore_guide_show_target(void);
+
+/**
  * @brief Live in-play guide back to board[][].
  *
  * Same jobs and paths as the opening sync, debounced the same way.

@@ -23,6 +23,7 @@
 #include "../led_task/include/led_task.h"
 #include "led_mapping.h"
 #include "game_hall_match.h"
+#include "game_hall_restore_guide.h"
 
 #include "esp_log.h"
 #include "esp_timer.h"
@@ -252,20 +253,19 @@ static void puzzle_bind_expected_squares(void) {
 }
 
 static void puzzle_show_play_leds(bool reveal_destination) {
-  game_led_clear_board();
-  if (puzzle_expected_from[0] == '\0') {
-    return;
-  }
-  uint8_t row = 0, col = 0;
-  if (game_notation_to_coords(puzzle_expected_from, &row, &col)) {
+  uint8_t row = 0;
+  uint8_t col = 0;
+  game_led_frame_begin(GAME_EVT_HINT_FADE_MS, false);
+  if (puzzle_expected_from[0] != '\0' &&
+      game_notation_to_coords(puzzle_expected_from, &row, &col)) {
     game_led_frame_sq(row, col, 255, 210, 0);
   }
-  if (!reveal_destination || puzzle_expected_to[0] == '\0') {
-    return;
-  }
-  if (game_notation_to_coords(puzzle_expected_to, &row, &col)) {
+  if (reveal_destination && puzzle_expected_to[0] != '\0' &&
+      game_notation_to_coords(puzzle_expected_to, &row, &col)) {
     game_led_frame_sq(row, col, 40, 90, 255);
   }
+  game_coach_hint_paint();
+  game_led_frame_end();
 }
 
 static bool puzzle_square_disagrees(uint8_t index, uint8_t want_occ,
@@ -404,20 +404,28 @@ bool game_puzzle_stage_builtin(uint8_t puzzle_id) {
   return true;
 }
 
-static void puzzle_enter_empty_setup(void) {
+static void puzzle_enter_setup_shell(void) {
   if (game_is_board_setup_tutorial_active()) {
     game_exit_board_setup_tutorial(false);
   }
   game_opening_cancel();
+  game_coach_hint_clear();
   game_reset_game();
-  game_apply_empty_logical_board_after_full_reset();
-  puzzle_setup_active = true;
-  puzzle_active = false;
-  puzzle_solved = false;
-  puzzle_awaiting_opponent = false;
-  puzzle_sync_hold = false;
-  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
-  puzzle_setup_match_latched = false;
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_restore_guide_force_resync();
+#endif
+}
+
+static bool puzzle_setup_guide(void) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  return game_hall_restore_guide_show_target();
+#else
+  uint8_t exp[64];
+  if (!game_fen_expected_occupancy_64(puzzle_fen, exp)) {
+    return false;
+  }
+  return puzzle_paint_target(exp);
+#endif
 }
 
 bool game_puzzle_apply_staged_setup(void) {
@@ -425,17 +433,26 @@ bool game_puzzle_apply_staged_setup(void) {
     return false;
   }
   uint8_t keep_id = puzzle_setup_id != 0 ? puzzle_setup_id : puzzle_active_id;
-  puzzle_enter_empty_setup();
+  player_t fen_player = PLAYER_WHITE;
+  puzzle_enter_setup_shell();
   puzzle_setup_id = keep_id;
-  uint8_t exp[64];
-  if (!game_fen_expected_occupancy_64(puzzle_fen, exp)) {
+  if (!game_load_position_from_fen(puzzle_fen, &fen_player)) {
     return false;
   }
-  bool match = puzzle_paint_target(exp);
-  puzzle_setup_match_latched = match;
-  puzzle_feedback = match ? PUZZLE_FEEDBACK_READY : PUZZLE_FEEDBACK_NONE;
+  current_player = fen_player;
+  current_game_state = GAME_STATE_IDLE;
+  game_active = false;
+  puzzle_setup_active = true;
+  puzzle_active = false;
+  puzzle_solved = false;
+  puzzle_awaiting_opponent = false;
+  puzzle_sync_hold = false;
+  puzzle_feedback = PUZZLE_FEEDBACK_NONE;
+  puzzle_setup_match_latched = puzzle_setup_guide();
+  puzzle_feedback =
+      puzzle_setup_match_latched ? PUZZLE_FEEDBACK_READY : PUZZLE_FEEDBACK_NONE;
   STAGING_LOGI(TAG, "puzzle: setup session=%u match=%d",
-               (unsigned)puzzle_session, match ? 1 : 0);
+               (unsigned)puzzle_session, puzzle_setup_match_latched ? 1 : 0);
   game_bump_revision_and_notify();
   puzzle_mode_bind();
   return true;
@@ -474,15 +491,11 @@ bool game_puzzle_try_start_staged(void) {
   if (puzzle_active && !puzzle_solved && !puzzle_sync_hold) {
     return true;
   }
-  if (!game_physical_squares_matches_fen(puzzle_fen)) {
-    if (!puzzle_setup_active) {
-      game_puzzle_apply_staged_setup();
-    } else {
-      uint8_t exp[64];
-      if (game_fen_expected_occupancy_64(puzzle_fen, exp)) {
-        puzzle_setup_match_latched = puzzle_paint_target(exp);
-      }
-    }
+  if (!puzzle_setup_active && !game_puzzle_apply_staged_setup()) {
+    return false;
+  }
+  puzzle_setup_match_latched = puzzle_setup_guide();
+  if (!puzzle_setup_match_latched) {
     STAGING_LOGI(TAG, "puzzle: start blocked session=%u (occupancy)",
                  (unsigned)puzzle_session);
     return false;
@@ -531,11 +544,18 @@ bool game_puzzle_try_start_staged(void) {
     return false;
   }
 
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+  game_hall_restore_guide_end_for_play();
+#endif
   puzzle_sync_hold = !puzzle_sensors_match_logic();
   if (puzzle_sync_hold) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    (void)game_hall_restore_guide_show_play();
+#else
     uint8_t exp[64];
     puzzle_expected_occupancy_from_logic(exp);
     puzzle_paint_target(exp);
+#endif
     STAGING_LOGI(TAG, "puzzle: started but sensor hold session=%u",
                  (unsigned)puzzle_session);
   } else {
@@ -703,16 +723,19 @@ bool game_puzzle_hint(void) {
   return true;
 }
 
+void game_puzzle_refresh_play_leds(void) {
+  if (!puzzle_active || puzzle_setup_active) {
+    return;
+  }
+  puzzle_show_play_leds(puzzle_awaiting_opponent);
+}
+
 void game_puzzle_service_leds(void) {
-  if ((*game_state_error_recovery_state()).waiting_for_move_correction || piece_lifted) {
+  if ((*game_state_error_recovery_state()).waiting_for_move_correction) {
     return;
   }
   if (puzzle_setup_active && puzzle_fen[0] != '\0') {
-    uint8_t exp[64];
-    if (!game_fen_expected_occupancy_64(puzzle_fen, exp)) {
-      return;
-    }
-    bool match = puzzle_paint_target(exp);
+    bool match = puzzle_setup_guide();
     if (match != puzzle_setup_match_latched) {
       puzzle_setup_match_latched = match;
       puzzle_feedback = match ? PUZZLE_FEEDBACK_READY : PUZZLE_FEEDBACK_NONE;
@@ -721,14 +744,21 @@ void game_puzzle_service_leds(void) {
     }
     return;
   }
+  if (piece_lifted) {
+    return;
+  }
   if (!puzzle_active || puzzle_solved) {
     return;
   }
   bool match = puzzle_sensors_match_logic();
   if (!match) {
+#if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
+    (void)game_hall_restore_guide_show_play();
+#else
     uint8_t exp[64];
     puzzle_expected_occupancy_from_logic(exp);
     puzzle_paint_target(exp);
+#endif
     if (!puzzle_sync_hold) {
       puzzle_sync_hold = true;
       STAGING_LOGI(TAG, "puzzle: sync hold (board drifted)");
@@ -767,7 +797,7 @@ uint16_t game_puzzle_session_id(void) { return puzzle_session; }
 
 bool game_puzzle_status_physical_match(void) {
   if (puzzle_setup_active && puzzle_fen[0] != '\0') {
-    return game_physical_squares_matches_fen(puzzle_fen);
+    return puzzle_setup_match_latched;
   }
   if (puzzle_active) {
     return puzzle_sensors_match_logic();

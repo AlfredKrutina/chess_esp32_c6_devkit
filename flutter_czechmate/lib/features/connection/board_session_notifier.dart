@@ -1680,6 +1680,29 @@ class BoardSessionNotifier extends StateNotifier<BoardSessionState> {
     await port.postHintDestination(sq);
   }
 
+  /// Source and destination, same colors as a lifted-piece suggestion.
+  Future<void> postHintMove({required String from, required String to}) async {
+    final f = from.trim().toLowerCase();
+    final t = to.trim().toLowerCase();
+    final key = '$f$t';
+    if (state.transport == BoardTransport.ble) {
+      final now = DateTime.now();
+      if (_lastPostHintDestBleSquare == key &&
+          _lastPostHintDestBleAt != null &&
+          now.difference(_lastPostHintDestBleAt!) <
+              const Duration(milliseconds: 450)) {
+        return;
+      }
+      _lastPostHintDestBleSquare = key;
+      _lastPostHintDestBleAt = now;
+    }
+    final port = _commandPortOrNull();
+    if (port == null) {
+      throw StateError(_strings.errHintsNeedConnection);
+    }
+    await port.postHintMove(from: f, to: t);
+  }
+
   Future<void> postHintClearBoard() async {
     final port = _commandPortOrNull();
     if (port == null) return;
