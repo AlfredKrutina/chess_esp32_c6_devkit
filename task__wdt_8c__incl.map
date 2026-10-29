@@ -1,15 +1,15 @@
 <map id="task_wdt.c" name="task_wdt.c">
-<area shape="rect" id="Node000001" title="Shared Task Watchdog reset helpers." alt="" coords="253,5,345,31"/>
-<area shape="rect" id="Node000002" href="$task__wdt_8h.html" title="Shared Task Watchdog reset helpers (ESP_ERR_NOT_FOUND → WARNING)." alt="" coords="139,79,233,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="283,33,217,74,214,69,280,28"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="257,79,341,104"/>
-<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="302,31,302,65,297,65,297,31"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="366,79,489,104"/>
-<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="321,28,395,69,393,74,319,33"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="5,152,87,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="165,106,82,148,80,143,162,102"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="111,152,261,177"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="189,104,189,138,183,138,183,104"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="286,152,403,177"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="213,102,307,144,305,149,210,106"/>
+<area shape="rect" id="Node000001" title="Shared Task Watchdog reset helpers." alt="" coords="252,5,343,33"/>
+<area shape="rect" id="Node000002" href="$task__wdt_8h.html" title="Shared Task Watchdog reset helpers (ESP_ERR_NOT_FOUND → WARNING)." alt="" coords="139,81,232,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="280,32,219,75,216,70,275,35"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="256,81,339,109"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="299,31,300,67,295,64,296,36"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="363,81,485,109"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="321,31,392,73,386,73,320,36"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,157,86,184"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="163,110,85,152,83,147,158,108"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="110,157,261,184"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="187,107,188,142,183,140,184,111"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="285,157,401,184"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="214,107,304,149,299,150,213,112"/>
 </map>

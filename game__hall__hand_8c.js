@@ -13,5 +13,5 @@ var game__hall__hand_8c =
     [ "s_captured", "game__hall__hand_8c.html#a69801866fdd2603e6d8967f13b2cda21", null ],
     [ "s_captured_n", "game__hall__hand_8c.html#a6bbe992ca3d80cbc9cd6fbbd6be2dcba", null ],
     [ "s_count", "game__hall__hand_8c.html#a47dc03369e0928c481cda480be840aa6", null ],
-    [ "s_hand", "game__hall__hand_8c.html#af030a70933eac39da21130fe6c9337cf", null ]
+    [ "s_hand", "game__hall__hand_8c.html#a7b689644750f35ec9a2034dc67c0dfa7", null ]
 ];

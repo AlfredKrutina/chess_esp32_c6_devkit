@@ -1,11 +1,11 @@
 <map id="ota_update.h" name="ota_update.h">
-<area shape="rect" id="Node000001" title="OTA: HTTPS/HTTP from URL, or stream via BLE (chunks on CMD char)." alt="" coords="191,5,298,31"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,87,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="214,33,92,76,91,71,212,28"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="111,79,248,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="236,33,201,70,197,67,232,29"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="273,79,347,104"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="257,29,292,67,288,70,253,33"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="372,79,443,104"/>
-<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="272,28,369,71,367,75,270,33"/>
+<area shape="rect" id="Node000001" title="OTA: HTTPS/HTTP from URL, or stream via BLE (chunks on CMD char)." alt="" coords="188,5,295,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,86,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,36,95,78,93,73,206,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="109,81,246,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="232,32,200,71,197,67,228,35"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="270,81,344,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="254,31,288,70,283,69,252,36"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="368,81,438,109"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="271,31,363,74,358,75,270,36"/>
 </map>

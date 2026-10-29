@@ -1,21 +1,21 @@
 <map id="game_move_exec.h" name="game_move_exec.h">
-<area shape="rect" id="Node000001" title="Move execution (internal to game_task component)." alt="" coords="279,5,431,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="251,79,366,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="350,32,326,69,322,66,345,30"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="397,152,479,177"/>
-<area shape="poly" id="edge11_Node000001_Node000008" title=" " alt="" coords="364,30,427,139,422,141,360,32"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="189,152,271,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="298,106,255,145,251,141,294,102"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="109,225,260,251"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="310,105,303,140,295,160,284,179,258,204,228,222,225,217,255,199,280,176,291,158,298,138,305,104"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="289,225,419,251"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="315,104,349,211,344,213,310,105"/>
-<area shape="rect" id="Node000006" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="58,152,165,177"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="278,107,157,150,156,145,276,102"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="5,225,76,251"/>
-<area shape="poly" id="edge10_Node000002_Node000007" title=" " alt="" coords="251,100,194,108,133,119,80,134,61,143,48,154,41,167,37,181,38,212,32,212,32,181,36,165,44,150,58,139,78,129,132,114,193,102,250,95"/>
-<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="331,102,406,143,403,147,328,106"/>
-<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="125,176,165,214,161,218,122,180"/>
-<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="151,175,303,219,301,224,150,180"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="102,180,64,218,60,214,98,176"/>
+<area shape="rect" id="Node000001" title="Move execution (internal to game_task component)." alt="" coords="278,5,430,33"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="250,81,364,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="347,32,325,70,322,66,344,35"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="396,157,477,184"/>
+<area shape="poly" id="edge11_Node000001_Node000008" title=" " alt="" coords="362,31,425,143,419,143,360,35"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="190,157,270,184"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="296,108,256,148,253,144,291,111"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="109,232,260,260"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="308,107,303,146,295,167,284,186,260,210,232,228,230,223,257,205,280,183,290,164,297,144,305,111"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="288,232,417,260"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="313,107,328,156,347,219,342,216,323,157,310,111"/>
+<area shape="rect" id="Node000006" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="60,157,165,184"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="270,111,162,153,160,149,274,108"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="5,232,76,260"/>
+<area shape="poly" id="edge10_Node000002_Node000007" title=" " alt="" coords="248,104,133,123,81,139,62,148,49,158,41,171,38,186,37,217,32,216,32,185,37,169,45,155,59,144,79,134,132,118,252,100"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="331,107,403,149,398,149,330,112"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="126,182,164,221,159,221,124,187"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="156,182,297,226,293,229,155,188"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="102,184,66,223,62,219,97,186"/>
 </map>

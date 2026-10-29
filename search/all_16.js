@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['v1_20prototype_20overview_0',['V1 Prototype Overview',['..//home/runner/work/chess_esp32_c6_devkit/chess_esp32_c6_devkit/README.md#autotoc_md98',1,'']]],
+  ['v1_20prototype_20overview_0',['V1 Prototype Overview',['../index.html#autotoc_md98',1,'']]],
   ['valid_1',['valid',['../structhall__square__reading__t.html#aa78b3d5e96348af204edf846920697de',1,'hall_square_reading_t']]],
   ['validate_5fgpio_5fpin_2',['validate_gpio_pin',['../freertos__chess_8c.html#a1ceecb2e00128b59e0224f35608eaf6c',1,'freertos_chess.c']]],
   ['ver_3',['ver',['../structota__journal__t.html#afe3daadaf908b52e40a9fc05f7ced5cd',1,'ota_journal_t']]],

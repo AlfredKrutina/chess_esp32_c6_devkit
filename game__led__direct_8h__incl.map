@@ -1,22 +1,22 @@
 <map id="game_led_direct.h" name="game_led_direct.h">
-<area shape="rect" id="Node000001" title="PRIME LED FUNCTION FOR GAME TASK &#45; Back Queue Hell." alt="" coords="150,5,293,31"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,152,88,177"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="209,33,73,145,69,141,205,29"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="429,225,499,251"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="273,28,322,44,376,69,426,104,448,126,466,151,472,166,475,182,473,212,468,212,470,182,467,167,462,153,444,129,423,108,373,74,320,49,271,33"/>
-<area shape="rect" id="Node000004" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="164,79,279,104"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="224,31,224,65,219,65,219,31"/>
-<area shape="poly" id="edge11_Node000004_Node000002" title=" " alt="" coords="194,106,89,149,87,144,192,102"/>
-<area shape="poly" id="edge12_Node000004_Node000003" title=" " alt="" coords="279,91,319,96,362,106,404,124,441,150,451,164,458,180,465,211,460,212,453,181,447,167,437,154,401,128,360,111,318,101,278,96"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="345,152,426,177"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="249,102,347,144,345,149,247,106"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="203,225,354,251"/>
-<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="216,105,202,139,200,158,204,176,221,199,244,216,241,221,217,203,199,178,194,158,197,137,211,103"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="50,225,179,251"/>
-<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="215,106,133,216,129,213,210,103"/>
-<area shape="rect" id="Node000008" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="213,152,320,177"/>
-<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="231,103,254,139,250,142,227,106"/>
-<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="299,175,420,218,418,223,297,180"/>
-<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="271,177,277,211,272,212,266,178"/>
-<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="243,180,153,222,151,217,241,175"/>
+<area shape="rect" id="Node000001" title="PRIME LED FUNCTION FOR GAME TASK &#45; Back Queue Hell." alt="" coords="150,5,291,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,157,87,184"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="207,36,75,148,71,144,205,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="426,232,496,260"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="274,31,323,48,376,73,426,109,447,131,464,155,470,171,473,187,470,219,466,216,468,187,465,172,460,158,443,134,422,113,373,78,321,53,274,36"/>
+<area shape="rect" id="Node000004" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="164,81,277,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="222,31,223,66,218,64,219,36"/>
+<area shape="poly" id="edge11_Node000004_Node000002" title=" " alt="" coords="188,112,92,153,90,148,191,107"/>
+<area shape="poly" id="edge12_Node000004_Node000003" title=" " alt="" coords="278,95,318,100,360,111,401,128,437,155,448,169,455,185,462,218,457,216,450,186,443,171,433,159,399,133,358,116,317,105,278,100"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="343,157,424,184"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="250,107,343,149,338,151,249,112"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="202,232,352,260"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="215,107,202,144,200,164,204,183,220,205,241,224,235,223,216,208,200,185,195,165,197,143,211,111"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="48,232,177,260"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="214,109,133,221,129,218,209,109"/>
+<area shape="rect" id="Node000008" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="213,157,319,184"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="230,107,253,144,247,143,228,112"/>
+<area shape="poly" id="edge10_Node000008_Node000003" title=" " alt="" coords="301,182,415,226,409,227,300,188"/>
+<area shape="poly" id="edge8_Node000008_Node000006" title=" " alt="" coords="270,183,275,218,270,216,266,187"/>
+<area shape="poly" id="edge9_Node000008_Node000007" title=" " alt="" coords="241,184,155,228,152,223,236,185"/>
 </map>

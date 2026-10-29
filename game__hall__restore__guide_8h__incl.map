@@ -1,9 +1,9 @@
 <map id="game_hall_restore_guide.h" name="game_hall_restore_guide.h">
-<area shape="rect" id="Node000001" title="Hall type/color board&#45;restore matching and the LED guide around it." alt="" coords="67,5,266,31"/>
-<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,101,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="150,33,85,74,82,69,147,28"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="125,79,208,104"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="169,31,169,65,164,65,164,31"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="233,79,303,104"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,28,242,68,239,73,181,33"/>
+<area shape="rect" id="Node000001" title="Hall type/color board&#45;restore matching and the LED guide around it." alt="" coords="66,5,264,33"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,81,101,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="148,33,87,75,84,70,142,34"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="124,81,206,109"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="167,32,167,67,163,64,163,36"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="230,81,300,109"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="184,31,238,72,232,72,182,36"/>
 </map>

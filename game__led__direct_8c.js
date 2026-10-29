@@ -1,7 +1,12 @@
 var game__led__direct_8c =
 [
+    [ "BOARD_FLASH_MS", "game__led__direct_8c.html#aecda0290bf221c3a5873572d52b3de6a", null ],
+    [ "game_board_flash", "game__led__direct_8c.html#aaa268571c7e35ad3e7dfc54e21159242", null ],
+    [ "game_board_flash_active", "game__led__direct_8c.html#a8da64c6634d651f9043d4daca34890f9", null ],
+    [ "game_board_flash_poll", "game__led__direct_8c.html#afa0995229ae3479e2b22d633bd0c1591", null ],
     [ "game_clear_highlights_direct", "game__led__direct_8c.html#a8b43b89b88ce59ea25698ac5a8280bf2", null ],
     [ "game_coach_hint_clear", "game__led__direct_8c.html#a37784ac4e85407644589edfb92980d94", null ],
+    [ "game_coach_hint_is_set", "game__led__direct_8c.html#a834fb59edec6ab100507921a30c32c18", null ],
     [ "game_coach_hint_paint", "game__led__direct_8c.html#a0316960155736055254fea635f0624d2", null ],
     [ "game_led_clear_board", "game__led__direct_8c.html#a4bd575d64b68951fc4615c483600e981", null ],
     [ "game_led_flush", "game__led__direct_8c.html#ac341c075c6ddd4edf92563ca18c480c7", null ],
@@ -28,6 +33,9 @@ var game__led__direct_8c =
     [ "s_coach_from", "game__led__direct_8c.html#ad9d321220cee8217cf9ea42facd372f7", null ],
     [ "s_coach_on", "game__led__direct_8c.html#a3e85ecaa7c9809b95c0ac9aa27b48aff", null ],
     [ "s_coach_to", "game__led__direct_8c.html#afa65546e8bfb13ab05d84a84ef04fecb", null ],
+    [ "s_flash_on", "game__led__direct_8c.html#af8fcccbe19458a57c1baa828d0e02677", null ],
+    [ "s_flash_then", "game__led__direct_8c.html#a700446b50d0910c0dc48e14185f8ca85", null ],
+    [ "s_flash_until_ms", "game__led__direct_8c.html#a1e8ef3b14f6a5f1e1c9d8da4d7cf70b4", null ],
     [ "s_frame_bn", "game__led__direct_8c.html#a8654c19aa4b85be4d21a06c6838cc5f8", null ],
     [ "s_frame_br", "game__led__direct_8c.html#a01264ecd2d27a84557638a7c781e6222", null ],
     [ "s_frame_fade", "game__led__direct_8c.html#af1578ac12286fdd3e0b3d9a089566030", null ],

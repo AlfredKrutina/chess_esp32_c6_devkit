@@ -18,7 +18,7 @@ var web__handlers__game_8c =
     [ "web_server_build_game_snapshot_json_shared", "web__handlers__game_8c.html#a3595c3ff5038a64f10d58b22aa7961ee", null ],
     [ "web_snapshot_buffer_release", "web__handlers__game_8c.html#a3b3459a9d81f9d62490b22675214d278", null ],
     [ "game_command_queue", "web__handlers__game_8c.html#a4ed770cbe46604586e494bae84b62304", null ],
-    [ "s_clock_json_build_scratch", "web__handlers__game_8c.html#a92ab82dd7ecc9be694f201047df8554b", null ],
+    [ "s_clock_json_build_scratch", "web__handlers__game_8c.html#a314873420ad83de3e7f9a6dc403378c0", null ],
     [ "s_setup_tutorial_finish_conflict_until_tick", "web__handlers__game_8c.html#adc44afbaafdd95e621face23b464eea4", null ],
     [ "s_web_move_rsp_mutex", "web__handlers__game_8c.html#a5828893ac56bfbe8152ff529f372dc91", null ],
     [ "s_web_move_rsp_q_storage", "web__handlers__game_8c.html#aec5fee98736e184e001da12d65d1ddb9", null ],

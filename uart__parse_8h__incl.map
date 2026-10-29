@@ -1,30 +1,30 @@
 <map id="uart_parse.h" name="uart_parse.h">
-<area shape="rect" id="Node000001" title="Command lookup and dispatch." alt="" coords="287,5,390,31"/>
-<area shape="rect" id="Node000002" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Header." alt="" coords="291,79,386,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="341,31,341,65,336,65,336,31"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="415,299,486,324"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="387,96,449,114,481,129,509,150,532,173,548,197,552,223,543,252,522,277,496,295,493,290,519,273,539,249,547,222,543,199,528,177,506,154,478,134,447,119,385,102"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="34,225,117,251"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="326,106,280,141,220,180,170,204,123,223,121,218,168,199,217,175,277,137,323,102"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="79,299,230,324"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="291,97,220,102,139,112,67,129,40,140,23,154,15,168,9,190,11,217,24,249,51,275,84,292,81,297,47,279,20,252,5,219,4,189,10,166,19,150,38,136,65,124,138,107,219,97,291,92"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="262,299,391,324"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="373,102,430,125,489,159,512,180,527,202,531,227,520,252,502,267,474,279,404,298,403,293,472,274,500,262,516,249,526,226,522,204,508,183,486,164,427,130,371,106"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="424,225,506,251"/>
-<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="356,102,382,123,410,150,434,182,454,212,449,215,430,185,406,154,378,127,352,106"/>
-<area shape="rect" id="Node000008" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="281,152,396,177"/>
-<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="341,104,341,138,336,138,336,104"/>
-<area shape="rect" id="Node000010" href="$uart__queue__message_8h.html" title="Common message type for UART output queue (one true for sizeof)." alt="" coords="33,152,206,177"/>
-<area shape="poly" id="edge17_Node000002_Node000010" title=" " alt="" coords="304,107,169,150,167,145,302,101"/>
-<area shape="poly" id="edge16_Node000008_Node000003" title=" " alt="" coords="350,176,435,286,431,290,345,179"/>
-<area shape="poly" id="edge15_Node000008_Node000004" title=" " alt="" coords="297,180,131,224,130,219,295,175"/>
-<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="282,177,229,195,203,209,182,227,165,255,158,286,153,285,160,253,178,224,200,204,226,190,280,172"/>
-<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="340,178,331,285,326,285,335,178"/>
-<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="360,175,433,216,431,221,357,180"/>
-<area shape="rect" id="Node000009" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="192,225,298,251"/>
-<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="325,179,273,219,269,215,322,175"/>
-<area shape="poly" id="edge14_Node000009_Node000003" title=" " alt="" coords="279,248,405,292,403,297,277,253"/>
-<area shape="poly" id="edge12_Node000009_Node000005" title=" " alt="" coords="232,253,182,292,178,288,229,249"/>
-<area shape="poly" id="edge13_Node000009_Node000006" title=" " alt="" coords="260,249,304,288,301,292,256,253"/>
-<area shape="poly" id="edge18_Node000010_Node000004" title=" " alt="" coords="115,179,92,215,88,212,110,176"/>
+<area shape="rect" id="Node000001" title="Command lookup and dispatch." alt="" coords="286,5,389,33"/>
+<area shape="rect" id="Node000002" href="$uart__task_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; UART Task Header." alt="" coords="290,81,385,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="339,31,340,66,335,64,336,36"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="414,308,485,336"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="385,100,448,118,479,134,507,155,531,179,547,204,551,231,541,261,522,285,497,303,495,298,519,281,537,259,546,230,542,206,527,182,504,159,477,139,446,123,385,106"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="34,232,116,260"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="325,108,278,147,219,187,173,210,128,229,125,224,171,205,216,182,275,143,320,111"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="78,308,229,336"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="288,99,219,106,138,116,66,133,40,145,22,158,14,173,9,197,11,227,24,259,48,283,79,301,75,303,44,287,19,261,5,228,4,197,9,171,18,155,37,140,65,128,137,111,219,101,292,97"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="261,308,390,336"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="373,107,431,132,488,168,510,189,525,212,528,236,517,262,500,276,473,288,405,308,404,302,471,283,497,271,513,258,523,235,520,213,506,192,485,172,428,137,373,112"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="423,232,503,260"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="355,106,382,128,409,155,433,187,452,220,447,218,428,190,405,158,379,132,354,112"/>
+<area shape="rect" id="Node000008" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="281,157,394,184"/>
+<area shape="poly" id="edge7_Node000002_Node000008" title=" " alt="" coords="339,107,340,142,335,140,336,111"/>
+<area shape="rect" id="Node000010" href="$uart__queue__message_8h.html" title="Common message type for UART output queue (one true for sizeof)." alt="" coords="33,157,205,184"/>
+<area shape="poly" id="edge17_Node000002_Node000010" title=" " alt="" coords="297,111,174,154,171,149,300,107"/>
+<area shape="poly" id="edge16_Node000008_Node000003" title=" " alt="" coords="349,182,434,296,428,295,346,187"/>
+<area shape="poly" id="edge15_Node000008_Node000004" title=" " alt="" coords="290,187,131,232,130,227,292,182"/>
+<area shape="poly" id="edge9_Node000008_Node000005" title=" " alt="" coords="278,182,229,202,204,216,182,234,166,262,158,294,154,291,161,260,178,231,201,211,227,197,283,180"/>
+<area shape="poly" id="edge10_Node000008_Node000006" title=" " alt="" coords="339,183,330,294,326,291,334,186"/>
+<area shape="poly" id="edge8_Node000008_Node000007" title=" " alt="" coords="361,182,431,224,425,225,360,188"/>
+<area shape="rect" id="Node000009" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="192,232,297,260"/>
+<area shape="poly" id="edge11_Node000008_Node000009" title=" " alt="" coords="323,184,274,225,271,220,319,186"/>
+<area shape="poly" id="edge14_Node000009_Node000003" title=" " alt="" coords="281,258,402,302,397,303,281,263"/>
+<area shape="poly" id="edge12_Node000009_Node000005" title=" " alt="" coords="231,260,183,300,180,296,226,261"/>
+<area shape="poly" id="edge13_Node000009_Node000006" title=" " alt="" coords="260,258,303,298,297,297,258,263"/>
+<area shape="poly" id="edge18_Node000010_Node000004" title=" " alt="" coords="113,183,93,220,88,218,110,187"/>
 </map>

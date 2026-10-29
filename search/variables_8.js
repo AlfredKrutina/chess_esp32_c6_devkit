@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['id_0',['id',['../structanimation__state__struct.html#a732e0dbd6e57d26471ce3f333a133f2c',1,'animation_state_struct::id'],['../structactive__error__t.html#a86b4c2d315025f29e9406e5a7eb3cfb9',1,'active_error_t::id'],['../structsurvey__ack__meta__t.html#aca5d49ee8239a657f31dd6788122fedf',1,'survey_ack_meta_t::id'],['../structgame__puzzle__definition__t.html#a7134e6b932f8a5ceef6c408a73540cdf',1,'game_puzzle_definition_t::id']]],
+  ['id_0',['id',['../structgame__puzzle__definition__t.html#a7134e6b932f8a5ceef6c408a73540cdf',1,'game_puzzle_definition_t::id'],['../structanimation__state__struct.html#a732e0dbd6e57d26471ce3f333a133f2c',1,'animation_state_struct::id'],['../structactive__error__t.html#a86b4c2d315025f29e9406e5a7eb3cfb9',1,'active_error_t::id'],['../structsurvey__ack__meta__t.html#aca5d49ee8239a657f31dd6788122fedf',1,'survey_ack_meta_t::id']]],
   ['in_5fcheck_1',['in_check',['../structposition__status__t.html#a65027d531a50e154249c071ce9a9eada',1,'position_status_t']]],
   ['in_5fprogress_2',['in_progress',['../structcastling__state__t.html#a1705abfdc6a05d4bec2293871b7b7fd1',1,'castling_state_t']]],
   ['in_5fuse_3',['in_use',['../structshared__buffer__t.html#ac84993dc918ca7386ae7b700c99039ef',1,'shared_buffer_t']]],

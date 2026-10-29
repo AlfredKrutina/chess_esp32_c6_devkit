@@ -20,7 +20,7 @@ var game__task_8c =
     [ "MOVE_VALIDATION_MS", "game__task_8c.html#a2e965abc7c554be97017710630e9e0b7", null ],
     [ "piece_symbols", "game__task_8c.html#af1bb20ae6994b22cdaa29453156657c1", null ],
     [ "STAGING_LOGI", "game__task_8c.html#a62ecd07b10c8688371e290c8c64df0a4", null ],
-    [ "starting_position_check_enabled", "game__task_8c.html#a7f79796ff1dba9bc31537c667e270c0a", null ],
+    [ "starting_position_check_enabled", "game__task_8c.html#a3442992181a2ecbd1cc39f7907bd70fb", null ],
     [ "starting_position_check_enabled", "game__task_8c.html#a7f79796ff1dba9bc31537c667e270c0a", null ],
     [ "append_square", "game__task_8c.html#ad6648c67da9dcf078bc2e9a5b3eed081", null ],
     [ "game_add_position_to_history", "game__task_8c.html#a7d059ee1bbc8427968feaf95af032112", null ],

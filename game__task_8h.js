@@ -6,7 +6,6 @@ var game__task_8h =
     [ "king_resignation_state_t", "structking__resignation__state__t.html", "structking__resignation__state__t" ],
     [ "GAME_TASK_MAX_ADVANTAGE_HISTORY", "game__task_8h.html#a66c405e53a84dd46a84837a23dbc5c97", null ],
     [ "GAME_TASK_MAX_CAPTURED_PIECES", "game__task_8h.html#a6b3124bd6d484b5a24737fb72a8dfbfd", null ],
-    [ "position_t", "game__task_8h.html#af4dc030c1cd0aa4a06faddec003c076e", null ],
     [ "endgame_reason_t", "game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63ca", [
       [ "ENDGAME_REASON_CHECKMATE", "game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa52cd39edd88b14727c7fad1cef6ee7d2", null ],
       [ "ENDGAME_REASON_CHECKMATE_EN_PASSANT", "game__task_8h.html#ac2c530ea32ce9318e13d562eb6ed63caa9103a2521e362b42cd1b9a8505075242", null ],
@@ -212,6 +211,7 @@ var game__task_8h =
     [ "game_puzzle_hint", "game__task_8h.html#a26ebb0c93cce83be9c018070e144c141", null ],
     [ "game_puzzle_is_solved", "game__task_8h.html#a7f4aa3a8fd886d0180fad25344a4f4f2", null ],
     [ "game_puzzle_last_uci", "game__task_8h.html#a0354a3311dbbc7cf352ab574c6016d84", null ],
+    [ "game_puzzle_paint_lift", "game__task_8h.html#a7f5d2ca68ea95e358c78287b046f8c68", null ],
     [ "game_puzzle_physical_matches_fen", "game__task_8h.html#ad22efb0260b6734fc6f8bd0eda3e6a91", null ],
     [ "game_puzzle_ply", "game__task_8h.html#a899b50eef1832467f6593711515a0745", null ],
     [ "game_puzzle_ply_total", "game__task_8h.html#a55adb6dc05bf2c0d5046773b0e7b38f3", null ],

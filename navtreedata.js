@@ -25,7 +25,15 @@
 var NAVTREE =
 [
   [ "CZECHMATE", "index.html", [
-    [ "web_server_task", "index.html", "index" ],
+    [ "About", "index.html#autotoc_md93", null ],
+    [ "Features", "index.html#autotoc_md95", null ],
+    [ "Hardware", "index.html#autotoc_md97", [
+      [ "V1 Prototype Overview", "index.html#autotoc_md98", null ]
+    ] ],
+    [ "Architecture", "index.html#autotoc_md100", null ],
+    [ "Build &amp; flash", "index.html#autotoc_md102", null ],
+    [ "Usage", "index.html#autotoc_md104", null ],
+    [ "Documentation", "index.html#autotoc_md106", null ],
     [ "Data Structures", "annotated.html", [
       [ "Data Structures", "annotated.html", "annotated_dup" ],
       [ "Data Structure Index", "classes.html", null ],
@@ -58,25 +66,26 @@ var NAVTREEINDEX =
 "game__castling_8c.html#a6974209fc82de9bbb764a014d9badec0",
 "game__events_8c.html#afa63b70b9c1cf6435bc22a55554eb709",
 "game__led__animations_8h.html#a30603ef39ed3a32a5ae1be1274874159a2817775da3ceef1a44819ed7264c0b99",
-"game__opening__trainer_8c.html#afe1f07baa8aab6afe8ef0061a1d478db",
-"game__puzzle_8c.html#ae20ed3524b049a42f331a694ab38b346",
-"game__task_8c.html#a8d2513928ede14f22023e22c775c3033",
-"game__task_8h.html#a9a17f30ab5e966f7966d9775f28ccb43",
-"globals_vars_f.html",
-"hall__i2c__squares_8h.html#a454a887c39b2abd00c73dd086c9775cd",
-"led__mapping_8h.html#afa2f63d0405f6da06cdeceee60aaa9d7",
-"led__task_8c.html#a7ae8f1d599ba588ecd3a3709345bb7ee",
-"main_8c.html#a2cf065fd2e74d6ad91b3da384a96c60b",
-"position_8h.html#a5cf55a544e022c7d8d14b8facf276657a8f02213dda16f2ed36bd87bd100c0aa2",
-"streaming__output_8h.html#a9173e4c76c40d5e2c7aeb6e63bd4cb31",
-"structgame__cmd__t.html#ae0bdc2d1f36056ad7fef35f9726243ce",
-"structgame__snapshot__v2__t.html#affff47362255d44d6fbc05a1244e8148",
-"structota__journal__t.html#a9d57170bff485adb41ef2bf3626ba045",
-"test__task_8h.html#a3377430330f2ea8ff39fb88e8a1cde8c",
-"uart__task_8c.html#a92730fc97f7b604391b5b3f913ad824e",
-"visual__error__system_8c.html#a69eece35bee75f5f08536a8de6b06bdc",
-"web__server__task_8c.html#a72eafa147c617f3d904101d47f0b65e9"
+"game__opening__trainer_8c.html#add2affa1f220901931edd0d4664449cea4f92f3e9db7f875ed8892a20822642f9",
+"game__puzzle_8c.html#ac23ab4051c71c9280a8fa551891d8b82",
+"game__task_8c.html#a63d2e02edade145bca62b50881d82a16",
+"game__task_8h.html#a917f1907b236e1476e75bb033e2a3165",
+"globals_l.html",
+"hall__i2c__squares_8c.html#aa3278a7bff324a927ff9c6d198f47d8b",
+"led__gesture__anim_8h.html#a7ef738df14880121fc3359bba9da4961ad33472c5e313c34ea6e87cd54edbe1e5",
+"led__task_8c.html#a60700301927298625a435c793041005e",
+"led__unified__api_8h.html#a323c87898912a4a4d62383dbe8bd7099",
+"position_8c_source.html",
+"streaming__output_8c.html#aca427711530c81651095df3f70106d66",
+"structgame__cmd__mode__fields__t.html",
+"structgame__snapshot__v2__t.html#a60698787022d652fb960b59e7a0539eb",
+"structopening__trainer__state__t.html#ade556667b1646ca99afa1e7930f7af0b",
+"test__task_8c.html#aefcd5d044060161ae93bb8278e88e66a",
+"uart__task_8c.html#a69b6577bff99c21d8c4ac0f3b9bf42be",
+"unified__animation__manager_8h.html#acaa0b94777258411e3878a2e39e54ff4",
+"web__server__task_8c.html#a46d1719629fd536b25bd288a334d338c"
 ];
 
-var SYNCONMSG = 'click to disable panel synchronisation';
-var SYNCOFFMSG = 'click to enable panel synchronisation';
+var SYNCONMSG = 'click to disable panel synchronization';
+var SYNCOFFMSG = 'click to enable panel synchronization';
+var LISTOFALLMEMBERS = 'List of all members';

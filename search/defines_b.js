@@ -25,7 +25,7 @@ var searchData=
   ['led_5fcolor_5fyellow_22',['LED_COLOR_YELLOW',['../led__unified__api_8h.html#a97348e8acf253232595a481314f8a396',1,'led_unified_api.h']]],
   ['led_5fcommand_5ftimeout_5fms_23',['LED_COMMAND_TIMEOUT_MS',['../freertos__chess_8h.html#afe966dccff7e1c439146a85369c623f7',1,'freertos_chess.h']]],
   ['led_5fcritical_5fsection_5ftimeout_5fms_24',['LED_CRITICAL_SECTION_TIMEOUT_MS',['../led__task_8c.html#adc1b5df15af7552352dad465c61cfac7',1,'led_task.c']]],
-  ['led_5fdata_5fpin_25',['led_data_pin',['../freertos__chess_8h.html#a5f55b07707df2f2cf371f707207ed508',1,'LED_DATA_PIN:&#160;freertos_chess.h'],['../led__task_8c.html#a5f55b07707df2f2cf371f707207ed508',1,'LED_DATA_PIN:&#160;led_task.c']]],
+  ['led_5fdata_5fpin_25',['LED_DATA_PIN',['../freertos__chess_8h.html#a5f55b07707df2f2cf371f707207ed508',1,'LED_DATA_PIN:&#160;freertos_chess.h'],['../led__task_8c.html#a5f55b07707df2f2cf371f707207ed508',1,'LED_DATA_PIN:&#160;led_task.c']]],
   ['led_5ferror_5frecovery_5fthreshold_26',['LED_ERROR_RECOVERY_THRESHOLD',['../led__task_8c.html#a038bfe7aea2d3849e2ee6a6635b318bc',1,'led_task.c']]],
   ['led_5ffade_5fms_27',['LED_FADE_MS',['../led__task_8c.html#a46a8a421092e17d696be2d7d5b347be1',1,'led_task.c']]],
   ['led_5fframe_5fbuffer_5fsize_28',['LED_FRAME_BUFFER_SIZE',['../led__task_8c.html#af505353c4adf955dea4a330d4177d46c',1,'led_task.c']]],

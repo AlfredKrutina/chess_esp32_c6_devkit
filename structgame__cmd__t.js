@@ -14,5 +14,5 @@ var structgame__cmd__t =
     [ "resign", "structgame__cmd__t.html#ac457d89be9559f40ca1401e06d0ab99c", null ],
     [ "response_queue", "structgame__cmd__t.html#a8c8570de778729acd3407e1c3705030b", null ],
     [ "timer", "structgame__cmd__t.html#af3e1e8f7dc24bd7e0ed18101c14987e8", null ],
-    [ "u", "structgame__cmd__t.html#ac63f9f7dae7f8df2211697f151f2d4a9", null ]
+    [ "u", "structgame__cmd__t.html#ae1ba65dae215ad45a84086a4194bd1ed", null ]
 ];

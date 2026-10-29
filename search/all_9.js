@@ -13,7 +13,7 @@ var searchData=
   ['initial_5ftime_5fms_10',['initial_time_ms',['../structtime__control__config__t.html#a76ce0ead776d0b8fcd0350151eb96ba4',1,'time_control_config_t']]],
   ['initialize_5fchess_5fgame_11',['initialize_chess_game',['../main_8c.html#acf3129796410e265806bde4edacf4d85',1,'main.c']]],
   ['initialized_12',['initialized',['../structendgame__wave__state__t.html#ab0ac52042b1175b54102095a79d802cd',1,'endgame_wave_state_t']]],
-  ['inject_5fweb_5fstatus_5ffields_13',['inject_web_status_fields',['../web__handlers__game_8c.html#a7ff67d437127bf998076f532413e16b6',1,'inject_web_status_fields(char *buf, size_t buf_size):&#160;web_handlers_game.c'],['../web__server__internal_8h.html#a7ff67d437127bf998076f532413e16b6',1,'inject_web_status_fields(char *buf, size_t buf_size):&#160;web_handlers_game.c']]],
+  ['inject_5fweb_5fstatus_5ffields_13',['inject_web_status_fields',['../web__server__internal_8h.html#a7ff67d437127bf998076f532413e16b6',1,'inject_web_status_fields(char *buf, size_t buf_size):&#160;web_handlers_game.c'],['../web__handlers__game_8c.html#a7ff67d437127bf998076f532413e16b6',1,'inject_web_status_fields(char *buf, size_t buf_size):&#160;web_handlers_game.c']]],
   ['input_5fbuffer_14',['input_buffer',['../uart__task_8c.html#ad70cd585173babaab9affd32c7f8abee',1,'uart_task.c']]],
   ['input_5fbuffer_5fadd_5fchar_15',['input_buffer_add_char',['../uart__task_8c.html#a8c1834a32f3797bf298c2940eb5ba7e6',1,'uart_task.c']]],
   ['input_5fbuffer_5fbackspace_16',['input_buffer_backspace',['../uart__task_8c.html#a26c0e92edbcb05f59a70a602c07715dc',1,'uart_task.c']]],
@@ -33,12 +33,12 @@ var searchData=
   ['is_5fblack_5fpiece_30',['is_black_piece',['../movegen_8c.html#a3bc85d04ff54d1c87a26e728efed7486',1,'movegen.c']]],
   ['is_5fcapture_31',['is_capture',['../structmove__suggestion__t.html#a58f2cd5416633410aebfa8f80320e3aa',1,'move_suggestion_t']]],
   ['is_5fcastling_32',['is_castling',['../structmove__suggestion__t.html#aa9a5da748efa93feb7e3f7c4f06e7839',1,'move_suggestion_t']]],
-  ['is_5fcheck_33',['is_check',['../structmove__suggestion__t.html#a39763b8b278db010f5dfff7a4beb264a',1,'move_suggestion_t::is_check'],['../structchess__move__extended__t.html#ab73d86e56bd5ce7bae6cc0029f8ab1e4',1,'chess_move_extended_t::is_check']]],
+  ['is_5fcheck_33',['is_check',['../structchess__move__extended__t.html#ab73d86e56bd5ce7bae6cc0029f8ab1e4',1,'chess_move_extended_t::is_check'],['../structmove__suggestion__t.html#a39763b8b278db010f5dfff7a4beb264a',1,'move_suggestion_t::is_check']]],
   ['is_5fcheckmate_34',['is_checkmate',['../structchess__move__extended__t.html#a888c1191497c06e0485a65c7a5b8223a',1,'chess_move_extended_t']]],
   ['is_5fcomplete_5fframe_35',['is_complete_frame',['../structled__frame__buffer__t.html#a8da6dbd33973ef157754bfa2640f30ff',1,'led_frame_buffer_t']]],
   ['is_5fcrash_5freset_36',['is_crash_reset',['../ota__guard_8c.html#af078dabf2639b9bb39bf565c27298bff',1,'ota_guard.c']]],
   ['is_5fdemo_37',['is_demo',['../structgame__cmd__t.html#ae0bdc2d1f36056ad7fef35f9726243ce',1,'game_cmd_t']]],
-  ['is_5fdemo_5fmode_5fenabled_38',['is_demo_mode_enabled',['../web__server__task_8c.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c'],['../web__handlers__system_8c.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c'],['../main_8c.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c'],['../freertos__chess_8h.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c']]],
+  ['is_5fdemo_5fmode_5fenabled_38',['is_demo_mode_enabled',['../main_8c.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c'],['../freertos__chess_8h.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c'],['../web__handlers__system_8c.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c'],['../web__server__task_8c.html#ad190bb08e29e63b6f04a3715dae88706',1,'is_demo_mode_enabled(void):&#160;main.c']]],
   ['is_5fen_5fpassant_39',['is_en_passant',['../structmove__suggestion__t.html#a77114011b2edb38b0218c36ce67cf0e6',1,'move_suggestion_t']]],
   ['is_5fendgame_5fanimation_5frunning_40',['is_endgame_animation_running',['../game__led__animations_8c.html#abc332d95d86dbce7893f640161167edb',1,'is_endgame_animation_running(void):&#160;game_led_animations.c'],['../game__led__animations_8h.html#abc332d95d86dbce7893f640161167edb',1,'is_endgame_animation_running(void):&#160;game_led_animations.c']]],
   ['is_5ffast_41',['is_fast',['../structtime__control__config__t.html#aa9d8d8cc9914cded99bb765fa6e6be3f',1,'time_control_config_t']]],
@@ -49,6 +49,6 @@ var searchData=
   ['is_5fwhite_5fpiece_46',['is_white_piece',['../movegen_8c.html#a18cc0c3e07a96cde1a506af2aa9ca6e7',1,'movegen.c']]],
   ['is_5fwhite_5fturn_47',['is_white_turn',['../structchess__timer__t.html#a5fbbe88e66de5ea14c6570f5526a39ae',1,'chess_timer_t']]],
   ['issue_5flocked_48',['issue_locked',['../board__api__auth_8c.html#a7cfc882413a5c1a4561d5fd690597fe8',1,'board_api_auth.c']]],
-  ['it_20work_49',['it work',['../button__task_8c.html#autotoc_md3',1,'HOW DOES IT WORK?'],['../led__task_8c.html#autotoc_md32',1,'HOW DOES IT WORK?'],['../squares__task_8c.html#autotoc_md49',1,'HOW DOES IT WORK?']]],
-  ['it_20works_50',['it works',['../game__task_8c.html#autotoc_md14',1,'HOW IT WORKS'],['../uart__task_8c.html#autotoc_md62',1,'HOW IT WORKS']]]
+  ['it_20work_49',['IT WORK',['../button__task_8c.html#autotoc_md3',1,'HOW DOES IT WORK?'],['../led__task_8c.html#autotoc_md32',1,'HOW DOES IT WORK?'],['../squares__task_8c.html#autotoc_md49',1,'HOW DOES IT WORK?']]],
+  ['it_20works_50',['IT WORKS',['../game__task_8c.html#autotoc_md14',1,'HOW IT WORKS'],['../uart__task_8c.html#autotoc_md62',1,'HOW IT WORKS']]]
 ];

@@ -1,16 +1,16 @@
 <map id="position.c" name="position.c">
-<area shape="rect" id="Node000001" title="Reset, apply, undo, and status." alt="" coords="120,5,205,31"/>
-<area shape="rect" id="Node000002" href="$position__internal_8h.html" title="Helpers shared inside chess_core." alt="" coords="26,79,169,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="154,33,119,70,115,67,150,29"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="193,79,263,104"/>
-<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="175,29,210,67,206,70,171,33"/>
-<area shape="rect" id="Node000003" href="$position_8h.html" title="Standalone chess position." alt="" coords="101,152,187,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="107,103,131,139,127,142,103,106"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="5,225,88,251"/>
-<area shape="poly" id="edge6_Node000002_Node000004" title=" " alt="" coords="96,105,58,213,53,212,91,104"/>
-<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="130,180,75,219,72,215,127,175"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="112,225,187,251"/>
-<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="148,177,150,212,145,212,142,178"/>
-<area shape="rect" id="Node000006" title=" " alt="" coords="211,225,282,251"/>
-<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="162,175,220,215,217,219,159,180"/>
+<area shape="rect" id="Node000001" title="Reset, apply, undo, and status." alt="" coords="120,5,204,33"/>
+<area shape="rect" id="Node000002" href="$position__internal_8h.html" title="Helpers shared inside chess_core." alt="" coords="26,81,168,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="149,36,120,71,116,68,152,31"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="192,81,262,109"/>
+<area shape="poly" id="edge7_Node000001_Node000007" title=" " alt="" coords="174,31,208,69,203,70,173,36"/>
+<area shape="rect" id="Node000003" href="$position_8h.html" title="Standalone chess position." alt="" coords="99,157,185,184"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="105,107,129,143,123,143,104,112"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="5,232,87,260"/>
+<area shape="poly" id="edge6_Node000002_Node000004" title=" " alt="" coords="95,109,58,218,53,216,90,109"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="127,184,77,225,74,221,122,186"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="111,232,184,260"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="145,183,148,218,143,216,141,187"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="208,232,278,260"/>
+<area shape="poly" id="edge5_Node000003_Node000006" title=" " alt="" coords="161,182,216,223,210,223,159,187"/>
 </map>

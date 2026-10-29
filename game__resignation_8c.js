@@ -12,6 +12,7 @@ var game__resignation_8c =
     [ "resignation_stop", "game__resignation_8c.html#a46ffa46dd43290f359f785472f45d175", null ],
     [ "resignation_tick", "game__resignation_8c.html#a794e20c20949f63ca0954ebaaea90891", null ],
     [ "resignation_update_button_leds", "game__resignation_8c.html#a6b536ba6f8bb5ebf7a76124fbb8d9b10", null ],
+    [ "s_hall_ring", "game__resignation_8c.html#aa70030a7e2dfb171e42fc5e5b6f91f19", null ],
     [ "s_resignation_state", "game__resignation_8c.html#a85cedd61158da4d5e864b713b71ac7c4", null ],
     [ "TAG", "game__resignation_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

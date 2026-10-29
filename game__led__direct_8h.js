@@ -1,7 +1,11 @@
 var game__led__direct_8h =
 [
+    [ "game_board_flash", "game__led__direct_8h.html#aaa268571c7e35ad3e7dfc54e21159242", null ],
+    [ "game_board_flash_active", "game__led__direct_8h.html#a8da64c6634d651f9043d4daca34890f9", null ],
+    [ "game_board_flash_poll", "game__led__direct_8h.html#afa0995229ae3479e2b22d633bd0c1591", null ],
     [ "game_clear_highlights_direct", "game__led__direct_8h.html#a8b43b89b88ce59ea25698ac5a8280bf2", null ],
     [ "game_coach_hint_clear", "game__led__direct_8h.html#a37784ac4e85407644589edfb92980d94", null ],
+    [ "game_coach_hint_is_set", "game__led__direct_8h.html#a834fb59edec6ab100507921a30c32c18", null ],
     [ "game_coach_hint_paint", "game__led__direct_8h.html#a0316960155736055254fea635f0624d2", null ],
     [ "game_led_clear_board", "game__led__direct_8h.html#a4bd575d64b68951fc4615c483600e981", null ],
     [ "game_led_flush", "game__led__direct_8h.html#ac341c075c6ddd4edf92563ca18c480c7", null ],

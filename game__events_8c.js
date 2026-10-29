@@ -41,7 +41,7 @@ var game__events_8c =
     [ "s_booting", "game__events_8c.html#a7fa9a34f6fc7878a22fb3e65b87b6fd2", null ],
     [ "s_gesture_busy", "game__events_8c.html#a0ff43d619eb75785e0d945acff778302", null ],
     [ "s_lamp_held", "game__events_8c.html#a9f58dd4698708997ea78eef32bfe29ba", null ],
-    [ "s_required_step_mirror", "game__events_8c.html#a2b00db26f621658c2599984301eb38f7", null ],
+    [ "s_required_step_mirror", "game__events_8c.html#a068fe5d0fd0295d0941e82642eeaa59a", null ],
     [ "s_slot_seq", "game__events_8c.html#a3d5d7c99d7128877877731d19c28330f", null ],
     [ "s_slots", "game__events_8c.html#a2a34dffc081c85e988ca4ed0bccded05", null ],
     [ "TAG", "game__events_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]

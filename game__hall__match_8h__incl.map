@@ -1,27 +1,27 @@
 <map id="game_hall_match.h" name="game_hall_match.h">
-<area shape="rect" id="Node000001" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="22,5,172,31"/>
-<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="248,79,362,104"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="131,28,259,72,258,77,130,33"/>
-<area shape="rect" id="Node000007" title=" " alt="" coords="159,225,230,251"/>
-<area shape="poly" id="edge16_Node000001_Node000007" title=" " alt="" coords="85,33,56,60,26,97,15,117,9,137,9,157,18,176,44,201,77,218,112,228,146,233,145,238,111,233,75,222,41,205,14,179,4,158,4,137,10,115,21,94,52,56,81,29"/>
-<area shape="rect" id="Node000008" title=" " alt="" coords="28,152,110,177"/>
-<area shape="poly" id="edge15_Node000001_Node000008" title=" " alt="" coords="92,32,81,54,72,79,68,109,69,138,64,138,63,109,66,78,76,52,87,30"/>
-<area shape="rect" id="Node000009" href="$hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="80,79,223,104"/>
-<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="108,29,137,66,132,69,104,33"/>
-<area shape="rect" id="Node000003" title=" " alt="" coords="186,152,267,177"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="294,106,251,145,247,141,291,102"/>
-<area shape="rect" id="Node000004" title=" " alt="" coords="456,225,607,251"/>
-<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="363,91,401,97,441,107,480,124,514,150,524,164,530,180,535,211,530,212,525,181,519,167,510,154,477,129,439,112,400,102,362,97"/>
-<area shape="rect" id="Node000005" title=" " alt="" coords="295,225,424,251"/>
-<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="312,104,353,212,348,213,307,105"/>
-<area shape="rect" id="Node000006" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="393,152,500,177"/>
-<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="329,102,412,143,410,148,327,106"/>
-<area shape="poly" id="edge10_Node000002_Node000007" title=" " alt="" coords="307,105,300,139,293,160,282,179,259,203,233,221,230,216,255,199,278,176,288,158,295,138,301,104"/>
-<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="268,107,121,151,120,145,266,101"/>
-<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="462,175,509,214,506,219,458,179"/>
-<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="434,179,386,219,383,214,431,175"/>
-<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="407,180,244,226,242,220,405,175"/>
-<area shape="poly" id="edge12_Node000009_Node000003" title=" " alt="" coords="166,102,206,141,203,144,162,106"/>
-<area shape="poly" id="edge14_Node000009_Node000007" title=" " alt="" coords="157,104,177,177,188,211,183,213,172,178,152,105"/>
-<area shape="poly" id="edge13_Node000009_Node000008" title=" " alt="" coords="140,106,95,145,91,141,137,102"/>
+<area shape="rect" id="Node000001" title="Compare engine piece_t with the uncalibrated Hall type/color POC." alt="" coords="22,5,171,33"/>
+<area shape="rect" id="Node000002" href="$chess__types_8h.html" title="ESP32&#45;C6 Chess System v1.8.0 &#45; Common type definition." alt="" coords="246,81,360,109"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="133,31,254,74,249,77,133,36"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="158,232,229,260"/>
+<area shape="poly" id="edge16_Node000001_Node000007" title=" " alt="" coords="79,36,54,64,25,102,14,123,9,144,10,164,18,183,44,207,76,224,110,235,145,242,140,243,109,240,74,229,41,212,14,186,5,165,4,143,9,121,20,99,50,60,82,31"/>
+<area shape="rect" id="Node000008" title=" " alt="" coords="29,157,110,184"/>
+<area shape="poly" id="edge15_Node000001_Node000008" title=" " alt="" coords="87,36,80,56,71,82,67,112,69,142,63,141,62,112,66,80,75,54,89,31"/>
+<area shape="rect" id="Node000009" href="$hall__i2c__squares_8h.html" title="I2C Hall occupancy for the 64 squares, plus an uncalibrated piece&#45;ID POC." alt="" coords="80,81,222,109"/>
+<area shape="poly" id="edge11_Node000001_Node000009" title=" " alt="" coords="106,31,135,68,129,69,106,36"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="185,157,266,184"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="291,108,252,148,249,144,287,111"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="454,232,605,260"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="360,95,398,100,439,111,478,129,511,155,521,169,528,185,532,219,528,216,523,186,517,171,508,159,475,133,437,116,397,106,360,100"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="293,232,422,260"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="309,107,350,218,345,217,306,111"/>
+<area shape="rect" id="Node000006" href="$game__cmd_8h.html" title="Tagged game command queued by game_submit." alt="" coords="392,157,497,184"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="329,107,408,149,403,149,328,112"/>
+<area shape="poly" id="edge10_Node000002_Node000007" title=" " alt="" coords="304,107,298,146,290,166,280,186,259,208,234,226,232,222,255,205,275,183,285,164,292,144,300,111"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="260,112,126,154,124,149,262,107"/>
+<area shape="poly" id="edge6_Node000006_Node000004" title=" " alt="" coords="460,182,505,223,500,221,459,187"/>
+<area shape="poly" id="edge7_Node000006_Node000005" title=" " alt="" coords="431,184,385,225,383,220,426,186"/>
+<area shape="poly" id="edge8_Node000006_Node000007" title=" " alt="" coords="402,185,244,233,243,228,397,185"/>
+<area shape="poly" id="edge12_Node000009_Node000003" title=" " alt="" coords="165,107,204,145,199,146,164,112"/>
+<area shape="poly" id="edge14_Node000009_Node000007" title=" " alt="" coords="155,107,176,184,187,219,182,217,171,185,152,111"/>
+<area shape="poly" id="edge13_Node000009_Node000008" title=" " alt="" coords="135,111,97,148,93,144,138,107"/>
 </map>

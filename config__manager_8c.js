@@ -22,6 +22,6 @@ var config__manager_8c =
     [ "s_hint_limit", "config__manager_8c.html#ae97aa3a4f6b645c4c93c26cc1e8072fe", null ],
     [ "s_prefs_ready", "config__manager_8c.html#aa67ef7f45d98177000ea0c237debce88", null ],
     [ "s_takeback", "config__manager_8c.html#ab60ede8a978c0cae1a3603618464d04e", null ],
-    [ "s_ui_prefs_json", "config__manager_8c.html#ab1daf8783f0152c03396d466758770c9", null ],
+    [ "s_ui_prefs_json", "config__manager_8c.html#abff7e89453741983c457821a25a429f2", null ],
     [ "TAG", "config__manager_8c.html#a5a85b9c772bbeb480b209a3e6ea92b4c", null ]
 ];

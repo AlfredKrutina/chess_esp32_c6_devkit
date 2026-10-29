@@ -1,7 +1,7 @@
 <map id="position" name="position">
-<area shape="rect" id="Node000001" title=" " alt="" coords="33,181,108,207"/>
-<area shape="rect" id="Node000002" href="$structposition__hist__t.html" title=" " alt="" coords="12,93,129,119"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="73,133,73,181,68,181,68,133"/>
-<area shape="rect" id="Node000003" href="$structposition__move__t.html" title=" " alt="" coords="5,5,136,31"/>
-<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="73,45,73,93,68,93,68,45"/>
+<area shape="rect" id="Node000001" title=" " alt="" coords="33,207,107,234"/>
+<area shape="rect" id="Node000002" href="$structposition__hist__t.html" title=" " alt="" coords="12,106,128,134"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="72,148,73,207,67,205,68,151"/>
+<area shape="rect" id="Node000003" href="$structposition__move__t.html" title=" " alt="" coords="5,5,135,33"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="71,46,73,106,67,105,69,51"/>
 </map>
