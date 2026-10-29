@@ -397,12 +397,10 @@ esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
     return ESP_ERR_INVALID_ARG;
   }
 
-  uint8_t to_led = chess_notation_to_led_index(to_sq);
-  if (to_led >= 64) {
-    return ESP_ERR_INVALID_ARG;
-  }
-
-  uint8_t from_led = 64;
+  /* Chess square (rank*8+file). The painter maps that to the LED chain.
+   * An LED index here was drawn on a different square, so the move stayed dark. */
+  uint8_t to_square = (uint8_t)((to_sq[1] - '1') * 8 + (to_sq[0] - 'a'));
+  uint8_t from_square = 64;
   const char *p_from = strstr(buf, "\"from\"");
   if (p_from) {
     p_from += 6;
@@ -417,18 +415,17 @@ esp_err_t web_server_apply_hint_highlight_json_body(const char *buf) {
       from_sq[1] = p_from[1];
       if (from_sq[0] >= 'a' && from_sq[0] <= 'h' && from_sq[1] >= '1' &&
           from_sq[1] <= '8') {
-        uint8_t fl = chess_notation_to_led_index(from_sq);
-        if (fl < 64)
-          from_led = fl;
+        from_square =
+            (uint8_t)((from_sq[1] - '1') * 8 + (from_sq[0] - 'a'));
       }
     }
   }
 
-  if (!web_game_submit_hint_pixels(from_led, to_led)) {
+  if (!web_game_submit_hint_pixels(from_square, to_square)) {
     return ESP_ERR_TIMEOUT;
   }
-  ESP_LOGI(TAG, "Hint highlight: %s (LED %u -> %u)", to_sq, (unsigned)from_led,
-           (unsigned)to_led);
+  ESP_LOGI(TAG, "Hint highlight: %s (sq %u -> %u)", to_sq, (unsigned)from_square,
+           (unsigned)to_square);
   return ESP_OK;
 }
 

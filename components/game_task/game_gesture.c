@@ -868,10 +868,16 @@ void game_gesture_poll(void) {
     }
   }
   QueueHandle_t q = button_gesture_queue();
-  if (q != NULL && !s_wave_wait && !led_gesture_anim_busy()) {
+  /* The button task already started this sweep and left the hold in the
+   * queue. Reading that event only after the sweep goes idle plays it again. */
+  if (q != NULL && !s_wave_wait) {
     gesture_event_t ev;
-    if (xQueueReceive(q, &ev, 0) == pdTRUE) {
-      handle_event(ev);
+    if (xQueuePeek(q, &ev, 0) == pdTRUE) {
+      bool take = !led_gesture_anim_busy() ||
+                  (ev == GESTURE_SNAKE_START && led_gesture_snake_active());
+      if (take && xQueueReceive(q, &ev, 0) == pdTRUE) {
+        handle_event(ev);
+      }
     }
   }
   if (!game_demo_show_active()) {

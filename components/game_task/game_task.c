@@ -2080,7 +2080,8 @@ void game_task_start(void *pvParameters) {
       }
     }
 
-    // Puzzle setup / drift: green = done, white = missing, red = extra or wrong piece.
+    // Puzzle setup / drift, and the short red/green board flash.
+    game_board_flash_poll();
     {
       static uint32_t puzzle_led_ms = 0;
       uint32_t puzzle_now_ms = (uint32_t)(esp_timer_get_time() / 1000);

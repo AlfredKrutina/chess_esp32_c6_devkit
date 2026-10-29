@@ -16,6 +16,7 @@
 #include "game_physical_undo.h"
 
 #include "game_events.h"
+#include "game_led_direct.h"
 #include "game_gesture.h"
 #include "../squares_task/include/hall_i2c_squares.h"
 #include "../squares_task/include/squares_task.h"
@@ -179,6 +180,7 @@ static bool s_digest_valid;
 static uint32_t s_play_gen;
 static bool s_opening_done;
 static bool s_target_aligned;
+static bool s_target_painted;
 static bool s_opening_clock_started;
 static uint32_t s_opening_deadline_ms;
 static uint8_t s_pending_digest[64];
@@ -825,6 +827,7 @@ void game_hall_restore_guide_force_resync(void) {
   s_digest_valid = false;
   s_sync_requested = true;
   s_target_aligned = false;
+  s_target_painted = false;
 }
 
 static bool apply_opening_homes(void) {
@@ -968,7 +971,7 @@ static void handover_opening_aligned(const uint8_t digest[64]) {
   opening_clock_on_play();
   remember_digest(digest);
   game_hall_position_arm_idle_handover();
-  game_policy_refresh_idle_board_leds();
+  game_board_flash(0, 255, 0, game_policy_refresh_idle_board_leds);
 }
 
 void game_hall_restore_guide_sync(void) {
@@ -1129,10 +1132,15 @@ bool game_hall_restore_guide_show_target(void) {
   squares_get_state(occ);
   digest_sensors(occ, digest);
   now_ms = (uint32_t)(esp_timer_get_time() / 1000);
-  if (!guide_digest_settled(digest, now_ms)) {
+  /* A cleared guide must be drawn again even if the sensors did not move.
+   * Hall used to cancel the first picture and this latch then kept it off. */
+  if (s_digest_valid && sensors_unchanged(digest) &&
+      (s_target_aligned || s_guide_led_active)) {
     return s_target_aligned;
   }
-  if (s_digest_valid && sensors_unchanged(digest)) {
+  /* First picture is immediate. Later changes wait out sensor chatter. */
+  if (s_guide_led_active && s_target_painted &&
+      !guide_digest_settled(digest, now_ms)) {
     return s_target_aligned;
   }
   s_in_sync = true;
@@ -1140,8 +1148,9 @@ bool game_hall_restore_guide_show_target(void) {
     s_in_sync = false;
     return s_target_aligned;
   }
-  remember_digest(digest);
   if (aligned) {
+    remember_digest(digest);
+    s_target_painted = true;
     if (s_guide_led_active) {
       game_hall_restore_guide_release();
     }
@@ -1149,10 +1158,18 @@ bool game_hall_restore_guide_show_target(void) {
     s_in_sync = false;
     return true;
   }
+  /* mark_count 0 is a clear on the LED task, so do not post it. */
+  if (plan->mark_count == 0) {
+    s_target_aligned = false;
+    s_in_sync = false;
+    return false;
+  }
   plan->active = true;
   game_event_post_restore(plan, GAME_EVT_RESTORE_OP_APPLY);
   s_guide_led_active = true;
+  s_target_painted = true;
   s_target_aligned = false;
+  remember_digest(digest);
   s_in_sync = false;
   return false;
 }
@@ -1179,6 +1196,9 @@ void game_hall_restore_guide_sync_play(void) {
   uint32_t now_ms;
 
   if (s_in_sync || !s_opening_done || play_sensors_blocked()) {
+    return;
+  }
+  if (game_coach_hint_is_set()) {
     return;
   }
 #if HALL_DEBUG_LIGHT_WHERE_PIECE

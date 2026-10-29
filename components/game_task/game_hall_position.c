@@ -43,7 +43,6 @@ static const char *TAG = "HALL_POS";
 #define HALL_POS_STABLE_MS 150U
 #define HALL_POS_TAKEBACK_MS 600U
 #define HALL_POS_DIFF_CAP 8
-#define HALL_CONTRA_SCANS 4
 #define HALL_CONTRA_MS 700U
 #define HINT_CAP 8
 
@@ -62,12 +61,9 @@ static uint8_t s_cyan_sq[8];
 static uint8_t s_cyan_n;
 static uint8_t s_lift_sq;
 static uint32_t s_eq_contra_ms;
-static uint8_t s_prev_contra;
 static chess_move_t s_pending_move;
 static bool s_pending_valid;
 static bool s_takeback_off_said;
-static bool s_resign_ring;
-static bool s_resign_latched;
 static bool s_chaos_restore;
 static bool s_idle_handover;
 static bool s_chaos_match;
@@ -593,7 +589,6 @@ static bool try_ep_partial(const uint8_t occ[64]) {
   uint8_t victim;
   uint8_t sq;
   uint8_t used[3];
-  bool pawn_home, pawn_dest, victim_here;
   if (!en_passant_available) {
     return false;
   }
@@ -620,26 +615,22 @@ static bool try_ep_partial(const uint8_t occ[64]) {
     if (game_is_valid_move(&move) != MOVE_ERROR_NONE) {
       continue;
     }
+    /* Another pawn may also be allowed to capture. Only the one that
+     * has left home and landed counts. Identity on the landing square
+     * must not lose to the wrong-move guide. */
+    if (occ[sq] != 0 || occ[to] == 0 || occ[victim] == 0) {
+      continue;
+    }
+    used[0] = sq;
+    used[1] = to;
+    used[2] = victim;
+    if (!diffs_only_on(occ, used, 3)) {
+      continue;
+    }
     from = sq;
     break;
   }
   if (from == 255) {
-    return false;
-  }
-  pawn_home = occ[from] != 0;
-  pawn_dest = occ[to] != 0;
-  victim_here = occ[victim] != 0;
-  /* Only the landed partial: capturer on the empty square, victim still there. */
-  if (pawn_home || !pawn_dest || !victim_here) {
-    return false;
-  }
-  if (!landing_accepts(s_last_valid[from / 8][from % 8], to)) {
-    return false;
-  }
-  used[0] = from;
-  used[1] = to;
-  used[2] = victim;
-  if (!diffs_only_on(occ, used, 3)) {
     return false;
   }
   s_ep_paint = true;
@@ -1043,22 +1034,13 @@ static game_hall_pos_class_t classify(const uint8_t occ[64], chess_move_t *legal
       return GAME_HALL_POS_RESTORE;
     }
     s_takeback_off_said = false;
-    if (identity_clear(previous, occ)) {
-      s_prev_contra = 0;
-      clear_rook_convert();
-      fill_cyan(occ);
-      return GAME_HALL_POS_PREVIOUS;
-    }
-    if (s_prev_contra < 255) {
-      s_prev_contra++;
-    }
-    if (s_prev_contra < HALL_CONTRA_SCANS) {
-      clear_rook_convert();
-      fill_cyan(occ);
-      return GAME_HALL_POS_PREVIOUS;
-    }
+    /* Occupancy already matches the previous position. A dirty Hall
+     * identity must not fall through into the wrong-move guide before
+     * the takeback timer, or en passant undo never starts. */
+    clear_rook_convert();
+    fill_cyan(occ);
+    return GAME_HALL_POS_PREVIOUS;
   } else {
-    s_prev_contra = 0;
     s_takeback_off_said = false;
   }
 
@@ -1104,7 +1086,7 @@ static game_hall_pos_class_t classify(const uint8_t occ[64], chess_move_t *legal
 static bool special_mode_holds(void) {
   if (game_demo_show_active() || (*game_state_promotion_state()).pending ||
       game_ep_capture_waiting() || game_is_opening_trainer_active() ||
-      game_is_puzzle_active()) {
+      game_is_puzzle_active() || game_is_puzzle_setup_active()) {
     return true;
   }
   return false;
@@ -1203,6 +1185,9 @@ static void show_own_lift(uint8_t sq) {
     game_board_set_piece_lifted(true, row, col, piece);
   }
   game_event_publish_lift_hints(sq);
+  if (game_is_puzzle_active()) {
+    game_puzzle_paint_lift(sq);
+  }
 }
 
 static void show_castle_partial(const uint8_t occ[64]) {
@@ -1252,7 +1237,9 @@ static void show_ep_partial(const uint8_t occ[64]) {
     return;
   }
   s_lift_shown = true;
-  /* Full frame: only the pawn that must leave the board. */
+  /* Full frame: only the pawn that must leave the board.
+   * Drop a move trail that the wrong-move guide or a normal move painted. */
+  game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
   game_led_frame_begin(0, false);
   game_hall_restore_guide_stop_leds();
   game_led_frame_sq((uint8_t)(s_ep_victim / 8), (uint8_t)(s_ep_victim % 8), 255,
@@ -1293,11 +1280,6 @@ static void note_class(game_hall_pos_class_t kind) {
   if (kind == prev) {
     return;
   }
-  if (prev == GAME_HALL_POS_MOVE_PARTIAL && s_resign_ring) {
-    s_resign_ring = false;
-    s_resign_latched = false;
-    game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_CANCEL, 0, 0, 0, 0);
-  }
   if (prev == GAME_HALL_POS_PREVIOUS) {
     game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
   }
@@ -1307,6 +1289,10 @@ static void note_class(game_hall_pos_class_t kind) {
   s_guide_drawn = false;
   s_lift_shown = false;
   s_pending_valid = false;
+  /* Wrong-move guide must not stay up over en passant or a takeback. */
+  if (kind == GAME_HALL_POS_EP_PARTIAL || kind == GAME_HALL_POS_PREVIOUS) {
+    game_hall_restore_guide_stop_leds();
+  }
   if (prev == GAME_HALL_POS_EP_PARTIAL &&
       (kind == GAME_HALL_POS_ONE_LEGAL || kind == GAME_HALL_POS_RESTORE)) {
     game_led_frame_begin(0, false);
@@ -1336,8 +1322,7 @@ void game_hall_position_enter_chaos_restore(void) {
   hold_timer();
   note_class(GAME_HALL_POS_RESTORE);
   s_attention = false;
-  s_resign_ring = false;
-  s_resign_latched = false;
+  resignation_stop(false);
   game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_STOP, 0, 0, 0, 0);
   game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
   s_lift_shown = false;
@@ -1348,9 +1333,7 @@ void game_hall_position_enter_chaos_restore(void) {
 static void paint_for_class(const uint8_t occ[64]) {
   if (s_class == GAME_HALL_POS_MOVE_PARTIAL && s_lift_sq < 64) {
     release_timer();
-    if (!s_resign_ring) {
-      show_own_lift(s_lift_sq);
-    }
+    show_own_lift(s_lift_sq);
     return;
   }
   if (s_class == GAME_HALL_POS_CASTLE_PARTIAL && s_castle_paint) {
@@ -1378,35 +1361,48 @@ static void paint_for_class(const uint8_t occ[64]) {
   }
 }
 
-static void service_unchanged(uint32_t now_ms) {
-  uint32_t held = (uint32_t)(now_ms - s_class_since_ms);
-  if (!s_chaos_restore && s_class == GAME_HALL_POS_MOVE_PARTIAL && s_lift_sq < 64 &&
-      current_game_state != GAME_STATE_FINISHED) {
-    piece_t lifted = s_last_valid[s_lift_sq / 8][s_lift_sq % 8];
-    bool king = (lifted == PIECE_WHITE_KING || lifted == PIECE_BLACK_KING) &&
-                hall_side_owns(lifted);
-    if (king) {
-      release_timer();
-      if (held >= 10000U) {
-        if (!s_resign_latched) {
-          s_resign_latched = true;
-          s_resign_ring = false;
-          game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_STOP, 0, 0, 0, 0);
-          game_resign_from_king_hold(current_player);
-        }
-        return;
+/* Own king off its square, and nowhere else. Class flicker must not
+ * eat the 10 s hold. The ring and the timeout live in resignation_tick. */
+static void service_own_king_hold(const uint8_t occ[64]) {
+  piece_t king;
+  int missing = 0;
+  int extra = 0;
+  int king_sq = -1;
+  uint8_t sq;
+  if (game_demo_show_active() ||
+      (current_game_state != GAME_STATE_ACTIVE &&
+       current_game_state != GAME_STATE_PLAYING)) {
+    if ((*game_state_resignation_state()).active) {
+      resignation_stop(false);
+    }
+    return;
+  }
+  king = (current_player == PLAYER_WHITE) ? PIECE_WHITE_KING : PIECE_BLACK_KING;
+  for (sq = 0; sq < 64; sq++) {
+    piece_t expect = s_last_valid[sq / 8][sq % 8];
+    if (expect != PIECE_EMPTY && occ[sq] == 0) {
+      missing++;
+      if (expect == king) {
+        king_sq = (int)sq;
       }
-      if (held >= 4000U && !s_resign_ring) {
-        s_resign_ring = true;
-        game_led_clear_board();
-        game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_START,
-                                 (uint8_t)(s_lift_sq / 8),
-                                 (uint8_t)(s_lift_sq % 8),
-                                 current_player == PLAYER_WHITE, 0);
-        game_cmd_reply("Hold the king to resign.", false, NULL);
-      }
+    } else if (expect == PIECE_EMPTY && occ[sq] != 0) {
+      extra++;
     }
   }
+  if (missing == 1 && extra == 0 && king_sq >= 0) {
+    if (!(*game_state_resignation_state()).active) {
+      resignation_start(current_player, (uint8_t)(king_sq / 8),
+                        (uint8_t)(king_sq % 8));
+    }
+    return;
+  }
+  if ((*game_state_resignation_state()).active) {
+    resignation_stop(false);
+  }
+}
+
+static void service_unchanged(uint32_t now_ms) {
+  uint32_t held = (uint32_t)(now_ms - s_class_since_ms);
   if (!s_chaos_restore && s_class == GAME_HALL_POS_PREVIOUS &&
       held >= HALL_POS_TAKEBACK_MS) {
     uint8_t flash_n = s_cyan_n;
@@ -1476,6 +1472,10 @@ static void service_unchanged(uint32_t now_ms) {
           /* Undo clears the captured trail. Fade straight to the next hints. */
           game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
           game_policy_refresh_idle_board_leds();
+        } else if (game_ep_capture_waiting()) {
+          /* Victim is still on the board. The orange square owns the
+           * picture until it is lifted. A green move trail would cover it. */
+          game_event_post_led_ctrl(GAME_EVT_CTRL_TRAIL_CANCEL, 0, 0, 0, 0);
         } else {
           game_event_post_led_ctrl(GAME_EVT_CTRL_COLLAPSE, 0, 0, 0, 0);
           game_policy_refresh_idle_board_leds();
@@ -1536,8 +1536,7 @@ void game_hall_snapshot_last_valid(void) {
   }
   s_digest_valid = false;
   s_class = GAME_HALL_POS_EQUAL;
-  s_resign_ring = false;
-  s_resign_latched = false;
+  resignation_stop(false);
   s_takeback_off_said = false;
   game_event_post_led_ctrl(GAME_EVT_CTRL_RESIGN_STOP, 0, 0, 0, 0);
   game_event_post_led_ctrl(GAME_EVT_CTRL_TAKEBACK_CLEAR, 0, 0, 0, 0);
@@ -1548,7 +1547,6 @@ void game_hall_snapshot_last_valid(void) {
   s_attention = false;
   clear_rook_convert();
   s_eq_contra_ms = 0;
-  s_prev_contra = 0;
   s_hint_n = 0;
   game_board_set_piece_lifted(false, 0, 0, PIECE_EMPTY);
   capture_in_progress = false;
@@ -1681,6 +1679,11 @@ void game_hall_position_service(void) {
     game_start_new_game();
     return;
   }
+  /* Puzzle setup owns the restore picture. Classifying here cancels it,
+   * and idle lights stay off, so the board goes dark. */
+  if (game_is_puzzle_setup_active()) {
+    return;
+  }
   if (game_get_move_count() == 0 && !game_hall_restore_guide_in_play()) {
     return;
   }
@@ -1704,6 +1707,7 @@ void game_hall_position_service(void) {
   }
 
   squares_get_state(occ);
+  service_own_king_hold(occ);
   pack_occ(occ, digest);
   now_ms = (uint32_t)(esp_timer_get_time() / 1000);
   digest_changed = !s_digest_valid || memcmp(digest, s_occ_digest, 8) != 0;

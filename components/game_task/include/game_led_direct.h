@@ -164,6 +164,12 @@ void game_led_clear_board(void);
 /** Stored app hint. Painted into an already open LED frame. */
 void game_coach_hint_clear(void);
 void game_coach_hint_paint(void);
+bool game_coach_hint_is_set(void);
+
+/** Full-board color for ~300 ms, then [then] redraws the real picture. */
+void game_board_flash(uint8_t r, uint8_t g, uint8_t b, void (*then)(void));
+bool game_board_flash_active(void);
+void game_board_flash_poll(void);
 
 #ifdef __cplusplus
 }

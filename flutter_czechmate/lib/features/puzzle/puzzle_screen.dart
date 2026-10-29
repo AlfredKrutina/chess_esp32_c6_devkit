@@ -495,9 +495,9 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
           '[staging] puzzle sent plies=${line.moves.length} kind=$lineKind',
         );
       }
-      if (mounted) {
-        showAppSnackBar(context, context.l10n.puzzleNewGameSentSnack);
-      }
+      if (!mounted) return;
+      showAppSnackBar(context, context.l10n.puzzleNewGameSentSnack);
+      focusPlayTab(ref, context);
     } catch (e) {
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
@@ -640,25 +640,35 @@ class _PuzzleScreenState extends ConsumerState<PuzzleScreen>
                             gameUi.puzzleChallenge!.solverPlies,
                           ),
                   ),
-                  trailing: TextButton.icon(
+                  trailing: boardPuzzleLive
+                      ? Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextButton(
+                              onPressed: () => focusPlayTab(ref, context),
+                              child: Text(l10n.gameReturnLive),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                try {
+                                  await ref
+                                      .read(boardSessionNotifierProvider.notifier)
+                                      .cancelPuzzle();
+                                } catch (_) {}
+                                if (!context.mounted) return;
+                                focusPlayTab(ref, context);
+                              },
+                              child: Text(l10n.commonCancel),
+                            ),
+                          ],
+                        )
+                      : TextButton.icon(
                     icon: const Icon(Icons.sports_esports_outlined),
                     label: Text(l10n.gameReturnLive),
                     onPressed: () async {
                       await ref
                           .read(gameUiNotifierProvider.notifier)
                           .returnToLiveGame();
-                      final still = ref
-                          .read(boardSessionNotifierProvider)
-                          .snapshot
-                          ?.status
-                          .puzzle;
-                      if (still?.active == true || still?.setupActive == true) {
-                        try {
-                          await ref
-                              .read(boardSessionNotifierProvider.notifier)
-                              .cancelPuzzle();
-                        } catch (_) {}
-                      }
                       if (!context.mounted) return;
                       focusPlayTab(ref, context);
                     },

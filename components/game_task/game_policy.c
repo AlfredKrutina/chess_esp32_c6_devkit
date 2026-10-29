@@ -206,11 +206,14 @@ void game_policy_highlight_movable_if_enabled(void) {
 
 void game_policy_refresh_idle_board_leds(void) {
 #if CONFIG_CHESS_MATRIX_INPUT_I2C_HALL
-  if (game_hall_restore_guide_is_active()) {
-    return;
-  }
-  if (game_hall_position_blocks_idle_leds()) {
-    return;
+  /* The app's best move must still light when a guide owns the idle picture. */
+  if (!game_coach_hint_is_set()) {
+    if (game_hall_restore_guide_is_active()) {
+      return;
+    }
+    if (game_hall_position_blocks_idle_leds()) {
+      return;
+    }
   }
 #endif
   if (piece_lifted || castling_state.in_progress ||

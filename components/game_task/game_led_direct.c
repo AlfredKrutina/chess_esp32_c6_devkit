@@ -5,6 +5,7 @@
 
 #include "game_task.h"
 #include "game_led_direct.h"
+#include "game_led_direct.h"
 #include "game_board_core.h"
 #include "game_policy.h"
 #include "game_board_machine.h"
@@ -13,6 +14,7 @@
 #include "game_events.h"
 #include "led_mapping.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 
 static const char *TAG = "GAME_LED_DIRECT";
 
@@ -29,12 +31,54 @@ static uint8_t s_acc_n;
 static bool s_coach_on;
 static uint8_t s_coach_from = 255;
 static uint8_t s_coach_to = 255;
+static bool s_flash_on;
+static uint32_t s_flash_until_ms;
+static void (*s_flash_then)(void);
+
+#define BOARD_FLASH_MS 300U
+
+void game_board_flash(uint8_t r, uint8_t g, uint8_t b, void (*then)(void)) {
+  uint8_t row;
+  uint8_t col;
+  s_flash_then = then;
+  s_flash_until_ms = (uint32_t)(esp_timer_get_time() / 1000) + BOARD_FLASH_MS;
+  s_flash_on = true;
+  game_led_frame_begin(0, false);
+  for (row = 0; row < 8; row++) {
+    for (col = 0; col < 8; col++) {
+      game_led_frame_sq(row, col, r, g, b);
+    }
+  }
+  game_led_frame_end();
+}
+
+bool game_board_flash_active(void) { return s_flash_on; }
+
+void game_board_flash_poll(void) {
+  void (*then)(void);
+  uint32_t now_ms;
+  if (!s_flash_on) {
+    return;
+  }
+  now_ms = (uint32_t)(esp_timer_get_time() / 1000);
+  if ((int32_t)(now_ms - s_flash_until_ms) < 0) {
+    return;
+  }
+  s_flash_on = false;
+  then = s_flash_then;
+  s_flash_then = NULL;
+  if (then != NULL) {
+    then();
+  }
+}
 
 void game_coach_hint_clear(void) {
   s_coach_on = false;
   s_coach_from = 255;
   s_coach_to = 255;
 }
+
+bool game_coach_hint_is_set(void) { return s_coach_on; }
 
 void game_coach_hint_paint(void) {
   uint8_t row;
